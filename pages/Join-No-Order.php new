@@ -1,0 +1,282 @@
+<?php
+session_start();
+include "koneksi.php";
+
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Status Matching</title>
+</head>
+<style>
+    .dataTables_wrapper .myfilter .dataTables_filter {
+        float: left
+    }
+
+    .dataTables_wrapper .mylength .dataTables_length {
+        float: right
+    }
+
+    #Table-join_filter label input.form-control {
+        width: 500px;
+    }
+
+    th {
+        font-size: 10pt;
+    }
+
+    td {
+        font-size: 9pt;
+    }
+
+    #Table-join td,
+    #Table-join th {
+        border: 0.1px solid #ddd;
+    }
+
+    #Table-join th {
+        color: black;
+        background: #4CAF50;
+    }
+
+    #Table-join tr:hover {
+        background-color: rgb(151, 170, 212);
+    }
+
+    .input-xs {
+        height: 22px !important;
+        padding: 2px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+        border-radius: 3px;
+    }
+
+    .text-bold {
+        font-weight: bold;
+        font-style: italic;
+        font-family: sans-serif;
+    }
+
+    .input-group-xs>.form-control,
+    .input-group-xs>.input-group-addon,
+    .input-group-xs>.input-group-btn>.btn {
+        height: 22px;
+        padding: 1px 5px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+</style>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        $('#Table-join tfoot th').each( function () {
+            var title = $(this).text();
+            $(this).html( '<input type="text" style=”width:5px;” placeholder="Search '+title+'" />' );
+        } );
+
+        var dataTable = $('#Table-join').DataTable({
+            initComplete: function () {
+            // Apply the search
+            this.api().columns().every( function () {
+                var that = this;
+ 
+                $( 'input', this.footer() ).on( 'keyup change clear', function () {
+                    if ( that.search() !== this.value ) {
+                        that
+                            .search( this.value )
+                            .draw();
+                    }
+                } );
+            } );
+            },
+            responsive: true,
+            "processing": true,
+            "serverSide": true,
+            "order": [
+                [0, 'desc']
+            ],
+            "pageLength": 25,
+            // dom: "<'myfilter'f><'mylength'l>t",
+            "ajax": {
+                url: "pages/ajax/data_server_join_order.php",
+                type: "post",
+                error: function() {
+                    $(".dataku-error").html("");
+                    $("#dataku").append('<tbody class="dataku-error"><tr><th colspan="3">Tidak ada data untuk ditampilkan</th></tr></tbody>');
+                    $("#dataku-error-proses").css("display", "none");
+                }
+            },
+            "columnDefs": [{
+                "targets": [0, 1, 2],
+                "className": "text-center"
+            }, {
+                "targets": [3],
+                "className": "text-bold"
+            }, {
+                "visible": false,
+                "targets": [2]
+            }, {
+                "orderable": false,
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+            }],
+            language: {
+                searchPlaceholder: "Search..."
+            },
+        });
+
+        new $.fn.dataTable.FixedHeader(dataTable);
+    });
+</script>
+
+<body>
+    <div class="row">
+        <div class="box">
+            <div class="box-header with-border">
+                <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">
+                    <table id="Table-join" class="table table-sm display compact" style="width: 100%;">
+                        <thead class="alert-success">
+                            <tr style="border: 1px solid #ddd;">
+                                <th style="border: 1px solid #ddd;">####</th>
+                                <th style="border: 1px solid #ddd;">J.matching</th>
+                                <th style="border: 1px solid #ddd;">Matcher</th>
+                                <th style="border: 1px solid #ddd;">Rcode</th>
+                                <th style="border: 1px solid #ddd;">No.Order</th>
+                                <th style="border: 1px solid #ddd;">Langganan</th>
+                                <th style="border: 1px solid #ddd;">Warna</th>
+                                <th style="border: 1px solid #ddd;">No.warna</th>
+                                <th style="border: 1px solid #ddd;">No.item</th>
+                                <th style="border: 1px solid #ddd;">Po.greige</th>
+                                <th style="border: 1px solid #ddd;">Cck-warna</th>
+                                <th style="border: 1px solid #ddd;">Tg.apprv</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- i do some magic here dude -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>####</th>
+                                <th>J.matching</th>
+                                <th>Matcher</th>
+                                <th>Rcode</th>
+                                <th>No.Order</th>
+                                <th>Langganan</th>
+                                <th>Warna</th>
+                                <th>No.warna</th>
+                                <th>No.item</th>
+                                <th>Po.greige</th>
+                                <th>Cck-warna</th>
+                                <th>Tg.apprv</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade modal-3d-slit" id="ModalMergeOrder" data-backdrop="static" data-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div id="body_ModalMergeOrder" class="modal-dialog" style="width:95%">
+
+        </div>
+    </div>
+</body>
+<script>
+    $(document).on('click', '._merge', function(e) {
+        var m = $(this).attr("data-attribute");
+        $.ajax({
+            url: "pages/ajax/modal_merge_order.php",
+            type: "GET",
+            data: {
+                idm: m,
+            },
+            success: function(ajaxData) {
+                $("#body_ModalMergeOrder").html(ajaxData);
+                $("#ModalMergeOrder").modal('show', {
+                    backdrop: 'false'
+                });
+            }
+        });
+    });
+    $(document).on('click', '._arsip', function(e) {
+        let id_status = $(this).attr('data-pk');
+        let r_code = $(this).attr('data-rcode');
+        Swal.fire({
+            title: 'Arsipkan Status ' + r_code,
+            input: 'select',
+            inputOptions: {
+                'Status': {
+                    selesai: 'selesai',
+                    arsip: 'arsip',
+                }
+            },
+            inputPlaceholder: '-Pilih Status-',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return new Promise((resolve) => {
+                    if (value === 'arsip') {
+                        $.ajax({
+                            dataType: "json",
+                            type: "POST",
+                            url: 'pages/ajax/action_arsip_resep.php',
+                            data: {
+                                id_status: id_status,
+                                arsip: value,
+                            },
+                            success: function(response) {
+                                toastr.success('Resep telah di arsipkan');
+                                Swal.close()
+                                Location.reload()
+                            },
+                            error: function() {
+                                alert("Error");
+                            }
+                        });
+
+                    } else {
+                        resolve('You need to select arsip !')
+                    }
+                })
+            },
+        })
+    });
+    $(document).ready(function() {
+        $("#ModalMergeOrder").on("hidden.bs.modal", function() {
+            $("#body_ModalMergeOrder").empty();
+        });
+    })
+</script>
+<script type="text/javascript">
+    var spinner = new jQuerySpinner({
+        parentId: 'block-full-page'
+    });
+
+    function disableScroll() {
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+            window.onscroll = function() {
+                window.scrollTo(scrollLeft, scrollTop);
+            };
+    }
+
+    function enableScroll() {
+        window.onscroll = function() {};
+    }
+
+    function SpinnerShow() {
+        spinner.show();
+        disableScroll()
+    }
+
+    function SpinnerHide() {
+        setTimeout(function() {
+            spinner.hide();
+            enableScroll();
+            window.location.href = 'index1.php?p=Wait-approval';
+        }, 1000);
+    }
+</script>
+
+</html>

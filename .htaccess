@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteRule ^login$ login.php [L]
+RewriteRule ^login$ index.php [L]
+RewriteRule ^lockscreen$ lockscreen.php [L]
+RewriteRule ^logout$ login.php?act=logout [L]
+RewriteRule ^([a-zA-Z0-9_-]+)$ index1.php?p=$1 [L]
+RewriteRule ^([a-zA-Z0-9_-]+)/$ index1.php?p=$1 [L]
+
+Options All -Indexes

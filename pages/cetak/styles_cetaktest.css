@@ -1,0 +1,60 @@
+/* CSS Document */
+
+body,td,th {
+  /* font-family: Courier New, Courier, monospace; */ 
+	font-family:sans-serif, Roman, serif; 
+	
+}
+body{
+	margin:0px auto 0px;
+	padding:3px;
+	font-size:12px;
+	color:#333;
+	width:98%;
+	background-position:top;
+	background-color:#fff;
+}
+.table-list {
+	clear: both;
+	text-align: left;
+	border-collapse: collapse;
+	margin: 0px 0px 10px 0px;
+	background:#fff;	
+}
+.table-list td {
+	color: #333;
+	font-size:12px;
+	border-color: #fff;
+	border-collapse: collapse;
+	vertical-align: center;
+	padding: 3px 5px;
+	border-bottom:1px #CCCCCC solid;
+	
+}
+.table-list1 {
+	clear: both;
+	text-align: left;
+	border-collapse: collapse;
+	margin: 0px 0px 10px 0px;
+	background:#fff;	
+}
+.table-list1 td {
+	color: #333;
+	font-size:12px;
+	border-color: #fff;
+	border-collapse: collapse;
+	vertical-align: center;
+	padding: 3px 5px;
+	border-bottom:1px #CCCCCC solid;
+	border-top:2px #CCCCCC solid;
+	border-left:2px #CCCCCC solid;
+	border-right:2px #CCCCCC solid;
+	
+	
+}
+   #cetak{
+  margin: 0;
+   }
+    
+  
+ 
