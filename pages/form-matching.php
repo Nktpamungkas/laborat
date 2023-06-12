@@ -1558,7 +1558,15 @@
 				$r_benang_booking_blm_ready5		= db2_fetch_assoc($sql_benang_booking_blm_ready5);
 				$d_benang_booking_blm_ready5		= $r_benang_booking_blm_ready5['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready5['ORIGDLVSALORDLINESALORDERCODE'];																			
 			?>
-			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?= $d_benang_rajut; ?>&#13;&#10;<?= $d_benang_booking_new; ?>&#13;&#10;<?= $d_benang_booking_blm_ready; ?>&#13;&#10;<?= $d_benang_booking_blm_ready2; ?>&#13;&#10;<?= $d_benang_booking_blm_ready3; ?>&#13;&#10;<?= $d_benang_booking_blm_ready4; ?>&#13;&#10;<?= $d_benang_booking_blm_ready5; ?></textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang">
+				<?php if($d_benang_rajut){ echo $d_benang_rajut; } ?>&#13;&#10;
+				<?php if($d_benang_booking_new){ echo $d_benang_booking_new; } ?>&#13;&#10;
+				<?php if($d_benang_booking_blm_ready){ echo $d_benang_booking_blm_ready; } ?>&#13;&#10;
+				<?php if($d_benang_booking_blm_ready2){ echo $d_benang_booking_blm_ready2; } ?>&#13;&#10;
+				<?php if($d_benang_booking_blm_ready3){ echo $d_benang_booking_blm_ready3; } ?>&#13;&#10;
+				<?php if($d_benang_booking_blm_ready4){ echo $d_benang_booking_blm_ready4; } ?>&#13;&#10;
+				<?php if($d_benang_booking_blm_ready5){ echo $d_benang_booking_blm_ready4; } ?>
+			</textarea>
 		</div>
 	</div>
 	<!-- HIDDEN VALUE -->
