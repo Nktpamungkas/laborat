@@ -50,130 +50,130 @@
 			$jns_match	= $_GET['jn_mcng'];
 			// QUERY untuk Standart Cocok Warna Dan Lap Dip
 			$stdcckwarna_lapdip = "CASE
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END			
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-									END AS LABDIPNO,
-									CASE
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Labdip - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Labdip - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'First Lot - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'First Lot - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN   
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Original - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Original - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Previous Order - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Previous Order - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Master Color - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Master Color - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN  
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Lampiran Buyer - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Lampiran Buyer - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Body - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Body - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END
-									END AS STDCCKWARNA,";
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END			
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+													ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+												END	
+										END AS LABDIPNO,
+										CASE
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Labdip - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Labdip - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'First Lot - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'First Lot - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN   
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Original - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Original - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+												END	
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Previous Order - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Previous Order - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+												END
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Master Color - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Master Color - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+												END
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN  
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Lampiran Buyer - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Lampiran Buyer - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+												END
+											WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
+												CASE
+													WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Body - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+													ELSE 'Body - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+												END
+										END AS STDCCKWARNA,";
 
 			if ($jns_match == "Matching Ulang NOW" or $jns_match == "Perbaikan NOW") {
 				$query_langganan = db2_exec($conn1, "SELECT TRIM(s.CODE) AS PROJECTCODE, TRIM(ip.LANGGANAN) AS LANGGANAN, TRIM(ip.BUYER) AS BUYER
-														FROM SALESORDER s 
-														LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
-														WHERE s.CODE LIKE '%$order%'");
+															FROM SALESORDER s 
+															LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+															WHERE s.CODE LIKE '%$order%'");
 				$dt_langganan = db2_fetch_assoc($query_langganan);
 			} else if ($jns_match == "LD NOW") {
 				$query_langganan = db2_exec($conn1, "SELECT TRIM(s.CODE) AS PROJECTCODE, TRIM(ip.LANGGANAN) AS LANGGANAN, TRIM(ip.BUYER) AS BUYER
-														FROM SALESORDER s 
-														LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
-														WHERE s.CODE LIKE '%$order%'");
+															FROM SALESORDER s 
+															LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+															WHERE s.CODE LIKE '%$order%'");
 				$dt_langganan = db2_fetch_assoc($query_langganan);
 			} else {
 				$sqlLot = sqlsrv_query($conn, "SELECT
-													x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
-													dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
-												FROM( SELECT
-													so.CustomerID, so.BuyerID,
-													sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
-													pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
-													pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
-												FROM
-													SalesOrders so INNER JOIN
-													JobOrders jo ON jo.SOID=so.ID INNER JOIN
-													SODetails sod ON so.ID = sod.SOID INNER JOIN
-													SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
-													ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
-													ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
-													ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
-													ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
-													ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
-												WHERE jo.DocumentNo='" . $_GET['idk'] . "' AND pcb.Gross<>'0'
-													GROUP BY
-														so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
-														sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
-														soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
-														pcb.ID, pcb.DocumentNo, pcb.Gross,
-														pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
-														pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
-													) x INNER JOIN
-													ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
-													Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
-													Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
-													Partners cust ON x.CustomerID = cust.ID LEFT JOIN
-													Partners buy ON x.BuyerID = buy.ID LEFT JOIN
-													UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
-													UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
-													UnitDescription udb ON x.BatchUnitID = udb.ID
-												ORDER BY
-													x.SODID, x.PCBID");
+														x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
+														dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
+													FROM( SELECT
+														so.CustomerID, so.BuyerID,
+														sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
+														pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
+														pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
+													FROM
+														SalesOrders so INNER JOIN
+														JobOrders jo ON jo.SOID=so.ID INNER JOIN
+														SODetails sod ON so.ID = sod.SOID INNER JOIN
+														SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
+														ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
+														ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
+														ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
+														ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
+														ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
+													WHERE jo.DocumentNo='" . $_GET['idk'] . "' AND pcb.Gross<>'0'
+														GROUP BY
+															so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
+															sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
+															soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
+															pcb.ID, pcb.DocumentNo, pcb.Gross,
+															pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
+															pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
+														) x INNER JOIN
+														ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
+														Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
+														Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
+														Partners cust ON x.CustomerID = cust.ID LEFT JOIN
+														Partners buy ON x.BuyerID = buy.ID LEFT JOIN
+														UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
+														UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
+														UnitDescription udb ON x.BatchUnitID = udb.ID
+													ORDER BY
+														x.SODID, x.PCBID");
 				$sLot = sqlsrv_fetch_array($sqlLot);
 
 				$cLot = sqlsrv_num_rows($sqlLot);
@@ -194,8 +194,8 @@
 				$rowLot = sqlsrv_fetch_array($qryLot1);
 
 				$sqls = sqlsrv_query($conn, "select salesorders.customerid,salesorders.buyerid from Joborders
-					left join salesorders on soid= salesorders.id
-					where JobOrders.documentno='$_GET[idk]'", array(), array("Scrollable" => 'static'));
+						left join salesorders on soid= salesorders.id
+						where JobOrders.documentno='$_GET[idk]'", array(), array("Scrollable" => 'static'));
 				$ssr = sqlsrv_fetch_array($sqls);
 				$cek = sqlsrv_num_rows($sqls);
 				$lgn1 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[customerid]'");
@@ -207,18 +207,18 @@
 	?>
 	<?php
 		$sqljkd = sqlsrv_query($conn, "select processcontrol.id as pcid,processcontrolJO.SODID,salesorders.ponumber,joborders.documentno,
-											processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
-											salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
-											SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
-											Left join salesorders on soid= salesorders.id
-											Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
-												Left join SODetails on SalesOrders.id=SODetails.SOID
-											left join productmaster on productmaster.id= SODetails.productid
-											left join productpartner on productpartner.productid= SODetails.productid
-												left join processcontrolJO on processcontrolJO.joid = Joborders.id
-												left join processcontrol on processcontrolJO.pcid = processcontrol.id
-											left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-											where productmaster.id='$_GET[iditem]' and processcontrol.productid='$_GET[iditem]' and JobOrders.documentno='$_GET[idk]' ", array(), array("Scrollable" => 'static'));
+												processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
+												salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
+												SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
+												Left join salesorders on soid= salesorders.id
+												Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
+													Left join SODetails on SalesOrders.id=SODetails.SOID
+												left join productmaster on productmaster.id= SODetails.productid
+												left join productpartner on productpartner.productid= SODetails.productid
+													left join processcontrolJO on processcontrolJO.joid = Joborders.id
+													left join processcontrol on processcontrolJO.pcid = processcontrol.id
+												left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
+												where productmaster.id='$_GET[iditem]' and processcontrol.productid='$_GET[iditem]' and JobOrders.documentno='$_GET[idk]' ", array(), array("Scrollable" => 'static'));
 		$r1 = sqlsrv_fetch_array($sqljkd);
 		$cek1 = sqlsrv_num_rows($sqljkd);
 	?>
@@ -249,48 +249,48 @@
 			// } else if ($_POST['jen_matching'] == "Perbaikan NOW") {
 			// 	$jnsMtch = "Perbaikan";
 			// } else {
-				$jnsMtch = $_POST['jen_matching'];
+			$jnsMtch = $_POST['jen_matching'];
 			// }
 
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
-				no_resep='$no_resep',
-				no_order='$_POST[no_order]',
-				no_po='$_POST[no_po]',
-				langganan='$langganan',
-				no_item='$_POST[no_item1]',
-				jenis_kain='$kain',
-				benang='$benang',
-				tgl_in=now(),
-				cocok_warna='$cocok_warna',
-				warna='$warna',
-				no_warna='$nowarna',
-				lebar='$_POST[lebar]',
-				qty_order='$_POST[qty]',
-				gramasi='$_POST[gramasi]',
-				proses='$_POST[proses]',
-				buyer='$_POST[buyer]',
-				tgl_delivery='$_POST[tgl_delivery]',
-				jenis_matching='$jnsMtch',
-				recipe_code='$recipe',
-				color_code='$colorcode',
-				g_ld='$gLD',
-				tgl_buat= now(),
-				tgl_update=now(),
-				salesman_sample='" . $salesman . "',
-				created_by = '$_SESSION[userLAB]'
-				");
+					no_resep='$no_resep',
+					no_order='$_POST[no_order]',
+					no_po='$_POST[no_po]',
+					langganan='$langganan',
+					no_item='$_POST[no_item1]',
+					jenis_kain='$kain',
+					benang='$benang',
+					tgl_in=now(),
+					cocok_warna='$cocok_warna',
+					warna='$warna',
+					no_warna='$nowarna',
+					lebar='$_POST[lebar]',
+					qty_order='$_POST[qty]',
+					gramasi='$_POST[gramasi]',
+					proses='$_POST[proses]',
+					buyer='$_POST[buyer]',
+					tgl_delivery='$_POST[tgl_delivery]',
+					jenis_matching='$jnsMtch',
+					recipe_code='$recipe',
+					color_code='$colorcode',
+					g_ld='$gLD',
+					tgl_buat= now(),
+					tgl_update=now(),
+					salesman_sample='" . $salesman . "',
+					created_by = '$_SESSION[userLAB]'
+					");
 
 			// update nomor urut terakhir
 			mysqli_query($con, "UPDATE no_urut_matching SET nourut = '$nourut'");
 
 			if ($qry) {
 				mysqli_query($con, "INSERT INTO log_status_matching SET
-					`ids` = '$_POST[no_resep]',
-					`status` = 'Create No.resep',
-					`info` = 'generate no resep',
-					`do_by` = '$_SESSION[userLAB]',
-					`do_at` = '$time',
-					`ip_address` = '$ip_num'");
+						`ids` = '$_POST[no_resep]',
+						`status` = 'Create No.resep',
+						`info` = 'generate no resep',
+						`do_by` = '$_SESSION[userLAB]',
+						`do_at` = '$time',
+						`ip_address` = '$ip_num'");
 				echo "<script>alert('Data Tersimpan');window.location.href='?p=form-matching-detail&noresep=$_POST[no_resep]';</script>";
 			} else {
 				echo "There's been a problem: " . mysqli_error();
@@ -432,8 +432,8 @@
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
 			<input name="no_order" placeholder="No order ..." type="text" onkeyup="this.value = this.value.toUpperCase();" class="form-control ordercuy" id="order" onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?php if ($_GET['idk'] != "") {
-																																																																											echo $_GET['idk'];
-																																																																										} ?>" placeholder="No Order" required>
+																																																																																							echo $_GET['idk'];
+																																																																																						} ?>" placeholder="No Order" required>
 		</div>
 	</div>
 	<div class="form-group">
@@ -881,14 +881,14 @@
 		</div>
 	</div>
 </div>
-<!-- ////////////////////////////////////////////////////////////////////// LD -->
+<!-- ////////////////////////////////////////////////////////////////////// LD NOW -->
 <div id="LDNOW" style="display: none;">
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">L/D NOW Req No.</label>
 		<div class="col-sm-4">
 			<input name="no_order" placeholder="Request Number ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuyld" id="order" onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?php if ($_GET['idk'] != "") {
-																																																																														echo $_GET['idk'];
-																																																																													} ?>" placeholder="No Order" required>
+																																																																																										echo $_GET['idk'];
+																																																																																									} ?>" placeholder="No Order" required>
 		</div>
 	</div>
 	<div class="form-group">
@@ -990,7 +990,7 @@
 															AND TRIM(ITEMTYPECODE) = '$itemtype'");
 			$r_jk = db2_fetch_assoc($sql_jk);
 			?>
-			<input name="kain" type="text" class="form-control" required id="kain" value="<?= str_replace('"'," ",$r_jk['LONGDESCRIPTION']); ?>" placeholder="Jenis kain...">
+			<input name="kain" type="text" class="form-control" required id="kain" value="<?= str_replace('"', " ", $r_jk['LONGDESCRIPTION']); ?>" placeholder="Jenis kain...">
 		</div>
 	</div>
 	<div class="form-group">
@@ -1035,10 +1035,11 @@
 		<label for="tgl_delivery" class="col-sm-2 control-label">Tgl Delivery</label>
 		<div class="col-sm-3">
 			<?php
-				$d_tgldelivery = db2_exec($conn1, "SELECT * FROM SALESORDERDELIVERY WHERE SALESORDERLINESALESORDERCODE = '$_GET[idk]' AND SALESORDERLINEORDERLINE = '$_GET[iditem]'");
-				$r_delivery = db2_fetch_assoc($d_tgldelivery);
+			$d_tgldelivery = db2_exec($conn1, "SELECT * FROM SALESORDERDELIVERY WHERE SALESORDERLINESALESORDERCODE = '$_GET[idk]' AND SALESORDERLINEORDERLINE = '$_GET[iditem]'");
+			$r_delivery = db2_fetch_assoc($d_tgldelivery);
 			?>
-			<input name="tgl_delivery" type="text" value="<?php $date_deliv = date_create($r_delivery['DELIVERYDATE']); echo date_format($date_deliv, "Y-m-d"); ?>" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
+			<input name="tgl_delivery" type="text" value="<?php $date_deliv = date_create($r_delivery['DELIVERYDATE']);
+															echo date_format($date_deliv, "Y-m-d"); ?>" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
 		</div>
 	</div>
 	<!-- HIDDEN INPUT -->
@@ -1079,8 +1080,8 @@
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
 			<input name="no_order" placeholder="No order ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuy" id="order" onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?php if ($_GET['idk'] != "") {
-																																																																												echo $_GET['idk'];
-																																																																											} ?>" placeholder="No Order" required>
+																																																																																								echo $_GET['idk'];
+																																																																																							} ?>" placeholder="No Order" required>
 		</div>
 	</div>
 	<div class="form-group">
@@ -1097,8 +1098,8 @@
 		<div class="col-sm-6">
 			<select name="no_item" class="form-control selectNoItemNOW" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" id="no_item" required style="width: 400px;">
 				<?php
-				$order = $dt_langganan['PROJECTCODE'];
-				$sqljk = db2_exec($conn1, "SELECT 
+					$order = $dt_langganan['PROJECTCODE'];
+					$sqljk = db2_exec($conn1, "SELECT 
 												p.DLVSALESORDERLINEORDERLINE AS DLVSALESORDERLINEORDERLINE,
 												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
 												i.WARNA AS WARNA,
@@ -1132,41 +1133,41 @@
 			</select>
 
 			<?php
-			$order = $dt_langganan['PROJECTCODE'];
-			$getorderline = $_GET['iditem'];
-			$sqlitem = db2_exec($conn1, "SELECT 
-											p.DLVSALESORDERLINEORDERLINE AS DLVSALESORDERLINEORDERLINE,
-											p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
-											CASE
-												-- WARNA DARI PRINTING 
-												WHEN trim(p.ITEMTYPEAFICODE) = 'KFF' AND NOT trim(p.SUBCODE07) = '-' AND NOT trim(p.SUBCODE08) = '-' THEN DESIGNCOMPONENT.SHORTDESCRIPTION
-												-- WARNA DARI BON RESEP 
-												WHEN trim(p.ITEMTYPEAFICODE) = 'KFF' AND trim(p.SUBCODE07) = '-' AND trim(p.SUBCODE08) = '-' THEN ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION
-												-- WARNA DARI FLAT KNIT
-												WHEN trim(p.ITEMTYPEAFICODE) = 'FKF' AND trim(p.SUBCODE07) = '' AND trim(p.SUBCODE08) = '' THEN USERGENERICGROUP.LONGDESCRIPTION
-												ELSE '-'
-											END AS WARNA,
-											trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05
-										FROM PRODUCTIONDEMAND p 
-										LEFT JOIN DESIGN DESIGN ON DESIGN.SUBCODE01 = p.SUBCODE07
-										LEFT JOIN DESIGNCOMPONENT DESIGNCOMPONENT ON DESIGNCOMPONENT.VARIANTCODE = p.SUBCODE08 AND DESIGNCOMPONENT.DESIGNNUMBERID = DESIGN.NUMBERID
-										LEFT JOIN (SELECT 
-														ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-														ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-														ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-													FROM 
-														ITXVIEW_INV_RESEPCOLOR ITXVIEW_INV_RESEPCOLOR
-												GROUP BY 
-														ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-														ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-														ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-														)ITXVIEW_INV_RESEPCOLOR ON ITXVIEW_INV_RESEPCOLOR.ARTIKEL = p.SUBCODE03 AND ITXVIEW_INV_RESEPCOLOR.NO_WARNA = p.SUBCODE05
-										LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
-										WHERE p.ORIGDLVSALORDLINESALORDERCODE = '$order' AND p.DLVSALESORDERLINEORDERLINE = '$getorderline'
-										GROUP BY 
-											p.DLVSALESORDERLINEORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,
-											p.ITEMTYPEAFICODE,DESIGNCOMPONENT.SHORTDESCRIPTION,ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,USERGENERICGROUP.LONGDESCRIPTION");
-			$r_item = db2_fetch_assoc($sqlitem);
+				$order = $dt_langganan['PROJECTCODE'];
+				$getorderline = $_GET['iditem'];
+				$sqlitem = db2_exec($conn1, "SELECT 
+												p.DLVSALESORDERLINEORDERLINE AS DLVSALESORDERLINEORDERLINE,
+												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
+												CASE
+													-- WARNA DARI PRINTING 
+													WHEN trim(p.ITEMTYPEAFICODE) = 'KFF' AND NOT trim(p.SUBCODE07) = '-' AND NOT trim(p.SUBCODE08) = '-' THEN DESIGNCOMPONENT.SHORTDESCRIPTION
+													-- WARNA DARI BON RESEP 
+													WHEN trim(p.ITEMTYPEAFICODE) = 'KFF' AND trim(p.SUBCODE07) = '-' AND trim(p.SUBCODE08) = '-' THEN ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION
+													-- WARNA DARI FLAT KNIT
+													WHEN trim(p.ITEMTYPEAFICODE) = 'FKF' AND trim(p.SUBCODE07) = '' AND trim(p.SUBCODE08) = '' THEN USERGENERICGROUP.LONGDESCRIPTION
+													ELSE '-'
+												END AS WARNA,
+												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05
+											FROM PRODUCTIONDEMAND p 
+											LEFT JOIN DESIGN DESIGN ON DESIGN.SUBCODE01 = p.SUBCODE07
+											LEFT JOIN DESIGNCOMPONENT DESIGNCOMPONENT ON DESIGNCOMPONENT.VARIANTCODE = p.SUBCODE08 AND DESIGNCOMPONENT.DESIGNNUMBERID = DESIGN.NUMBERID
+											LEFT JOIN (SELECT 
+															ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
+															ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
+															ITXVIEW_INV_RESEPCOLOR.NO_WARNA
+														FROM 
+															ITXVIEW_INV_RESEPCOLOR ITXVIEW_INV_RESEPCOLOR
+													GROUP BY 
+															ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
+															ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
+															ITXVIEW_INV_RESEPCOLOR.NO_WARNA
+															)ITXVIEW_INV_RESEPCOLOR ON ITXVIEW_INV_RESEPCOLOR.ARTIKEL = p.SUBCODE03 AND ITXVIEW_INV_RESEPCOLOR.NO_WARNA = p.SUBCODE05
+											LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
+											WHERE p.ORIGDLVSALORDLINESALORDERCODE = '$order' AND p.DLVSALESORDERLINEORDERLINE = '$getorderline'
+											GROUP BY 
+												p.DLVSALESORDERLINEORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,
+												p.ITEMTYPEAFICODE,DESIGNCOMPONENT.SHORTDESCRIPTION,ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,USERGENERICGROUP.LONGDESCRIPTION");
+				$r_item = db2_fetch_assoc($sqlitem);
 			?>
 			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="<?= $r_item['SUBCODE02'] . $r_item['SUBCODE03']; ?>" placeholder="No Item">
 		</div>
@@ -1242,7 +1243,7 @@
 		<label for="no_po" class="col-sm-2 control-label">PO Greige</label>
 		<div class="col-sm-4">
 			<?php
-				$d_pogreigenew = db2_exec($conn1, "SELECT 
+			$d_pogreigenew = db2_exec($conn1, "SELECT 
 														CASE
 															WHEN LOTCODE IS NOT NULL THEN LOTCODE
 															ELSE '-'
@@ -1277,8 +1278,8 @@
 														i3.SALESORDERCODE = '$_GET[idk]' AND i3.ORDERLINE = '$_GET[iditem]')
 													GROUP BY 
 														LOTCODE, DEMAND_KGF");
-				$d_pogreigenew4 = db2_exec($conn1, "SELECT INTERNALREFERENCE FROM PRODUCTIONDEMAND WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
-				$d_pogreigenew5 = db2_exec($conn1, "SELECT 
+			$d_pogreigenew4 = db2_exec($conn1, "SELECT INTERNALREFERENCE FROM PRODUCTIONDEMAND WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
+			$d_pogreigenew5 = db2_exec($conn1, "SELECT 
 														a.ORIGDLVSALORDLINESALORDERCODE,
 														a.ORIGDLVSALORDERLINEORDERLINE,
 														a.INTERNALREFERENCE,
@@ -1292,18 +1293,18 @@
 														AND
 														(b.NAMENAME = 'ProAllow' OR b.NAMENAME = 'ProAllow2' OR b.NAMENAME = 'ProAllo3' OR b.NAMENAME = 'ProAllow4' OR b.NAMENAME = 'ProAllow5')");
 
-				$r_pogreigenew = db2_fetch_assoc($d_pogreigenew);
-				$r_pogreigenew4 = db2_fetch_assoc($d_pogreigenew4);
-				$r_pogreigenew5 = db2_fetch_assoc($d_pogreigenew5);
+			$r_pogreigenew = db2_fetch_assoc($d_pogreigenew);
+			$r_pogreigenew4 = db2_fetch_assoc($d_pogreigenew4);
+			$r_pogreigenew5 = db2_fetch_assoc($d_pogreigenew5);
 
-				if($r_pogreigenew['LOTCODE'] && $r_pogreigenew['DEMAND_KGF']){
-					$pogreige = 'NO KO : '.$r_pogreigenew['LOTCODE'].'/ DEMAND KGF :'.$r_pogreigenew['DEMAND_KGF'];
-				}
-				if ($r_pogreigenew4['INTERNALREFERENCE']) {
-					$pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
-				}else{
-					$pogreige2 = $r_pogreigenew5['VALUESTRING'];
-				}
+			if ($r_pogreigenew['LOTCODE'] && $r_pogreigenew['DEMAND_KGF']) {
+				$pogreige = 'NO KO : ' . $r_pogreigenew['LOTCODE'] . '/ DEMAND KGF :' . $r_pogreigenew['DEMAND_KGF'];
+			}
+			if ($r_pogreigenew4['INTERNALREFERENCE']) {
+				$pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
+			} else {
+				$pogreige2 = $r_pogreigenew5['VALUESTRING'];
+			}
 			?>
 			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?= $pogreige; ?>, PROJECT : <?= $pogreige2; ?>">
 		</div>
@@ -1337,7 +1338,7 @@
 															AND TRIM(ITEMTYPECODE) = '$itemtype'");
 			$r_jk = db2_fetch_assoc($sql_jk);
 			?>
-			<input name="kain" type="text" class="form-control" required id="kain" value="<?= str_replace('"'," ",$r_jk['LONGDESCRIPTION']); ?>" placeholder="Jenis kain...">
+			<input name="kain" type="text" class="form-control" required id="kain" value="<?= str_replace('"', " ", $r_jk['LONGDESCRIPTION']); ?>" placeholder="Jenis kain...">
 		</div>
 	</div>
 	<div class="form-group">
@@ -1471,152 +1472,93 @@
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
 			<?php
-				$sql_jbenang = db2_exec($conn1, "SELECT 
-													CASE
-														WHEN RESERVATIONLINE = '1' THEN 
-															CASE
-																WHEN COMMENTTEXT ISNULL THEN 
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2) 
-																	|| ' (suplayer not found) + '
-																ELSE
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2) || ')'
-															END	
-														WHEN RESERVATIONLINE = '1,2' THEN 
-															CASE
-																WHEN COMMENTTEXT ISNULL THEN 
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																	|| ' (suplayer not found) + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2) 
-																	|| ' (suplayer not found) '
-																ELSE
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2) || ')'
-															END				
-														WHEN RESERVATIONLINE = '1,2,3' THEN 
-															CASE
-																WHEN COMMENTTEXT ISNULL THEN 
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																	|| '  (suplayer not found) +  ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																	|| '  (suplayer not found) +  ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2)
-																	|| '  (suplayer not found) '
-																ELSE
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2, LOCATE('3:', COMMENTTEXT)-LOCATE('2:', COMMENTTEXT)-3) || ') + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2)
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('3:', COMMENTTEXT)+2) || ')'
-															END
-														WHEN RESERVATIONLINE = '1,2,3,4' THEN 
-															CASE
-																WHEN COMMENTTEXT ISNULL THEN 
-																	''
-																ELSE
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2, LOCATE('3:', COMMENTTEXT)-LOCATE('2:', COMMENTTEXT)-3) || ') + ' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2, LOCATE('4:', SUMMARIZEDDESCRIPTION)-LOCATE('3:', SUMMARIZEDDESCRIPTION)-3)
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('3:', COMMENTTEXT)+2,  LOCATE('4:', COMMENTTEXT)-LOCATE('3:', COMMENTTEXT)-3) || ')' ||
-																	SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('4:', SUMMARIZEDDESCRIPTION)+2)
-																	|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('4:', COMMENTTEXT)+2) || ')'
-															END
-													END AS JENIS_BENANG
-													FROM ITXVIEWJENISBENANGRMP 
-													WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
-				$r_jbenang = db2_fetch_assoc($sql_jbenang);
-				if($r_jbenang['JENIS_BENANG']){
-					$d_benang = $r_jbenang['JENIS_BENANG'];
-				}else{
-					$sql_demand = db2_exec($conn1, "SELECT * FROM PRODUCTIONDEMAND WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
-					$r_demand = db2_fetch_assoc($sql_demand);
-					$bon_order_benang = $r_demand['INTERNALREFERENCE'];
-					if($r_demand['INTERNALREFERENCE']){
-						$bon_order_benang = $r_demand['INTERNALREFERENCE'];
-					}else{
-						if ($r_pogreigenew4['INTERNALREFERENCE']) {
-							$bon_order_benang = $r_pogreigenew4['INTERNALREFERENCE'];
-						}else{
-							$bon_order_benang = $r_pogreigenew5['VALUESTRING'];
-						}
+				$s1 = $assoc_colorcode['SUBCODE01'];
+				$s2 = $assoc_colorcode['SUBCODE02'];
+				$s3 = $assoc_colorcode['SUBCODE03'];
+				$s4 = $assoc_colorcode['SUBCODE04'];
+				IF($s1 == 'T' OR $s1 == 'TX') { 
+					IF(str_contains($assoc_colorcode['WARNA'], 'BLACK')){
+						$SUBCODE04_Rajut	= 'D01';
+					}ELSE{ 
+						$SUBCODE04_Rajut	= 'L01';
 					}
-
-					$sql_jbenang2 = db2_exec($conn1, "SELECT 
-															CASE
-																WHEN RESERVATIONLINE = '1' THEN 
-																	CASE
-																		WHEN COMMENTTEXT ISNULL THEN 
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2) 
-																			|| ' (suplayer not found) + '
-																		ELSE
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2) || ')'
-																	END	
-																WHEN RESERVATIONLINE = '1,2' THEN 
-																	CASE
-																		WHEN COMMENTTEXT ISNULL THEN 
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																			|| ' (suplayer not found) + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2) 
-																			|| ' (suplayer not found) '
-																		ELSE
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2) || ')'
-																	END				
-																WHEN RESERVATIONLINE = '1,2,3' THEN 
-																	CASE
-																		WHEN COMMENTTEXT ISNULL THEN 
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																			|| '  (suplayer not found) +  ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																			|| '  (suplayer not found) +  ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2)
-																			|| '  (suplayer not found) '
-																		ELSE
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2, LOCATE('3:', COMMENTTEXT)-LOCATE('2:', COMMENTTEXT)-3) || ') + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2)
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('3:', COMMENTTEXT)+2) || ')'
-																	END
-																WHEN RESERVATIONLINE = '1,2,3,4' THEN 
-																	CASE
-																		WHEN COMMENTTEXT ISNULL THEN 
-																			''
-																		ELSE
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('1:', SUMMARIZEDDESCRIPTION)+2, LOCATE('2:', SUMMARIZEDDESCRIPTION)-4) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('1:', COMMENTTEXT)+2, LOCATE('2:', COMMENTTEXT)-4) || ') + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('2:', SUMMARIZEDDESCRIPTION)+2, LOCATE('3:', SUMMARIZEDDESCRIPTION)-LOCATE('2:', SUMMARIZEDDESCRIPTION)-3) 
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('2:', COMMENTTEXT)+2, LOCATE('3:', COMMENTTEXT)-LOCATE('2:', COMMENTTEXT)-3) || ') + ' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('3:', SUMMARIZEDDESCRIPTION)+2, LOCATE('4:', SUMMARIZEDDESCRIPTION)-LOCATE('3:', SUMMARIZEDDESCRIPTION)-3)
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('3:', COMMENTTEXT)+2,  LOCATE('4:', COMMENTTEXT)-LOCATE('3:', COMMENTTEXT)-3) || ')' ||
-																			SUBSTR(SUMMARIZEDDESCRIPTION, LOCATE('4:', SUMMARIZEDDESCRIPTION)+2)
-																			|| ' (' || 	SUBSTR(COMMENTTEXT, LOCATE('4:', COMMENTTEXT)+2) || ')'
-																	END
-															END AS JENIS_BENANG 
-														FROM ITXVIEWJENISBENANGRMP 
-														WHERE ORIGDLVSALORDLINESALORDERCODE = '$bon_order_benang' 
-															AND SUBCODE01 = '$s1'
-															AND SUBCODE02 = '$s2'
-															AND SUBCODE03 = '$s3'
-															AND SUBCODE04 = '$s4'");
-					$r_jbenang2 = db2_fetch_assoc($sql_jbenang2);
-
-					$d_benang = $r_jbenang2['JENIS_BENANG'];
+				}ELSE{ 
+					$SUBCODE04_Rajut	= $s4;
 				}
 
-				$sql_bonorder_legacy = db2_exec($conn1, "SELECT * FROM SALESORDER WHERE CODE = '$_GET[idk]'");
-				$r_bonorder_legacy = db2_fetch_assoc($sql_bonorder_legacy);
+				$sql_benang_rajut	= db2_exec($conn1, "SELECT * FROM ITXVIEW_RAJUT WHERE ITEMTYPEAFICODE = 'KGF'
+																						AND ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
+																						AND SUBCODE01 = '$s1'
+																						AND SUBCODE02 = '$s2'
+																						AND SUBCODE03 = '$s3'
+																						AND SUBCODE04 = '$SUBCODE04_Rajut'");
+				$r_benang_rajut		= db2_fetch_assoc($sql_benang_rajut);
+				$d_benang_rajut		= $r_benang_rajut['SUMMARIZEDDESCRIPTION'];
+
+				$sql_benang_booking_new		= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_NEW WHERE SALESORDERCODE = '$_GET[idk]'
+																						AND ORDERLINE = '$_GET[iditem]'");
+				$r_benang_booking_new		= db2_fetch_assoc($sql_benang_booking_new);
+				$d_benang_booking_new		= $r_benang_booking_new['SUMMARIZEDDESCRIPTION'];
+
+				$sql_salesorder_additional	= db2_exec($conn1, "SELECT 
+																	a2.VALUESTRING AS ADDITIONALDATA,
+																	a3.VALUESTRING AS ADDITIONALDATA2,
+																	a4.VALUESTRING AS ADDITIONALDATA3,
+																	a5.VALUESTRING AS ADDITIONALDATA4,
+																	a6.VALUESTRING AS ADDITIONALDATA5
+																	FROM 
+																		PRODUCTIONDEMAND PRODUCTIONDEMAND
+																	LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a2.FIELDNAME = 'ProAllow'
+																	LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a3.FIELDNAME = 'ProAllow2'
+																	LEFT JOIN ADSTORAGE a4 ON a4.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a4.FIELDNAME = 'ProAllow3'
+																	LEFT JOIN ADSTORAGE a5 ON a5.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a5.FIELDNAME = 'ProAllow4'
+																	LEFT JOIN ADSTORAGE a6 ON a6.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a6.FIELDNAME = 'ProAllow5'
+																WHERE
+																	PRODUCTIONDEMAND.ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
+																	AND PRODUCTIONDEMAND.ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
+				$r_salesorder_additional	= db2_fetch_assoc($sql_salesorder_additional);
+
+				$sql_benang_booking_blm_ready	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
+																												AND SUBCODE01 = '$s1'
+																												AND SUBCODE02 = '$s2'
+																												AND SUBCODE03 = '$s3'
+																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA]'");
+				$r_benang_booking_blm_ready		= db2_fetch_assoc($sql_benang_booking_blm_ready);
+				$d_benang_booking_blm_ready		= $r_benang_booking_blm_ready['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready['ORIGDLVSALORDLINESALORDERCODE'];																			
+				
+				$sql_benang_booking_blm_ready2	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
+																												AND SUBCODE01 = '$s1'
+																												AND SUBCODE02 = '$s2'
+																												AND SUBCODE03 = '$s3'
+																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA2]'");
+				$r_benang_booking_blm_ready2		= db2_fetch_assoc($sql_benang_booking_blm_ready2);
+				$d_benang_booking_blm_ready2		= $r_benang_booking_blm_ready2['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready2['ORIGDLVSALORDLINESALORDERCODE'];																			
+				
+				$sql_benang_booking_blm_ready3	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
+				 																								AND SUBCODE01 = '$s1'
+				 																								AND SUBCODE02 = '$s2'
+				 																								AND SUBCODE03 = '$s3'
+				 																								AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA3]'");
+				$r_benang_booking_blm_ready3		= db2_fetch_assoc($sql_benang_booking_blm_ready3);
+				$d_benang_booking_blm_ready3		= $r_benang_booking_blm_ready3['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready3['ORIGDLVSALORDLINESALORDERCODE'];																			
+				
+				$sql_benang_booking_blm_ready4	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
+																												AND SUBCODE01 = '$s1'
+																												AND SUBCODE02 = '$s2'
+																												AND SUBCODE03 = '$s3'
+																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA4]'");
+				$r_benang_booking_blm_ready4		= db2_fetch_assoc($sql_benang_booking_blm_ready4);
+				$d_benang_booking_blm_ready4		= $r_benang_booking_blm_ready4['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready4['ORIGDLVSALORDLINESALORDERCODE'];																			
+				
+				$sql_benang_booking_blm_ready5	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
+																												AND SUBCODE01 = '$s1'
+																												AND SUBCODE02 = '$s2'
+																												AND SUBCODE03 = '$s3'
+																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA5]'");
+				$r_benang_booking_blm_ready5		= db2_fetch_assoc($sql_benang_booking_blm_ready5);
+				$d_benang_booking_blm_ready5		= $r_benang_booking_blm_ready5['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready5['ORIGDLVSALORDLINESALORDERCODE'];																			
 			?>
-			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?= $d_benang; ?>.&#13;&#10;<?= $r_bonorder_legacy['DESCRIPTION']; ?></textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?= $d_benang_rajut; ?>&#13;&#10;<?= $d_benang_booking_new; ?>&#13;&#10;<?= $d_benang_booking_blm_ready; ?>&#13;&#10;<?= $d_benang_booking_blm_ready2; ?>&#13;&#10;<?= $d_benang_booking_blm_ready3; ?>&#13;&#10;<?= $d_benang_booking_blm_ready4; ?>&#13;&#10;<?= $d_benang_booking_blm_ready5; ?></textarea>
 		</div>
 	</div>
 	<!-- HIDDEN VALUE -->
@@ -1630,10 +1572,11 @@
 		<label for="tgl_delivery" class="col-sm-2 control-label">Tgl Delivery </label>
 		<div class="col-sm-3">
 			<?php
-				$d_tgldelivery = db2_exec($conn1, "SELECT * FROM SALESORDERDELIVERY WHERE SALESORDERLINESALESORDERCODE = '$_GET[idk]' AND SALESORDERLINEORDERLINE = '$_GET[iditem]'");
-				$r_delivery = db2_fetch_assoc($d_tgldelivery);
+			$d_tgldelivery = db2_exec($conn1, "SELECT * FROM SALESORDERDELIVERY WHERE SALESORDERLINESALESORDERCODE = '$_GET[idk]' AND SALESORDERLINEORDERLINE = '$_GET[iditem]'");
+			$r_delivery = db2_fetch_assoc($d_tgldelivery);
 			?>
-			<input name="tgl_delivery" type="text" value="<?php $date_deliv = date_create($r_delivery['DELIVERYDATE']); echo date_format($date_deliv, "Y-m-d"); ?>" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
+			<input name="tgl_delivery" type="text" value="<?php $date_deliv = date_create($r_delivery['DELIVERYDATE']);
+															echo date_format($date_deliv, "Y-m-d"); ?>" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
 		</div>
 	</div>
 	<div class="form-group">
@@ -1718,8 +1661,7 @@
 			$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 			$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
 			$("#Matching_ulang_perbaikan").show()
-		} 
-		else if ($('.form-control.ordernowcuy').val().length >= 6) {
+		} else if ($('.form-control.ordernowcuy').val().length >= 6) {
 			if ($('.form-control.ordernowcuyld').val().includes("LAB")) {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#LDNOW').appendTo('#echoing_the_choice');
