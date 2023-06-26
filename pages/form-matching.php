@@ -206,19 +206,38 @@
 		}
 	?>
 	<?php
-		$sqljkd = sqlsrv_query($conn, "select processcontrol.id as pcid,processcontrolJO.SODID,salesorders.ponumber,joborders.documentno,
-												processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
-												salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
-												SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
-												Left join salesorders on soid= salesorders.id
-												Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
-													Left join SODetails on SalesOrders.id=SODetails.SOID
-												left join productmaster on productmaster.id= SODetails.productid
-												left join productpartner on productpartner.productid= SODetails.productid
-													left join processcontrolJO on processcontrolJO.joid = Joborders.id
-													left join processcontrol on processcontrolJO.pcid = processcontrol.id
-												left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-												where productmaster.id='$_GET[iditem]' and processcontrol.productid='$_GET[iditem]' and JobOrders.documentno='$_GET[idk]' ", array(), array("Scrollable" => 'static'));
+		$sqljkd = sqlsrv_query($conn, "SELECT processcontrol.id AS pcid,
+											processcontrolJO.SODID,
+											salesorders.ponumber,
+											joborders.documentno,
+											processcontrol.productid,
+											salesorders.customerid,
+											CONVERT ( VARCHAR ( 10 ), SODetails.RequiredDate, 121 ) AS RequiredDate,
+											salesorders.buyerid,
+											processcontrolbatches.lotno,
+											productcode,
+											productmaster.color,
+											colorno,
+											description,
+											productmaster.weight,
+											cuttablewidth,
+											SOSampleColor.OtherDesc,
+											SOSampleColor.Flag,
+											hangerno 
+										FROM
+											Joborders
+										LEFT JOIN salesorders ON soid = salesorders.id
+										LEFT JOIN SOSampleColor ON SOSampleColor.SOID= SalesOrders.id
+										LEFT JOIN SODetails ON SalesOrders.id= SODetails.SOID
+										LEFT JOIN productmaster ON productmaster.id= SODetails.productid
+										LEFT JOIN productpartner ON productpartner.productid= SODetails.productid
+										LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
+										LEFT JOIN processcontrol ON processcontrolJO.pcid = processcontrol.id
+										LEFT JOIN processcontrolbatches ON processcontrolbatches.pcid = processcontrol.id 
+										WHERE
+											productmaster.id= '$_GET[iditem]' 
+											AND processcontrol.productid= '$_GET[iditem]' 
+											AND JobOrders.documentno= '$_GET[idk]'", array(), array("Scrollable" => 'static'));
 		$r1 = sqlsrv_fetch_array($sqljkd);
 		$cek1 = sqlsrv_num_rows($sqljkd);
 	?>
@@ -483,13 +502,15 @@
 		</div>
 	</div>
 	<?php
-	$ko = sqlsrv_query($conn, "select  ko.KONo from
-										ProcessControlJO pcjo inner join
-										ProcessControl pc on pcjo.PCID = pc.ID left join
-										KnittingOrders ko on pc.CID = ko.CID and pcjo.KONo = ko.KONo
-									where
-										pcjo.PCID = '$r1[pcid]'
-								group by ko.KONo");
+	$ko = sqlsrv_query($conn, "SELECT 
+									ko.KONo 
+								FROM
+									ProcessControlJO pcjo 
+								INNER JOIN ProcessControl pc ON pcjo.PCID = pc.ID 
+								LEFT JOIN KnittingOrders ko ON pc.CID = ko.CID AND pcjo.KONo = ko.KONo
+								WHERE
+									pcjo.PCID = '$r1[pcid]'
+							GROUP BY ko.KONo");
 	$r2 = sqlsrv_fetch_array($ko);
 	?>
 	<div class="form-group">
@@ -560,11 +581,15 @@
 		</div>
 	</div>
 	<?php
-	$bng = sqlsrv_query($conn, "SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
-										left join processcontrolJO on processcontrolJO.joid = Joborders.id
-										left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-									WHERE  JobOrders.documentno='$_GET[idk]' and processcontrolJO.pcid='$r1[pcid]'");
-	$r3 = sqlsrv_fetch_array($bng);
+		$bng = sqlsrv_query($conn, "SELECT 
+										CAST(SODetailsAdditional.Note AS NVARCHAR(255)) AS note 
+									FROM 
+										Joborders
+									LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
+									LEFT JOIN SODetailsAdditional ON processcontrolJO.sodid = SODetailsAdditional.sodid
+									WHERE 
+										JobOrders.documentno='$_GET[idk]' AND processcontrolJO.pcid='$r1[pcid]'");
+		$r3 = sqlsrv_fetch_array($bng);
 	?>
 	<div class="form-group">
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
