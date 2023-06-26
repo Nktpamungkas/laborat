@@ -1497,21 +1497,27 @@
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
 			<?php
+				$itemtype = $assoc_colorcode['ITEMTYPEAFICODE'];
 				$s1 = $assoc_colorcode['SUBCODE01'];
 				$s2 = $assoc_colorcode['SUBCODE02'];
 				$s3 = $assoc_colorcode['SUBCODE03'];
 				$s4 = $assoc_colorcode['SUBCODE04'];
-				IF($s1 == 'T' OR $s1 == 'TX') { 
-					IF(str_contains($assoc_colorcode['WARNA'], 'BLACK')){
-						$SUBCODE04_Rajut	= 'D01';
+
+				if($itemtype == 'KFF'){
+					IF($s1 == 'T' OR $s1 == 'TX') { 
+						IF(str_contains($assoc_colorcode['WARNA'], 'BLACK')){
+							$SUBCODE04_Rajut	= 'D01';
+						}ELSE{ 
+							$SUBCODE04_Rajut	= 'L01';
+						}
 					}ELSE{ 
-						$SUBCODE04_Rajut	= 'L01';
+						$SUBCODE04_Rajut	= $s4;
 					}
-				}ELSE{ 
+				}else{
 					$SUBCODE04_Rajut	= $s4;
 				}
 
-				$sql_benang_rajut	= db2_exec($conn1, "SELECT * FROM ITXVIEW_RAJUT WHERE ITEMTYPEAFICODE = 'KGF'
+				$sql_benang_rajut	= db2_exec($conn1, "SELECT * FROM ITXVIEW_RAJUT WHERE (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')
 																						AND ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
 																						AND SUBCODE01 = '$s1'
 																						AND SUBCODE02 = '$s2'
