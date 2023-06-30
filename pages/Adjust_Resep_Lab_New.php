@@ -2,11 +2,11 @@
 ini_set("error_reporting", 1);
 session_start();
 include "koneksi.php";
-$sql = mysqli_query($con,"SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
+$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, b.id AS id_tblmatching, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
 a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
 a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
 b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
-b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,
+b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,b.recipe_code,
 b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.bleaching_tm, a.bleaching_sh, a.second_lr,
 b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.remark_dye
 FROM tbl_status_matching a
@@ -88,6 +88,7 @@ $data = mysqli_fetch_array($sql); ?>
                     <input type="hidden" name="id_status" id="id_status" value="<?php echo $data['id_status'] ?>" readonly="true">
                     <input type="hidden" name="idm" id="idm" value="<?php echo $data['idm'] ?>" readonly="true">
                     <input type="hidden" name="tgl_buat_status" id="tgl_buat_status" value="<?php echo $data['tgl_buat_status'] ?>" readonly="true">
+                    <input type="hidden" name="id_tblmatching" id="id_tblmatching" value="<?php echo $data['id_tblmatching'] ?>" readonly="true">
                     <!-- KIRI -->
                     <div class="col-md-5">
                         <div class="form-group">
@@ -100,6 +101,12 @@ $data = mysqli_fetch_array($sql); ?>
                             <label for="item" class="col-sm-3 control-label">Item</label>
                             <div class="col-sm-9">
                                 <input type="text" value="<?php echo $data['no_item'] ?>" readonly class="form-control input-sm" name="item" id="item" placeholder="item">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe_code" class="col-sm-3 control-label">Recipe Code</label>
+                            <div class="col-sm-9">
+                                <input type="text" value="<?php echo $data['recipe_code'] ?>" class="form-control input-sm" name="recipe_code" id="recipe_code" placeholder="Recipe Code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -120,7 +127,7 @@ $data = mysqli_fetch_array($sql); ?>
                                 <input type="text" value="<?php echo $data['recipe_code'] ?>" readonly class="form-control input-sm" name="recipe_code" id="recipe_code" placeholder="Recipe Code">
                             </div>
                         </div>-->
-						<div class="form-group">
+                        <div class="form-group">
                             <label for="warna" class="col-sm-3 control-label">Warna</label>
                             <div class="col-sm-9">
                                 <input type="text" value="<?php echo $data['warna'] ?>" readonly class="form-control input-sm" name="warna" id="warna" placeholder="warna">
@@ -211,7 +218,7 @@ $data = mysqli_fetch_array($sql); ?>
                         </div>
                         <div class="form-group">
                             <label for="lamp" class="col-sm-3 control-label">Lampu :</label>
-                            <?php $sqlLamp = mysqli_query($con,"SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]'"); ?>
+                            <?php $sqlLamp = mysqli_query($con, "SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]'"); ?>
                             <?php while ($lamp = mysqli_fetch_array($sqlLamp)) { ?>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control input-sm" value="<?php echo $lamp['lampu'] ?>" readonly>
@@ -369,8 +376,8 @@ $data = mysqli_fetch_array($sql); ?>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="javascript:void(0)" id="show_adjust1">Adjust-1</a></li>
-                                    <li><a href="javascript:void(0)" id="show_adjust2">Adjust-2</a></li>                                    
-                                    <li><a href="javascript:void(0)" id="show_adjust3">Adjust-3</a></li>                                    
+                                    <li><a href="javascript:void(0)" id="show_adjust2">Adjust-2</a></li>
+                                    <li><a href="javascript:void(0)" id="show_adjust3">Adjust-3</a></li>
                                     <li><a href="javascript:void(0)" id="show_adjust4">Adjust-4</a></li>
                                     <li><a href="javascript:void(0)" id="show_adjust5">Adjust-5</a></li>
                                     <li><a href="javascript:void(0)" id="show_adjust6">Adjust-6</a></li>
@@ -417,7 +424,7 @@ $data = mysqli_fetch_array($sql); ?>
                                 </tr>
                             </thead>
                             <?php
-                            $hold_resep = mysqli_query($con,"SELECT * from tbl_matching_detail where `id_matching` = '$data[id]' and `id_status` = '$data[id_status]' AND NOT resep = 'dye' order by flag");
+                            $hold_resep = mysqli_query($con, "SELECT * from tbl_matching_detail where `id_matching` = '$data[id]' and `id_status` = '$data[id_status]' AND NOT resep = 'dye' order by flag");
                             ?>
                             <tbody id="tb-lookup1">
                                 <?php while ($hold = mysqli_fetch_array($hold_resep)) : ?>
@@ -772,8 +779,8 @@ $data = mysqli_fetch_array($sql); ?>
                                 <th>Waktu</th>
                                 <th>Bon Resep</th>
                                 <th>Note</th>
-								<th>Tgl Mulai</th>
-								<th>Analisa</th>
+                                <th>Tgl Mulai</th>
+                                <th>Analisa</th>
                             </thead>
                             <tbody>
                                 <!-- i do some magic here dude -->
@@ -1656,19 +1663,21 @@ $data = mysqli_fetch_array($sql); ?>
             } else {
                 var bleaching_tm = $("#bleaching_tm").val();
             }
-            insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val(), $('#remark_dye').val())
+            insertInto_StatusMatching_DetailMatching($("#id_tblmatching").val(), $("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#recipe_code').val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val(), $('#remark_dye').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, bleaching_sh, bleaching_tm, second_lr, remark_dye) {
+        function insertInto_StatusMatching_DetailMatching(id_tblmatching, id_matching, id_status, idm, recipe_code, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, bleaching_sh, bleaching_tm, second_lr, remark_dye) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
                 type: "POST",
                 url: "pages/ajax/Update_resep.php",
                 data: {
+                    id_tblmatching: id_tblmatching,
                     id_matching: id_matching,
                     id_status: id_status,
                     idm: idm,
+                    recipe_code: recipe_code,
                     matching_ke: matching_ke,
                     benang_a: benang_a,
                     lebar_a: lebar_a,
@@ -2416,125 +2425,125 @@ $data = mysqli_fetch_array($sql); ?>
         })
         $('#show_adjust2').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(5)').html() <= flag ){
+            if ($(this).find('td:eq(5)').html() <= flag) {
                 toastr.error('Insert Adjust-1 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(5)").before('<th width="60px" class="th_conc" flag_th="3">Adjust-2</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(5)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(5)').before('<td flag_td="3"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(5)').before('<td flag_td="3"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(5)").before('<th width="60px" class="th_conc" flag_th="3">Adjust-2</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(5)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(5)').before('<td flag_td="3"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(5)').before('<td flag_td="3"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust3').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(6)').html() <= flag ){
+            if ($(this).find('td:eq(6)').html() <= flag) {
                 toastr.error('Insert Adjust-2 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(6)").before('<th width="60px" class="th_conc" flag_th="4">Adjust-3</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(6)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(6)').before('<td flag_td="4"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(6)').before('<td flag_td="4"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(6)").before('<th width="60px" class="th_conc" flag_th="4">Adjust-3</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(6)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(6)').before('<td flag_td="4"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(6)').before('<td flag_td="4"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust4').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(7)').html() <= flag ){
+            if ($(this).find('td:eq(7)').html() <= flag) {
                 toastr.error('Insert Adjust-3 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(7)").before('<th width="60px" class="th_conc" flag_th="5">Adjust-4</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(7)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(7)').before('<td flag_td="5"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(7)').before('<td flag_td="5"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(7)").before('<th width="60px" class="th_conc" flag_th="5">Adjust-4</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(7)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(7)').before('<td flag_td="5"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(7)').before('<td flag_td="5"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust5').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(8)').html() <= flag ){
+            if ($(this).find('td:eq(8)').html() <= flag) {
                 toastr.error('Insert Adjust-4 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(8)").before('<th width="60px" class="th_conc" flag_th="6">Adjust-5</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(8)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(8)').before('<td flag_td="6"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(8)').before('<td flag_td="6"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(8)").before('<th width="60px" class="th_conc" flag_th="6">Adjust-5</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(8)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(8)').before('<td flag_td="6"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(8)').before('<td flag_td="6"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust6').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(9)').html() <= flag ){
+            if ($(this).find('td:eq(9)').html() <= flag) {
                 toastr.error('Insert Adjust-5 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(9)").before('<th width="60px" class="th_conc" flag_th="7">Adjust-6</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(9)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(9)').before('<td flag_td="7"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(9)').before('<td flag_td="7"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(9)").before('<th width="60px" class="th_conc" flag_th="7">Adjust-6</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(9)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(9)').before('<td flag_td="7"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(9)').before('<td flag_td="7"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust7').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(10)').html() <= flag ){
+            if ($(this).find('td:eq(10)').html() <= flag) {
                 toastr.error('Insert Adjust-6 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(10)").before('<th width="60px" class="th_conc" flag_th="8">Adjust-7</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(10)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(10)').before('<td flag_td="8"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(10)').before('<td flag_td="8"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(10)").before('<th width="60px" class="th_conc" flag_th="8">Adjust-7</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(10)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(10)').before('<td flag_td="8"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(10)').before('<td flag_td="8"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust8').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(11)').html() <= flag ){
+            if ($(this).find('td:eq(11)').html() <= flag) {
                 toastr.error('Insert Adjust-7 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(11)").before('<th width="60px" class="th_conc" flag_th="9">Adjust-8</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(11)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(11)').before('<td flag_td="9"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(11)').before('<td flag_td="9"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(11)").before('<th width="60px" class="th_conc" flag_th="9">Adjust-8</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(11)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(11)').before('<td flag_td="9"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(11)').before('<td flag_td="9"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
         $('#show_adjust9').click(function() {
             var flag = $(this).html().substring(8);
-            if($(this).find('td:eq(12)').html() <= flag ){
+            if ($(this).find('td:eq(12)').html() <= flag) {
                 toastr.error('Insert Adjust-8 Terlebih Dahulu !')
-            }else{
-            $("#th-lookup1 th:eq(12)").before('<th width="60px" class="th_conc" flag_th="10">Adjust-9</th>');
-            $("#tb-lookup1 tr").each(function() {
-                if ($(this).find('td:eq(12)').prev().find('input').is('[disabled=""]')) {
-                    $(this).find('td:eq(12)').before('<td flag_td="10"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                } else {
-                    $(this).find('td:eq(12)').before('<td flag_td="10"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                }
-            })
+            } else {
+                $("#th-lookup1 th:eq(12)").before('<th width="60px" class="th_conc" flag_th="10">Adjust-9</th>');
+                $("#tb-lookup1 tr").each(function() {
+                    if ($(this).find('td:eq(12)').prev().find('input').is('[disabled=""]')) {
+                        $(this).find('td:eq(12)').before('<td flag_td="10"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
+                    } else {
+                        $(this).find('td:eq(12)').before('<td flag_td="10"><input value="0" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
+                    }
+                })
             }
         })
-        
+
 
         // Table Dynamic Drageable
         $('#tb-lookup1').sortable({
@@ -2709,12 +2718,12 @@ $data = mysqli_fetch_array($sql); ?>
                 });
             }
         })
-		
-		$(document).on('click', '.posisi_kk', function() {
-                                var url_bon = $(this).attr('data');
-                                centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
-                            })
-		
+
+        $(document).on('click', '.posisi_kk', function() {
+            var url_bon = $(this).attr('data');
+            centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
+        })
+
         $(document).on('click', '.bon_resep', function() {
             var url_bon = $(this).attr('data');
             centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
