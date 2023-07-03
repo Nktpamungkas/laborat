@@ -1067,7 +1067,7 @@
                                                                     LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                     left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                     LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
-                                                                    WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and remark = 'from Co-power' order by a.flag ASC");
+                                                                    WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' or kode = 'E-1-012') order by a.flag ASC");
                                 ?>
                                 <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                 <tr>
@@ -1247,7 +1247,7 @@
                                                                         LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                         left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                         LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
-                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and remark = 'from Co-power' order by a.flag ASC");
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' or kode = 'E-1-012') order by a.flag ASC");
                                     ?>
                                     <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                     <tr>
@@ -1415,7 +1415,7 @@
                                                                             LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                             left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                             LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode 
-                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and remark = 'from merge Co-power' order by a.flag ASC");
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from merge Co-power' or kode = 'E-1-012') order by a.flag ASC");
                                     ?>
                                     <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                     <tr>
