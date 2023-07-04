@@ -217,8 +217,6 @@ $page  = strtolower($page);
       color: white;
     }
   </style>
-
-
 <body>
   <!-- <blockquote style="margin: 0px">
     <h1>Welcome back <php echo strtoupper($_SESSION['userLAB']); ?> at system laborat ITTI</h1>

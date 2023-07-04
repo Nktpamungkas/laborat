@@ -156,9 +156,9 @@
  
     // PROSES EXPORT RECIPE COMPONENT
         if($jenis_suffix == "1"){
-            $remark = "and (remark = 'from Co-power' or kode = 'E-1-012')";
+            $remark = "and (remark = 'from Co-power' or kode = 'E-1-010')";
         }elseif($jenis_suffix == "2"){
-            $remark = "and (remark = 'from merge Co-power' or kode = 'E-1-012')";
+            $remark = "and (remark = 'from merge Co-power' or kode = 'E-1-010')";
         }
         $recipe_cmp = mysqli_query($con, "SELECT a.id AS id_matching_detail,
                                             a.id_matching as id_matching,
