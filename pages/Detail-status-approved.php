@@ -99,7 +99,6 @@
         line-height: 1.5;
     }
 </style>
-
 <body>
     <div class="container col-md-12">
         <?php if ($data['approve'] == 'TRUE') : ?>
@@ -984,6 +983,13 @@
                         <?php endif; ?>
                     </h4>
                 </div>
+                <?php
+                    if(substr(strtoupper($data['idm']), 0,1) == 'D'){
+                        $garam = ")";
+                    }else{
+                        $garam = "or kode = 'E-1-010')";
+                    }
+                ?>
                 <?php if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'CD' OR substr(strtoupper($data['idm']), 0, 2) == 'OB') : ?>
                     <div class="container-fluid col-sm-6">
                         *Detail Data yang akan di export :<br>
@@ -1067,7 +1073,7 @@
                                                                     LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                     left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                     LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
-                                                                    WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' or kode = 'E-1-010') order by a.flag ASC");
+                                                                    WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' $garam order by a.flag ASC");
                                 ?>
                                 <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                 <tr>
@@ -1247,7 +1253,7 @@
                                                                         LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                         left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                         LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
-                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' or kode = 'E-1-010') order by a.flag ASC");
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' $garam order by a.flag ASC");
                                     ?>
                                     <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                     <tr>
@@ -1415,7 +1421,7 @@
                                                                             LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                                                             left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                                                             LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode 
-                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from merge Co-power' or kode = 'E-1-010') order by a.flag ASC");
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from merge Co-power' $garam order by a.flag ASC");
                                     ?>
                                     <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
                                     <tr>
@@ -1498,17 +1504,6 @@
                         </div>
                     </div>
                 <?php endif; ?>
-                <!-- <div class="row">
-                    <div class="col-sm-12">
-                        <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
-                            <thead>
-                                <th>
-                                   <td></td> 
-                                </th>
-                            </thead>
-                        </table>
-                    </div>
-                </div> -->
             </div>
         </div>
     </form>

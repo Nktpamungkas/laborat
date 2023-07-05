@@ -156,9 +156,14 @@
  
     // PROSES EXPORT RECIPE COMPONENT
         if($jenis_suffix == "1"){
-            $remark = "and (remark = 'from Co-power' or kode = 'E-1-010')";
+            $remark = "and (remark = 'from Co-power'";
         }elseif($jenis_suffix == "2"){
-            $remark = "and (remark = 'from merge Co-power' or kode = 'E-1-010')";
+            $remark = "and (remark = 'from merge Co-power'";
+        }
+        if(substr($number_suffix, 0,1) == 'D'){
+            $garam = ")";
+        }else{
+            $garam = "or kode = 'E-1-010')";
         }
         $recipe_cmp = mysqli_query($con, "SELECT a.id AS id_matching_detail,
                                             a.id_matching as id_matching,
@@ -192,7 +197,7 @@
                                         LEFT JOIN tbl_matching b ON b.id = a.id_matching
                                         left join tbl_status_matching tsm on tsm.idm = b.no_resep 
                                         LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode 
-                                        WHERE a.id_matching = '$idmatching' AND a.id_status = '$idstatus' $remark order by a.flag ASC");
+                                        WHERE a.id_matching = '$idmatching' AND a.id_status = '$idstatus' $remark $garam order by a.flag ASC");
         $delimiter = ","; 
         $filename = "RC_" . $_GET['rcode'] . ".csv"; 
         
