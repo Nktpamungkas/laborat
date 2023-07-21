@@ -241,6 +241,13 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
 <script>
     $(document).ready(function() {
         const myTable = $('#Table-sm').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
             "ordering": false,
             "pageLength": 20
         })

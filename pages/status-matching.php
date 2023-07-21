@@ -112,7 +112,7 @@ include "koneksi.php";
                                     where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
                                     group by a.idm, b.no_resep
                                     ORDER BY a.id asc");*/
-				$sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+				        $sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
                                     FROM tbl_status_matching a
                                     JOIN tbl_matching b ON a.idm = b.no_resep
                                     where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
@@ -297,7 +297,7 @@ include "koneksi.php";
                           <?php } ?>
                           <a href="#" class="btn btn-xs btn-info _tunggu" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Tunggu <i class="fa fa-clock-o" aria-hidden="true"></i>
                           </a>
-						  <!--<a style="color: white;" href="?p=Edit_Status_Matching&rcode=<?php echo $r['no_resep'] ?>" class="btn btn-xs btn-primary">Ubah! <i class="fa fa-edit"></i></a>-->
+                          <!--<a style="color: white;" href="?p=Edit_Status_Matching&rcode=<?php echo $r['no_resep'] ?>" class="btn btn-xs btn-primary">Ubah! <i class="fa fa-edit"></i></a>-->
 
                           <!--<a style="color: black;" href="#" class="btn btn-xs btn-danger batalkan" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Batalkan!</a>-->
 
