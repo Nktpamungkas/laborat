@@ -507,35 +507,35 @@
                                 <div class="form-group">
                                     <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" required name="tside_c" value="0" id="tside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" name="tside_min" value="0" id="tside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="RC_Suhu" required name="RC_Suhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="RC_Suhu" value="0" required name="RC_Suhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="RCWaktu" required name="RCWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="RCWaktu" value="0" required name="RCWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="0" required name="bleaching_sh" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="0" required name="bleaching_tm" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
@@ -543,24 +543,24 @@
                                 <div class="form-group">
                                     <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="cside_c" id="cside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" value="0" name="cside_min" id="cside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <!-- SOAPING -->
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING / CUCI PANAS</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" required id="soapingSuhu" value="0" name="soapingSuhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" required id="soapingWaktu" value="0" name="soapingWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
@@ -569,35 +569,35 @@
                                 <div class="form-group">
                                     <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="tside_c" id="tside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" value="0" name="tside_min" id="tside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="cside_c" id="cside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" name="cside_min" value="0" id="cside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <!-- SOAPING -->
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING / CUCI PANAS</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" required id="soapingSuhu" value="0" name="soapingSuhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" required id="soapingWaktu" value="0" name="soapingWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
@@ -606,24 +606,24 @@
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="RC_Suhu" name="RC_Suhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" required id="RC_Suhu" value="0" name="RC_Suhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" required id="RCWaktu" name="RCWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" required id="RCWaktu" value="0" name="RCWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="0" required name="bleaching_sh" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="0" required name="bleaching_tm" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
@@ -634,12 +634,12 @@
                                 <div class="form-group">
                                     <label for="tside_c" class="col-sm-2 control-label">T/C-side :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="tside_c" id="tside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" value="0" name="tside_min" id="tside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <p style="font-style: italic; font-weight: bold;">Field Rc and Soaping not avaliable at O+B matching !</p>
@@ -647,35 +647,35 @@
                                 <div class="form-group">
                                     <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="tside_c" id="tside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" value="0" name="tside_min" id="tside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
                                     <div class="col-sm-2">
-                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" placeholder="C°...">
+                                        <input type="text" width="100%" class="form-control" value="0" required name="cside_c" id="cside_c" placeholder="C°...">
                                     </div>
                                     <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
                                     </label>
                                     <div class="col-sm-2">
-                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" placeholder="Minute ...">
+                                        <input type="text" required class="form-control" value="0" name="cside_min" id="cside_min" placeholder="Minute ...">
                                     </div>
                                 </div>
                                 <!-- SOAPING -->
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING / CUCI PANAS</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="soapingSuhu" name="soapingSuhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="soapingSuhu" value="0" name="soapingSuhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="soapingWaktu" name="soapingWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="soapingWaktu" value="0" name="soapingWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
@@ -684,24 +684,24 @@
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="RC_Suhu" name="RC_Suhu" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="RC_Suhu" value="0" name="RC_Suhu" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="RCWaktu" name="RCWaktu" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="RCWaktu" value="0" name="RCWaktu" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-top: 10px; padding: 5px;">
                                     <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="0" required name="bleaching_sh" placeholder="Suhu">
                                         <div class="input-group-addon">°C</div>
                                     </div>
                                     <label for="RC" class="col-sm-2 control-label" align="left">-</label>
                                     <div class="input-group col-md-5">
-                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="0" required name="bleaching_tm" placeholder="Waktu/Menit">
                                         <div class="input-group-addon">Menit</div>
                                     </div>
                                 </div>

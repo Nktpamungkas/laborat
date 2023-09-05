@@ -1503,13 +1503,22 @@
 				$s2 = $assoc_colorcode['SUBCODE02'];
 				$s3 = $assoc_colorcode['SUBCODE03'];
 				$s4 = $assoc_colorcode['SUBCODE04'];
+				$s6 = $assoc_colorcode['SUBCODE06'];
 
 				if($itemtype == 'KFF'){
 					IF($s1 == 'T' OR $s1 == 'TX') { 
 						IF(str_contains($assoc_colorcode['WARNA'], 'BLACK')){
 							$SUBCODE04_Rajut	= 'D01';
-						}ELSE{ 
-							$SUBCODE04_Rajut	= 'L01';
+						}ELSE{
+							IF($s4 == 'L02'){
+								$SUBCODE04_Rajut		= 'L02';
+							}ELSE{
+								IF($s6 = 'RP04'){
+									$SUBCODE04_Rajut	= $s4;
+								}ELSE{
+									$SUBCODE04_Rajut	= 'L01';
+								}
+							}
 						}
 					}ELSE{ 
 						$SUBCODE04_Rajut	= $s4;

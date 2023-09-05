@@ -32,8 +32,10 @@ $no = 1;
 while ($row = mysqli_fetch_array($query)) {
     if ($row["Product_Unit"] == 1) {
         $uom = "%";
-    } else {
+    } elseif ($row["Product_Unit"] == 0) {
         $uom = "Gr/L";
+    }else{
+        $uom = "-";
     }
     if ($row["is_active"] == 'FALSE') {
         $status = '<button type="button" class="btn btn-xs btn-danger">' . $row['is_active'] . '</button>';

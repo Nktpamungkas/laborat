@@ -248,6 +248,7 @@ include "koneksi.php";
                                             <label for="Product_Name" class="col-md-3 control-label">Satuan </label>
                                             <div class="col-md-6">
                                                 <select name="Product_Unit" id="Product_Unit" class="form-control" required>
+                                                    <option value="2">-</option>
                                                     <option value="1">%</option>
                                                     <option value="0">Gr/L</option>
                                                 </select>
@@ -320,6 +321,7 @@ include "koneksi.php";
                                             <label for="Product_Name" class="col-md-3 control-label">Satuan </label>
                                             <div class="col-md-6">
                                                 <select name="Product_Unit" id="Product_Unit_edit" class="form-control" required>
+                                                    <option value="2">-</option>
                                                     <option value="1">%</option>
                                                     <option value="0">Gr/L</option>
                                                 </select>
