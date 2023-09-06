@@ -57,6 +57,7 @@ include "koneksi.php";
                 success: function(response) {
                     var aData = JSON.parse(response);
                     $('#id_edit').val(aData.id)
+                    $('#ket_edit').val(aData.ket)
                     $('#Code_edit').val(aData.code)
 					$('#Code_New_edit').val(aData.code_new)
                     $('#Product_Name_edit').val(aData.Product_Name)
@@ -132,18 +133,19 @@ include "koneksi.php";
         $('#exsecute').click(function(e) {
             e.preventDefault();
             if ($("#frmDyesEdit").valid()) {
-                dyess_insert_edit($('#id_edit').val(), $('#Code_edit').val(), $('#Code_New_edit').val(), $('#Product_Name_edit').val(), $('#liquid_powder_edit').val(), $('#Product_Unit_edit').find(':selected').val(), $('#is_active_edit').find(':selected').val())
+                dyess_insert_edit($('#id_edit').val(), $('#ket_edit').val(), $('#Code_edit').val(), $('#Code_New_edit').val(), $('#Product_Name_edit').val(), $('#liquid_powder_edit').val(), $('#Product_Unit_edit').find(':selected').val(), $('#is_active_edit').find(':selected').val())
             }
         })
 
 
-        function dyess_insert_edit(id, Code, code_new, Product_Name, liquid_powder, Product_Unit, is_active) {
+        function dyess_insert_edit(id, Ket, Code, code_new, Product_Name, liquid_powder, Product_Unit, is_active) {
             $.ajax({
                 dataType: "json",
                 type: "POST",
                 url: "pages/ajax/dyess_insert_edit.php",
                 data: {
                     id: id,
+                    Ket: Ket,
                     Code: Code,
 					code_new: code_new,
                     Product_Name: Product_Name,
@@ -255,6 +257,15 @@ include "koneksi.php";
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label for="ket" class="col-md-3 control-label">Commentline</label>
+                                            <div class="col-md-6">
+                                                <select name="ket" id="ket" class="form-control">
+                                                    <option value="-">-</option>
+                                                    <option value="Suhu">Suhu</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="is_active" class="col-md-3 control-label">Is Active ?</label>
                                             <div class="col-md-6">
                                                 <select name="is_active" class="form-control" id="is_active" required>
@@ -324,6 +335,15 @@ include "koneksi.php";
                                                     <option value="2">-</option>
                                                     <option value="1">%</option>
                                                     <option value="0">Gr/L</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ket" class="col-md-3 control-label">Commentline</label>
+                                            <div class="col-md-6">
+                                                <select name="ket" id="ket_edit" class="form-control">
+                                                    <option value="-">-</option>
+                                                    <option value="Suhu">Suhu</option>
                                                 </select>
                                             </div>
                                         </div>
