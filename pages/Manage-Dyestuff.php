@@ -197,6 +197,7 @@ include "koneksi.php";
                                 <th width="57%">Product Name</th>
                                 <th width="57%">Liquid/Powder</th>
                                 <th width="57%">UoM</th>
+                                <th width="57%">Com.Ln</th>
                                 <th width="13%">IS ACTIVE</th>
                                 <th width="10%">Action</th>
                             </tr>
