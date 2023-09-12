@@ -12,7 +12,7 @@ $columns = array(
     6 => 'is_active'
 );
 // set_order_type("desc");
-$sql = "SELECT id, code, code_new, Product_Name, liquid_powder, Product_Unit, is_active FROM tbl_dyestuff";
+$sql = "SELECT id, ket, code, code_new, Product_Name, liquid_powder, Product_Unit, is_active FROM tbl_dyestuff";
 $query = mysqli_query($con,$sql) or die("data_server.php: get dataku");
 $totalData = mysqli_num_rows($query);
 $totalFiltered = $totalData;
@@ -49,6 +49,7 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["Product_Name"];
     $nestedData[] = $row["liquid_powder"];
     $nestedData[] = $uom;
+    $nestedData[] = $row["ket"];
     $nestedData[] = $status;
     $nestedData[] = '<button class="btn btn-sm btn-warning dyess_edit" id="' . $row["id"] . '"><i class="fa fa-edit"></i></button>';
 
