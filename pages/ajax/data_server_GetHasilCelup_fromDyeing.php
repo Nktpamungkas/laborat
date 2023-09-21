@@ -24,8 +24,27 @@ $columns = array(
 	16 => 'analisa',
 );
 // set_order_type("desc");
-$sql = "SELECT b.id, c.no_order, d.tgl_update, b.nokk, c.lot, b.k_resep, b.proses, b.lama_proses, b.status , b.analisa, c.no_resep, d.l_r, c.no_mesin, d.bruto, 
-                ((d.bruto/c.kapasitas) * 100 ) as loading_fix, z.jenis_note, z.note, b.ket , d.benang
+$sql = "SELECT 
+            b.id, 
+            c.no_order, 
+            d.tgl_update, 
+            b.nokk, 
+            c.lot, 
+            b.k_resep, 
+            b.proses, 
+            b.lama_proses, 
+            b.status, 
+            b.analisa,  
+            c.no_resep, 
+            d.l_r, 
+            c.no_mesin, 
+            d.bruto, 
+            ((d.bruto/c.kapasitas) * 100 ) as loading_fix, 
+            z.jenis_note, 
+            b.analisa_resep,
+            z.note,
+            b.ket, 
+            d.benang
         FROM db_laborat.tbl_status_matching a
         join db_laborat.tbl_matching x on a.idm = x.no_resep
         join db_dying.tbl_hasilcelup b on a.idm = b.rcode
@@ -51,45 +70,42 @@ $no = 1;
 while ($row = mysqli_fetch_array($query)) {
     $idkk = $row["nokk"];
 
-    $siquel = sqlsrv_query($conn,"select stockmovement.dono,stockmovement.documentno as no_doku,processcontrolbatches.documentno,lotno,customerid,
-	processcontrol.productid ,processcontrol.id as pcid, 
-    sum(stockmovementdetails.weight) as berat,
-    count(stockmovementdetails.weight) as roll,processcontrolbatches.dated as tgllot
-    from stockmovement 
-    LEFT join stockmovementdetails on StockMovement.id=stockmovementdetails.StockmovementID
-    left join processcontrolbatches on processcontrolbatches.id=stockmovement.pcbid
-    left join processcontrol on processcontrol.id=processcontrolbatches.pcid
-    where wid='12' and processcontrolbatches.documentno='$idkk' and (transactiontype='7' or transactiontype='4')
-    group by stockmovement.DocumentNo,processcontrolbatches.DocumentNo,processcontrolbatches.LotNo,stockmovement.dono,
-    processcontrol.CustomerID,processcontrol.ProductID,processcontrol.ID,processcontrolbatches.Dated") or die("gagal");
-    $sqls = sqlsrv_query($conn,"select processcontrolJO.SODID,salesorders.ponumber,processcontrol.productid,salesorders.customerid,joborders.documentno,
-    salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,weight,cuttablewidth from Joborders 
-    left join processcontrolJO on processcontrolJO.joid = Joborders.id
-    left join salesorders on soid= salesorders.id
-    left join processcontrol on processcontrolJO.pcid = processcontrol.id
-    left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-    left join productmaster on productmaster.id= processcontrol.productid
-    left join productpartner on productpartner.productid= processcontrol.productid
-    where processcontrolbatches.documentno='$idkk'");
+    $siquel = sqlsrv_query($conn,"SELECT stockmovement.dono,stockmovement.documentno as no_doku,processcontrolbatches.documentno,lotno,customerid,
+                                    processcontrol.productid ,processcontrol.id as pcid, 
+                                    sum(stockmovementdetails.weight) as berat,
+                                    count(stockmovementdetails.weight) as roll,processcontrolbatches.dated as tgllot
+                                    from stockmovement 
+                                    LEFT join stockmovementdetails on StockMovement.id=stockmovementdetails.StockmovementID
+                                    left join processcontrolbatches on processcontrolbatches.id=stockmovement.pcbid
+                                    left join processcontrol on processcontrol.id=processcontrolbatches.pcid
+                                    where wid='12' and processcontrolbatches.documentno='$idkk' and (transactiontype='7' or transactiontype='4')
+                                    group by stockmovement.DocumentNo,processcontrolbatches.DocumentNo,processcontrolbatches.LotNo,stockmovement.dono,
+                                    processcontrol.CustomerID,processcontrol.ProductID,processcontrol.ID,processcontrolbatches.Dated") or die("gagal");
+    $sqls = sqlsrv_query($conn,"SELECT processcontrolJO.SODID,salesorders.ponumber,processcontrol.productid,salesorders.customerid,joborders.documentno,
+                                    salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,weight,cuttablewidth from Joborders 
+                                    left join processcontrolJO on processcontrolJO.joid = Joborders.id
+                                    left join salesorders on soid= salesorders.id
+                                    left join processcontrol on processcontrolJO.pcid = processcontrol.id
+                                    left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
+                                    left join productmaster on productmaster.id= processcontrol.productid
+                                    left join productpartner on productpartner.productid= processcontrol.productid
+                                    where processcontrolbatches.documentno='$idkk'");
     $ssr = sqlsrv_fetch_array($sqls);
     $r = sqlsrv_fetch_array($siquel);
     $bng11 = sqlsrv_query($conn,"SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders left join processcontrolJO on processcontrolJO.joid = Joborders.id
-                        left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-                        WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
+                                left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
+                                WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
     $r3 = sqlsrv_fetch_array($bng11);
-
-
-
 
 
     $nestedData = array();
     if ($_POST['p'] == 'Detail-status-approved') {
         $index = $no++;
-        $data_action = '<strong style="border-bottom: solid #808080 1px;">' . $row['note'] . '</strong>';
+        $data_action = '<strong style="border-bottom: solid #808080 1px;">LAB : ' . $row['note'] . ' <br> <br> DYE : ' . $row['analisa_resep'] . '</strong>';
     } else {
         $index = $no++ .  '.&nbsp;&nbsp; <a hreff="javascript:void(0)" data-pk="' . $row["id"] . '" class="btn btn-xs btn-danger delete_celup"><i class="fa fa-trash" aria-hidden="true"></i>
         </a>';
-        $data_action = '<strong style="border-bottom: solid #808080 1px;">' . $row['note'] . '</strong> <br /><a href="javascript:void(0)" class="btn btn-xs btn-warning _addnoteclp" data-kk="' . $row["nokk"] . '"><i class="fa fa-edit"></i></a>';
+        $data_action = '<strong style="border-bottom: solid #808080 1px;">LAB : ' . $row['note'] . ' <br> <br> DYE : ' . $row['analisa_resep'] . ' </strong> <br /><a href="javascript:void(0)" class="btn btn-xs btn-warning _addnoteclp" data-kk="' . $row["nokk"] . '"><i class="fa fa-edit"></i></a>';
     }
 
     $nestedData[] = $row["id"];
