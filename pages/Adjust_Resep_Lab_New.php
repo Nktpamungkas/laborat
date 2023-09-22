@@ -2321,18 +2321,40 @@ $data = mysqli_fetch_array($sql); ?>
                 data: {
                     code: select_selected
                 },
+                // success: function(response) {
+                //     $(getTr).find("td:eq(2)").find('input').val(response);
+                //     if (response == "-----------------------") {
+                //         $(getTr).find("input.form-control.input-xs.conc").val(0);
+                //         $(getTr).find("input.form-control.input-xs.conc").prop('disabled', true);
+                //         $(getTr).find("td:last").find('input').val("-----------------------");
+                //         $(getTr).find("td:last").find('input').prop('disabled', true);
+                //     } else {
+                //         $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
+                //         $(getTr).find("td:last").find('input').prop('disabled', false);
+                //         // $(getTr).find("input.form-control.input-xs.conc").val('');
+                //         // $(getTr).find("td:last").find('input').val("");
+                //     }
+                // },
                 success: function(response) {
-                    $(getTr).find("td:eq(2)").find('input').val(response);
-                    if (response == "-----------------------") {
+                    $(getTr).find("td:eq(2)").find('input').val(response.Product_Name);
+                    console.log(response.Product_Name);
+                    if (response.Product_Name == "-----------------------") {
                         $(getTr).find("input.form-control.input-xs.conc").val(0);
                         $(getTr).find("input.form-control.input-xs.conc").prop('disabled', true);
                         $(getTr).find("td:last").find('input').val("-----------------------");
                         $(getTr).find("td:last").find('input').prop('disabled', true);
                     } else {
-                        $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
-                        $(getTr).find("td:last").find('input').prop('disabled', false);
-                        // $(getTr).find("input.form-control.input-xs.conc").val('');
-                        // $(getTr).find("td:last").find('input').val("");
+                        if(response.ket == "Suhu"){
+                            $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
+                            $(getTr).find("td:last").find('input').prop('disabled', false);
+                            $(getTr).find("input.form-control.input-xs.conc").val(0);
+                            $(getTr).find("td:last").find('input').val("");
+                        }else{
+                            $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
+                            $(getTr).find("td:last").find('input').prop('disabled', false);
+                           // $(getTr).find("input.form-control.input-xs.conc").val('');
+                           // $(getTr).find("td:last").find('input').val("");
+                        }
                     }
                 },
                 error: function() {
