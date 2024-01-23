@@ -5,7 +5,7 @@ include '../../koneksi.php';
 ?>
 <div class="col-md-6">
     <div class="box">
-        <h4 class="text-center" style="font-weight: bold;">SISA SCHEDULE H-1</h4>
+        <h4 class="text-center" style="font-weight: bold;">SISA SCHEDULE H-1 <br> 07:00 - 07:00</h4>
         <table class="table table-chart">
             <thead>
                 <tr>
@@ -18,16 +18,14 @@ include '../../koneksi.php';
                 </tr>
             </thead>
             <tbody>
-
-
                 <?php
-                $ystrdy = date('Y-m-d', strtotime("-1 days"));
-				$tody = date('Y-m-d');
-                $sql_23 = mysqli_query($con,"SELECT * FROM sisa_schedule where DATE_FORMAT(`time`, '%Y-%m-%d %H:%i') BETWEEN '$ystrdy 07:00' AND '$tody 07:00'");
-                $lab_dip = 0;
-                $matching_ulang = 0;
-                $perbaikan = 0;
-                $development = 0;
+                    $ystrdy         = date('Y-m-d', strtotime("-1 days"));
+                    $tody           = date('Y-m-d');
+                    $sql_23         = mysqli_query($con,"SELECT * FROM sisa_schedule where DATE_FORMAT(`time`, '%Y-%m-%d %H:%i') BETWEEN '$ystrdy 07:00' AND '$tody 07:00'");
+                    $lab_dip        = 0;
+                    $matching_ulang = 0;
+                    $perbaikan      = 0;
+                    $development    = 0;
                 ?>
                 <?php while ($li = mysqli_fetch_array($sql_23)) { ?>
                     <tr>
@@ -36,13 +34,13 @@ include '../../koneksi.php';
                         <td><?php echo $li['matching_ulang'] ?></td>
                         <td><?php echo $li['perbaikan'] ?></td>
                         <td><?php echo $li['development'] ?></td>
-                        <th><?php echo  $li['lab_dip'] + $li['matching_ulang'] + $li['perbaikan'] + $li['development'] ?></th>
+                        <th><?php echo $li['lab_dip'] + $li['matching_ulang'] + $li['perbaikan'] + $li['development'] ?></th>
                     </tr>
                     <?php
-                    $lab_dip += $li['lab_dip'];
-                    $matching_ulang += $li['matching_ulang'];
-                    $perbaikan += $li['perbaikan'];
-                    $development += $li['development'];
+                        $lab_dip        += $li['lab_dip'];
+                        $matching_ulang += $li['matching_ulang'];
+                        $perbaikan      += $li['perbaikan'];
+                        $development    += $li['development'];
                     ?>
                     <?php ?>
                 <?php } ?>

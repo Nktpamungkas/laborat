@@ -3,7 +3,7 @@ ini_set("error_reporting", 1);
 include "../../koneksi.php";
 session_start();
 
-$sql_log = mysqli_query($con,"SELECT * from log_status_matching where ids = '$_GET[idm]' order by id desc");
+$sql_log = mysqli_query($con, "SELECT * from log_status_matching where ids = '$_GET[idm]' order by id desc");
 
 ?>
 <style>

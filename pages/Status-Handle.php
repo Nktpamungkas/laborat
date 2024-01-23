@@ -964,6 +964,7 @@
                     id_status: id_status,
                     idm: idm,
                     matching_ke: matching_ke,
+                    howmany_Matching_ke: howmany_Matching_ke,
                     benang_a: benang_a,
                     lebar_a: lebar_a,
                     gramasi_a: gramasi_a,

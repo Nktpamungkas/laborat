@@ -217,12 +217,13 @@ $page  = strtolower($page);
       color: white;
     }
   </style>
+
 <body>
   <!-- <blockquote style="margin: 0px">
     <h1>Welcome back <php echo strtoupper($_SESSION['userLAB']); ?> at system laborat ITTI</h1>
   </blockquote> -->
   <div class="row">
-    <?php $sql_ann = mysqli_query($con,"SELECT * from announcement where id = 1");
+    <?php $sql_ann = mysqli_query($con, "SELECT * from announcement where id = 1");
     $ann = mysqli_fetch_array($sql_ann); ?>
     <?php if ($ann['is_active'] == 1) : ?>
       <div class="alert" role="alert" style="background-color: #214d66;">
@@ -234,7 +235,7 @@ $page  = strtolower($page);
     <div class="col-lg-3 col-xs-6" style="margin-top:10px;">
       <!-- small box -->
       <div class="small-box bg-aqua">
-        <?php $sql = mysqli_query($con,"SELECT idm from tbl_status_matching where `status` = 'selesai' and approve = 'TRUE'");
+        <?php $sql = mysqli_query($con, "SELECT idm from tbl_status_matching where `status` = 'selesai' and approve = 'TRUE'");
         $Total_resep = mysqli_num_rows($sql);
         ?>
         <div class="inner">
@@ -253,7 +254,7 @@ $page  = strtolower($page);
     <div class="col-lg-3 col-xs-6" style="margin-top:10px;">
       <!-- small box -->
       <div class="small-box bg-green">
-        <?php $sql_Dyes = mysqli_query($con,"SELECT code from tbl_dyestuff WHERE is_active = 'TRUE'");
+        <?php $sql_Dyes = mysqli_query($con, "SELECT code from tbl_dyestuff WHERE is_active = 'TRUE'");
         $Total_Dyes = mysqli_num_rows($sql_Dyes);
         ?>
         <div class="inner">
@@ -270,9 +271,9 @@ $page  = strtolower($page);
     </div>
     <!-- ./col -->
     <div class="col-lg-3 col-xs-6" style="margin-top:10px;">
-      <?php $sql_totalmatcher = mysqli_query($con,"SELECT * FROM tbl_matcher where `status` = 'Aktif'"); ?>
+      <?php $sql_totalmatcher = mysqli_query($con, "SELECT * FROM tbl_matcher where `status` = 'Aktif'"); ?>
       <?php $totalmatcher = mysqli_num_rows($sql_totalmatcher); ?>
-      <?php $sql_totalcolorist = mysqli_query($con,"SELECT * FROM tbl_colorist where is_active = 'TRUE'"); ?>
+      <?php $sql_totalcolorist = mysqli_query($con, "SELECT * FROM tbl_colorist where is_active = 'TRUE'"); ?>
       <?php $totalcolorist = mysqli_num_rows($sql_totalcolorist); ?>
       <div class="small-box bg-yellow">
         <div class="inner">
@@ -289,7 +290,7 @@ $page  = strtolower($page);
     </div>
     <!-- ./col -->
     <div class="col-lg-3 col-xs-6" style="margin-top:10px;">
-      <?php $sql_proses = mysqli_query($con,"SELECT * from master_proses where is_active = 'TRUE'"); ?>
+      <?php $sql_proses = mysqli_query($con, "SELECT * from master_proses where is_active = 'TRUE'"); ?>
       <?php $proses = mysqli_num_rows($sql_proses); ?>
       <div class="small-box bg-red">
         <div class="inner">

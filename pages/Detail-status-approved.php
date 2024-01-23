@@ -458,6 +458,12 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label for="Matching-ke" class="col-sm-2 control-label">Percobaan berapa kali</label>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" required id="howmany_Matching-ke" name="howmany_Matching-ke" maxlength="2" placeholder="Percobaan Berapa Kali" value="<?php echo $data['howmany_percobaan_ke'] ?>">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="BENANG-A" class="col-sm-2 control-label">BENANG-A</label>
                                 <div class="col-sm-9">
                                     <textarea name="BENANG-A" id="BENANG-A" rows="2" class="form-control" placeholder="Benang Aktual.." required><?php echo $data['benang_aktual'] ?></textarea>
@@ -997,10 +1003,15 @@
                             <tr>
                                 <td colspan="2">EXPORT TO BEAN</td>
                                 <td colspan="2">
-
                                     <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                         <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
                                     </a>
+                                    <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                        &nbsp; &nbsp; &nbsp; &nbsp;
+                                        <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                            <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                                 <?php
                                     $q_dbrecipebean = db2_exec($conn1, "SELECT COUNT(*) AS jumlahrecipe FROM RECIPEBEAN WHERE TRIM(SUBCODE01) = '$data[recipe_code_1]'");
@@ -1191,6 +1202,12 @@
                                         <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
                                         </a>
+                                        <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                            &nbsp; &nbsp; &nbsp; &nbsp;
+                                            <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                                <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1359,6 +1376,12 @@
                                         <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
                                         </a>
+                                        <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                            &nbsp; &nbsp; &nbsp; &nbsp;
+                                            <a class="bbtn btn-sm btn-danger approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                                <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <tr>

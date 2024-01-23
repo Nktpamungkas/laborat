@@ -229,10 +229,10 @@
 <body>
     <?php
         $qry = mysqli_query($con,"SELECT * , a.id as id_status, b.id as id_matching
-                                from db_laborat.tbl_status_matching a 
-                                join db_laborat.tbl_matching b on a.idm = b.no_resep 
-                                where a.id = '$ids'
-                                ORDER BY a.id desc limit 1");
+                                    from db_laborat.tbl_status_matching a 
+                                    join db_laborat.tbl_matching b on a.idm = b.no_resep 
+                                    where a.id = '$ids'
+                                    ORDER BY a.id desc limit 1");
         $data = mysqli_fetch_array($qry);
     ?>
     <br>
@@ -1682,13 +1682,264 @@
 
         <tr style="height: 0.4in">
             <td colspan="4">&nbsp;</td>
-            <td colspan="3" align="center">T-SIDE</td>
-            <td colspan="3" align="center">C.SIDE</td>
+            <?php if(substr($data['no_resep'], 0, 2) == 'OB') : ?>
+                <td colspan="6" align="center">T/C-SIDE</td>
+            <?php else : ?>
+                <td colspan="3" align="center">T-SIDE</td>
+                <td colspan="3" align="center">C.SIDE</td>
+            <?php endif; ?>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Temp x Time</td>
-            <td colspan="3" align="center"><?php echo ($data['tside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['tside_min']) ?> min</td>
-            <td colspan="3" align="center"><?php echo ($data['cside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['cside_min']) ?> min</td>
+            <?php if(substr($data['no_resep'], 0, 2) == 'OB') : ?>
+                <td colspan="6" align="center">
+                    <!-- KHUSUS OB -->
+                    <?php
+                        if(substr($kode_lama1, 0, 3) == 'W-H'){
+                            echo $kdbr1['Product_Name'];
+                        }elseif(substr($kode_lama2, 0, 3) == 'W-H'){
+                            echo $kdbr2['Product_Name'];
+                        }elseif(substr($kode_lama3, 0, 3) == 'W-H'){
+                            echo $kdbr3['Product_Name'];
+                        }elseif(substr($kode_lama4, 0, 3) == 'W-H'){
+                            echo $kdbr4['Product_Name'];
+                        }elseif(substr($kode_lama5, 0, 3) == 'W-H'){
+                            echo $kdbr5['Product_Name'];
+                        }elseif(substr($kode_lama6, 0, 3) == 'W-H'){
+                            echo $kdbr6['Product_Name'];
+                        }elseif(substr($kode_lama7, 0, 3) == 'W-H'){
+                            echo $kdbr7['Product_Name'];
+                        }elseif(substr($kode_lama8, 0, 3) == 'W-H'){
+                            echo $kdbr8['Product_Name'];
+                        }elseif(substr($kode_lama9, 0, 3) == 'W-H'){
+                            echo $kdbr9['Product_Name'];
+                        }elseif(substr($kode_lama10, 0, 3) == 'W-H'){
+                            echo $kdbr10['Product_Name'];
+                        }elseif(substr($kode_lama11, 0, 3) == 'W-H'){
+                            echo $kdbr11['Product_Name'];
+                        }elseif(substr($kode_lama12, 0, 3) == 'W-H'){
+                            echo $kdbr12['Product_Name'];
+                        }elseif(substr($kode_lama13, 0, 3) == 'W-H'){
+                            echo $kdbr13['Product_Name'];
+                        }elseif(substr($kode_lama14, 0, 3) == 'W-H'){
+                            echo $kdbr14['Product_Name'];
+                        }elseif(substr($kode_lama15, 0, 3) == 'W-H'){
+                            echo $kdbr15['Product_Name'];
+                        }elseif(substr($kode_lama16, 0, 3) == 'W-H'){
+                            echo $kdbr16['Product_Name'];
+                        }elseif(substr($kode_lama17, 0, 3) == 'W-H'){
+                            echo $kdbr17['Product_Name'];
+                        }elseif(substr($kode_lama18, 0, 3) == 'W-H'){
+                            echo $kdbr18['Product_Name'];
+                        }elseif(substr($kode_lama19, 0, 3) == 'W-H'){
+                            echo $kdbr19['Product_Name'];
+                        }elseif(substr($kode_lama20, 0, 3) == 'W-H'){
+                            echo $kdbr20['Product_Name'];
+                        }elseif(substr($kode_lama21, 0, 3) == 'W-H'){
+                            echo $kdbr21['Product_Name'];
+                        }elseif(substr($kode_lama22, 0, 3) == 'W-H'){
+                            echo $kdbr22['Product_Name'];
+                        }elseif(substr($kode_lama23, 0, 3) == 'W-H'){
+                            echo $kdbr23['Product_Name'];
+                        }elseif(substr($kode_lama24, 0, 3) == 'W-H'){
+                            echo $kdbr24['Product_Name'];
+                        }elseif(substr($kode_lama25, 0, 3) == 'W-H'){
+                            echo $kdbr25['Product_Name'];
+                        }elseif(substr($kode_lama26, 0, 3) == 'W-H'){
+                            echo $kdbr26['Product_Name'];
+                        }elseif(substr($kode_lama27, 0, 3) == 'P-L'){
+                            echo $kdbr27['Product_Name'];
+                        }else{
+                            echo "0";
+                        }
+                    ?>
+                </td>
+            <?php else : ?>
+                <td colspan="3" align="center">
+                    <!-- POLY -->
+                    <?php
+                        if(substr($kode_lama1, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr1['Product_Name'];
+                        }
+                        if(substr($kode_lama2, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr2['Product_Name'];
+                        }
+                        if(substr($kode_lama3, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr3['Product_Name'];
+                        }
+                        if(substr($kode_lama4, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr4['Product_Name'];
+                        }
+                        if(substr($kode_lama5, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr5['Product_Name'];
+                        }
+                        if(substr($kode_lama6, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr6['Product_Name'];
+                        }
+                        if(substr($kode_lama7, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr7['Product_Name'];
+                        }
+                        if(substr($kode_lama8, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr8['Product_Name'];
+                        }
+                        if(substr($kode_lama9, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr9['Product_Name'];
+                        }
+                        if(substr($kode_lama10, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr10['Product_Name'];
+                        }
+                        if(substr($kode_lama11, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr11['Product_Name'];
+                        }
+                        if(substr($kode_lama12, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr12['Product_Name'];
+                        }
+                        if(substr($kode_lama13, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr13['Product_Name'];
+                        }
+                        if(substr($kode_lama14, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr14['Product_Name'];
+                        }
+                        if(substr($kode_lama15, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr15['Product_Name'];
+                        }
+                        if(substr($kode_lama16, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr16['Product_Name'];
+                        }
+                        if(substr($kode_lama17, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr17['Product_Name'];
+                        }
+                        if(substr($kode_lama18, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr18['Product_Name'];
+                        }
+                        if(substr($kode_lama19, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr19['Product_Name'];
+                        }
+                        if(substr($kode_lama20, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr20['Product_Name'];
+                        }
+                        if(substr($kode_lama21, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr21['Product_Name'];
+                        }
+                        if(substr($kode_lama22, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr22['Product_Name'];
+                        }
+                        if(substr($kode_lama23, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr23['Product_Name'];
+                        }
+                        if(substr($kode_lama24, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr24['Product_Name'];
+                        }
+                        if(substr($kode_lama25, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr25['Product_Name'];
+                        }
+                        if(substr($kode_lama26, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr26['Product_Name'];
+                        }
+                        if(substr($kode_lama27, 0, 3) == 'P-L'){
+                            $kode_temp_suhu = $kdbr27['Product_Name'];
+                        }
+
+                        if(!empty($kode_temp_suhu)){
+                            echo $kode_temp_suhu;
+                        }else{
+                            echo '0';
+                        }
+                    ?>
+                </td>
+                <td colspan="3" align="center">
+                    <!-- COTTON -->
+                    <?php
+                        if(substr($kode_lama1, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr1['Product_Name'];
+                        }
+                        if(substr($kode_lama2, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr2['Product_Name'];
+                        }
+                        if(substr($kode_lama3, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr3['Product_Name'];
+                        }
+                        if(substr($kode_lama4, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr4['Product_Name'];
+                        }
+                        if(substr($kode_lama5, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr5['Product_Name'];
+                        }
+                        if(substr($kode_lama6, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr6['Product_Name'];
+                        }
+                        if(substr($kode_lama7, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr7['Product_Name'];
+                        }
+                        if(substr($kode_lama8, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr8['Product_Name'];
+                        }
+                        if(substr($kode_lama9, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr9['Product_Name'];
+                        }
+                        if(substr($kode_lama10, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr10['Product_Name'];
+                        }
+                        if(substr($kode_lama11, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr11['Product_Name'];
+                        }
+                        if(substr($kode_lama12, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr12['Product_Name'];
+                        }
+                        if(substr($kode_lama13, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr13['Product_Name'];
+                        }
+                        if(substr($kode_lama14, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr14['Product_Name'];
+                        }
+                        if(substr($kode_lama15, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr15['Product_Name'];
+                        }
+                        if(substr($kode_lama16, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr16['Product_Name'];
+                        }
+                        if(substr($kode_lama17, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr17['Product_Name'];
+                        }
+                        if(substr($kode_lama18, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr18['Product_Name'];
+                        }
+                        if(substr($kode_lama19, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr19['Product_Name'];
+                        }
+                        if(substr($kode_lama20, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr20['Product_Name'];
+                        }
+                        if(substr($kode_lama21, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr21['Product_Name'];
+                        }
+                        if(substr($kode_lama22, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr22['Product_Name'];
+                        }
+                        if(substr($kode_lama23, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr23['Product_Name'];
+                        }
+                        if(substr($kode_lama24, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr24['Product_Name'];
+                        }
+                        if(substr($kode_lama25, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr25['Product_Name'];
+                        }
+                        if(substr($kode_lama26, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr26['Product_Name'];
+                        }
+                        if(substr($kode_lama27, 0, 3) == 'C-T'){
+                            $kode_temp_suhu_cotton = $kdbr27['Product_Name'];
+                        }
+
+                        if(!empty($kode_temp_suhu_cotton)){
+                            echo $kode_temp_suhu_cotton;
+                        }else{
+                            echo '0';
+                        }
+                    ?>
+                </td>
+            <?php endif; ?>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">L:R</td>
@@ -1706,8 +1957,8 @@
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">pH</td>
-            <td colspan="3" align="center">&nbsp; <?php echo $data['ph'] ?></td>
-            <td colspan="3">&nbsp;</td>
+            <td colspan="3" align="center">&nbsp; <?php echo floatval($data['ph']); ?></td>
+            <td colspan="3" align="center">&nbsp; 0</td>
             <td style="font-weight: bold;" colspan="2">
                 CIE WI &nbsp;&nbsp;: <?php echo number_format($data['cie_wi'], 2); ?>
                 <pre style="display: inline-block; margin-left: 200px;">CIE TINT : <?php echo number_format($data['cie_tint'], 2); ?></pre>
@@ -1716,21 +1967,292 @@
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">RC</td>
-            <td colspan="3" align="center"><?php echo ($data['rc_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['rc_tm']) ?> min</td>
-            <td colspan="3">&nbsp;</td>
+            <td colspan="3" align="center">
+                <!-- RC -->
+                <?php
+                    if(substr($kode_lama1, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr1['Product_Name'];
+                    }
+                    if(substr($kode_lama2, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr2['Product_Name'];
+                    }
+                    if(substr($kode_lama3, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr3['Product_Name'];
+                    }
+                    if(substr($kode_lama4, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr4['Product_Name'];
+                    }
+                    if(substr($kode_lama5, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr5['Product_Name'];
+                    }
+                    if(substr($kode_lama6, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr6['Product_Name'];
+                    }
+                    if(substr($kode_lama7, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr7['Product_Name'];
+                    }
+                    if(substr($kode_lama8, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr8['Product_Name'];
+                    }
+                    if(substr($kode_lama9, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr9['Product_Name'];
+                    }
+                    if(substr($kode_lama10, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr10['Product_Name'];
+                    }
+                    if(substr($kode_lama11, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr11['Product_Name'];
+                    }
+                    if(substr($kode_lama12, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr12['Product_Name'];
+                    }
+                    if(substr($kode_lama13, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr13['Product_Name'];
+                    }
+                    if(substr($kode_lama14, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr14['Product_Name'];
+                    }
+                    if(substr($kode_lama15, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr15['Product_Name'];
+                    }
+                    if(substr($kode_lama16, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr16['Product_Name'];
+                    }
+                    if(substr($kode_lama17, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr17['Product_Name'];
+                    }
+                    if(substr($kode_lama18, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr18['Product_Name'];
+                    }
+                    if(substr($kode_lama19, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr19['Product_Name'];
+                    }
+                    if(substr($kode_lama20, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr20['Product_Name'];
+                    }
+                    if(substr($kode_lama21, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr21['Product_Name'];
+                    }
+                    if(substr($kode_lama22, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr22['Product_Name'];
+                    }
+                    if(substr($kode_lama23, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr23['Product_Name'];
+                    }
+                    if(substr($kode_lama24, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr24['Product_Name'];
+                    }
+                    if(substr($kode_lama25, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr25['Product_Name'];
+                    }
+                    if(substr($kode_lama26, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr26['Product_Name'];
+                    }
+                    if(substr($kode_lama27, 0, 3) == 'R-C'){
+                        $ket_rc = $kdbr27['Product_Name'];
+                    }
+
+                    if(!empty($ket_rc)){
+                        echo $ket_rc;
+                    }else{
+                        echo '0';
+                    }
+                ?>
+            </td>
+            <td colspan="3"  align="center">&nbsp; 0</td>
             <td colspan="2" align="center"><strong>GREIGE</strong></td>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Bleaching</td>
-            <td colspan="3" align="center"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min</td>
-            <td colspan="3">&nbsp;</td>
+            <td colspan="3" align="center">
+                <!-- BLEACHING -->
+                <?php
+                    if(substr($kode_lama1, 0, 3) == 'B-L' AND $kdbr1['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr1['Product_Name'];
+                    }
+                    if(substr($kode_lama2, 0, 3) == 'B-L' AND $kdbr2['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr2['Product_Name'];
+                    }
+                    if(substr($kode_lama3, 0, 3) == 'B-L' AND $kdbr3['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr3['Product_Name'];
+                    }
+                    if(substr($kode_lama4, 0, 3) == 'B-L' AND $kdbr4['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr4['Product_Name'];
+                    }
+                    if(substr($kode_lama5, 0, 3) == 'B-L' AND $kdbr5['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr5['Product_Name'];
+                    }
+                    if(substr($kode_lama6, 0, 3) == 'B-L' AND $kdbr6['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr6['Product_Name'];
+                    }
+                    if(substr($kode_lama7, 0, 3) == 'B-L' AND $kdbr7['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr7['Product_Name'];
+                    }
+                    if(substr($kode_lama8, 0, 3) == 'B-L' AND $kdbr8['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr8['Product_Name'];
+                    }
+                    if(substr($kode_lama9, 0, 3) == 'B-L' AND $kdbr9['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr9['Product_Name'];
+                    }
+                    if(substr($kode_lama10, 0, 3) == 'B-L' AND $kdbr10['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr10['Product_Name'];
+                    }
+                    if(substr($kode_lama11, 0, 3) == 'B-L' AND $kdbr11['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr11['Product_Name'];
+                    }
+                    if(substr($kode_lama12, 0, 3) == 'B-L' AND $kdbr12['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr12['Product_Name'];
+                    }
+                    if(substr($kode_lama13, 0, 3) == 'B-L' AND $kdbr13['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr13['Product_Name'];
+                    }
+                    if(substr($kode_lama14, 0, 3) == 'B-L' AND $kdbr14['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr14['Product_Name'];
+                    }
+                    if(substr($kode_lama15, 0, 3) == 'B-L' AND $kdbr15['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr15['Product_Name'];
+                    }
+                    if(substr($kode_lama16, 0, 3) == 'B-L' AND $kdbr16['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr16['Product_Name'];
+                    }
+                    if(substr($kode_lama17, 0, 3) == 'B-L' AND $kdbr17['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr17['Product_Name'];
+                    }
+                    if(substr($kode_lama18, 0, 3) == 'B-L' AND $kdbr18['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr18['Product_Name'];
+                    }
+                    if(substr($kode_lama19, 0, 3) == 'B-L' AND $kdbr19['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr19['Product_Name'];
+                    }
+                    if(substr($kode_lama20, 0, 3) == 'B-L' AND $kdbr20['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr20['Product_Name'];
+                    }
+                    if(substr($kode_lama21, 0, 3) == 'B-L' AND $kdbr21['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr21['Product_Name'];
+                    }
+                    if(substr($kode_lama22, 0, 3) == 'B-L' AND $kdbr22['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr22['Product_Name'];
+                    }
+                    if(substr($kode_lama23, 0, 3) == 'B-L' AND $kdbr23['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr23['Product_Name'];
+                    }
+                    if(substr($kode_lama24, 0, 3) == 'B-L' AND $kdbr24['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr24['Product_Name'];
+                    }
+                    if(substr($kode_lama25, 0, 3) == 'B-L' AND $kdbr25['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr25['Product_Name'];
+                    }
+                    if(substr($kode_lama26, 0, 3) == 'B-L' AND $kdbr26['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr26['Product_Name'];
+                    }
+                    if(substr($kode_lama27, 0, 3) == 'B-L' AND $kdbr27['ket'] == 'Suhu'){
+                        $ket_bl = $kdbr27['Product_Name'];
+                    }
+                    if(!empty($ket_bl)){
+                        echo $ket_bl;
+                    }else{
+                        echo "0";
+                    }
+                ?>
+            </td>
+            <td colspan="3"  align="center">&nbsp; 0</td>
             <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Soaping</td>
-            <td colspan="3" align="center">&nbsp;</td>
-            <td colspan="3" align="center"><?php echo ($data['soaping_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['soaping_tm']) ?> min</td>
+            <td colspan="3" align="center">&nbsp; 0</td>
+            <td colspan="3" align="center">
+                <!-- SOAPING -->
+                <?php
+                    if(substr($kode_lama1, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr1['Product_Name'];
+                    }
+                    if(substr($kode_lama2, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr2['Product_Name'];
+                    }
+                    if(substr($kode_lama3, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr3['Product_Name'];
+                    }
+                    if(substr($kode_lama4, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr4['Product_Name'];
+                    }
+                    if(substr($kode_lama5, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr5['Product_Name'];
+                    }
+                    if(substr($kode_lama6, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr6['Product_Name'];
+                    }
+                    if(substr($kode_lama7, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr7['Product_Name'];
+                    }
+                    if(substr($kode_lama8, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr8['Product_Name'];
+                    }
+                    if(substr($kode_lama9, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr9['Product_Name'];
+                    }
+                    if(substr($kode_lama10, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr10['Product_Name'];
+                    }
+                    if(substr($kode_lama11, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr11['Product_Name'];
+                    }
+                    if(substr($kode_lama12, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr12['Product_Name'];
+                    }
+                    if(substr($kode_lama13, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr13['Product_Name'];
+                    }
+                    if(substr($kode_lama14, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr14['Product_Name'];
+                    }
+                    if(substr($kode_lama15, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr15['Product_Name'];
+                    }
+                    if(substr($kode_lama16, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr16['Product_Name'];
+                    }
+                    if(substr($kode_lama17, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr17['Product_Name'];
+                    }
+                    if(substr($kode_lama18, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr18['Product_Name'];
+                    }
+                    if(substr($kode_lama19, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr19['Product_Name'];
+                    }
+                    if(substr($kode_lama20, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr20['Product_Name'];
+                    }
+                    if(substr($kode_lama21, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr21['Product_Name'];
+                    }
+                    if(substr($kode_lama22, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr22['Product_Name'];
+                    }
+                    if(substr($kode_lama23, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr23['Product_Name'];
+                    }
+                    if(substr($kode_lama24, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr24['Product_Name'];
+                    }
+                    if(substr($kode_lama25, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr25['Product_Name'];
+                    }
+                    if(substr($kode_lama26, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr26['Product_Name'];
+                    }
+                    if(substr($kode_lama27, 0, 1) == 'S'){
+                        $ket_soaping = $kdbr27['Product_Name'];
+                    }
 
+                    if(!empty($ket_soaping)){
+                        echo $ket_soaping;
+                    }else{
+                        echo "0";
+                    }
+                ?>
+            </td>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">BEFORE RC / Bleaching</td>

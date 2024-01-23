@@ -42,10 +42,10 @@ function SedangJalan($jenis_matching)
         where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu') 
         and b.jenis_matching = '$jenis_matching'")*/
 		mysqli_query($con,"SELECT count(b.id) as `count`
-        FROM tbl_status_matching a
-        JOIN tbl_matching b ON a.idm = b.no_resep
-        where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
-        and b.jenis_matching = '$jenis_matching'")
+                            FROM tbl_status_matching a
+                            JOIN tbl_matching b ON a.idm = b.no_resep
+                            where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
+                            and b.jenis_matching = '$jenis_matching'")
     );
     return $sql['count'];
 }

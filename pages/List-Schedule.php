@@ -64,7 +64,7 @@ $Nowarna	= isset($_POST['nowarna']) ? $_POST['nowarna'] : '';
 $Item	    = isset($_POST['item']) ? $_POST['item'] : '';
 $RCode	    = isset($_POST['rcode']) ? $_POST['rcode'] : '';
 $Warna	    = isset($_POST['warna']) ? $_POST['warna'] : '';
-$JMatching	    = isset($_POST['jmatching']) ? $_POST['jmatching'] : '';
+$JMatching	= isset($_POST['jmatching']) ? $_POST['jmatching'] : '';
 $Order	    = isset($_POST['order']) ? $_POST['order'] : '';	
 ?>
 <body>
@@ -120,18 +120,18 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
                         <?php
                         if($Nowarna!="" or $Item!="" or $RCode!="" or $Warna!="" or $JMatching!="" or $Order!=""){
                         $sql = mysqli_query($con,"SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang,
-                                            b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket
-                                            FROM tbl_matching a 
-                                            left join tbl_status_matching b on a.`no_resep` = b.`idm`
-                                            where b.approve_at is null AND a.no_resep LIKE '%$RCode%' AND a.no_warna LIKE '%$Nowarna%' AND a.no_item LIKE '%$Item%' AND a.warna LIKE '%$Warna%' AND a.no_order LIKE '%$Order%' AND a.jenis_matching LIKE '%$JMatching%'
-                                            order by a.id desc");
+                                                        b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket
+                                                        FROM tbl_matching a 
+                                                        left join tbl_status_matching b on a.`no_resep` = b.`idm`
+                                                        where b.approve_at is null AND a.no_resep LIKE '%$RCode%' AND a.no_warna LIKE '%$Nowarna%' AND a.no_item LIKE '%$Item%' AND a.warna LIKE '%$Warna%' AND a.no_order LIKE '%$Order%' AND a.jenis_matching LIKE '%$JMatching%'
+                                                        order by a.id desc");
                         }else{
                         $sql = mysqli_query($con,"SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang,
-                                            b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket
-                                            FROM tbl_matching a 
-                                            left join tbl_status_matching b on a.`no_resep` = b.`idm`
-                                            where b.approve_at is null
-                                            order by a.id desc");
+                                                        b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket, a.tgl_update
+                                                        FROM tbl_matching a 
+                                                        left join tbl_status_matching b on a.`no_resep` = b.`idm`
+                                                        where b.approve_at is null
+                                                        order by a.id desc");
                         }
                         ?>
                         <table id="Table-sm" class="table table-sm display compact" style="width: 100%;">
@@ -147,6 +147,7 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
                                     <th>Langganan</th>
                                     <th>No. Item</th>
                                     <th>Keterangan</th>
+                                    <th>Tgl Update</th>
                                     <th>Handle</th>
                                 </tr>
                             </thead>
@@ -185,6 +186,7 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
                                         <td><?php echo $li['langganan'] ?></td>
                                         <td><?php echo $li['no_item'] ?></td>
                                         <td width="150"><?php echo $li['ket'] ?></td>
+                                        <td><?php echo $li['tgl_update'] ?></td>
                                         <td class="btn-grp">
                                             <!-- <div class="btn-group" role="group" aria-label="1"> -->
                                             <?php if ($li['status'] == null) { ?>
