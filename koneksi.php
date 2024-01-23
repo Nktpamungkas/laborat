@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
-$host="10.0.0.4";
-$username="timdit";
-$password="4dm1n";
+$host="10.0.0.174";
+$username="ditprogram";
+$password="Xou@RUnivV!6";
 $db_name="TM";
 $time = date('Y-m-d H:i:s');
 $connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
