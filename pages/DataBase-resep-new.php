@@ -1,7 +1,7 @@
 <?php
-ini_set("error_reporting", 1);
-session_start();
-include "koneksi.php";
+    ini_set("error_reporting", 1);
+    session_start();
+    include "koneksi.php";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -62,12 +62,12 @@ include "koneksi.php";
     }
 </style>
 <?php
-$Nowarna	= isset($_POST['nowarna']) ? $_POST['nowarna'] : '';
-$Item	    = isset($_POST['item']) ? $_POST['item'] : '';
-$RCode	    = isset($_POST['rcode']) ? $_POST['rcode'] : '';
-$OrderAsal	= isset($_POST['order_asal']) ? $_POST['order_asal'] : '';
-$JMatching	= isset($_POST['jenis_matching']) ? $_POST['jenis_matching'] : '';
-$Warna	    = isset($_POST['warna']) ? $_POST['warna'] : '';	
+    $Nowarna	= isset($_POST['nowarna']) ? $_POST['nowarna'] : '';
+    $Item	    = isset($_POST['item']) ? $_POST['item'] : '';
+    $RCode	    = isset($_POST['rcode']) ? $_POST['rcode'] : '';
+    $OrderAsal	= isset($_POST['order_asal']) ? $_POST['order_asal'] : '';
+    $JMatching	= isset($_POST['jenis_matching']) ? $_POST['jenis_matching'] : '';
+    $Warna	    = isset($_POST['warna']) ? $_POST['warna'] : '';	
 ?>
 <body>
     <div class="row">
@@ -146,13 +146,16 @@ $Warna	    = isset($_POST['warna']) ? $_POST['warna'] : '';
                                 while ($row = mysqli_fetch_array($sql)) { ?>
                                     <tr>
                                         <td>
-                                        <b>▕ Rcode > <?php echo $row['idm'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp;J.kain > <?php echo $row['jenis_kain'] ?> <br />
-                                        ▕  No.Warna > <?php echo $row['no_warna'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp; Warna > <?php echo $row['warna'] ?> 
-                                        &nbsp;&nbsp;▕&nbsp;&nbsp;P.Order > <?php echo $row['no_order'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp;  No.item > <?php echo $row['no_item'] ?> |<b>
-                                        <li class="btn-group" role="group" aria-label="...">
-                                            <a href="index1.php?p=Detail-status-approved&idm=<?php echo $row['id'];?>" class="btn btn-primary btn-xs"><i class="fa fa-fw fa-search"></i></a>
-                                            <a href="pages/cetak/cetak_resep.php?ids=<?php echo $row['id'];?>&idm=<?php echo $row['idm'];?>" class="btn btn-danger btn-xs" target="_blank"><i class="fa fa-fw fa-print"></i></a>
-                                        </li> 
+                                            <b>▕ Rcode > <?php echo $row['idm'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp;J.kain > <?php echo $row['jenis_kain'] ?> <br />
+                                            ▕  No.Warna > <?php echo $row['no_warna'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp; Warna > <?php echo $row['warna'] ?> 
+                                            &nbsp;&nbsp;▕&nbsp;&nbsp;P.Order > <?php echo $row['no_order'] ?> &nbsp;&nbsp;▕&nbsp;&nbsp;  No.item > <?php echo $row['no_item'] ?> |<b>
+                                            <li class="btn-group" role="group" aria-label="...">
+                                                <a href="index1.php?p=Detail-status-approved&idm=<?php echo $row['id'];?>" class="btn btn-primary btn-xs"><i class="fa fa-fw fa-search"></i></a>
+                                                <a href="pages/cetak/cetak_resep.php?ids=<?php echo $row['id'];?>&idm=<?php echo $row['idm'];?>" class="btn btn-danger btn-xs" target="_blank"><i class="fa fa-fw fa-print"></i></a>
+                                                <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?> 
+                                                    <a href="pages/cetak/cetak_resep2.php?ids=<?php echo $row['id'];?>&idm=<?php echo $row['idm'];?>" class="btn btn-info btn-xs" target="_blank"><i class="fa fa-fw fa-print"></i></a>
+                                                <?php endif; ?>
+                                            </li> 
                                         </td>
                                         <td><?php echo $row['no_order'] ?></td>
                                         <td><?php echo $row['flag'] ?></td>
