@@ -296,6 +296,12 @@ $data = mysqli_fetch_array($sql); ?>
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label for="Matching-ke" class="col-sm-2 control-label">Percobaan berapa kali</label>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" required id="howmany_Matching-ke" name="howmany_Matching-ke" maxlength="2" placeholder="Percobaan Berapa Kali" value="<?php echo $data['howmany_percobaan_ke'] ?>">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="BENANG-A" class="col-sm-2 control-label">BENANG-A</label>
                                 <div class="col-sm-9">
                                     <textarea name="BENANG-A" id="BENANG-A" rows="2" class="form-control" placeholder="Benang Aktual.." required><?php echo $data['benang_aktual'] ?></textarea>
@@ -1663,10 +1669,10 @@ $data = mysqli_fetch_array($sql); ?>
             } else {
                 var bleaching_tm = $("#bleaching_tm").val();
             }
-            insertInto_StatusMatching_DetailMatching($("#id_tblmatching").val(), $("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#recipe_code').val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val(), $('#remark_dye').val())
+            insertInto_StatusMatching_DetailMatching($("#id_tblmatching").val(), $("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#recipe_code').val(), $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val(), $('#remark_dye').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_tblmatching, id_matching, id_status, idm, recipe_code, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, bleaching_sh, bleaching_tm, second_lr, remark_dye) {
+        function insertInto_StatusMatching_DetailMatching(id_tblmatching, id_matching, id_status, idm, recipe_code, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, bleaching_sh, bleaching_tm, second_lr, remark_dye) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -1679,6 +1685,7 @@ $data = mysqli_fetch_array($sql); ?>
                     idm: idm,
                     recipe_code: recipe_code,
                     matching_ke: matching_ke,
+                    howmany_Matching_ke: howmany_Matching_ke,
                     benang_a: benang_a,
                     lebar_a: lebar_a,
                     gramasi_a: gramasi_a,

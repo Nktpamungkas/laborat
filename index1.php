@@ -1,29 +1,29 @@
 <?php
-ini_set("error_reporting", 1);
-session_start();
-include_once('koneksi.php');
+    ini_set("error_reporting", 1);
+    session_start();
+    include_once('koneksi.php');
 ?>
 <?php
-if (!isset($_SESSION['userLAB'])) {
+    if (!isset($_SESSION['userLAB'])) {
 ?>
-    <script>
-        setTimeout("location.href='login'", 500);
-    </script>
+<script>
+    setTimeout("location.href='login'", 500);
+</script>
 <?php
-    die('Illegal Acces');
-} else if (!isset($_SESSION['passLAB'])) {
+        die('Illegal Acces');
+    } else if (!isset($_SESSION['passLAB'])) {
 ?>
-    <script>
-        setTimeout("location.href='lockscreen'", 500);
-    </script>
+<script>
+    setTimeout("location.href='lockscreen'", 500);
+</script>
 <?php
-    die('Illegal Acces');
-}
+        die('Illegal Acces');
+    }
 
-$page = isset($_GET['p']) ? $_GET['p'] : '';
-$act  = isset($_GET['act']) ? $_GET['act'] : '';
-$id   = isset($_GET['id']) ? $_GET['id'] : '';
-$page = strtolower($page);
+    $page = isset($_GET['p']) ? $_GET['p'] : '';
+    $act  = isset($_GET['act']) ? $_GET['act'] : '';
+    $id   = isset($_GET['id']) ? $_GET['id'] : '';
+    $page = strtolower($page);
 ?>
 <!DOCTYPE html>
 <html>
@@ -102,27 +102,29 @@ $page = strtolower($page);
                             <i class="fa fa-bars"></i>
                         </button>
                     </div>
-
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
                         <ul class="nav navbar-nav">
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' 
-                                    or $_SESSION['jabatanLAB'] == 'Admin' 
-                                    or $_SESSION['jabatanLAB'] == 'Spv' 
-                                    or $_SESSION['jabatanLAB'] == 'Leader'
-                                    or $_SESSION['jabatanLAB'] == 'Matcher'
-                                    or $_SESSION['jabatanLAB'] == 'Super matcher' 
-                                    or $_SESSION['jabatanLAB'] == 'Other' 
-                                    or $_SESSION['jabatanLAB'] == 'Bon order'
-                                    or $_SESSION['jabatanLAB'] == 'Colorist'
-                                    or $_SESSION['jabatanLAB'] == 'Guest'
-                                    or $_SESSION['jabatanLAB'] == 'Lab Head') : ?>
+                            <?php if (
+                                $_SESSION['jabatanLAB'] == 'Super admin'
+                                or $_SESSION['jabatanLAB'] == 'Admin'
+                                or $_SESSION['jabatanLAB'] == 'Spv'
+                                or $_SESSION['jabatanLAB'] == 'Leader'
+                                or $_SESSION['jabatanLAB'] == 'Matcher'
+                                or $_SESSION['jabatanLAB'] == 'Super matcher'
+                                or $_SESSION['jabatanLAB'] == 'Other'
+                                or $_SESSION['jabatanLAB'] == 'Bon order'
+                                or $_SESSION['jabatanLAB'] == 'Colorist'
+                                or $_SESSION['jabatanLAB'] == 'Guest'
+                                or $_SESSION['jabatanLAB'] == 'Lab Head'
+                                ) : 
+                            ?>
                                 <li class="<?php if ($_GET['p'] == "Home" or $_GET['p'] == "") {
                                                 echo "active";
                                             } ?>"><a href="?p=Home"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
                                 </li>
                             <?php endif; ?>
-                            
+
                             <!-- GENERATE KARTU MATCHING -->
                             <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'MKT') : ?>
                                 <li class="<?php if ($_GET['p'] == "Price" or $_GET['p'] == "") {
@@ -227,6 +229,11 @@ $page = strtolower($page);
                                                 } ?>"><a href="?p=Dyestuff_Utilization"><i class="fa fa-code text-warning" aria-hidden="true"></i>
                                             <span>Dyestuff Utilization</span></a>
                                     </li>
+                                    <li class="<?php if ($_GET['p'] == "SearchLog_Perlakuan") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=SearchLog_Perlakuan"><i class="fa fa-search text-warning" aria-hidden="true"></i>
+                                            <span>Search Log Additional Order</span></a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -328,7 +335,7 @@ $page = strtolower($page);
                             <li class="dropdown messages-menu">
                                 <?php
                                 $hari_ini = date('Y-m-d');
-                                $sql_login = mysqli_query($con,"SELECT do_by, max(do_at) as do_at from tbl_log where DATE_FORMAT(do_at,'%Y-%m-%d') = '$hari_ini' and what = 'login'
+                                $sql_login = mysqli_query($con, "SELECT do_by, max(do_at) as do_at from tbl_log where DATE_FORMAT(do_at,'%Y-%m-%d') = '$hari_ini' and what = 'login'
                                 group by do_by
                                 order by do_at asc");
                                 $count_login = mysqli_num_rows($sql_login);
@@ -503,7 +510,7 @@ $page = strtolower($page);
 </script>
 <script>
     $(function() {
-			
+
         $('#example1').DataTable({
             'scrollX': true,
             'paging': true,
