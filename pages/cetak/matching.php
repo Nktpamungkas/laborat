@@ -30,16 +30,16 @@ $act = $_GET['g'];
 
 <body>
   <?php
-  $qry = mysqli_query($con,"SELECT *,DATE_FORMAT(now(),'%d %M %Y') as tgl FROM tbl_matching WHERE no_resep='$idkk'");
-  $data = mysqli_fetch_array($qry);
-  $ip_num = $_SERVER['REMOTE_ADDR'];
-  mysqli_query($con,"INSERT INTO log_status_matching SET
-            `ids` = '$idkk', 
-            `status` = 'print', 
-            `info` = 'cetak kartu matching', 
-            `do_by` = '$_SESSION[userLAB]', 
-            `do_at` = '$time', 
-            `ip_address` = '$ip_num'");
+    $qry = mysqli_query($con, "SELECT *,DATE_FORMAT(now(),'%d %M %Y') as tgl FROM tbl_matching WHERE no_resep='$idkk'");
+    $data = mysqli_fetch_array($qry);
+    $ip_num = $_SERVER['REMOTE_ADDR'];
+    mysqli_query($con, "INSERT INTO log_status_matching SET
+                        `ids` = '$idkk', 
+                        `status` = 'print', 
+                        `info` = 'cetak kartu matching', 
+                        `do_by` = '$_SESSION[userLAB]', 
+                        `do_at` = '$time', 
+                        `ip_address` = '$ip_num'");
   ?>
   <table width="100%" border="0">
     <tr style="font-size: 10px;">
@@ -55,26 +55,25 @@ $act = $_GET['g'];
   </table>
   <table width="100%" border="0" class="table-list1">
     <tbody>
-
       <tr>
         <td width="80" style="border-right:0px #000000 solid;"><strong style="font-size: 22px;">R</strong>SUFFIX</td>
         <td width="18" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td width="58" style="border-left:0px #000000 solid;"><strong>
-          <?php 
+            <?php
             // if (substr($data['no_resep'], 0, 2) == 'D2' OR substr($data['no_resep'], 0, 1) == 'C' OR substr($data['no_resep'], 0, 2) == 'DR' OR substr($data['no_resep'], 0, 2) == 'OB') {  
             //   echo substr($data['no_resep'], 2).'L';
             // }elseif (substr($data['no_resep'], 0, 1) == 'R' or substr($data['no_resep'], 0, 1) == 'A'){
             //   echo substr($data['no_resep'], 1).'L';
             // }
             echo $data['no_resep'];
-          ?>
+            ?>
           </strong>
         </td>
         <td width="94" style="border-right:0px #000000 solid;"><strong style="font-size: 22px;">I</strong>TEM</td>
         <td width="12" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td colspan="5" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_item']; ?></strong></td>
         <td colspan="6" align="center" style="border-bottom:0px #000000 solid;">
-          <?php if ($data['jenis_matching'] == "L/D" OR $data['jenis_matching'] == "LD NOW") : ?>
+          <?php if ($data['jenis_matching'] == "L/D" or $data['jenis_matching'] == "LD NOW") : ?>
             <strong style="font-size: 24px;">KARTU MATCHING L/D</strong>
           <?php else : ?>
             <strong style="font-size: 24px;">KARTU MATCHING</strong>
@@ -149,7 +148,7 @@ $act = $_GET['g'];
         <td colspan="2" align="right">&nbsp;&nbsp; &deg;C X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Menit</td>
       </tr>
       <tr><?php $i = 1;
-          $sqlLamp = mysqli_query($con,"SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]' order by flag"); ?>
+          $sqlLamp = mysqli_query($con, "SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]' order by flag"); ?>
         <td rowspan="2" style="border-right:0px #000000 solid;" colspan="3"><strong>LAMPU</strong> : <?php while ($lamp = mysqli_fetch_array($sqlLamp)) {
                                                                                                         echo $i++ . '.(' . $lamp['lampu'] . '), ';
                                                                                                       } ?>
@@ -158,14 +157,14 @@ $act = $_GET['g'];
           <strong style="font-size: 21px;">T</strong>IME <strong style="font-size: 21px;">O</strong>UT
         </td>
         <?php
-          $sql_ci_y = mysqli_query($con, "SELECT * FROM tbl_status_matching WHERE idm = '$data[no_resep]'");
-          $row_ci_y = mysqli_fetch_assoc($sql_ci_y);
+        $sql_ci_y = mysqli_query($con, "SELECT * FROM tbl_status_matching WHERE idm = '$data[no_resep]'");
+        $row_ci_y = mysqli_fetch_assoc($sql_ci_y);
         ?>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td width="86" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
           <span style="border-left:0px #000000 solid;">
             <span style="border-right:0px #000000 solid;">
-              <strong style="font-size: 21px;">C</strong>IE 
+              <strong style="font-size: 21px;">C</strong>IE
               <strong style="font-size: 21px;">W</strong>I
             </span>
           </span> : <?= $row_ci_y['cie_wi']; ?>
@@ -174,7 +173,7 @@ $act = $_GET['g'];
         <td width="85" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
           <span style="border-left:0px #000000 solid;">
             <strong style="font-size: 8px;">
-              <strong style="font-size: 21px;">C</strong>IE 
+              <strong style="font-size: 21px;">C</strong>IE
               <strong style="font-size: 21px;">T</strong>INT
             </strong>
           </span> : <?= $row_ci_y['cie_tint']; ?>
@@ -191,8 +190,8 @@ $act = $_GET['g'];
         <td style="border-left:0px #000000 solid;">:</td>
         <td colspan="2">&nbsp;</td>
         <td rowspan="2" style="border-right:0px #000000 solid;">
-          <strong style="font-size: 21px;">L</strong>AB 
-          <strong style="font-size: 21px;">D</strong>IP 
+          <strong style="font-size: 21px;">L</strong>AB
+          <strong style="font-size: 21px;">D</strong>IP
           <strong style="font-size: 21px;">N</strong>O
         </td>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
@@ -265,32 +264,31 @@ $act = $_GET['g'];
           </strong></td>
       </tr>
       <?php
-      $no = 1;
-      $qry1 = mysqli_query($con,"SELECT * FROM tbl_matching_detail WHERE id_matching='$data[id]' and jenis='cotton' ORDER BY id ASC");
-      while ($r = mysqli_fetch_array($qry1)) { ?>
-        <tr>
-          <?php if ($no < 2) { ?><td rowspan="<?php $sp = 12;
-                                              echo $sp - $no; ?>"><a class="hurufvertical"><strong>SIDE A</strong></a></td> <?php } ?>
-          <td align="center" style="height: 15px;"><?php echo strtoupper($r['kode']); ?></td>
-          <td colspan="4"><?php echo $r['nama']; ?></td>
-          <td align="center"><?php echo $r['lab']; ?></td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-        </tr>
-      <?php $no++;
-      } ?>
+        $no = 1;
+        $qry1 = mysqli_query($con, "SELECT * FROM tbl_matching_detail WHERE id_matching='$data[id]' and jenis='cotton' ORDER BY id ASC");
+        while ($r = mysqli_fetch_array($qry1)) { ?>
+          <tr>
+            <?php if ($no < 2) { ?><td rowspan="<?php $sp = 12;
+                                                echo $sp - $no; ?>"><a class="hurufvertical"><strong>SIDE A</strong></a></td> <?php } ?>
+            <td align="center" style="height: 15px;"><?php echo strtoupper($r['kode']); ?></td>
+            <td colspan="4"><?php echo $r['nama']; ?></td>
+            <td align="center"><?php echo $r['lab']; ?></td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+      <?php $no++; } ?>
       <?php for ($i = $no; $i <= 7; $i++) { ?>
         <tr>
           <?php if ($i < 2) { ?><td rowspan="11" style="border-bottom: double;"><a class="hurufvertical"><strong>SIDE A</strong></a></td> <?php } ?>
@@ -371,28 +369,27 @@ $act = $_GET['g'];
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td colspan="4" align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 15px; border-bottom: double;">&nbsp;</td>
+        <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
       </tr>
       <?php
-      $no1 = 1;
-      $qry2 = mysqli_query($con,"SELECT * FROM tbl_matching_detail WHERE id_matching='$data[id]' and jenis='polyester' ORDER BY id ASC");
-      while ($r1 = mysqli_fetch_array($qry2)) { ?>
+        $no1 = 1;
+        $qry2 = mysqli_query($con, "SELECT * FROM tbl_matching_detail WHERE id_matching='$data[id]' and jenis='polyester' ORDER BY id ASC");
+        while ($r1 = mysqli_fetch_array($qry2)) { ?>
         <tr>
           <?php if ($no1 < 2) { ?><td rowspan="<?php $sp1 = 15;
                                                 echo $sp1 - $no1; ?>"><a class="hurufvertical"><strong>SIDE B</strong></a></td> <?php } ?>
@@ -414,8 +411,7 @@ $act = $_GET['g'];
           <td>&nbsp;</td>
           <td>&nbsp;</td>
         </tr>
-      <?php $no1++;
-      } ?>
+      <?php $no1++; } ?>
       <?php for ($i1 = $no1; $i1 <= 7; $i1++) { ?>
         <tr>
           <?php if ($i1 < 2) { ?><td rowspan="11"><a class="hurufvertical"><strong>SIDE B</strong></a></td> <?php } ?>
@@ -496,8 +492,7 @@ $act = $_GET['g'];
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td align="center" style="height: 15px;">&nbsp;</td>
-        <td colspan="4" align="center">&nbsp;</td>
+        <td align="left" colspan="5" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
@@ -514,19 +509,32 @@ $act = $_GET['g'];
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
       </tr>
-      <tr> <?php $sqlOrder = mysqli_query($con,"SELECT * FROM tbl_orderchild where id_matching = '$data[id]' AND NOT `order` = '$data[no_order]' "); ?>
-        <td rowspan="10"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
-        <td rowspan="7" colspan="5" valign="top"> <?php if ($data['jenis_matching'] == "L/D") : ?>
+      <tr> 
+        <?php $sqlOrder = mysqli_query($con, "SELECT * FROM tbl_orderchild where id_matching = '$data[id]' AND NOT `order` = '$data[no_order]' "); ?>
+        <td rowspan="2" style="height: 80px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
+        <td rowspan="7" colspan="5" valign="top"> 
+          <?php if ($data['jenis_matching'] == "L/D") : ?>
+            <strong style="font-size: 21px;">R</strong>EQUEST NO :
+          <?php elseif ($data['jenis_matching'] == "LD NOW") : ?>
             <strong style="font-size: 21px;">R</strong>EQUEST NO :
           <?php else : ?>
             <strong style="font-size: 21px;">NO.</strong>ORDER :
-            <?php endif; ?><?php echo $data['no_order'] ?>, <?php while ($order = mysqli_fetch_array($sqlOrder)) {
-                                                              echo $order['order'] . ', ';
-                                                            } ?><div align="right"><strong style="font-size: 21px;"><?php if($data['salesman_sample']=="1"){ echo "S/S"; } ?></strong></div></td>
-        <td style="border-bottom: 0px; border-top:0px;" width="4%" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" width="4%" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" width="4%" rowspan="2" align="left">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" width="5%" rowspan="2" align="center">&nbsp;</td>
+          <?php endif; ?>
+            <?php echo $data['no_order'] ?>,
+            <?php while ($order = mysqli_fetch_array($sqlOrder)) {
+              echo $order['order'] . ', ';
+            } ?>
+            <div align="right"><strong style="font-size: 21px;">
+                <?php if ($data['salesman_sample'] == "1") {
+                  echo "S/S";
+                } ?></strong>
+            </div>
+            QTY ORDER : <strong><?Php echo $data['qty_order']; ?></strong>
+        </td>
+        <td width="4%" align="center">&nbsp;</td>
+        <td width="4%" align="center">&nbsp;</td>
+        <td width="4%" rowspan="2" align="left">&nbsp;</td>
+        <td width="5%" rowspan="2" align="center">&nbsp;</td>
         <td rowspan="7" align="center">&nbsp;</td>
         <td rowspan="7" align="center">&nbsp;</td>
         <td rowspan="7" align="center">&nbsp;</td>
@@ -539,64 +547,109 @@ $act = $_GET['g'];
         <td rowspan="7" align="center">&nbsp;</td>
         <td rowspan="7" align="center">&nbsp;</td>
       </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</a></td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</a></td>
-        <td style="border-bottom: 0px; border-top:0px;" width="2%" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" width="4%" align="left">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" width="5%" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="left">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="left">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="5" rowspan="3" valign="top" style="height: 0.65in;">QTY ORDER : <strong><?Php echo $data['qty_order']; ?></strong></td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td style="border-bottom: 0px;" align="left"><a style="font-size: 9px;">&nbsp;</a></td>
-        <td style="border-bottom: 0px;" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-        <td rowspan="3" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style="border-bottom: 0px; border-top:0px;" align="left"><a style="font-size: 9px;">&nbsp;</a></td>
-        <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
-      </tr>
-      <tr>
-        <td style=" border-top:0px;" align="left">&nbsp;</td>
-        <td style="border-top:0px;" align="center">&nbsp;</td>
-      </tr>
+      <!-- 
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</a></td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center"><a style="font-size: 8px;">&nbsp;</a></td>
+          <td style="border-bottom: 0px; border-top:0px;" width="2%" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" width="4%" align="left">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" width="5%" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="left">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="left">&nbsp;</td>
+          <td style="border-bottom: 0px; border-top:0px;" rowspan="2" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;asdsadsad</td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;asdsad</td>
+        </tr>
+        <tr>
+          <td colspan="5" rowspan="3" valign="top" style="height: 0.65in;"></td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td style="border-bottom: 0px;" align="left"><a style="font-size: 9px;">&nbsp;</a></td>
+          <td style="border-bottom: 0px;" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+          <td rowspan="3" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style="border-bottom: 0px; border-top:0px;" align="left"><a style="font-size: 9px;">&nbsp;</a></td>
+          <td style="border-bottom: 0px; border-top:0px;" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td style=" border-top:0px;" align="left">&nbsp;</td>
+          <td style="border-top:0px;" align="center">&nbsp;</td>
+        </tr> 
+      -->
     </tbody>
     <hr>
+  </table>
+  <br>
+  <table width="100%" border="0" class="table-list1">
+    <tbody>
+      <tr>
+        <td rowspan="6" style="width: 15px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+      </tr>
+      <tr>
+        <td style="height: 30px;"><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+      </tr>
+      <tr>
+        <td style="height: 320px;"><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+      </tr>
+      
+      <tr>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+      </tr>
+      <tr>
+        <td style="height: 30px;"><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+      </tr>
+      <tr>
+        <td style="height: 320px;"><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+        <td><strong></strong></td>
+      </tr>
+    </tbody>
   </table>
 </body>
 

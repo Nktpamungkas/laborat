@@ -3,6 +3,70 @@
   session_start();
   include "koneksi.php";
 ?>
+<?php
+  $query_rate = "SELECT * FROM ITTWEEKLYEXCHANGERATE WHERE INITIALDATE BETWEEN '$date_curr' AND NOW() ORDER BY INITIALDATE ASC LIMIT 1";
+  $date = date_create($_POST['date_start']);
+  $date_curr = date_format($date, "Y-m-d");
+
+  $rate = db2_exec($conn1, $query_rate);
+  $cek_d_rate = db2_fetch_assoc($rate);
+  if($cek_d_rate['WEEKLYEXCHANGERATE'] == 0){
+    $rate = db2_exec($conn1, "SELECT * FROM ITTWEEKLYEXCHANGERATE ORDER BY INITIALDATE DESC LIMIT 1");
+    $d_rate = db2_fetch_assoc($rate);
+  }else{
+    $rate = db2_exec($conn1, $query_rate);
+    $d_rate = db2_fetch_assoc($rate);
+  }
+
+  $date = date_create($_POST['date_start']);
+  $date_curr = date_format($date, "Y-m-d");
+  $recipe_code  = $_POST['recipe_code'];
+  
+  $sql_curr = db2_exec($conn1, $query_rate);
+  $d_curr = db2_fetch_assoc($sql_curr);
+  if($d_curr['WEEKLYEXCHANGERATE']){                              
+      $curr = $d_curr['WEEKLYEXCHANGERATE'];
+  }else{
+      $sql_curr = db2_exec($conn1, "SELECT * FROM ITTWEEKLYEXCHANGERATE ORDER BY INITIALDATE DESC LIMIT 1");
+      $d_curr = db2_fetch_assoc($sql_curr);
+
+      $curr = $d_curr['WEEKLYEXCHANGERATE'];
+  }
+  $sql_header = db2_exec($conn1, "SELECT 
+                                    RECIPE_CODE,
+                                    SUFFIX,
+                                    SUM(PRICE) AS SUM_PRICE
+                                  FROM (SELECT
+                                      r.RECIPESUBCODE01 AS RECIPE_CODE,
+                                      r.RECIPESUFFIXCODE AS SUFFIX,
+                                      SUM(CASE
+                                        WHEN i.CURRENCYCODE = 'IDR' THEN (i.PRICE/100)*r.CONSUMPTION / $curr
+                                        ELSE (i.PRICE/100)*r.CONSUMPTION
+                                      END) AS PRICE
+                                  FROM
+                                      RECIPECOMPONENT r
+                                  INNER JOIN INTERNALPRICELISTLINE i ON i.SUBCODE01 = r.SUBCODE01 AND i.SUBCODE02 = r.SUBCODE02 AND i.SUBCODE03 = r.SUBCODE03
+                                  WHERE 
+                                    r.RECIPEITEMTYPECODE = 'RFD' AND r.RECIPESUFFIXCODE = '001' AND r.RECIPESUBCODE01 LIKE '%$recipe_code%' AND r.ITEMTYPEAFICODE = 'DYC' AND i.VALIDTODATE IS NULL
+                                  GROUP BY
+                                      r.RECIPESUBCODE01,
+                                      r.RECIPESUFFIXCODE, i.CURRENCYCODE)
+                                  GROUP BY 
+                                    RECIPE_CODE,
+                                    SUFFIX");
+  $sql_header_sumprice = db2_exec($conn1, "SELECT
+                                              SUM(CASE
+                                                WHEN i.CURRENCYCODE = 'IDR' THEN (i.PRICE/100)*r.CONSUMPTION / $curr
+                                                ELSE (i.PRICE/100)*r.CONSUMPTION
+                                              END) AS PRICE
+                                          FROM
+                                              RECIPECOMPONENT r
+                                          INNER JOIN INTERNALPRICELISTLINE i ON i.SUBCODE01 = r.SUBCODE01 AND i.SUBCODE02 = r.SUBCODE02 AND i.SUBCODE03 = r.SUBCODE03
+                                          WHERE 
+                                            r.RECIPEITEMTYPECODE = 'RFD' AND r.RECIPESUFFIXCODE = '001' AND r.RECIPESUBCODE01 LIKE '%$recipe_code%' AND r.ITEMTYPEAFICODE = 'DYC' AND i.VALIDTODATE IS NULL");
+  $d_header = db2_fetch_assoc($sql_header);
+  $d_header_sumprice = db2_fetch_assoc($sql_header_sumprice);
+?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -65,7 +129,25 @@
     margin: 0 auto;
   }
 </style>
+<script>
+  function jenis_kain(){
+    var jenis_kain    = document.getElementById("jenis_kain").value;
+    var harga_dasar   = <?php echo number_format($d_header_sumprice['PRICE'], 8) * 1.1 ?>
 
+    if(jenis_kain == 'cotton'){
+      var total_price = 0.220 + harga_dasar;
+    }else if(jenis_kain == 'cvc_tv_no_rc'){
+      var total_price = 0.280 + harga_dasar;
+    }else if(jenis_kain == 'cvc_tv_with_rc'){
+      var total_price = 0.330 + harga_dasar;
+    }else if(jenis_kain == 'poly'){
+      var total_price = 0.120 + harga_dasar;
+    }else{
+      var total_price = 0;
+    }
+    document.getElementById("price").value = total_price;
+  }
+</script>
 <body>
     <div class="row">
         <div class="box">
@@ -95,74 +177,9 @@
                   <button type="submit" name="submit" value="search" class="btn btn-primary btn-sm mb-2"><i class="fa fa-search" aria-hidden="true"></i>
                   </button>
                 </form>
-                <?php $query_rate = "SELECT * FROM ITTWEEKLYEXCHANGERATE WHERE INITIALDATE BETWEEN '$date_curr' AND NOW() ORDER BY INITIALDATE ASC LIMIT 1"; ?>
-                <?php
-                  $date = date_create($_POST['date_start']);
-                  $date_curr = date_format($date, "Y-m-d");
-
-                  $rate = db2_exec($conn1, $query_rate);
-                  $cek_d_rate = db2_fetch_assoc($rate);
-                  if($cek_d_rate['WEEKLYEXCHANGERATE'] == 0){
-                    $rate = db2_exec($conn1, "SELECT * FROM ITTWEEKLYEXCHANGERATE ORDER BY INITIALDATE DESC LIMIT 1");
-                    $d_rate = db2_fetch_assoc($rate);
-                  }else{
-                    $rate = db2_exec($conn1, $query_rate);
-                    $d_rate = db2_fetch_assoc($rate);
-                  }
-                ?>
               </div>
               <div class="container-fluid">
                   <table class="table table-striped table-bordered" id="tableee" width="100%" style="margin-top: 10px;">
-                  <?php
-                    $date = date_create($_POST['date_start']);
-                    $date_curr = date_format($date, "Y-m-d");
-                    $recipe_code  = $_POST['recipe_code'];
-                    
-                    $sql_curr = db2_exec($conn1, $query_rate);
-                    $d_curr = db2_fetch_assoc($sql_curr);
-                    if($d_curr['WEEKLYEXCHANGERATE']){                              
-                        $curr = $d_curr['WEEKLYEXCHANGERATE'];
-                    }else{
-                        $sql_curr = db2_exec($conn1, "SELECT * FROM ITTWEEKLYEXCHANGERATE ORDER BY INITIALDATE DESC LIMIT 1");
-                        $d_curr = db2_fetch_assoc($sql_curr);
-
-                        $curr = $d_curr['WEEKLYEXCHANGERATE'];
-                    }
-                    $sql_header = db2_exec($conn1, "SELECT 
-                                                      RECIPE_CODE,
-                                                      SUFFIX,
-                                                      SUM(PRICE) AS SUM_PRICE
-                                                    FROM (SELECT
-                                                        r.RECIPESUBCODE01 AS RECIPE_CODE,
-                                                        r.RECIPESUFFIXCODE AS SUFFIX,
-                                                        SUM(CASE
-                                                          WHEN i.CURRENCYCODE = 'IDR' THEN (i.PRICE/100)*r.CONSUMPTION / $curr
-                                                          ELSE (i.PRICE/100)*r.CONSUMPTION
-                                                        END) AS PRICE
-                                                    FROM
-                                                        RECIPECOMPONENT r
-                                                    INNER JOIN INTERNALPRICELISTLINE i ON i.SUBCODE01 = r.SUBCODE01 AND i.SUBCODE02 = r.SUBCODE02 AND i.SUBCODE03 = r.SUBCODE03
-                                                    WHERE 
-                                                      r.RECIPEITEMTYPECODE = 'RFD' AND r.RECIPESUFFIXCODE = '001' AND r.RECIPESUBCODE01 LIKE '%$recipe_code%' AND r.ITEMTYPEAFICODE = 'DYC' AND i.VALIDTODATE IS NULL
-                                                    GROUP BY
-                                                        r.RECIPESUBCODE01,
-                                                        r.RECIPESUFFIXCODE, i.CURRENCYCODE)
-                                                    GROUP BY 
-                                                      RECIPE_CODE,
-                                                      SUFFIX");
-                    $sql_header_sumprice = db2_exec($conn1, "SELECT
-                                                                SUM(CASE
-                                                                  WHEN i.CURRENCYCODE = 'IDR' THEN (i.PRICE/100)*r.CONSUMPTION / $curr
-                                                                  ELSE (i.PRICE/100)*r.CONSUMPTION
-                                                                END) AS PRICE
-                                                            FROM
-                                                                RECIPECOMPONENT r
-                                                            INNER JOIN INTERNALPRICELISTLINE i ON i.SUBCODE01 = r.SUBCODE01 AND i.SUBCODE02 = r.SUBCODE02 AND i.SUBCODE03 = r.SUBCODE03
-                                                            WHERE 
-                                                              r.RECIPEITEMTYPECODE = 'RFD' AND r.RECIPESUFFIXCODE = '001' AND r.RECIPESUBCODE01 LIKE '%$recipe_code%' AND r.ITEMTYPEAFICODE = 'DYC' AND i.VALIDTODATE IS NULL");
-                    $d_header = db2_fetch_assoc($sql_header);
-                    $d_header_sumprice = db2_fetch_assoc($sql_header_sumprice);
-                  ?>
                     <tr>
                       <td class="text-center bg-green" width="10%">RECIPE CODE</td>
                       <td><?php if($recipe_code){ echo $d_header['RECIPE_CODE']; } ?> </td>
@@ -176,12 +193,22 @@
                       <td><?php if($recipe_code){ echo number_format($d_rate['WEEKLYEXCHANGERATE']); } ?></td>
                     </tr>
                     <tr>
-                      <td class="text-center bg-green" width="10%"></td>
-                      <td></td>
+                      <td class="text-center bg-green" width="10%">Jenis Kain</td>
+                      <td>
+                        <select class="form-control" style="width: 170px;" id="jenis_kain" onchange="jenis_kain();">
+                          <option value="-" disabled selected>Pilih Jenis Kain</option>
+                          <option value="cotton">Cotton</option>
+                          <option value="cvc_tv_no_rc">CVC/TC no RC</option>
+                          <option value="cvc_tv_with_rc">CVC/TC with RC</option>
+                          <option value="poly">Poly</option>
+                        </select>
+                      </td>
                     </tr>
                     <tr>
-                      <td class="text-center bg-green" width="10%">TOTAL PRICE USD</td>
-                      <td><?php if($recipe_code){ echo number_format($d_header_sumprice['PRICE'], 8); } ?></td>
+                      <td class="text-center bg-green" width="10%">TOTAL PRICE USD (x1.1)</td>
+                      <td>
+                        <input type="text" style="border: none; border-width: 0; box-shadow: none;" id="price">
+                      </td>
                     </tr>
                   </table>
                   <hr>
@@ -216,7 +243,7 @@
 
                               $curr = $d_curr['WEEKLYEXCHANGERATE'];
                           }
-                          $sql = db2_exec($conn1, "SELECT r.RECIPESUBCODE01,
+                        $sql = db2_exec($conn1, "SELECT r.RECIPESUBCODE01,
                                                       TRIM(r.SUBCODE01) || '-' || TRIM(r.SUBCODE02) || '-' || TRIM(r.SUBCODE03) AS CODE_DYESTUFF,
                                                       TRIM(p.LONGDESCRIPTION) AS PRODUCT_NAME,
                                                       i.ITEMTYPEAFICODE AS DYESTUFF,
