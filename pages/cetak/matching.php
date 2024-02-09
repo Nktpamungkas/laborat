@@ -609,48 +609,191 @@ $act = $_GET['g'];
     <hr>
   </table>
   <br>
-  <table width="100%" border="0" class="table-list1">
-    <tbody>
-      <tr>
-        <td rowspan="6" style="width: 15px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-      </tr>
-      <tr>
-        <td style="height: 30px;"><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-      </tr>
-      <tr>
-        <td style="height: 320px;"><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-      </tr>
-      
-      <tr>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-        <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
-      </tr>
-      <tr>
-        <td style="height: 30px;"><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-      </tr>
-      <tr>
-        <td style="height: 320px;"><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-        <td><strong></strong></td>
-      </tr>
-    </tbody>
-  </table>
+  <?php if ($data['jenis_matching'] == "LD NOW" OR $data['jenis_matching'] == "L/D") : ?>
+    <table width="100%" border="0" class="table-list1">
+      <tbody>
+        <tr>
+          <td rowspan="12" style="width: 15px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td style="height: 140px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 140px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td style="height: 140px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 140px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td style="height: 160px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 160px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 15px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 15px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td style="height: 160px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          
+          <td style="height: 160px;"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  <?php else : ?>
+    <table width="100%" border="0" class="table-list1">
+      <tbody>
+        <tr>
+          <td rowspan="6" style="width: 15px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 30px;"><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+        </tr>
+        <tr>
+          <td style="height: 320px;"><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+        </tr>
+        
+        <tr>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+          <td style="height: 30px;" align="center"><span style="font-size:20px;">&nbsp;</span></td>
+        </tr>
+        <tr>
+          <td style="height: 30px;"><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+        </tr>
+        <tr>
+          <td style="height: 320px;"><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+          <td><strong></strong></td>
+        </tr>
+      </tbody>
+    </table>
+  <?php endif; ?>
 </body>
 
 </html>
