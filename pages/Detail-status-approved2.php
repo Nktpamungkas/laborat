@@ -1,18 +1,53 @@
 <?php
-ini_set("error_reporting", 1);
-session_start();
-include "koneksi.php";
-$sql = mysqli_query($con,"SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2, a.create_resep, a.acc_ulang_ok, a.acc_resep1, a.acc_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
-a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
-a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
-b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
-b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out, b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2,
-b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code, b.recipe_code
-FROM tbl_status_matching a
-INNER JOIN tbl_matching b ON a.idm = b.no_resep
-where a.id = '$_GET[idm]'
-ORDER BY a.id desc limit 1");
-$data = mysqli_fetch_array($sql); ?>
+    ini_set("error_reporting", 1);
+    session_start();
+    include "koneksi.php";
+    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
+    a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
+    a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
+    b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
+    b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out, b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, 
+    b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, a.remark_dye, b.color_code, b.recipe_code,
+    SUBSTRING_INDEX(SUBSTRING_INDEX(recipe_code, ' ', 1), ' ', -1) as recipe_code_1, SUBSTRING_INDEX(SUBSTRING_INDEX(recipe_code, ' ', 2), ' ', -1) as recipe_code_2
+    FROM tbl_status_matching a
+    INNER JOIN tbl_matching b ON a.idm = b.no_resep
+    where a.id = '$_GET[idm]'
+    ORDER BY a.id desc limit 1");
+    $data = mysqli_fetch_array($sql); 
+
+    if(substr(strtoupper($data['idm']), 0,2) == "DR"){
+        $suffix = $data['idm'];
+
+        $CoderecipeD = $data['recipe_code_1']; 
+        $q_CekDataRecipeD = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
+        $d_CekDataRecipeD = mysqli_fetch_assoc($q_CekDataRecipeD);
+        if($d_CekDataRecipeD['NUMROWS'] <= 0){
+            $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeD','$suffix')");
+        }
+        $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
+        $dataD = mysqli_fetch_array($sqlD); 
+
+        $CoderecipeR = $data['recipe_code_2'];
+        $q_CekDataRecipeR = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
+        $d_CekDataRecipeR = mysqli_fetch_assoc($q_CekDataRecipeR);
+        if($d_CekDataRecipeR['NUMROWS'] <= 0){
+            $sqlR = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeR','$suffix')");
+        }
+        $sqlR = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
+        $dataR = mysqli_fetch_array($sqlR); 
+    }else{
+        $suffix = $data['idm'];
+
+        $Coderecipe = $data['recipe_code_1']; 
+        $q_CekDataRecipe = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
+        $d_CekDataRecipe = mysqli_fetch_assoc($q_CekDataRecipe);
+        if($d_CekDataRecipe['NUMROWS'] <= 0){
+            $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$Coderecipe','$suffix')");
+        }
+        $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
+        $dataD = mysqli_fetch_array($sqlD); 
+    }
+?>
 <style>
     .lookupST {
         font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -21,9 +56,9 @@ $data = mysqli_fetch_array($sql); ?>
         font-size: 9pt !important;
     }
 
-    .lookupST td,
-    .lookupST th {
-        border: 1px solid black;
+    .lookupST tr td,
+    .lookupST tr th {
+        border: 1px solid grey;
         padding: 2px;
     }
 
@@ -64,32 +99,185 @@ $data = mysqli_fetch_array($sql); ?>
         line-height: 1.5;
     }
 </style>
-
 <body>
     <div class="container col-md-12">
         <?php if ($data['approve'] == 'TRUE') : ?>
-            <button class="btn btn pull-right" style="background-color: grey; color: white; margin-bottom: 10px;"><?php echo $data['idm'] ?> <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                <strong>Selesai</strong></button>
+            <a class="btn btn pull-right" style="background-color: grey; color: white; margin-bottom: 10px;"><?php echo $data['idm'] ?> <i class="fa fa-arrow-right" aria-hidden="true"></i>
+            <strong>Selesai</strong></a>
+            &nbsp;
         <?php else : ?>
             <button class="btn btn pull-right" style="background-color: white; color: black; margin-bottom: 10px;"><strong><?php echo $data['idm'] ?></strong></button>
         <?php endif; ?>
     </div>
     <div class="container-fluid">
         <ul class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" href="#input-status"><b>Basic Info</b></a></li>
+            <li id="tab_hasil_celup" class="active"><a data-toggle="tab" href="#hasil_celup"><b>Hasil Celup</b></a></li>
+            <li id="tab_basic"><a data-toggle="tab" href="#input-status"><b>Basic Info</b></a></li>
             <li id="tab_resep"><a data-toggle="tab" href="#step1"><b>RESEP</b></a></li>
+            <li id="tab_addt_order"><a data-toggle="tab" href="#addt_order"><b>Additional Order</b></a></li>
+            <li id="tab_perlakuan_resep"><a data-toggle="tab" href="#perlakuan_resep"><b>Log-Perlakuan</b></a></li>
+            <li id="tab_export_recipe"><a data-toggle="tab" href="#export_recipe"><b>Export Recipe</b></a></li>
             <li class="pull-right">
                 <?php if ($data['approve'] == 'NONE' && $data['status'] == 'selesai') : ?>
                     <button type="button" style="color: white; width: 150px;" class="btn btn-block btn-sm btn-success approve" idm="<?php echo $data['idm'] ?>" id_status="<?php echo $data['id_status'] ?>"><strong>Approve ! <i class="fa fa-check-circle"></i></strong></button>
                 <?php else : ?>
-                    <button style="width: 150px; background-color: grey; color: white;" class="btn"><strong>Status > <?php echo $data['status'] ?></strong><i class="fa fa-fw fa-print"></i></button>
+                    <button class="bbtn btn-sm btn-danger approve" style="width: 150px;" onclick="javascript:window.open('pages/cetak/cetak_resep.php?ids=<?php echo $data['id_status'] ?>&idm=<?php echo $data['idm'] ?>', '_blank');">Cetak Resep <i class="fa fa-fw fa-print"></i></button>
                 <?php endif; ?>
             </li>
         </ul>
     </div>
     <form action="#" class="form-horizontal" id="form-status">
+        <!-- parent -->
         <div class="tab-content">
-            <div id="input-status" class="tab-pane fade in active">
+            <!-- tab content here -->
+            <!-- 1 -->
+            <div id="hasil_celup" class="tab-pane fade in active">
+                <div class="row" style="margin-top:20px">
+                    <div class="col-md-12" style="margin-top: 10px;">
+                        <div class="col-md-12">
+                            <h4>
+                                <p class="text-center" style="text-shadow: black; font-weight: bold;">List Hasil Celup Resep <Strong style="text-decoration: underline;"><?php echo $data['idm'] ?></Strong> : <strong style="font-style: italic;"> <?php echo $data['warna'] ?> </strong></p>
+                            </h4>
+                            <button class="btn btn-sm btn-success dropdown-toggle" id="seeTheNote" type="button" data-toggle="dropdown">Note <i class="fa fa-comments-o" aria-hidden="true"></i></button>
+                        </div>
+                        <table class="lookupST display" id="table_hasil_celup" width="100%">
+                            <thead class="bg-primary">
+                                <th>id</th>
+                                <th>No.</th>
+                                <th>No .Order</th>
+                                <th>No .KK</th>
+                                <th>Lot</th>
+                                <th>Qty</th>
+                                <th>Loading</th>
+                                <th>L:R</th>
+                                <th>MC</th>
+                                <th>Kesetabilan</th>
+                                <th>Proses</th>
+                                <th>Status Celup</th>
+                                <th style="width: 50mm;">Benang</th>
+                                <th style="width: 50mm;">Keterangan</th>
+                                <th>Waktu</th>
+                                <th>Bon Resep</th>
+                                <th>Note</th>
+                                <th>Tgl Mulai</th>
+                                <th>Analisa</th>
+                            </thead>
+                            <tbody>
+                                <!-- i do some magic here dude -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal fade modal-3d-slit" id="ModalSeeResep" data-backdrop="static" data-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div id="body_SeeResep" class="modal-dialog" style="width:70%">
+
+                        </div>
+                    </div>
+                    <div class="modal fade modal-3d-slit" id="PopUpSeeNote" data-backdrop="static" data-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div id="body_PopUpSeeNote" class="modal-dialog" style="width:70%">
+
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var dataTable = $('#table_hasil_celup').DataTable({
+                                "processing": true,
+                                "serverSide": true,
+                                "pageLength": 50,
+                                "ordering": false,
+                                "lengthChange": false,
+                                "searching": false,
+                                "order": [
+                                    [0, "desc"]
+                                ],
+                                "ajax": {
+                                    url: "pages/ajax/data_server_GetHasilCelup_fromDyeing.php",
+                                    type: "post",
+                                    data: {
+                                        r_code: $('#idm').val(),
+                                        p: "Detail-status-approved"
+                                    },
+                                    error: function() {
+                                        $(".dataku-error").html("");
+                                        $("#dataku").append('<tbody class="dataku-error"><tr><th colspan="3">Tidak ada data untuk ditampilkan</th></tr></tbody>');
+                                        $("#dataku-error-proses").css("display", "none");
+                                    }
+                                },
+                                "columnDefs": [{
+                                        "className": "text-center",
+                                        "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+                                    },
+                                    {
+                                        "targets": [0],
+                                        "visible": false
+                                    }
+                                ],
+                            });
+
+                            $(document).on('click', '.posisi_kk', function() {
+                                var url_bon = $(this).attr('data');
+                                centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
+                            })
+
+                            $(document).on('click', '.bon_resep', function() {
+                                var url_bon = $(this).attr('data');
+                                centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
+                            })
+
+                            $(document).on('click', '#seeTheNote', function(e) {
+                                let m = '<?php echo $data['id_status'] ?>'
+                                $.ajax({
+                                    url: "pages/ajax/showTimelineNote.php",
+                                    type: "GET",
+                                    data: {
+                                        id_status: m,
+                                    },
+                                    success: function(ajaxData) {
+                                        $("#body_SeeResep").html(ajaxData);
+                                        $("#ModalSeeResep").modal('show', {
+                                            backdrop: 'false'
+                                        });
+                                    }
+                                });
+                            });
+
+                            $(document).on('click', '._seenote', function(e) {
+                                let id_status = $('#id_status').val();
+                                let kk = $(this).attr('data-kk')
+                                $.ajax({
+                                    url: "pages/ajax/Pop_Up_SeeNote.php",
+                                    type: "GET",
+                                    data: {
+                                        kk: kk,
+                                        id_status: id_status
+                                    },
+                                    success: function(ajaxData) {
+                                        $("#body_PopUpSeeNote").html(ajaxData);
+                                        $("#PopUpSeeNote").modal('show', {
+                                            backdrop: 'false'
+                                        });
+                                    }
+                                });
+                            });
+
+                            $(document).on('click', '._addnoteclp', function(e) {
+                                return alert('Edit Data resep hanya di izinkan melalui Modifikasi data')
+                            });
+                        })
+
+                        var popupWindow = null;
+
+                        function centeredPopup(url, winName, w, h, scroll) {
+                            LeftPosition = (screen.width) ? (screen.width - w) / 2 : 0;
+                            TopPosition = (screen.height) ? (screen.height - h) / 2 : 0;
+                            settings =
+                                'height=' + h + ',width=' + w + ',top=' + TopPosition + ',left=' + LeftPosition + ',scrollbars=' + scroll + ',resizable'
+                            popupWindow = window.open(url, winName, settings)
+                        }
+                    </script>
+                </div>
+            </div>
+            <!-- /1 -->
+            <div id="input-status" class="tab-pane fade in">
                 <div class="row" style="margin-top: 20px">
                     <input type="hidden" name="id_matching" id="id_matching" value="<?php echo $data['id'] ?>" readonly="true">
                     <input type="hidden" name="id_status" id="id_status" value="<?php echo $data['id_status'] ?>" readonly="true">
@@ -110,6 +298,26 @@ $data = mysqli_fetch_array($sql); ?>
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="recipe_code" class="col-sm-3 control-label">Recipe Code</label>
+                            <div class="col-sm-9">
+                                <input type="text" value="<?php echo $data['recipe_code'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang') {
+                                                                                                    echo '';
+                                                                                                } else {
+                                                                                                    echo 'readonly ';
+                                                                                                } ?> class="form-control input-sm" name="recipe_code" id="recipe_code" placeholder="Recipe Code">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="color_code" class="col-sm-3 control-label">Color Code</label>
+                            <div class="col-sm-9">
+                                <input type="text" value="<?php echo $data['color_code'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang') {
+                                                                                                    echo '';
+                                                                                                } else {
+                                                                                                    echo 'readonly ';
+                                                                                                } ?> class="form-control input-sm" name="color_code" id="color_code" placeholder="Color Code">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="no_warna" class="col-sm-3 control-label">No.warna</label>
                             <div class="col-sm-9">
                                 <input type="text" value="<?php echo $data['no_warna'] ?>" readonly class="form-control input-sm" name="no_warna" id="no_warna" placeholder="no_warna">
@@ -119,19 +327,6 @@ $data = mysqli_fetch_array($sql); ?>
                             <label for="warna" class="col-sm-3 control-label">Warna</label>
                             <div class="col-sm-9">
                                 <input type="text" value="<?php echo $data['warna'] ?>" readonly class="form-control input-sm" name="warna" id="warna" placeholder="warna">
-                            </div>
-                        </div>
-						<div class="form-group">
-                            <label for="color_code" class="col-sm-3 control-label">Color Code</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="<?php echo $data['color_code'] ?>" readonly class="form-control input-sm" name="color_code" id="color_code" placeholder="Color Code">
-                            </div>
-                        </div>
-						<div class="form-group">
-                            <label for="recipe_code" class="col-sm-3 control-label">Recipe Code</label>
-                            <div class="col-sm-9">
-                                <!--<input type="text" value="<?php echo $data['recipe_code'] ?>" readonly class="form-control input-sm" name="recipe_code" id="recipe_code" placeholder="Recipe Code">-->
-								<textarea readonly class="form-control input-sm" name="recipe_code" id="recipe_code" placeholder="Recipe Code"><?php echo $data['recipe_code'] ?></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -219,7 +414,7 @@ $data = mysqli_fetch_array($sql); ?>
                         </div>
                         <div class="form-group">
                             <label for="lamp" class="col-sm-3 control-label">Lampu :</label>
-                            <?php $sqlLamp = mysqli_query($con,"SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]'"); ?>
+                            <?php $sqlLamp = mysqli_query($con, "SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]'"); ?>
                             <?php while ($lamp = mysqli_fetch_array($sqlLamp)) { ?>
                                 <div class="col-sm-3">
                                     <input type="text" class="form-control input-sm" value="<?php echo $lamp['lampu'] ?>" readonly>
@@ -320,76 +515,41 @@ $data = mysqli_fetch_array($sql); ?>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
-                                <div class="col-sm-9">
-                                    <textarea required class="form-control" name="keterangan" id="keterangan" rows="3"><?php echo $data['ket'] ?></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Final Matcher</label>
                                 <div class="col-sm-6">
-                                    <select disabled class="form-control select_Fmatcher" required name="f_matcher" id="f_matcher">
+                                    <select class="form-control select_Fmatcher" required name="f_matcher" id="f_matcher">
                                         <option value="<?php echo $data['final_matcher'] ?>" selected><?php echo $data['final_matcher'] ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
+                                <div class="col-sm-6">
+                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                         <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                    </select>
-                                </div>
-								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
-                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-							<div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
-										<option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
-                                    </select>
-                                </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_ulang_ok" id="acc_ulang_ok">
-										<option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-							<div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
-										<option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
-                                    </select>
-                                </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
-										<option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                 <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                    <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
                                         <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                     </select>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
+                                <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
                                 <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                    <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                         <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
                                     </select>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
+                                <div class="col-sm-9">
+                                    <textarea required class="form-control" name="keterangan" id="keterangan" rows="3"><?php echo $data['ket'] ?></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -398,14 +558,12 @@ $data = mysqli_fetch_array($sql); ?>
             <div id="step1" class="tab-pane fade">
                 <br />
                 <div class="row">
-                    <!-- <div class="col-lg-12">
-                        <div class="align-right text-right" style="margin-bottom: 4px;">
-                            <button type="button" id="plus_c1" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Conc</button>
-                            <button type="button" id="minus_c1" class="btn btn-danger btn-xs"><i class="fa fa-minus"></i> Conc</button>||
-                            <button type="button" id="plus1" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Baris</button>
-                            <button type="button" id="minus1" class="btn btn-danger btn-xs"><i class="fa fa-minus"></i> Baris</button>
+                    <div class="col-lg-12">
+                        <div style="margin-bottom: 4px;">
+                            <button type="button" class="btn btn-success btn-xs" data-toggle="modal" id="btn_date_data" attr-data="<?php echo $data['id_status'] ?>"><i class="fa fa-calendar"></i> Date Data
+                            </button>
                         </div>
-                    </div> -->
+                    </div>
                     <div class="col-lg-12 overflow-auto table-responsive well" style="overflow-x: auto;">
                         <table id="lookupmodal1" class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
                             <thead id="th-lookup1">
@@ -427,16 +585,14 @@ $data = mysqli_fetch_array($sql); ?>
                                 </tr>
                             </thead>
                             <?php
-                            $hold_resep = mysqli_query($con,"SELECT * from tbl_matching_detail where `id_matching` = '$data[id]' and `id_status` = '$data[id_status]' order by flag");
+                            $hold_resep = mysqli_query($con, "SELECT * from tbl_matching_detail where `id_matching` = '$data[id]' and `id_status` = '$data[id_status]' order by flag");
                             ?>
                             <tbody id="tb-lookup1">
                                 <?php while ($hold = mysqli_fetch_array($hold_resep)) : ?>
                                     <tr>
                                         <td align="center" class="nomor"><?php echo $hold['flag'] ?></td>
                                         <td>
-                                            <select style="width: 100%" type="text" class="form-control input-xs code" placeholder="type code here ..">
-                                                <option value="<?php echo $hold['kode'] ?>" selected><?php echo $hold['kode'] ?></option>
-                                            </select>
+                                            <?php echo $hold['kode'] ?>
                                         </td>
                                         <td><input style="width: 100%" readonly type="text" class="form-control input-xs name" value="<?php echo $hold['nama'] ?>"></td>
                                         <td flag_td="1"><input style="width: 100%" type="text" class="form-control input-xs conc" value="<?php echo floatval($hold['conc1']) ?>"></td>
@@ -472,240 +628,899 @@ $data = mysqli_fetch_array($sql); ?>
                         </table>
                     </div>
                     <div class="col-lg-11 well" style="margin-top: 10px;">
-                        <div class="form-group">
-                            <label for="L_R" class="col-sm-1 control-label">T-SIDE L:R :</label>
-                            <div class="col-sm-2">
-                                <select type="text" width="100%" class="form-control" required name="L_R" id="L_R" placeholder="L_R">
-                                    <option selected value="<?php echo $data['lr'] ?>"><?php echo $data['lr'] ?></option>
-                                </select>
-                                <span></span>
-                            </div>
-                            <label for="L_R" class="col-sm-1 control-label">C-SIDE L:R :</label>
-                            <div class="col-sm-2">
-                                <select type="text" width="100%" class="form-control" required name="second_lr" id="second_lr" placeholder="L_R">
-                                    <option selected value="<?php echo $data['second_lr'] ?>"><?php echo $data['second_lr'] ?></option>
-                                </select>
-                                <span></span>
-                            </div>
-                            <div class="form-group">
-                                <label for="L_R" class="col-sm-1 control-label">Ph :</label>
-                                <div class="col-sm-3">
-                                    <input type="text" required class="form-control" name="kadar_air" id="kadar_air" value="<?php echo $data['ph'] ?>">
+                        <div class="box">
+                            <div class="container-fluid">
+                                <div class="col-md-6">
+                                    <div class="form-group" style="margin-top: 15px;">
+                                        <label for="L_R" class="col-sm-2 control-label">T-SIDE L:R :</label>
+                                        <div class="col-sm-3">
+                                            <select type="text" style="width:100%" class="form-control select2_lr" required name="L_R" id="L_R" placeholder="L_R">
+                                                <option selected value="<?php echo $data['lr'] ?>"><?php echo $data['lr'] ?></option>
+                                                <option value="1:6">1:6</option>
+                                                <option value="1:9">1:9</option>
+                                                <option value="1:10">1:10</option>
+                                                <option value="1:12">1:12</option>
+                                            </select>
+                                            <span></span>
+                                        </div>
+                                        <label for="L_R" class="col-sm-2 control-label">C-SIDE L:R :</label>
+                                        <div class="col-sm-3">
+                                            <select type="text" style="width:100%" class="form-control second_lr" required name="second_lr" id="second_lr" placeholder="L_R">
+                                                <option selected value="<?php echo $data['second_lr'] ?>"><?php echo $data['second_lr'] ?></option>
+                                                <option value="1:6">1:6</option>
+                                                <option value="1:9">1:9</option>
+                                                <option value="1:10">1:10</option>
+                                                <option value="1:12">1:12</option>
+                                            </select>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="L_R" class="col-sm-2 control-label">Ph :</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" required class="form-control" name="kadar_air" id="kadar_air" value="<?php echo floatval($data['ph']) ?>" placeholder="ph air...">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" style="margin-top: 15px;">
+                                    <div class="form-group">
+                                        <label for="L_R" class="col-sm-1 control-label">Remark Dyeing</label>
+                                        <div class="col-sm-11">
+                                            <textarea type="text" rows="8" class="form-control" name="remark_dye" id="remark_dye" placeholder="Remark ..."><?php echo $data['remark_dye'] ?></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- conditionally column -->
-                            <div class="col-md-12 well" style="margin-top: 20px;">
-                                <?php if (substr($data['idm'], 0, 2) == 'D2' or substr($data['idm'], 0, 1) == 'C') { ?>
-                                    <div class="form-group">
-                                        <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                        </div>
+                        <!-- conditionally column -->
+                        <div class="col-md-12 well" style="margin-top: 20px;">
+                            <?php if (substr($data['idm'], 0, 2) == 'D2' or substr($data['idm'], 0, 2) == 'C2') { ?>
+                                <div class="form-group">
+                                    <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
                                     </div>
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="RC_Suhu" required name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="RCWaktu" required name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
                                     </div>
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="RC_Suhu" required name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
                                     </div>
-                                <?php } else if (substr($data['idm'], 0, 1) == 'R' or substr($data['idm'], 0, 1) == 'A') { ?>
-                                    <div class="form-group">
-                                        <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="RCWaktu" required name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
                                     </div>
-                                    <!-- SOAPING -->
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" value="<?php echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
                                     </div>
-                                    <!-- //SOAPING -->
-                                <?php } elseif (substr($data['idm'], 0, 2) == 'DR') { ?>
-                                    <div class="form-group">
-                                        <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" value="<?php echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                </div>
+                            <?php } elseif (substr($data['idm'], 0, 2) == 'R2' or substr($data['idm'], 0, 2) == 'A2') { ?>
+                                <div class="form-group">
+                                    <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
                                     </div>
-                                    <!-- SOAPING -->
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
                                     </div>
-                                    <!-- //SOAPING -->
-                                    <!-- RC -->
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="RC_Suhu" name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" required id="RCWaktu" name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                </div>
+                                <!-- SOAPING -->
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
                                     </div>
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
                                     </div>
-                                    <!-- //RC -->
-                                <?php } else if (substr($data['idm'], 0, 2) == 'OB') { ?>
-                                    <!-- echoing nothing -->
-                                    <br />
-                                    <div class="form-group">
-                                        <label for="tside_c" class="col-sm-2 control-label">T/C SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                </div>
+                                <!-- //SOAPING -->
+                            <?php } elseif (substr($data['idm'], 0, 2) == 'DR') { ?>
+                                <div class="form-group">
+                                    <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
                                     </div>
-                                    <p style="font-style: italic; font-weight: bold;">Field Rc and Soaping not avaliable at O+B matching !</p>
-                                <?php } else { ?>
-                                    <div class="form-group">
-                                        <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
-                                        <div class="col-sm-2">
-                                            <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
-                                        </div>
-                                        <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
-                                        </label>
-                                        <div class="col-sm-2">
-                                            <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
-                                        </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
                                     </div>
-                                    <!-- SOAPING -->
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
                                     </div>
-                                    <!-- //SOAPING -->
-                                    <!-- RC -->
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="RC_Suhu" name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="RCWaktu" name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                </div>
+                                <!-- SOAPING -->
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
                                     </div>
-                                    <div class="form-group" style="margin-top: 10px; padding: 5px;">
-                                        <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
-                                            <div class="input-group-addon">°C</div>
-                                        </div>
-                                        <label for="RC" class="col-sm-2 control-label" align="left">-</label>
-                                        <div class="input-group col-md-5">
-                                            <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
-                                            <div class="input-group-addon">Menit</div>
-                                        </div>
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
                                     </div>
-                                    <!-- //RC -->
-                                <?php } ?>
-                            </div>
+                                </div>
+                                <!-- //SOAPING -->
+                                <!-- RC -->
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="RC_Suhu" name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
+                                    </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" required id="RCWaktu" name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" value="<?php echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
+                                    </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" value="<?php echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
+                                    </div>
+                                </div>
+                                <!-- //RC -->
+                            <?php } elseif (substr($data['idm'], 0, 2) == 'OB') { ?>
+                                <!-- echoing nothing -->
+                                <br />
+                                <div class="form-group">
+                                    <label for="tside_c" class="col-sm-2 control-label">T/C SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
+                                    </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
+                                    </div>
+                                </div>
+                                <p style="font-style: italic; font-weight: bold;">Field Rc and Soaping not avaliable at O+B matching !</p>
+                            <?php } else { ?>
+                                <div class="form-group">
+                                    <label for="tside_c" class="col-sm-2 control-label">T-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="tside_c" id="tside_c" value="<?php echo floatval($data['tside_c']) ?>" placeholder="C°...">
+                                    </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="tside_min" id="tside_min" value="<?php echo floatval($data['tside_min']) ?>" placeholder="Minute ...">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cside_c" class="col-sm-2 control-label">C-SIDE :</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" width="100%" class="form-control" required name="cside_c" id="cside_c" value="<?php echo floatval($data['cside_c']) ?>" placeholder="C°...">
+                                    </div>
+                                    <label for="tside_min" style="width: 10px;" class="col-sm-1 control-label"><i class="fa fa-times" aria-hidden="true"></i>
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input type="text" required class="form-control" name="cside_min" id="cside_min" value="<?php echo floatval($data['cside_min']) ?>" placeholder="Minute ...">
+                                    </div>
+                                </div>
+                                <!-- SOAPING -->
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">SOAPING</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="soapingSuhu" name="soapingSuhu" value="<?php echo floatval($data['soaping_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
+                                    </div>
+                                    <label for="SOAPING" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="soapingWaktu" name="soapingWaktu" value="<?php echo floatval($data['soaping_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
+                                    </div>
+                                </div>
+                                <!-- //SOAPING -->
+                                <!-- RC -->
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">RC</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="RC_Suhu" name="RC_Suhu" value="<?php echo floatval($data['rc_sh']) ?>" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
+                                    </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="RCWaktu" name="RCWaktu" value="<?php echo floatval($data['rc_tm']) ?>" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 10px; padding: 5px;">
+                                    <label for=" RC" class="col-sm-2 control-label" align="left">Bleaching</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_sh" value="<?php if (floatval($data['bleaching_sh']) != 0) echo floatval($data['bleaching_sh']) ?>" value="<?php echo floatval($data['bleaching_sh']) ?>" required name="bleaching_sh" placeholder="Suhu">
+                                        <div class="input-group-addon">°C</div>
+                                    </div>
+                                    <label for="RC" class="col-sm-2 control-label" align="left">-</label>
+                                    <div class="input-group col-md-5">
+                                        <input type="text" class="form-control" id="bleaching_tm" value="<?php if (floatval($data['bleaching_tm']) != 0) echo floatval($data['bleaching_tm']) ?>" value="<?php echo floatval($data['bleaching_tm']) ?>" required name="bleaching_tm" placeholder="Waktu/Menit">
+                                        <div class="input-group-addon">Menit</div>
+                                    </div>
+                                </div>
+                                <!-- //RC -->
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
             </div>
+            <div id="addt_order" class="tab-pane fade">
+                <div class="col-md-12" style="margin-top: 10px;">
+                    <p class="text-center" style="text-shadow: black; font-weight: bold;">Additional Order <?php echo $data['idm'] ?></p>
+                    <table class="lookupST display nowrap" id="additional_order_table" width="100%">
+                        <thead class="bg-primary">
+                            <th>id</th>
+                            <th>No</th>
+                            <th>No .Order</th>
+                            <th>Lot</th>
+                            <th>Benang</th>
+                            <th>insert at</th>
+                        </thead>
+                        <tbody>
+                            <!-- i do some magic here dude -->
+                        </tbody>
+                    </table>
+                </div>
+                <script>
+                    $(document).ready(function() {
+                        var dataTable = $('#additional_order_table').DataTable({
+                            "processing": true,
+                            "serverSide": true,
+                            "pageLength": 50,
+                            "ordering": false,
+                            "lengthChange": false,
+                            "searching": false,
+                            "order": [
+                                [1, "desc"]
+                            ],
+                            "ajax": {
+                                url: "pages/ajax/data_server_AddtionalOrderExisting.php",
+                                type: "post",
+                                data: {
+                                    id_matching: $('#id_matching').val(),
+                                    id_status: $('#id_status').val()
+                                },
+                                error: function() {
+                                    $(".dataku-error").html("");
+                                    $("#dataku").append('<tbody class="dataku-error"><tr><th colspan="3">Tidak ada data untuk ditampilkan</th></tr></tbody>');
+                                    $("#dataku-error-proses").css("display", "none");
+                                }
+                            },
+                            "columnDefs": [{
+                                    "className": "text-center",
+                                    "targets": [0, 1, 2, 3, 4, 5]
+                                },
+                                {
+                                    "targets": [0],
+                                    "visible": false
+                                }
+                            ],
+                        });
+                    })
+                </script>
+            </div>
+            <div id="perlakuan_resep" class="tab-pane fade">
+                <div class="col-md-12" style="margin-top: 10px; background-color: white;">
+                    <h4>
+                        <p class="text-center" style="text-shadow: black; font-weight: bold;">Log Perlakuan Resep <?php echo $data['idm'] ?></p>
+                    </h4>
+                    <div class="container-fluid" id="append_perlakuan">
+
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function() {
+                        $.ajax({
+                            url: "pages/ajax/Data_server_perlakuan_resep.php",
+                            type: "GET",
+                            data: {
+                                idm: $('#idm').val()
+                            },
+                            success: function(ajaxData) {
+                                $("#append_perlakuan").html(ajaxData);
+                            }
+                        });
+                    })
+                </script>
+            </div>
+            <div id="export_recipe" class="tab-pane fade">
+                <div class="col-md-12" style="margin-top: 10px;">
+                    <h4>
+                        <p class="text-center" style="text-shadow: black; font-weight: bold;">Export Recipe and Recipe Component</p>
+                    </h4>
+                    <h4>
+                        <?php if($_GET['upload'] == '1') : ?>
+                            <p class="text-center" style="color: blue; font-weight: bold;">Exported Success</p>
+                            <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
+                        <?php elseif($_GET['upload'] == '2') : ?>
+                            <p class="text-center" style="color: blue; font-weight: bold;">Export Recipe Has Success!</p>
+                            <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
+                        <?php elseif($_GET['upload'] == '3') : ?>
+                            <p class="text-center" style="color: blue; font-weight: bold;">Export Recipe Component Has Success!</p>
+                            <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
+                        <?php elseif($_GET['upload'] == '0') : ?>
+                            <p class="text-center" style="color: red; font-weight: bold;">Exported FAILED!</p>
+                        <?php else : ?>
+                            <p class="text-center" style="color: red; font-weight: bold;"></p>
+                        <?php endif; ?>
+                    </h4>
+                </div>
+                <?php
+                    if(substr(strtoupper($data['idm']), 0,1) == 'D'){
+                        $garam = ")";
+                    }else{
+                        $garam = "or kode = 'E-1-010')";
+                    }
+                ?>
+                <?php if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'CD' OR substr(strtoupper($data['idm']), 0, 2) == 'OB') : ?>
+                    <div class="container-fluid col-sm-6">
+                        *Detail Data yang akan di export :<br>
+                        <table class="lookupST display nowrap" width="100%" style="padding-right: 16px;">
+                            <tr>
+                                <td colspan="2">EXPORT TO BEAN</td>
+                                <td colspan="2">
+
+                                    <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                        <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
+                                    </a>
+                                </td>
+                                <?php
+                                    $q_dbrecipebean = db2_exec($conn1, "SELECT COUNT(*) AS jumlahrecipe FROM RECIPEBEAN WHERE TRIM(SUBCODE01) = '$data[recipe_code_1]'");
+                                    $d_dbrecipebean = db2_fetch_assoc($q_dbrecipebean);
+                                    if($d_dbrecipebean['jumlahrecipe'] >= "1") :
+                                ?>
+                                    <td>
+                                        <i class="fa fa-check text-blue" aria-hidden="true"></i> <span style="background-color:rgb(151, 170, 212)">Available in recipe</span>
+                                    </td>
+                                <?php endif; ?>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Recipe Code</td>
+                                <td colspan="3">: <?= $data['recipe_code_1']; ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Suffix Code test</td>
+                                <td colspan="3">: 
+                                    <?php 
+                                        if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
+                                            echo substr($data['idm'], 1).'L';
+                                        }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
+                                            echo substr($data['idm'], 2).'L';
+                                        }
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Warna</td>
+                                <td colspan="3">: <?= $data['warna'] ?></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Liquor Ratio (LR)</td>
+                                <td colspan="3">: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                            </tr>
+                        </table>
+
+                        <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
+                            <thead>
+                                <tr>
+                                    <th width="5px">#</th>
+                                    <th width="75px">Code</th>
+                                    <th width="150px">Name</th>
+                                    <th width="150px">Conc</th>
+                                    <th width="150px">Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    $q_frist = mysqli_query($con, "SELECT a.flag,
+                                                                        case
+                                                                            when tds.code_new is null then a.kode 
+                                                                            else tds.code_new
+                                                                        end as kode,
+                                                                        nama as nama,
+                                                                        case
+                                                                            when conc10 != 0 then conc10
+                                                                            when conc9 != 0 then conc9
+                                                                            when conc8 != 0 then conc8
+                                                                            when conc7 != 0 then conc7
+                                                                            when conc6 != 0 then conc6
+                                                                            when conc5 != 0 then conc5
+                                                                            when conc4 != 0 then conc4
+                                                                            when conc3 != 0 then conc3
+                                                                            when conc2 != 0 then conc2
+                                                                            when conc1 != 0 then conc1
+                                                                        end as conc,
+                                                                        remark as remark 
+                                                                    FROM tbl_matching_detail a 
+                                                                    LEFT JOIN tbl_matching b ON b.id = a.id_matching
+                                                                    left join tbl_status_matching tsm on tsm.idm = b.no_resep 
+                                                                    LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
+                                                                    WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power'  $garam order by a.flag ASC");
+                                ?>
+                                <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
+                                <tr>
+                                    <td><?= $d_frist['flag']; ?></td>
+                                    <td><?= $d_frist['kode']; ?></td>
+                                    <td><?= $d_frist['nama']; ?></td>
+                                    <td><?= $d_frist['conc']; ?></td>
+                                    <td><?= $d_frist['remark']; ?></td>
+                                </tr>
+                                <?php } ?>
+                                <?php
+                                    $q_frist_add = mysqli_query($con, "SELECT 
+                                                                            b.recipe_code as recipe_code,
+                                                                            case
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                            end as no_resep_convert,
+                                                                            case
+                                                                                when left(tsm.idm, 2) = 'DR' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                when left(tsm.idm, 2) = 'R2' then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                when left(tsm.idm, 2) = 'CD' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                when left(tsm.idm, 2) = 'D2' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                when left(tsm.idm, 2) = 'A2' then 
+                                                                                case
+                                                                                    when tsm.tside_c = 0 and tsm.tside_min = 0 then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                    else concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                end
+                                                                                when left(tsm.idm, 2) = 'OB' then 
+                                                                                case
+                                                                                    when tsm.tside_c = 0 and tsm.tside_min = 0 then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                    else concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                end
+                                                                            END	as COMMENTLINE
+                                                                        from 
+                                                                            tbl_status_matching tsm 
+                                                                        left join tbl_matching b on b.no_resep = tsm.idm
+                                                                        left join tbl_matching_detail a on a.id_matching = b.id
+                                                                        where tsm.idm = '$data[idm]'
+                                                                        group by tsm.idm
+                                                                        union 
+                                                                        SELECT
+                                                                            b.recipe_code as recipe_code,
+                                                                            case
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                            end as no_resep_convert,
+                                                                            CASE
+                                                                                WHEN trim(tsm.soaping_sh) = '80' THEN concat('CUCI PANAS ',trim(tsm.soaping_sh),'`C X ', trim(tsm.soaping_tm), ' MNT')
+                                                                                ELSE concat('SOAPING ',trim(tsm.soaping_sh),'`C X ', trim(tsm.soaping_tm), ' MNT')
+                                                                            END AS COMMENTLINE
+                                                                        from 
+                                                                            tbl_status_matching tsm 
+                                                                        left join tbl_matching b on b.no_resep = tsm.idm
+                                                                        left join tbl_matching_detail a on a.id_matching = b.id
+                                                                        where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 2) = 'A2') and (not left(tsm.idm, 2) = 'D2' or not left(tsm.idm, 2) = 'DR')
+                                                                        group by b.no_resep
+                                                                        union 
+                                                                        SELECT
+                                                                            b.recipe_code as recipe_code,
+                                                                            case
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                            end as no_resep_convert,
+                                                                            concat('RC ',trim(tsm.rc_sh),'''C X ', trim(tsm.rc_tm), ' MNT') as COMMENTLINE
+                                                                        from 
+                                                                            tbl_status_matching tsm 
+                                                                        left join tbl_matching b on b.no_resep = tsm.idm
+                                                                        left join tbl_matching_detail a on a.id_matching = b.id
+                                                                        where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR' or left(tsm.idm, 2) = 'A2') and not tsm.rc_sh = 0
+                                                                        group by b.no_resep
+                                                                        union 
+                                                                        SELECT
+                                                                            b.recipe_code as recipe_code,
+                                                                            case
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                            end as no_resep_convert,
+                                                                            concat('BLEACHING ',trim(tsm.bleaching_sh),'''C X ', trim(tsm.bleaching_tm), ' MNT') as COMMENTLINE
+                                                                        from 
+                                                                            tbl_status_matching tsm 
+                                                                        left join tbl_matching b on b.no_resep = tsm.idm
+                                                                        left join tbl_matching_detail a on a.id_matching = b.id
+                                                                        where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
+                                                                        group by b.no_resep");
+                                ?>
+                                <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+
+                        <!-- <table class="lookupST display nowrap" width="100%" style="padding-right: 16px;">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table> -->
+                    </div>
+                <?php elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR') : ?>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            *Detail Data yang akan di export :
+                            <!-- frist -->
+                            <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
+                                <tr>
+                                    <td>EXPORT TO BEAN</td>
+                                    <td>
+                                        <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                            <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="500px">Recipe Code</td>
+                                    <td>: <?= $data['recipe_code_1']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Suffix Code</td>
+                                    <td>: 
+                                        <?php 
+                                            if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
+                                                echo substr($data['idm'], 1).'L';
+                                            }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
+                                                echo substr($data['idm'], 2).'L';
+                                            }
+                                        ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Warna</td>
+                                    <td>: <?= $data['warna'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Liquor Ratio (LR)</td>
+                                    <td>: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                                </tr>
+                            </table>
+                            <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
+                                <thead>
+                                    <tr>
+                                        <th width="5px">#</th>
+                                        <th width="100px">Code</th>
+                                        <th width="150px">Name</th>
+                                        <th width="150px">Conc</th>
+                                        <th width="150px">Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                        $q_frist = mysqli_query($con, "SELECT a.flag,
+                                                                            case
+                                                                                when tds.code_new is null then a.kode 
+                                                                                else tds.code_new
+                                                                            end as kode,
+                                                                            nama as nama,
+                                                                            case
+                                                                                when conc10 != 0 then conc10
+                                                                                when conc9 != 0 then conc9
+                                                                                when conc8 != 0 then conc8
+                                                                                when conc7 != 0 then conc7
+                                                                                when conc6 != 0 then conc6
+                                                                                when conc5 != 0 then conc5
+                                                                                when conc4 != 0 then conc4
+                                                                                when conc3 != 0 then conc3
+                                                                                when conc2 != 0 then conc2
+                                                                                when conc1 != 0 then conc1
+                                                                            end as conc,
+                                                                            remark as remark 
+                                                                        FROM tbl_matching_detail a 
+                                                                        LEFT JOIN tbl_matching b ON b.id = a.id_matching
+                                                                        left join tbl_status_matching tsm on tsm.idm = b.no_resep 
+                                                                        LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' $garam order by a.flag ASC");
+                                    ?>
+                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
+                                    <tr>
+                                        <td><?= $d_frist['flag']; ?></td>
+                                        <td><?= $d_frist['kode']; ?></td>
+                                        <td><?= $d_frist['nama']; ?></td>
+                                        <td><?= $d_frist['conc']; ?></td>
+                                        <td><?= $d_frist['remark']; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                    <?php
+                                        $q_frist_add = mysqli_query($con, "SELECT 
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                case
+                                                                                    when left(tsm.idm, 2) = 'DR' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                    when left(tsm.idm, 2) = 'R2' then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                    when left(tsm.idm, 2) = 'CD' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                    when left(tsm.idm, 2) = 'D2' then concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                    when left(tsm.idm, 2) = 'A2' then 
+                                                                                    case
+                                                                                        when tsm.tside_c = 0 and tsm.tside_min = 0 then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                        else concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                    end
+                                                                                    when left(tsm.idm, 2) = 'OB' then 
+                                                                                    case
+                                                                                        when tsm.tside_c = 0 and tsm.tside_min = 0 then concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')
+                                                                                        else concat(trim(tsm.tside_c),'`C X ', trim(tsm.tside_min), ' MNT')
+                                                                                    end
+                                                                                END	as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]'
+                                                                            group by tsm.idm
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('SOAPING ',trim(tsm.soaping_sh),'''C X ', trim(tsm.soaping_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'R2' or not left(tsm.idm, 3) = 'DR2') 
+                                                                            group by b.no_resep
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('RC ',trim(tsm.rc_sh),'''C X ', trim(tsm.rc_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.rc_sh = 0
+                                                                            group by b.no_resep
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('BLEACHING ',trim(tsm.bleaching_sh),'''C X ', trim(tsm.bleaching_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
+                                                                            group by b.no_resep");
+                                    ?>
+                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <!-- frist -->
+                        </div>
+                        <div class="col-sm-6">
+                            <br>
+                            <!-- second -->
+                            <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
+                                <tr>
+                                    <td>EXPORT TO BEAN</td>
+                                    <td>
+                                        <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                            <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="500px">Recipe Code</td>
+                                    <td>: <?= $data['recipe_code_2']; ?></td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Suffix Code</td>
+                                    <td>: 
+                                        <?php 
+                                            if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
+                                                echo substr($data['idm'], 1).'L';
+                                            }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
+                                                echo substr($data['idm'], 2).'L';
+                                            }
+                                        ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Warna</td>
+                                    <td>: <?= $data['warna'] ?></td>
+                                </tr>
+                                <tr>
+                                    <td width="50px">Liquor Ratio (LR)</td>
+                                    <td>: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                                </tr>
+                            </table>
+                            <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
+                                <thead>
+                                    <tr>
+                                        <th width="5px">#</th>
+                                        <th width="100px">Code</th>
+                                        <th width="150px">Name</th>
+                                        <th width="150px">Conc</th>
+                                        <th width="150px">Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                        $q_frist = mysqli_query($con, "SELECT a.flag,
+                                                                                case
+                                                                                    when tds.code_new is null then a.kode 
+                                                                                    else tds.code_new
+                                                                                end as kode,
+                                                                                nama as nama,
+                                                                                case
+                                                                                    when conc10 != 0 then conc10
+                                                                                    when conc9 != 0 then conc9
+                                                                                    when conc8 != 0 then conc8
+                                                                                    when conc7 != 0 then conc7
+                                                                                    when conc6 != 0 then conc6
+                                                                                    when conc5 != 0 then conc5
+                                                                                    when conc4 != 0 then conc4
+                                                                                    when conc3 != 0 then conc3
+                                                                                    when conc2 != 0 then conc2
+                                                                                    when conc1 != 0 then conc1
+                                                                                end as conc,
+                                                                                remark as remark 
+                                                                            FROM tbl_matching_detail a 
+                                                                            LEFT JOIN tbl_matching b ON b.id = a.id_matching
+                                                                            left join tbl_status_matching tsm on tsm.idm = b.no_resep 
+                                                                            LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode 
+                                                                        WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from merge Co-power'  $garam order by a.flag ASC");
+                                    ?>
+                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
+                                    <tr>
+                                        <td><?= $d_frist['flag']; ?></td>
+                                        <td><?= $d_frist['kode']; ?></td>
+                                        <td><?= $d_frist['nama']; ?></td>
+                                        <td><?= $d_frist['conc']; ?></td>
+                                        <td><?= $d_frist['remark']; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                    <?php
+                                        $q_frist_add = mysqli_query($con, "SELECT 
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT')	as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]'
+                                                                            group by tsm.idm
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('SOAPING ',trim(tsm.soaping_sh),'''C X ', trim(tsm.soaping_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 3) = 'DR2')
+                                                                            group by b.no_resep
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('RC ',trim(tsm.rc_sh),'''C X ', trim(tsm.rc_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.rc_tm = 0
+                                                                            group by b.no_resep
+                                                                            union 
+                                                                            SELECT
+                                                                                b.recipe_code as recipe_code,
+                                                                                case
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                                                end as no_resep_convert,
+                                                                                concat('BLEACHING ',trim(tsm.bleaching_sh),'''C X ', trim(tsm.bleaching_tm), ' MNT') as COMMENTLINE
+                                                                            from 
+                                                                                tbl_status_matching tsm 
+                                                                            left join tbl_matching b on b.no_resep = tsm.idm
+                                                                            left join tbl_matching_detail a on a.id_matching = b.id
+                                                                            where tsm.idm = '$data[idm]' and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
+                                                                            group by b.no_resep");
+                                    ?>
+                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <!-- second -->
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </form>
     <!-- <button class="btn btn-success" id="test">test</button> -->
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document" style="width:95%">
+            <div class="modal-content">
+                <div class="modal-body" id="modal_body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
     $(document).ready(function() {
@@ -870,9 +1685,6 @@ $data = mysqli_fetch_array($sql); ?>
         $(".btn.btn-sm.btn-success.approve").click(function() {
             var idm = $(this).attr('idm');
             var id_status = $(this).attr('id_status');
-            var no_order = $('#no_order').val();
-            var id_matching = $('#id_matching').val();
-            var benang = $('#Benang').val();
             Swal.fire({
                 title: 'Apakah anda yakin untuk approve ' + idm + ' ?',
                 showCancelButton: true,
@@ -888,7 +1700,16 @@ $data = mysqli_fetch_array($sql); ?>
                             id_status: id_status,
                         },
                         success: function(response) {
-                            insertNomor_order(id_matching, id_status, idm, no_order, 'ORDER-ASAL', benang)
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'success',
+                                title: 'Matching ' + idm + ' Sekarang telah approve !',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1505);
                         },
                         error: function() {
                             alert("Error");
@@ -899,40 +1720,22 @@ $data = mysqli_fetch_array($sql); ?>
             })
         })
 
-        function insertNomor_order(id_matching, id_status, Rcode, no_order, lot, benang) {
+        $(document).on('click', '#btn_date_data', function(e) {
+            var id_status = $(this).attr("attr-data");
             $.ajax({
-                dataType: "json",
-                type: "POST",
-                url: "pages/ajax/insertNomor_order.php",
+                url: "pages/ajax/get_date_data.php",
+                type: "GET",
                 data: {
-                    id_matching: id_matching,
-                    id_status: id_status,
-                    Rcode: Rcode,
-                    no_order: no_order,
-                    lot: lot,
-                    addt_benang: benang
+                    id: id_status,
                 },
-                success: function(response) {
-                    if (response.session == "LIB_SUCCSS") {
-                        Swal.fire({
-                            position: 'center',
-                            icon: 'success',
-                            title: 'Matching ' + Rcode + ' Sekarang telah approve !',
-                            showConfirmButton: false,
-                            // timer: 1500,
-                        })
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1505);
-                    } else {
-                        toastr.error("ajax error !")
-                    }
-                },
-                error: function() {
-                    alert("Error hubungi DIT");
+                success: function(ajaxData) {
+                    $("#modal_body").html(ajaxData);
+                    $("#myModal").modal('show', {
+                        backdrop: 'true'
+                    });
                 }
             });
-        }
+        });
     })
 </script>
 
@@ -942,13 +1745,13 @@ $data = mysqli_fetch_array($sql); ?>
         $('#hold').click(function() {
             Swal.fire({
                 title: 'Apakah anda yakin ?',
-                text: "Untuk Hold Resep dengan R-code : <php echo $data['idm'] ?>!",
+                text: "Untuk Hold Resep dengan R-code : <?php echo $data['idm'] ?>!",
                 icon: 'warning',
                 allowOutsideClick: false,
                 showCancelButton: true,
                 confirmButtonColor: '#5cb85c',
                 cancelButtonColor: '#292b2c',
-                confirmButtonText: 'Yes, Hold <php echo $data['idm'] ?>'
+                confirmButtonText: 'Yes, Hold <?php echo $data['idm'] ?>'
             }).then((result) => {
                 if (result.isConfirmed) {
                     Hold_action_after_check_table()

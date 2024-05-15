@@ -11,8 +11,8 @@ function Masuk($jenis_matching)
     $end = date('Y-m-d');
     $sql = mysqli_fetch_array(mysqli_query($con,"SELECT count(id) as `count` from tbl_matching
                                          WHERE jenis_matching = '$jenis_matching'
-                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') >= '$start 07:00' 
-                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') <= '$end  07:00'"));
+                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') >= '$start 23:00' 
+                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') <= '$end  23:00'"));
 
     return $sql['count'];
 }
@@ -42,10 +42,10 @@ function SedangJalan($jenis_matching)
         where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu') 
         and b.jenis_matching = '$jenis_matching'")*/
 		mysqli_query($con,"SELECT count(b.id) as `count`
-                            FROM tbl_status_matching a
-                            JOIN tbl_matching b ON a.idm = b.no_resep
-                            where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
-                            and b.jenis_matching = '$jenis_matching'")
+        FROM tbl_status_matching a
+        JOIN tbl_matching b ON a.idm = b.no_resep
+        where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
+        and b.jenis_matching = '$jenis_matching'")
     );
     return $sql['count'];
 }
@@ -69,8 +69,8 @@ function Delete($jenis_matching)
     $sql = mysqli_fetch_array(
         mysqli_query($con,"SELECT count(id) as `count` FROM db_laborat.historical_delete_matching
         where jenis_matching = '$jenis_matching' 
-        AND DATE_FORMAT(delete_at ,'%Y-%m-%d %H:%i') >= '$start 07:00' 
-        AND DATE_FORMAT(delete_at ,'%Y-%m-%d %H:%i') <= '$end 07:00'")
+        AND DATE_FORMAT(delete_at ,'%Y-%m-%d %H:%i') >= '$start 23:00' 
+        AND DATE_FORMAT(delete_at ,'%Y-%m-%d %H:%i') <= '$end 23:00'")
     );
 
     return $sql['count'];
@@ -116,8 +116,8 @@ function Selesai($jenis_matching)
                     FROM tbl_status_matching a 
                     join tbl_matching b on b.no_resep = a.idm
                     WHERE b.jenis_matching = '$jenis_matching' and a.approve = 'TRUE'
-                    AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start 07:00' 
-                    AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end 07:00'")
+                    AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start 23:00' 
+                    AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end 23:00'")
     );
 
     return $sql['count'];
@@ -256,11 +256,13 @@ function Selesai($jenis_matching)
 function MasukYesterday($jenis_matching)
 {
     include "../../koneksi.php";
-    $ystrdy = date('Y-m-d', strtotime("-1 days"));
-	$tody = date('Y-m-d');
+//  $ystrdy = date('Y-m-d', strtotime("-1 days"));
+//	$tody = date('Y-m-d');
+	$ystrdy = date('Y-m-d', strtotime("-2 days"));
+	$tody = date('Y-m-d', strtotime("-1 days"));
     $sql = mysqli_fetch_array(mysqli_query($con,"SELECT count(id) as `count` from tbl_matching
                                          WHERE jenis_matching = '$jenis_matching'
-                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') BETWEEN '$ystrdy 07:00' AND '$tody 07:00'"));
+                                        AND DATE_FORMAT(tgl_buat,'%Y-%m-%d %H:%i') BETWEEN '$ystrdy 23:00' AND '$tody 23:00'"));
 
     return $sql['count'];
 }
@@ -268,14 +270,19 @@ function MasukYesterday($jenis_matching)
 function Selesai_Y($jenis_matching)
 {
     include "../../koneksi.php";
-    $ystrdy = date('Y-m-d', strtotime("-1 days"));
-	$tody = date('Y-m-d');
+//  $ystrdy = date('Y-m-d', strtotime("-1 days"));
+//	$tody = date('Y-m-d');
+	$ystrdy = date('Y-m-d', strtotime("-2 days"));
+	$tody = date('Y-m-d', strtotime("-1 days"));
     $sql = mysqli_fetch_array(
         mysqli_query($con,"SELECT count(b.id ) as `count`
                     FROM tbl_status_matching a 
                     join tbl_matching b on b.no_resep = a.idm
-                    WHERE b.jenis_matching = '$jenis_matching' and a.approve = 'TRUE'
-                    AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$ystrdy 07:00' AND '$tody 07:00'")
+                    WHERE b.jenis_matching = '$jenis_matching' and a.approve = 'TRUE' and 
+					-- a.`status` <> 'hold' and 
+					(a.koreksi_resep <> '' or a.koreksi_resep2 <> '') and 
+					a.`status` = 'selesai' and
+                    DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$ystrdy 23:00' and '$tody 23:00'")
     );
 
     return $sql['count'];

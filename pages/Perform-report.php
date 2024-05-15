@@ -202,7 +202,7 @@
                                                                                                                     if ($_POST['submit']) {
                                                                                                                       echo $_POST['time_start'];
                                                                                                                     } else {
-                                                                                                                      echo "07:00";
+                                                                                                                      echo "23:00";
                                                                                                                     } ?>" placeholder="00:00" maxlength="5">
             </div>
                         S/d
@@ -220,7 +220,7 @@
                                                                                                                     if ($_POST['submit']) {
                                                                                                                       echo $_POST['time_end'];
                                                                                                                     } else {
-                                                                                                                      echo "07:00";
+                                                                                                                      echo "23:00";
                                                                                                                     } ?>" placeholder="00:00" maxlength="5">
             </div>
                         <button type="submit" name="submit" value="search" class="btn btn-primary btn-sm mb-2"><i class="fa fa-search" aria-hidden="true"></i>

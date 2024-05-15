@@ -1,5 +1,5 @@
 <?php
-$host = "10.0.4.7\SQLEXPRESS";
+$host = "10.0.4.8\SQLEXPRESS";
 // $host = "DIT\MSSQLSERVER08";
 $username = "sa";
 $password = "123";

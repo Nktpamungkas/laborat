@@ -2,7 +2,8 @@
 ini_set("error_reporting", 1);
 include "../../koneksi.php";
 session_start();
-$tody = date('Y-m-d');
+//$tody = date('Y-m-d');
+$tody = date('Y-m-d', strtotime("-1 days"));
 ?>
 <div class="col-md-12 box">
     <div class="col-md-6">
@@ -23,13 +24,16 @@ $tody = date('Y-m-d');
                     <th style="font-size: small; text-align: center;">E</th>
                 </tr>
             </thead>
-            <?php $dateY = date('Y-m-d', strtotime("-1 days"));
+            <?php $dateY = date('Y-m-d', strtotime("-2 days"));
             $sql_TotalYstrdyXcolorist = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep
+                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep, b.koreksi_resep2
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where b.approve = 'TRUE' 
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+											  -- and b.status <> 'hold'
+											  and b.status = 'selesai'
+											  and (b.koreksi_resep <> '' or b.koreksi_resep2 <> '')
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
             $TotalYstrdyXcolorist = mysqli_num_rows($sql_TotalYstrdyXcolorist);
@@ -39,7 +43,8 @@ $tody = date('Y-m-d');
                                         left join tbl_matching c on b.idm = c.no_resep
                                         where a.is_active = 'TRUE'  
                                         and b.approve = 'TRUE' 
-                                        and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+										and b.status = 'selesai'
+                                        and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                         group by a.nama
                                         ORDER BY cout desc");
             ?>
@@ -53,8 +58,9 @@ $tody = date('Y-m-d');
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'L/D' or a.jenis_matching = 'LD NOW') 
                                               and b.approve = 'TRUE' 
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
                         $Color_LD = mysqli_num_rows($sql_LD); ?>
@@ -64,9 +70,10 @@ $tody = date('Y-m-d');
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'Matching Ulang' or a.jenis_matching = 'Matching Ulang NOW') 
-                                              and b.approve = 'TRUE' 
+                                              and b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
                         $Color_MU = mysqli_num_rows($sql_MU); ?>
@@ -76,9 +83,10 @@ $tody = date('Y-m-d');
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'Perbaikan' or a.jenis_matching = 'Perbaikan NOW') 
-                                              and b.approve = 'TRUE' 
+                                              and b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
                         $Color_PBKN = mysqli_num_rows($sql_PBKN); ?>
@@ -88,9 +96,10 @@ $tody = date('Y-m-d');
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where a.jenis_matching = 'Matching Development' 
-                                              and b.approve = 'TRUE' 
+                                              and b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
                         $Color_MD = mysqli_num_rows($sql_MD); ?>
@@ -98,9 +107,10 @@ $tody = date('Y-m-d');
                         <?php $sql_SumPerCbn = mysqli_query($con,"SELECT sum(b.percobaan_ke) as total_percobaan
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
-                                              where b.approve = 'TRUE' 
+                                              where b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 07:00' AND '$tody 07:00'
+                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by b.koreksi_resep
                                               ORDER BY a.id desc");
                         $SumPerCbn = mysqli_fetch_array($sql_SumPerCbn); ?>
@@ -162,10 +172,13 @@ $tody = date('Y-m-d');
             </thead>
             <?php $dateF = date('Y-m');
             $sql_TotalMonthXcolorist = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep
+                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep,b.koreksi_resep2
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where b.approve = 'TRUE' 
+											  -- and b.status <> 'hold'
+											  and b.status = 'selesai'
+											  and (b.koreksi_resep <> '' or b.koreksi_resep2 <> '')
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               ORDER BY a.id desc");
             $TotalMonthXcolorist = mysqli_num_rows($sql_TotalMonthXcolorist);
@@ -173,7 +186,9 @@ $tody = date('Y-m-d');
                                         FROM tbl_colorist a
                                         left join tbl_status_matching b on a.nama = b.koreksi_resep
                                         left join tbl_matching c on b.idm = c.no_resep
-                                        where a.is_active = 'TRUE' and b.approve = 'TRUE' 
+                                        where a.is_active = 'TRUE' 
+										and b.approve = 'TRUE'
+										and b.status = 'selesai'
                                         and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                         group by a.nama
                                         ORDER BY cout desc");
@@ -188,6 +203,7 @@ $tody = date('Y-m-d');
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'L/D' or a.jenis_matching = 'LD NOW')  
                                               and b.approve = 'TRUE' 
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by a.no_resep
@@ -200,6 +216,7 @@ $tody = date('Y-m-d');
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'Matching Ulang' or a.jenis_matching = 'Matching Ulang NOW')  
                                               and b.approve = 'TRUE' 
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by a.no_resep
@@ -211,7 +228,8 @@ $tody = date('Y-m-d');
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where (a.jenis_matching = 'Perbaikan' or a.jenis_matching = 'Perbaikan NOW')
-                                              and b.approve = 'TRUE' 
+                                              and b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by a.no_resep
@@ -224,6 +242,7 @@ $tody = date('Y-m-d');
                                               left join tbl_status_matching b on a.no_resep = b.idm
                                               where a.jenis_matching = 'Matching Development' 
                                               and b.approve = 'TRUE' 
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by a.no_resep
@@ -233,7 +252,8 @@ $tody = date('Y-m-d');
                         <?php $sql_SumPerCbn = mysqli_query($con,"SELECT sum(b.percobaan_ke) as total_percobaan
                                               FROM tbl_matching a 
                                               left join tbl_status_matching b on a.no_resep = b.idm 
-                                              and b.approve = 'TRUE' 
+                                              and b.approve = 'TRUE'
+											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by b.koreksi_resep

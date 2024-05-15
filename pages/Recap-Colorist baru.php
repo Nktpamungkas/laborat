@@ -108,7 +108,7 @@
                                             $sql = mysqli_query($con,"SELECT idm, status , approve , colorist1 , colorist2 ,SUM(IF(a.colorist1 = '$colorist' , 0.5, 0) + IF(a.colorist2 = '$colorist' , 0.5, 0)) as total_value
                                                 from tbl_status_matching a
                                                 join tbl_matching b on a.idm = b.no_resep
-                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end' 
+                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
                                                 and jenis_matching = '$jenis' and (a.colorist1 = '$colorist' or a.colorist2 = '$colorist')");
                                             $data = mysqli_fetch_array($sql);
 
@@ -222,7 +222,7 @@
                                             $avg = mysqli_query($con,"SELECT sum(percobaan_ke) as summary,count(jenis_matching) as `row`, jenis_matching
                                                 from tbl_status_matching a 
                                                 join tbl_matching b on a.idm = b.no_resep
-                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '".$_POST['start']." ".$_POST['time_start']."'
+                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '".$_POST['start']." ".$_POST['time_start']."' 
                                                 AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '".$_POST['end']." ".$_POST['time_end']."' 
                                                 group by jenis_matching");
                                         ?>

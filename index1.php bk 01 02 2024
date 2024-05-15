@@ -197,7 +197,6 @@
                                                 } ?>"><a href="?p=DataBase-resep-new"><i class="fa fa-fw fa-file-pdf-o text-success" aria-hidden="true"></i>
                                             <span>Resep</span></a>
                                     </li>
-									<?php if($_SESSION['jabatanLAB']=="Super admin") { ?>
                                     <li class="<?php if ($_GET['p'] == "Perform-report") {
                                                     echo "active";
                                                 } ?>"><a href="?p=Perform-report"><i class="fa fa-fw fa-address-card text-primary" aria-hidden="true"></i>
@@ -234,12 +233,6 @@
                                                     echo "active";
                                                 } ?>"><a href="?p=SearchLog_Perlakuan"><i class="fa fa-search text-warning" aria-hidden="true"></i>
                                             <span>Search Log Additional Order</span></a>
-                                    </li>
-									<?php } ?>
-									<li class="<?php if ($_GET['p'] == "DataBase-test-report") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=DataBase-test-report"><i class="fa fa-fw fa-database text-success" aria-hidden="true"></i>
-                                            <span>Database Test Report</span></a>
                                     </li>
                                 </ul>
                             </li>
@@ -300,31 +293,15 @@
                                                             echo "active";
                                                         } ?>"><a href="?p=announcement"><i class="fa fa-volume-up" aria-hidden="true"></i>
                                                     <span>announcement</span></a>
-                                            </li>                                        
-                                        	<li class="<?php if ($_GET['p'] == "Matcher") {
+                                            </li>
+                                        <?php endif; ?>
+                                        <li class="<?php if ($_GET['p'] == "Matcher") {
                                                         echo "active";
                                                     } ?>"><a href="?p=Matcher"><i class="fa fa-user text-green"></i> <span>Matcher</span></a>
-                                        	</li>
-                                        	<li class="<?php if ($_GET['p'] == "Colorist") {
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Colorist") {
                                                         echo "active";
                                                     } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
-                                        	</li>
-										<?php endif; ?>
-										<li class="<?php if ($_GET['p'] == "TestQCFinal") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=TestQCFinal"><i class="fa fa-flask text-red"></i> <span>Test QC Final</span></a>
-                                        </li>
-										<li class="<?php if ($_GET['p'] == "ApprovedTestReport") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=ApprovedTestReport"><i class="fa fa-check text-green"></i> <span>Approved Report</span></a>
-                                        </li>
-										<li class="<?php if ($_GET['p'] == "List-Schedule-Rekap") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=List-Schedule-Rekap"><i class="fa fa-archive text-fuchsia"></i> <span>List Schedule Rekap</span></a>
-                                        </li>
-										<li class="<?php if ($_GET['p'] == "Status-Rekap") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Status-Rekap"><i class="fa fa-archive text-teal"></i> <span>Status & Resep Rekap</span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -501,18 +478,6 @@
 <script src="bower_components/jquery_validation/jquery.validate.min.js"></script>
 <!-- ////////////////////////////////////////////////////////////////////////////////////////////// -->
 <script>
-	 //Initialize Select2 Elements
-	$('.select2').select2();
-	$('.select3').select2();
-    $('.select').select2();	
-	$("select2").on("select3:select2", function (evt) {
-  var element = evt.params.data.element;
-  var $element = $(element);
-  
-  $element.detach();
-  $(this).append($element);
-  $(this).trigger("change");
-});
     //Date picker
     $('#datepicker').datepicker({
             autoclose: true,
@@ -627,38 +592,6 @@
             success: function(ajaxData) {
                 $("#UserEdit").html(ajaxData);
                 $("#UserEdit").modal('show', {
-                    backdrop: 'true'
-                });
-            }
-        });
-    });
-	$(document).on('click', '.note_laborat_edit', function(e) {
-        var m = $(this).attr("id");
-        $.ajax({
-            url: "pages/note_laborat_edit.php",
-            type: "GET",
-            data: {
-                id: m,
-            },
-            success: function(ajaxData) {
-                $("#NoteLaboratEdit").html(ajaxData);
-                $("#NoteLaboratEdit").modal('show', {
-                    backdrop: 'true'
-                });
-            }
-        });
-    });
-	$(document).on('click', '.sts_laborat_edit', function(e) {
-        var m = $(this).attr("id");
-        $.ajax({
-            url: "pages/sts_laborat_edit.php",
-            type: "GET",
-            data: {
-                id: m,
-            },
-            success: function(ajaxData) {
-                $("#StsLaboratEdit").html(ajaxData);
-                $("#StsLaboratEdit").modal('show', {
                     backdrop: 'true'
                 });
             }

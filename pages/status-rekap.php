@@ -50,8 +50,37 @@ include "koneksi.php";
     border: 1px solid #ddd;
   }
 </style>
-
+<?php
+$TglTutup	    = isset($_POST['tgl_tutup']) ? $_POST['tgl_tutup'] : '';	
+?>
 <body>
+<div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"> Filter Data</h3>
+                    <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                <form method="post" enctype="multipart/form-data" name="form1" class="form-horizontal" id="form1">
+                    <div class="box-body">
+						<div class="form-group">
+                            <div class="col-sm-2">
+              				<input type="text" class="form-control input-sm date-picker" name="tgl_tutup" id="tgl_tutup" value="<?php echo $TglTutup; ?>">
+            			</div>
+						<button type="submit" name="submit" value="search" class="btn btn-primary btn-sm mb-2"><i class="fa fa-search" aria-hidden="true"></i>
+            			</button>	
+						</div>				
+                        
+                    </div>
+                    <!-- /.box-footer -->
+                </form>
+            </div>
+        </div>
+    </div>	
   <div class="row">
     <div class="col-xs-12">
       <div class="box">
@@ -100,24 +129,17 @@ include "koneksi.php";
                   <th style="border: 1px solid #ddd;">Lampu</th>
                   <th style="border: 1px solid #ddd;">Proses</th>
                   <th style="border: 1px solid #ddd;">id_status</th>
-                  <th style="border: 1px solid #ddd;">Handle</th>
+                  <th style="border: 1px solid #ddd;">Tgl Tutup</th>
                   <th style="border: 1px solid #ddd;">Status</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
-                /*$sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-                                    FROM tbl_status_matching a
-                                    JOIN tbl_matching b ON a.idm = b.no_resep
-                                    where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
-                                    group by a.idm, b.no_resep
-                                    ORDER BY a.id asc");*/
-				$sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-                                    FROM tbl_status_matching a
-                                    JOIN tbl_matching b ON a.idm = b.no_resep
-                                    where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
-                                    group by a.idm, b.no_resep
-                                    ORDER BY a.id asc");  
+				$sql = mysqli_query($con,"SELECT *
+                                    FROM tbl_sts_matching_11
+									WHERE tgl_tutup='".date("Y-m-d", strtotime($TglTutup))."'
+                                    group by idm, no_resep
+                                    ORDER BY id asc");  
                 while ($r = mysqli_fetch_array($sql)) {
                   $no++;
                   $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
@@ -272,36 +294,10 @@ include "koneksi.php";
                     <?php if ($r['status'] == 'batal') { ?>
                       <td class="38"><span class="btn bg-black btn-sm blink_me"><i class="fa fa-ban"></i>BATAL</span></td>
                     <?php } else if ($r['status'] == 'tunggu') { ?>
-                      <td class="38">
-                        <li style="font-weight: bold; color: black;"><a href="#" class="btn btn-xs btn-primary _lanjutkan" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Lanjutkan <i class="fa fa-play" aria-hidden="true"></i>
-                            <i class="fa fa-clock-o" aria-hidden="true"></i>
-                          </a>
-                        </li>
-                        <br>
-                        <?php $sqlWait = mysqli_query($con,"SELECT max(id) as maxid, `info` from log_status_matching where ids = '$r[id_status]'");
-                        $Wait = mysqli_fetch_array($sqlWait);
-                        echo '<span class="badge">' . $Wait['info'] . '</span>';
-                        ?>
-                      </td>
+                        <?php echo $r['tgl_tutup']; ?>
                     <?php } else { ?>
                       <td class="38">
-                        <div class="btn-group-vertical">
-                          <a style="color: black;" target="_blank" href="pages/cetak/matching.php?idkk=<?php echo $r['idm'] ?>" class="btn btn-xs btn-warning">Print ! &nbsp;<i class="fa fa-print"></i></a>
-                          <?php if ($r['status'] == 'hold' or $r['status'] == 'revisi') { ?>
-                            <a href="?p=Hold-Handle&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs bg-purple">Lanjut <i class="fa fa-edit"></i></a>
-
-                          <?php } else { ?></php>
-                            <a style="color: white;" href="?p=Status-Handle&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep! <i class="fa fa-pencil"></i></a>
-                            <a style="color: white;" href="?p=Status-Handle-NOW&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep NOW! <i class="fa fa-pencil"></i></a>
-
-                          <?php } ?>
-                          <a href="#" class="btn btn-xs btn-info _tunggu" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Tunggu <i class="fa fa-clock-o" aria-hidden="true"></i>
-                          </a>
-						  <!--<a style="color: white;" href="?p=Edit_Status_Matching&rcode=<?php echo $r['no_resep'] ?>" class="btn btn-xs btn-primary">Ubah! <i class="fa fa-edit"></i></a>-->
-
-                          <!--<a style="color: black;" href="#" class="btn btn-xs btn-danger batalkan" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Batalkan!</a>-->
-
-                        </div>
+                        <?php echo $r['tgl_tutup']; ?>
                       </td>
                     <?php } ?>
 

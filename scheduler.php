@@ -50,21 +50,21 @@ function SedangJalan($jenis_matching)
         where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu') 
         and b.jenis_matching = '$jenis_matching'")*/
         mysqli_query($con, "SELECT count(b.id) as `count`
-                            FROM tbl_status_matching a
-                            JOIN tbl_matching b ON a.idm = b.no_resep
-                            where a.status ='buka'
-                            and b.jenis_matching = '$jenis_matching'")
+        FROM tbl_status_matching a
+        JOIN tbl_matching b ON a.idm = b.no_resep
+        where a.status ='buka'
+        and b.jenis_matching = '$jenis_matching'")
     );
     return $sql['count'];
 }
 
 $sql_sedang_jalan = mysqli_query($con, "INSERT into sisa_schedule set
-                                        `data` = 'Sedang Jalan',
-                                        lab_dip = " . SedangJalan('L/D') + SedangJalan('LD NOW') . ",
-                                        matching_ulang = " . SedangJalan('Matching Ulang') + SedangJalan('Matching Ulang NOW') . ",
-                                        perbaikan = " . SedangJalan('Perbaikan') + SedangJalan('Perbaikan NOW') . ",
-                                        development = " . SedangJalan('Matching Development') . ",
-                                        `time` = '$time' ");
+                            `data` = 'Sedang Jalan',
+                            lab_dip = " . SedangJalan('L/D') + SedangJalan('LD NOW') . ",
+                            matching_ulang = " . SedangJalan('Matching Ulang') + SedangJalan('Matching Ulang NOW') . ",
+                            perbaikan = " . SedangJalan('Perbaikan') + SedangJalan('Perbaikan NOW') . ",
+                            development = " . SedangJalan('Matching Development') . ",
+                            `time` = '$time' ");
 if ($sql_sedang_jalan) {
     echo 'berhasil 2';
 } else {

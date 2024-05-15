@@ -42,6 +42,7 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     `timer` = '$timer',
                     `kadar_air`= '$_POST[kadar_air_true]',
                     `koreksi_resep`= '$_POST[koreksi_resep]',
+					`koreksi_resep2`= '$_POST[koreksi_resep2]',
                     `final_matcher`= '$_POST[final_matcher]',
 					`create_resep` = '$_POST[create_resep]',
                     `acc_ulang_ok` = '$_POST[acc_ulang_ok]',

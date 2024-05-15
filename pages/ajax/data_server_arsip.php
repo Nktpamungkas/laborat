@@ -15,12 +15,14 @@ $columns = array(
     8 => 'no_item',
     9 => 'no_po',
     10 => 'cocok_warna',
-    11 => 'approve_at'
+    11 => 'approve_at',
+	12 => 'tgl_arsip'
 );
 $sql = "SELECT a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by, b.id as id_matching,
-        a.grp, a.matcher, a.idm, b.no_order, b.langganan, b.no_warna, b.warna, b.no_item, b.no_po, b.cocok_warna, a.approve_at, a.status
+        a.grp, a.matcher, a.idm, b.no_order, b.langganan, b.no_warna, b.warna, b.no_item, b.no_po, b.cocok_warna, a.approve_at, a.status, lsm.do_at as tgl_arsip
         FROM tbl_status_matching a
         JOIN tbl_matching b ON a.idm = b.no_resep
+        JOIN log_status_matching lsm ON a.idm = lsm.ids AND lsm.info ='Resep di arsipkan'
         where a.status = 'arsip'";
 $query = mysqli_query($con,$sql) or die("data_server.php: get dataku");
 $totalData = mysqli_num_rows($query);
@@ -30,6 +32,7 @@ if (!empty($requestData['search']['value'])) {
     $sql .= " OR b.warna LIKE '%" . $requestData['search']['value'] . "%' ";
     $sql .= " OR b.no_warna LIKE '%" . $requestData['search']['value'] . "%' ";
     $sql .= " OR b.no_order LIKE '%" . $requestData['search']['value'] . "%' ";
+	$sql .= " OR lsm.do_at LIKE '%" . $requestData['search']['value'] . "%' ";
     $sql .= " OR b.no_item LIKE '%" . $requestData['search']['value'] . "%')";
 }
 //----------------------------------------------------------------------------------
@@ -55,7 +58,8 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["no_item"];
     $nestedData[] = $row["no_po"];
     $nestedData[] = $row["cocok_warna"];
-    $nestedData[] = substr($row["approve_at"], 0, 10);
+    $nestedData[] = $row["approve_at"];
+	$nestedData[] = $row["tgl_arsip"];
 
     $data[] = $nestedData;
     $no++;

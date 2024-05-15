@@ -5,7 +5,7 @@ include '../../koneksi.php';
 ?>
 <div class="col-md-6">
     <div class="box">
-        <h4 class="text-center" style="font-weight: bold;">SISA SCHEDULE H-1 <br> 07:00 - 07:00</h4>
+        <h4 class="text-center" style="font-weight: bold;">SISA SCHEDULE H-1 <br> 23:00 - 23:00</h4>
         <table class="table table-chart">
             <thead>
                 <tr>
@@ -21,7 +21,9 @@ include '../../koneksi.php';
                 <?php
                     $ystrdy         = date('Y-m-d', strtotime("-1 days"));
                     $tody           = date('Y-m-d');
-                    $sql_23         = mysqli_query($con,"SELECT * FROM sisa_schedule where DATE_FORMAT(`time`, '%Y-%m-%d %H:%i') BETWEEN '$ystrdy 07:00' AND '$tody 07:00'");
+//				    $ystrdy         = date('Y-m-d', strtotime("-2 days"));
+//                    $tody           = date('Y-m-d', strtotime("-1 days"));
+                    $sql_23         = mysqli_query($con,"SELECT * FROM sisa_schedule where DATE_FORMAT(`time`, '%Y-%m-%d %H:%i') BETWEEN '$ystrdy 23:00' AND '$tody 23:00'");
                     $lab_dip        = 0;
                     $matching_ulang = 0;
                     $perbaikan      = 0;
@@ -73,8 +75,10 @@ include '../../koneksi.php';
                 </tr>
           </thead>
 			<?php
-				$ystrdy1 = date('Y-m-d', strtotime("-1 days"))." 07:00";
-				$tody1 = date('Y-m-d')." 07:00";
+				$ystrdy1 = date('Y-m-d', strtotime("-1 days"))." 23:00";
+				$tody1 = date('Y-m-d')." 23:00";
+//				$ystrdy1 = date('Y-m-d', strtotime("-2 days"))." 23:00";
+//				$tody1 = date('Y-m-d', strtotime("-1 days"))." 23:00";
 				function get_val($start, $end, $jenis, $colorist)
                                     {
                                         include '../../koneksi.php';

@@ -35,6 +35,7 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     `cside_min`= '$_POST[cside_min]',
                     `kadar_air`= '$_POST[kadar_air_true]',
                     `koreksi_resep`= '$_POST[koreksi_resep]',
+					`koreksi_resep2`= '$_POST[koreksi_resep2]',
                     `final_matcher`= '$_POST[final_matcher]',
                     `colorist1` = '$_POST[colorist1]',
                     `colorist2` = '$_POST[colorist2]',

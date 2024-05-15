@@ -93,6 +93,7 @@ include "koneksi.php";
                                 <th style="border: 1px solid #ddd;">Po.greige</th>
                                 <th style="border: 1px solid #ddd;">Cck-warna</th>
                                 <th style="border: 1px solid #ddd;">Tg.apprv</th>
+								<th style="border: 1px solid #ddd;">Tg.arsip</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -144,7 +145,7 @@ include "koneksi.php";
                 "targets": [3]
             }],
             language: {
-                searchPlaceholder: "You can search by Rcode, Color, No.Color, Order number & PO number"
+                searchPlaceholder: "You can search by Rcode, Color, No.Color, Order number, PO number & Tg.Arsip"
             },
         });
 

@@ -4,7 +4,7 @@
     include "koneksi.php";
     $date = date('Y-m-d');
     $ip_num = $_SERVER['REMOTE_ADDR'];
-    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
+    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2, a.create_resep, a.acc_ulang_ok, a.acc_resep1, a.acc_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
         a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
@@ -413,36 +413,72 @@
                                     <input type="text" disabled class="form-control date-picker" required name="Done_Matching" id="Done_Matching" placeholder="Tgl Selesai Matching" value="<?php echo $date; ?>">
                                 </div>
                             </div>
+							
                             <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Final Matcher</label>
                                 <div class="col-sm-6">
-                                    <select class="form-control select_Fmatcher" required name="f_matcher" id="f_matcher">
+                                    <select class="form-control select_Fmatcher" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="f_matcher" id="f_matcher">
                                         <option value="<?php echo $data['final_matcher'] ?>" selected><?php echo $data['final_matcher'] ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-6">
-                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="koreksi" id="koreksi">
                                         <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                    </select>
+                                </div>
+								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="koreksi2" id="koreksi2">
+                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                    </select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_UserResep" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="create_resep" id="create_resep">
+										<option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                    </select>
+                                </div>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="acc_ulang_ok" id="acc_ulang_ok">
+										<option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                    </select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi"  <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="acc_resep1" id="acc_resep1">
+										<option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                    </select>
+                                </div>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="acc_resep2" id="acc_resep2">
+										<option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                 <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="colorist_1" id="colorist_1">
                                         <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                     </select>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
                                 <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                    <select class="form-control select_Koreksi" <?php if($_SESSION['jabatanLAB']=="Super admin") {  echo "required"; }else{ echo "disabled"; } ?> name="colorist_2" id="colorist_2">
                                         <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
                                     </select>
                                 </div>
                             </div>
+							
                             <div class="form-group">
                                 <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
                                 <div class="col-sm-9">
@@ -1163,11 +1199,12 @@
                 var bleaching_tm = $("#bleaching_tm").val();
             }
             Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
+				$("#koreksi2").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
                 $("#colorist_2").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
-        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -1202,6 +1239,7 @@
                     cocok_warna: cocok_warna,
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
+					koreksi_resep2: koreksi_resep2,
                     colorist1: colorist1,
                     colorist2: colorist2,
                     proses: proses,
@@ -2255,11 +2293,11 @@
                 var bleaching_tm = $("#bleaching_tm").val();
             }
             insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),									 $("#koreksi2").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
                 $("#colorist_2").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -2294,6 +2332,7 @@
                     cocok_warna: cocok_warna,
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
+					koreksi_resep2: koreksi_resep2,
                     colorist1: colorist1,
                     colorist2: colorist2,
                     proses: proses,

@@ -3,7 +3,7 @@
     session_start();
     include "koneksi.php";
     $date = date('Y-m-d');
-    $sql = mysqli_query($con,"SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep,
+    $sql = mysqli_query($con,"SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2,
                                 a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness,
                                 a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, 
                                 a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve, b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item,
@@ -370,9 +370,14 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-6">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                <div class="col-sm-3">
                                     <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                    </select>
+                                </div>
+								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
                                     </select>
                                 </div>
                             </div>
@@ -945,7 +950,7 @@
                 var bleaching_tm = $("#bleaching_tm").val();
             }
             Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $('#kadar_air_true').val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#koreksi2").find('option:selected').val(),
 				$("#penanggung_jawab").find('option:selected').val(),						 
 				$("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
 				$("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),							 
@@ -953,7 +958,7 @@
 				$("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find(':selected').val())
         }
 
-        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, penanggung_jawab, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, penanggung_jawab, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -989,6 +994,7 @@
                     cocok_warna: cocok_warna,
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
+					koreksi_resep2: koreksi_resep2,
 					penanggung_jawab: penanggung_jawab,
 					create_resep: create_resep,
 					acc_ulang_ok: acc_ulang_ok,
@@ -2044,14 +2050,14 @@
                 var bleaching_tm = $("#bleaching_tm").val();
             }
             insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $('#kadar_air_true').val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), 
+                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#koreksi2").find('option:selected').val(),
 				$("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
 				$("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),									 
 				$("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(), 
                 $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find(':selected').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -2086,6 +2092,7 @@
                     cocok_warna: cocok_warna,
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
+					koreksi_resep2: koreksi_resep2,
 					create_resep: create_resep,
 					acc_ulang_ok: acc_ulang_ok,
 					acc_resep1: acc_resep1,

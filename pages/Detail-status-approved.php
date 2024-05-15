@@ -2,7 +2,7 @@
     ini_set("error_reporting", 1);
     session_start();
     include "koneksi.php";
-    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
+    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2, a.create_resep, a.acc_ulang_ok, a.acc_resep1, a.acc_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
     a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
     a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
     b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
@@ -529,10 +529,44 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-6">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                <div class="col-sm-3">
                                     <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                         <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                    </select>
+                                </div>
+								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                    </select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+										<option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                    </select>
+                                </div>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" required name="acc_ulang_ok" id="acc_ulang_ok">
+										<option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                    </select>
+                                </div>
+                            </div>
+							<div class="form-group">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+										<option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                    </select>
+                                </div>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+										<option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -543,7 +577,7 @@
                                         <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                     </select>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
+                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
                                 <div class="col-sm-3">
                                     <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                         <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
