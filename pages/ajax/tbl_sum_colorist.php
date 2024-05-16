@@ -60,6 +60,7 @@ $tody = date('Y-m-d', strtotime("-1 days"));
                                               and b.approve = 'TRUE' 
 											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
+                                              AND NOT a.no_order = 'LABDIP'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
@@ -205,6 +206,7 @@ $tody = date('Y-m-d', strtotime("-1 days"));
                                               and b.approve = 'TRUE' 
 											  and b.status = 'selesai'
                                               and b.koreksi_resep = '$colorist[nama]'
+                                              AND NOT a.no_order = 'LABDIP'
                                               and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
                                               group by a.no_resep
                                               ORDER BY a.id desc");
