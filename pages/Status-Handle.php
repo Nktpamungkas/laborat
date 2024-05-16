@@ -14,6 +14,14 @@
                                 where a.id = '$_GET[idm]'
                                 ORDER BY a.id desc limit 1");
     $data = mysqli_fetch_array($sql); 
+     // Mulai sesi
+    session_start();
+
+    // Mendapatkan nilai $ldorno dari $data["jenis_matching"]
+    $ldorno = $data["jenis_matching"];
+
+    // Simpan nilai $ldorno dalam sesi
+    $_SESSION['jenis_matching'] = $ldorno;
 ?>
 <style>
     #Table-sm td,
@@ -369,15 +377,106 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                    </select>
+                           
+                            <?php if($_SESSION['jenis_matching'] == "L/D" ||  $_SESSION['jenis_matching'] == "LD NOW"){ ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
+                                        </select>
+                                    </div>
                                 </div>
-								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi3" id="koreksi3">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi4" id="koreksi4">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi5" id="koreksi5">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi6" id="koreksi6">
+                                        </select>
+                                    </div>
+                                </div>
+							
+							
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_3" id="colorist_3">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_4" id="colorist_4">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_5" id="colorist_5">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_6" id="colorist_6">
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } else { ?>
+                                <div class="form-group">
+                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
+                                <div class="col-sm-6">
+                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                     </select>
                                 </div>
                             </div>
@@ -417,6 +516,7 @@
                                     </select>
                                 </div>
                             </div>
+                           <?php }?>
 							<div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Penanggung Jawab</label>
                                 <div class="col-sm-3">
@@ -951,14 +1051,27 @@
             }
             Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $('#kadar_air_true').val(), $('#CocokWarna').val(),
                 $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#koreksi2").find('option:selected').val(),
-				$("#penanggung_jawab").find('option:selected').val(),						 
+				 $("#koreksi3").find('option:selected').val(), $("#koreksi4").find('option:selected').val(),
+                  $("#koreksi5").find('option:selected').val(), $("#koreksi6").find('option:selected').val(),
+                $("#penanggung_jawab").find('option:selected').val(),						 
 				$("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
 				$("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),							 
 				$("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(),
+                $("#colorist_3").find('option:selected').val(), $("#colorist_4").find('option:selected').val(),
+                $("#colorist_5").find('option:selected').val(), $("#colorist_6").find('option:selected').val(),
 				$("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find(':selected').val())
         }
 
-        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, penanggung_jawab, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, 
+        howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, 
+        RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, 
+        Done_Matching, keterangan, tgl_buat_status, tside_c, tside_min, cside_c, cside_min, 
+        kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, 
+        koreksi_resep3,koreksi_resep4,koreksi_resep5,koreksi_resep6,
+        penanggung_jawab, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, 
+        colorist3,colorist4,colorist5,colorist6,
+        proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, 
+        Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -995,6 +1108,10 @@
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
 					koreksi_resep2: koreksi_resep2,
+					koreksi_resep3: koreksi_resep3,
+					koreksi_resep4: koreksi_resep4,
+					koreksi_resep5: koreksi_resep5,
+					koreksi_resep6: koreksi_resep6,
 					penanggung_jawab: penanggung_jawab,
 					create_resep: create_resep,
 					acc_ulang_ok: acc_ulang_ok,
@@ -1002,6 +1119,10 @@
 					acc_resep2: acc_resep2,
                     colorist1: colorist1,
                     colorist2: colorist2,
+                    colorist3: colorist3,
+                    colorist4: colorist4,
+                    colorist5: colorist5,
+                    colorist6: colorist6,
                     proses: proses,
                     item: item,
                     recipe_code: recipe_code,
@@ -2051,13 +2172,26 @@
             }
             insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $('#kadar_air_true').val(), $('#CocokWarna').val(),
                 $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#koreksi2").find('option:selected').val(),
+                 $("#koreksi3").find('option:selected').val(),
+                  $("#koreksi4").find('option:selected').val(),
+                   $("#koreksi5").find('option:selected').val(),
+                    $("#koreksi6").find('option:selected').val(),
 				$("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
 				$("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),									 
 				$("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(), 
+                $("#colorist_3").find('option:selected').val(),
+                $("#colorist_4").find('option:selected').val(),
+                $("#colorist_5").find('option:selected').val(),
+                $("#colorist_6").find('option:selected').val(),
                 $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find(':selected').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, final_matcher, koreksi_resep, koreksi_resep2, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, 
+        atching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, 
+        soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, 
+        tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, 
+        final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2,colorist3,colorist4,colorist5,colorist6, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, 
+        Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -2093,12 +2227,20 @@
                     final_matcher: final_matcher,
                     koreksi_resep: koreksi_resep,
 					koreksi_resep2: koreksi_resep2,
+                    koreksi_resep3: koreksi_resep3,
+					koreksi_resep4: koreksi_resep4,
+                    koreksi_resep5: koreksi_resep5,
+					koreksi_resep6: koreksi_resep6,
 					create_resep: create_resep,
 					acc_ulang_ok: acc_ulang_ok,
 					acc_resep1: acc_resep1,
 					acc_resep2: acc_resep2,
                     colorist1: colorist1,
-                    colorist2: colorist2,
+                    colorist2: colorist2,  
+                    colorist3: colorist3,
+                    colorist4: colorist4,  
+                    colorist5: colorist5,
+                    colorist6: colorist6,
                     proses: proses,
                     item: item,
                     recipe_code: recipe_code,
@@ -3021,6 +3163,8 @@
         $(nomor).remove();
     }
 </script>
+
+
 
 <script>
     $(document).ready(function() {
