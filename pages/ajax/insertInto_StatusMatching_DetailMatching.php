@@ -12,7 +12,7 @@ $jam   = floor(($diff - ($hari * (60 * 60 * 24))) / (60 * 60));
 $menit = ($diff - ($hari * (60 * 60 * 24))) - (($jam) * (60 * 60));
 $timer =  $hari . ' Hari, ' . $jam .  ' Jam, ' . floor($menit / 60) . ' Menit';
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
-$Benang = str_replace("'", "''", $_POST['Benang']);
+$Benang = str_replace("'", "''", $_POST['Benang']); 
 $hapus = mysqli_query($con,"DELETE from tbl_matching_detail where id_matching = '$_POST[id_matching]' and id_status = '$_POST[id_status]'");
 
 mysqli_query($con,"UPDATE `tbl_status_matching` SET

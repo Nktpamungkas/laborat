@@ -39,7 +39,7 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     `koreksi_resep3`= '$_POST[koreksi_resep3]',
                     `koreksi_resep4`= '$_POST[koreksi_resep4]',
                     `koreksi_resep5`= '$_POST[koreksi_resep5]',
-                    `koreksi_resep6`= '$_POST[koreksi_resep6]',
+                    `koreksi_resep6`= '$_POST[koreksi_resep6]', 
                     `final_matcher`= '$_POST[final_matcher]',
                     `colorist1` = '$_POST[colorist1]',
                     `colorist2` = '$_POST[colorist2]',
