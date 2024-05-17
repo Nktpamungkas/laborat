@@ -105,11 +105,34 @@
                                         function get_value($start, $end, $jenis, $colorist)
                                         {
                                             include "koneksi.php";
-                                            $sql = mysqli_query($con,"SELECT idm, status , approve , colorist1 , colorist2 ,SUM(IF(a.colorist1 = '$colorist' , 0.5, 0) + IF(a.colorist2 = '$colorist' , 0.5, 0)) as total_value
-                                                from tbl_status_matching a
-                                                join tbl_matching b on a.idm = b.no_resep
-                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end' 
-                                                and jenis_matching = '$jenis' and (a.colorist1 = '$colorist' or a.colorist2 = '$colorist')");
+                                            $sql = mysqli_query($con,"SELECT
+                                                                        idm,
+                                                                        STATUS,
+                                                                        approve,
+                                                                        colorist1,
+                                                                        colorist2,
+                                                                        colorist3,
+                                                                        colorist4,
+                                                                        colorist5,
+                                                                        colorist6,
+                                                                        SUM(IF(a.colorist1 = '$colorist', 0.5, 0 ) + 
+                                                                            IF(a.colorist2 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist3 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist4 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist5 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist6 = '$colorist', 0.5, 0 ) +) AS total_value 
+                                                                    FROM
+                                                                        tbl_status_matching a
+                                                                        JOIN tbl_matching b ON a.idm = b.no_resep 
+                                                                    WHERE
+                                                                        DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
+                                                                        AND jenis_matching = '$jenis' 
+                                                                        AND (a.colorist1 = '$colorist' 
+                                                                          OR a.colorist2 = '$colorist'
+                                                                          OR a.colorist3 = '$colorist'
+                                                                          OR a.colorist4 = '$colorist'
+                                                                          OR a.colorist5 = '$colorist'
+                                                                          OR a.colorist6 = '$colorist')");
                                             $data = mysqli_fetch_array($sql);
 
                                             return $data['total_value'];
@@ -184,12 +207,31 @@
 //                                            join tbl_matching b on a.idm = b.no_resep
 //                                            where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
 //                                            and jenis_matching = '$jenis' and a.koreksi_resep = '$colorist'");
-										$sql = mysqli_query($con,"SELECT a.koreksi_resep, a.koreksi_resep2, 
-										SUM(IF(a.koreksi_resep = '$colorist' , 0.5, 0) + IF(a.koreksi_resep2 = '$colorist' , 0.5, 0)) as total_value
-                                            from tbl_status_matching a
-                                            join tbl_matching b on a.idm = b.no_resep
-                                            where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
-                                            and jenis_matching = '$jenis' and (a.koreksi_resep = '$colorist' or a.koreksi_resep2 = '$colorist') ");
+										$sql = mysqli_query($con,"SELECT
+                                                                        a.koreksi_resep,
+                                                                        a.koreksi_resep2,
+                                                                        a.koreksi_resep3,
+                                                                        a.koreksi_resep4,
+                                                                        a.koreksi_resep5,
+                                                                        a.koreksi_resep6,
+                                                                        SUM(IF( a.koreksi_resep = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep2 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep3 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep4 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep5 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 ) +) AS total_value 
+                                                                    FROM
+                                                                        tbl_status_matching a
+                                                                        JOIN tbl_matching b ON a.idm = b.no_resep 
+                                                                    WHERE
+                                                                        DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
+                                                                        AND jenis_matching = '$jenis' 
+                                                                        AND (a.koreksi_resep = '$colorist' 
+                                                                          OR a.koreksi_resep2 = '$colorist'
+                                                                          OR a.koreksi_resep3 = '$colorist'
+                                                                          OR a.koreksi_resep4 = '$colorist'
+                                                                          OR a.koreksi_resep5 = '$colorist'
+                                                                          OR a.koreksi_resep6 = '$colorist')");
                                         $data = mysqli_fetch_array($sql);
 
                                         return $data['total_value'];

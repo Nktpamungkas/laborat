@@ -7,7 +7,7 @@ $db_name="TM";
 $time = date('Y-m-d H:i:s');
 $connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
 $conn     = sqlsrv_connect( $host, $connInfo);
-$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat");
+$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat_test");
 
 $hostname="10.0.0.21";
 // $database = "NOWTEST"; // SERVER NOW 20
