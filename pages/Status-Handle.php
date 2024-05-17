@@ -2188,10 +2188,13 @@
         }
 
         function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, 
-        atching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, 
+        matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, 
         soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, 
         tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna, 
-        final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2,colorist3,colorist4,colorist5,colorist6, proses, item, recipe_code, no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, 
+        final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, 
+        koreksi_resep6, create_resep, acc_ulang_ok, acc_resep1, acc_resep2, colorist1, colorist2,
+        colorist3,colorist4,colorist5,colorist6, proses, item, recipe_code, no_warna, warna, Kain, 
+        Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, 
         Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
