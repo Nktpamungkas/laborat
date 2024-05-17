@@ -149,6 +149,11 @@ include "koneksi.php";
                 <th class="text-center">status</th>
                 <th class="text-center">kt_status</th>
                 <th class="text-center">koreksi_resep</th>
+                <th class="text-center">koreksi_resep2</th>
+                <th class="text-center">koreksi_resep3</th>
+                <th class="text-center">koreksi_resep4</th>
+                <th class="text-center">koreksi_resep5</th>
+                <th class="text-center">koreksi_resep6</th>
                 <th class="text-center">percobaan_ke</th>
                 <th class="text-center">percobaan_berapa_kali</th>
                 <th class="text-center">benang_aktual</th>
@@ -191,6 +196,10 @@ include "koneksi.php";
                 <th class="text-center">final_matcher</th>
                 <th class="text-center">colorist1</th>
                 <th class="text-center">colorist2</th>
+                <th class="text-center">colorist3</th>
+                <th class="text-center">colorist4</th>
+                <th class="text-center">colorist5</th>
+                <th class="text-center">colorist6</th>
                 <th class="text-center">penanggung_jawab</th>
                 <th class="text-center">bleaching_tm</th>
                 <th class="text-center">bleaching_sh</th>
@@ -262,6 +271,11 @@ include "koneksi.php";
                   <td><?php echo $r['status'] ?></td>
                   <td><?php echo $r['kt_status'] ?></td>
                   <td><?php echo $r['koreksi_resep'] ?></td>
+                  <td><?php echo $r['koreksi_resep2'] ?></td>
+                  <td><?php echo $r['koreksi_resep3'] ?></td>
+                  <td><?php echo $r['koreksi_resep4'] ?></td>
+                  <td><?php echo $r['koreksi_resep5'] ?></td>
+                  <td><?php echo $r['koreksi_resep6'] ?></td>
                   <td><?php echo $r['percobaan_ke'] ?></td>
                   <td><?php echo $r['howmany_percobaan_ke'] ?></td>
                   <td><?php echo $r['benang_aktual'] ?></td>
@@ -304,6 +318,10 @@ include "koneksi.php";
                   <td><?php echo $r['final_matcher'] ?></td>
                   <td><?php echo $r['colorist1'] ?></td>
                   <td><?php echo $r['colorist2'] ?></td>
+                  <td><?php echo $r['colorist3'] ?></td>
+                  <td><?php echo $r['colorist4'] ?></td>
+                  <td><?php echo $r['colorist5'] ?></td>
+                  <td><?php echo $r['colorist6'] ?></td>
                   <td><?php echo $r['penanggung_jawab'] ?></td>
                   <td><?php echo $r['bleaching_tm'] ?></td>
                   <td><?php echo $r['bleaching_sh'] ?></td>
