@@ -1,0 +1,4 @@
+RCPDR21041012                 6WARM SUNSHUNE MARLE                             Substrate1                    C                   Copower                                            12.00  3
+R101              0.1200F
+R213              0.0021F
+E19               8.0000G

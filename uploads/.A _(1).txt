@@ -1,0 +1,7 @@
+RCPOB21080475                 0LIGHT GREY HEATHER                              Substrate1                    B                   Copower                                            15.00  6
+D404              0.0006F
+D402              0.0001F
+E04               2.0000G
+E19               2.0000G
+EE616             1.0000G
+E90               0.5000G
