@@ -120,7 +120,7 @@
                                                                             IF(a.colorist3 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist4 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist5 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.colorist6 = '$colorist', 0.5, 0 ) +) AS total_value 
+                                                                            IF(a.colorist6 = '$colorist', 0.5, 0 )) AS total_value 
                                                                     FROM
                                                                         tbl_status_matching a
                                                                         JOIN tbl_matching b ON a.idm = b.no_resep 
@@ -219,7 +219,7 @@
                                                                             IF(a.koreksi_resep3 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep4 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep5 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 ) +) AS total_value 
+                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 )) AS total_value 
                                                                     FROM
                                                                         tbl_status_matching a
                                                                         JOIN tbl_matching b ON a.idm = b.no_resep 
