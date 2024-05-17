@@ -1,10 +1,10 @@
 <?php
-    ini_set("error_reporting", 1);
-    session_start();
-    include "koneksi.php";
-    $date = date('Y-m-d');
-    $ip_num = $_SERVER['REMOTE_ADDR'];
-    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
+ini_set("error_reporting", 1);
+session_start();
+include "koneksi.php";
+$date = date('Y-m-d');
+$ip_num = $_SERVER['REMOTE_ADDR'];
+$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
         a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
@@ -15,8 +15,8 @@
         INNER JOIN tbl_matching b ON a.idm = b.no_resep
         where a.id = '$_GET[idm]'
         ORDER BY a.id desc limit 1");
-    $data = mysqli_fetch_array($sql);
-    mysqli_query($con, "INSERT INTO log_status_matching SET
+$data = mysqli_fetch_array($sql);
+mysqli_query($con, "INSERT INTO log_status_matching SET
                     `ids` = '$data[idm]', 
                     `status` = 'hold', 
                     `info` = 'button lanjut clicked', 
@@ -180,7 +180,7 @@ session_start();
                         <div class="form-group">
                             <label for="no_warna" class="col-sm-3 control-label">No.warna</label>
                             <div class="col-sm-9">
-                                <input type="text" value="<?php echo $data['no_warna'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang' or $data['jenis_matching'] == 'Matching Ulang NOW') {
+                                <input type="text" value="<?php echo $data['no_warna'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang' or $data['jenis_matching'] == 'Matching Ulang NOW') {
                                                                                                 echo '';
                                                                                             } else {
                                                                                                 echo 'readonly ';
@@ -190,7 +190,7 @@ session_start();
                         <div class="form-group">
                             <label for="warna" class="col-sm-3 control-label">Warna</label>
                             <div class="col-sm-9">
-                                <input type="text" value="<?php echo $data['warna'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang' or $data['jenis_matching'] == 'Matching Ulang NOW') {
+                                <input type="text" value="<?php echo $data['warna'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development' or $data['jenis_matching'] == 'Matching Ulang' or $data['jenis_matching'] == 'Matching Ulang NOW') {
                                                                                             echo '';
                                                                                         } else {
                                                                                             echo 'readonly ';
@@ -200,7 +200,7 @@ session_start();
                         <div class="form-group">
                             <label for="Kain" class="col-sm-3 control-label">Kain</label>
                             <div class="col-sm-9">
-                                <textarea class="form-control input-sm" name="Kain" id="Kain" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <textarea class="form-control input-sm" name="Kain" id="Kain" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                     echo '';
                                                                                                 } else {
                                                                                                     echo 'readonly ';
@@ -220,7 +220,7 @@ session_start();
                         <div class="form-group">
                             <label for="Gramasi" class="col-sm-3 control-label">Gramasi</label>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control input-sm" name="Lebar" id="Lebar" placeholder="Inch" value="<?php echo $data['lebar'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control input-sm" name="Lebar" id="Lebar" placeholder="Inch" value="<?php echo $data['lebar'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                         echo '';
                                                                                                                                                                     } else {
                                                                                                                                                                         echo 'readonly ';
@@ -232,7 +232,7 @@ session_start();
                                 </button>
                             </div>
                             <div class="col-sm-4">
-                                <input type="text" class="form-control input-sm" name="Gramasi" id="Gramasi" placeholder="Gr/M2" value="<?php echo $data['gramasi'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control input-sm" name="Gramasi" id="Gramasi" placeholder="Gr/M2" value="<?php echo $data['gramasi'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                             echo '';
                                                                                                                                                                         } else {
                                                                                                                                                                             echo 'readonly ';
@@ -243,7 +243,7 @@ session_start();
                         <div class="form-group">
                             <label for="Delivery" class="col-sm-3 control-label">Tgl Delivery</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control date-picker input-sm" name="Tgl_delivery" id="Tgl_delivery" placeholder="Tgl delivery" value="<?php echo $data['tgl_delivery'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control date-picker input-sm" name="Tgl_delivery" id="Tgl_delivery" placeholder="Tgl delivery" value="<?php echo $data['tgl_delivery'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                                                                 echo '';
                                                                                                                                                                                                             } else {
                                                                                                                                                                                                                 echo 'disabled ';
@@ -257,7 +257,7 @@ session_start();
                                                                                     echo 'Request No';
                                                                                 } ?></label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control input-sm" name="Order" id="Order" placeholder="Order" value="<?php echo $data['no_order'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control input-sm" name="Order" id="Order" placeholder="Order" value="<?php echo $data['no_order'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                             echo '';
                                                                                                                                                                         } else {
                                                                                                                                                                             echo 'readonly ';
@@ -267,7 +267,7 @@ session_start();
                         <div class="form-group">
                             <label for="Order" class="col-sm-3 control-label">PO.Greige</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control input-sm" name="po_greige" id="po_greige" placeholder="po_greige" value="<?php echo $data['no_po'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control input-sm" name="po_greige" id="po_greige" placeholder="po_greige" value="<?php echo $data['no_po'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                                     echo '';
                                                                                                                                                                                 } else {
                                                                                                                                                                                     echo 'readonly ';
@@ -277,7 +277,7 @@ session_start();
                         <div class="form-group">
                             <label for="QtyOrder" class="col-sm-3 control-label">Qty Order</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control input-sm" name="QtyOrder" id="QtyOrder" placeholder="Qty Order" value="<?php echo $data['qty_order'] ?>" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <input type="text" class="form-control input-sm" name="QtyOrder" id="QtyOrder" placeholder="Qty Order" value="<?php echo $data['qty_order'] ?>" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                                                                     echo '';
                                                                                                                                                                                 } else {
                                                                                                                                                                                     echo 'readonly ';
@@ -287,7 +287,7 @@ session_start();
                         <div class="form-group">
                             <label for="Matcher" class="col-sm-3 control-label">Matcher Awal</label>
                             <div class="col-sm-9">
-                                <select type="text" class="form-control input-sm select_Fmatcher" name="Matcher" id="Matcher" <?php if ($data['jenis_matching'] == 'L/D' OR $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
+                                <select type="text" class="form-control input-sm select_Fmatcher" name="Matcher" id="Matcher" <?php if ($data['jenis_matching'] == 'L/D' or $data['jenis_matching'] == 'LD NOW' or $data['jenis_matching'] == 'Matching Development') {
                                                                                                                                     echo '';
                                                                                                                                 } else {
                                                                                                                                     echo 'disabled ';
@@ -425,109 +425,109 @@ session_start();
                                     </select>
                                 </div>
                             </div>
-                              <?php if($_SESSION['jenis_matching'] == "L/D" ||  $_SESSION['jenis_matching'] == "LD NOW"){ ?>
-                                 <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                        <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                    </select>
+                            <?php if ($_SESSION['jenis_matching'] == "L/D" ||  $_SESSION['jenis_matching'] == "LD NOW") { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
-                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
+                                            <option value="<?php echo $data['koreksi_resep3'] ?>" selected><?php echo $data['koreksi_resep3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
+                                            <option value="<?php echo $data['koreksi_resep4'] ?>" selected><?php echo $data['koreksi_resep4'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi3" id="koreksi3">
-                                        <option value="<?php echo $data['koreksi_resep3'] ?>" selected><?php echo $data['koreksi_resep3'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
+                                            <option value="<?php echo $data['koreksi_resep5'] ?>" selected><?php echo $data['koreksi_resep5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
+                                            <option value="<?php echo $data['koreksi_resep6'] ?>" selected><?php echo $data['koreksi_resep6'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi4" id="koreksi4">
-                                        <option value="<?php echo $data['koreksi_resep4'] ?>" selected><?php echo $data['koreksi_resep4'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi5" id="koreksi5">
-                                        <option value="<?php echo $data['koreksi_resep5'] ?>" selected><?php echo $data['koreksi_resep5'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_3" id="colorist_3">
+                                            <option value="<?php echo $data['colorist3'] ?>" selected><?php echo $data['colorist3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
+                                            <option value="<?php echo $data['colorist4'] ?>" selected><?php echo $data['colorist4'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="koreksi6" id="koreksi6">
-                                        <option value="<?php echo $data['koreksi_resep6'] ?>" selected><?php echo $data['koreksi_resep6'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_5" id="colorist_5">
+                                            <option value="<?php echo $data['colorist5'] ?>" selected><?php echo $data['colorist5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
+                                            <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
-                                        <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
-                                        <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_3" id="colorist_3">
-                                        <option value="<?php echo $data['colorist3'] ?>" selected><?php echo $data['colorist3'] ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_4" id="colorist_4">
-                                        <option value="<?php echo $data['colorist4'] ?>" selected><?php echo $data['colorist4'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_5" id="colorist_5">
-                                        <option value="<?php echo $data['colorist5'] ?>" selected><?php echo $data['colorist5'] ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-4">
-                                    <select class="form-control select_Koreksi" required name="colorist_6" id="colorist_6">
-                                        <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
                             <?php } else { ?>
                                 <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-6">
-                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                        <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                    </select>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
-                                        <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
-                                        <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                           <?php }?>
+                            <?php } ?>
                             <div class="form-group">
                                 <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
                                 <div class="col-sm-9">
@@ -1252,14 +1252,14 @@ session_start();
                 $("#colorist_2").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
-        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke, 
-        howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, 
-        soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan, 
-        tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna, 
-        final_matcher, koreksi_resep,koreksi_resep2,koreksi_resep3,koreksi_resep4,koreksi_resep5,koreksi_resep6, 
-        colorist1, colorist2,colorist3, colorist4,colorist5, colorist6, proses, item, recipe_code, no_warna, 
-        warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder, 
-        Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke,
+            howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu,
+            soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan,
+            tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna,
+            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6,
+            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, proses, item, recipe_code, no_warna,
+            warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder,
+            Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -2357,22 +2357,22 @@ session_start();
             }
             insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
                 $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
-                $("#koreksi2").find('option:selected').val(),$("#koreksi3").find('option:selected').val(),
-                $("#koreksi4").find('option:selected').val(),$("#koreksi5").find('option:selected').val(),
+                $("#koreksi2").find('option:selected').val(), $("#koreksi3").find('option:selected').val(),
+                $("#koreksi4").find('option:selected').val(), $("#koreksi5").find('option:selected').val(),
                 $("#koreksi6").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
-                $("#colorist_2").find('option:selected').val(),$("#colorist_3").find('option:selected').val(),
-                $("#colorist_4").find('option:selected').val(),$("#colorist_5").find('option:selected').val(),
+                $("#colorist_2").find('option:selected').val(), $("#colorist_3").find('option:selected').val(),
+                $("#colorist_4").find('option:selected').val(), $("#colorist_5").find('option:selected').val(),
                 $("#colorist_6").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
-        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke, 
-        benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu, 
-        soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan, 
-        tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna,
-         final_matcher, koreksi_resep,koreksi_resep2,koreksi_resep3,koreksi_resep4,koreksi_resep5,koreksi_resep6, 
-         colorist1, colorist2,colorist3, colorist4,colorist5, colorist6, proses, item, recipe_code, 
-         no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, 
-         QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
+        function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke,
+            benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu,
+            soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan,
+            tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna,
+            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6,
+            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, proses, item, recipe_code,
+            no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige,
+            QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
             $.ajax({
                 dataType: "json",
@@ -3077,16 +3077,16 @@ session_start();
                         $(getTr).find("td:last").find('input').val("-----------------------");
                         $(getTr).find("td:last").find('input').prop('disabled', true);
                     } else {
-                        if(response.ket == "Suhu"){
+                        if (response.ket == "Suhu") {
                             $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
                             $(getTr).find("td:last").find('input').prop('disabled', false);
                             $(getTr).find("input.form-control.input-xs.conc").val(0);
                             $(getTr).find("td:last").find('input').val("");
-                        }else{
+                        } else {
                             $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
                             $(getTr).find("td:last").find('input').prop('disabled', false);
-                           // $(getTr).find("input.form-control.input-xs.conc").val('');
-                           // $(getTr).find("td:last").find('input').val("");
+                            // $(getTr).find("input.form-control.input-xs.conc").val('');
+                            // $(getTr).find("td:last").find('input').val("");
                         }
                     }
                 },
