@@ -1,52 +1,53 @@
 <?php
-    ini_set("error_reporting", 1);
-    session_start();
-    include "koneksi.php";
-    $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2, a.create_resep, a.acc_ulang_ok, a.acc_resep1, a.acc_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
+ini_set("error_reporting", 1);
+session_start();
+include "koneksi.php";
+$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2,a.koreksi_resep3, a.koreksi_resep4,
+    a.koreksi_resep5, a.koreksi_resep6, a.create_resep, a.acc_ulang_ok, a.acc_resep1, a.acc_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
     a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
     a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
     b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
-    b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out, b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, 
+    b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out, b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4,a.colorist5, a.colorist6,
     b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, a.remark_dye, b.color_code, b.recipe_code,
     SUBSTRING_INDEX(SUBSTRING_INDEX(recipe_code, ' ', 1), ' ', -1) as recipe_code_1, SUBSTRING_INDEX(SUBSTRING_INDEX(recipe_code, ' ', 2), ' ', -1) as recipe_code_2
     FROM tbl_status_matching a
     INNER JOIN tbl_matching b ON a.idm = b.no_resep
     where a.id = '$_GET[idm]'
     ORDER BY a.id desc limit 1");
-    $data = mysqli_fetch_array($sql); 
+$data = mysqli_fetch_array($sql);
 
-    if(substr(strtoupper($data['idm']), 0,2) == "DR"){
-        $suffix = $data['idm'];
+if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
+    $suffix = $data['idm'];
 
-        $CoderecipeD = $data['recipe_code_1']; 
-        $q_CekDataRecipeD = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
-        $d_CekDataRecipeD = mysqli_fetch_assoc($q_CekDataRecipeD);
-        if($d_CekDataRecipeD['NUMROWS'] <= 0){
-            $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeD','$suffix')");
-        }
-        $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
-        $dataD = mysqli_fetch_array($sqlD); 
-
-        $CoderecipeR = $data['recipe_code_2'];
-        $q_CekDataRecipeR = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
-        $d_CekDataRecipeR = mysqli_fetch_assoc($q_CekDataRecipeR);
-        if($d_CekDataRecipeR['NUMROWS'] <= 0){
-            $sqlR = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeR','$suffix')");
-        }
-        $sqlR = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
-        $dataR = mysqli_fetch_array($sqlR); 
-    }else{
-        $suffix = $data['idm'];
-
-        $Coderecipe = $data['recipe_code_1']; 
-        $q_CekDataRecipe = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
-        $d_CekDataRecipe = mysqli_fetch_assoc($q_CekDataRecipe);
-        if($d_CekDataRecipe['NUMROWS'] <= 0){
-            $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$Coderecipe','$suffix')");
-        }
-        $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
-        $dataD = mysqli_fetch_array($sqlD); 
+    $CoderecipeD = $data['recipe_code_1'];
+    $q_CekDataRecipeD = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
+    $d_CekDataRecipeD = mysqli_fetch_assoc($q_CekDataRecipeD);
+    if ($d_CekDataRecipeD['NUMROWS'] <= 0) {
+        $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeD','$suffix')");
     }
+    $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeD' AND suffix = '$suffix'");
+    $dataD = mysqli_fetch_array($sqlD);
+
+    $CoderecipeR = $data['recipe_code_2'];
+    $q_CekDataRecipeR = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
+    $d_CekDataRecipeR = mysqli_fetch_assoc($q_CekDataRecipeR);
+    if ($d_CekDataRecipeR['NUMROWS'] <= 0) {
+        $sqlR = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$CoderecipeR','$suffix')");
+    }
+    $sqlR = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$CoderecipeR' AND suffix = '$suffix'");
+    $dataR = mysqli_fetch_array($sqlR);
+} else {
+    $suffix = $data['idm'];
+
+    $Coderecipe = $data['recipe_code_1'];
+    $q_CekDataRecipe = mysqli_query($con, "SELECT COUNT(*) AS NUMROWS FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
+    $d_CekDataRecipe = mysqli_fetch_assoc($q_CekDataRecipe);
+    if ($d_CekDataRecipe['NUMROWS'] <= 0) {
+        $sqlD = mysqli_query($con, "INSERT INTO recipeprefix(recipe_code, suffix) VALUE('$Coderecipe','$suffix')");
+    }
+    $sqlD = mysqli_query($con, "SELECT * FROM recipeprefix WHERE recipe_code = '$Coderecipe' AND suffix = '$suffix'");
+    $dataD = mysqli_fetch_array($sqlD);
+}
 ?>
 <style>
     .lookupST {
@@ -99,11 +100,12 @@
         line-height: 1.5;
     }
 </style>
+
 <body>
     <div class="container col-md-12">
         <?php if ($data['approve'] == 'TRUE') : ?>
             <a class="btn btn pull-right" style="background-color: grey; color: white; margin-bottom: 10px;"><?php echo $data['idm'] ?> <i class="fa fa-arrow-right" aria-hidden="true"></i>
-            <strong>Selesai</strong></a>
+                <strong>Selesai</strong></a>
             &nbsp;
         <?php else : ?>
             <button class="btn btn pull-right" style="background-color: white; color: black; margin-bottom: 10px;"><strong><?php echo $data['idm'] ?></strong></button>
@@ -528,62 +530,171 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                        <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                    </select>
+                            <?php if ($data['jenis_matching'] == "LD NOW") { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                            <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_ulang_ok" id="acc_ulang_ok">
+                                            <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
-                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                            <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                            <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-							<div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
-										<option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_ulang_ok" id="acc_ulang_ok">
-										<option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
+                                            <option value="<?php echo $data['koreksi_resep3'] ?>" selected><?php echo $data['koreksi_resep3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
+                                            <option value="<?php echo $data['koreksi_resep4'] ?>" selected><?php echo $data['koreksi_resep4'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-							<div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
-										<option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
+                                            <option value="<?php echo $data['koreksi_resep5'] ?>" selected><?php echo $data['koreksi_resep5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
+                                            <option value="<?php echo $data['koreksi_resep6'] ?>" selected><?php echo $data['koreksi_resep6'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
-										<option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
-                                        <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_3" id="colorist_3">
+                                            <option value="<?php echo $data['colorist3'] ?>" selected><?php echo $data['colorist3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
+                                            <option value="<?php echo $data['colorist4'] ?>" selected><?php echo $data['colorist4'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
-                                <div class="col-sm-3">
-                                    <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
-                                        <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_5" id="colorist_5">
+                                            <option value="<?php echo $data['colorist5'] ?>" selected><?php echo $data['colorist5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
+                                            <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php } else { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                            <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_ulang_ok" id="acc_ulang_ok">
+                                            <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                            <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                            <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
                             <div class="form-group">
                                 <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
                                 <div class="col-sm-9">
@@ -1007,16 +1118,16 @@
                         <p class="text-center" style="text-shadow: black; font-weight: bold;">Export Recipe and Recipe Component</p>
                     </h4>
                     <h4>
-                        <?php if($_GET['upload'] == '1') : ?>
+                        <?php if ($_GET['upload'] == '1') : ?>
                             <p class="text-center" style="color: blue; font-weight: bold;">Exported Success</p>
                             <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
-                        <?php elseif($_GET['upload'] == '2') : ?>
+                        <?php elseif ($_GET['upload'] == '2') : ?>
                             <p class="text-center" style="color: blue; font-weight: bold;">Export Recipe Has Success!</p>
                             <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
-                        <?php elseif($_GET['upload'] == '3') : ?>
+                        <?php elseif ($_GET['upload'] == '3') : ?>
                             <p class="text-center" style="color: blue; font-weight: bold;">Export Recipe Component Has Success!</p>
                             <p class="text-center" style="color: blue; font-weight: bold;"><?= $_GET['available']; ?></p>
-                        <?php elseif($_GET['upload'] == '0') : ?>
+                        <?php elseif ($_GET['upload'] == '0') : ?>
                             <p class="text-center" style="color: red; font-weight: bold;">Exported FAILED!</p>
                         <?php else : ?>
                             <p class="text-center" style="color: red; font-weight: bold;"></p>
@@ -1024,13 +1135,13 @@
                     </h4>
                 </div>
                 <?php
-                    if(substr(strtoupper($data['idm']), 0,1) == 'D'){
-                        $garam = ")";
-                    }else{
-                        $garam = "or kode = 'E-1-010')";
-                    }
+                if (substr(strtoupper($data['idm']), 0, 1) == 'D') {
+                    $garam = ")";
+                } else {
+                    $garam = "or kode = 'E-1-010')";
+                }
                 ?>
-                <?php if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'CD' OR substr(strtoupper($data['idm']), 0, 2) == 'OB') : ?>
+                <?php if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'CD' or substr(strtoupper($data['idm']), 0, 2) == 'OB') : ?>
                     <div class="container-fluid col-sm-6">
                         *Detail Data yang akan di export :<br>
                         <table class="lookupST display nowrap" width="100%" style="padding-right: 16px;">
@@ -1040,7 +1151,7 @@
                                     <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                         <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
                                     </a>
-                                    <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                    <?php if ($_SESSION['userLAB'] == 'cliviaugina') : ?>
                                         &nbsp; &nbsp; &nbsp; &nbsp;
                                         <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
@@ -1048,9 +1159,9 @@
                                     <?php endif; ?>
                                 </td>
                                 <?php
-                                    $q_dbrecipebean = db2_exec($conn1, "SELECT COUNT(*) AS jumlahrecipe FROM RECIPEBEAN WHERE TRIM(SUBCODE01) = '$data[recipe_code_1]'");
-                                    $d_dbrecipebean = db2_fetch_assoc($q_dbrecipebean);
-                                    if($d_dbrecipebean['jumlahrecipe'] >= "1") :
+                                $q_dbrecipebean = db2_exec($conn1, "SELECT COUNT(*) AS jumlahrecipe FROM RECIPEBEAN WHERE TRIM(SUBCODE01) = '$data[recipe_code_1]'");
+                                $d_dbrecipebean = db2_fetch_assoc($q_dbrecipebean);
+                                if ($d_dbrecipebean['jumlahrecipe'] >= "1") :
                                 ?>
                                     <td>
                                         <i class="fa fa-check text-blue" aria-hidden="true"></i> <span style="background-color:rgb(151, 170, 212)">Available in recipe</span>
@@ -1063,13 +1174,13 @@
                             </tr>
                             <tr>
                                 <td colspan="2">Suffix Code test</td>
-                                <td colspan="3">: 
-                                    <?php 
-                                        if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
-                                            echo substr($data['idm'], 1).'L';
-                                        }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
-                                            echo substr($data['idm'], 2).'L';
-                                        }
+                                <td colspan="3">:
+                                    <?php
+                                    if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
+                                        echo substr($data['idm'], 1) . 'L';
+                                    } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
+                                        echo substr($data['idm'], 2) . 'L';
+                                    }
                                     ?>
                                 </td>
                             </tr>
@@ -1079,7 +1190,11 @@
                             </tr>
                             <tr>
                                 <td colspan="2">Liquor Ratio (LR)</td>
-                                <td colspan="3">: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                                <td colspan="3">: <?php if ($data['lr'] == '0') {
+                                                        echo $data['second_lr'];
+                                                    } else {
+                                                        echo $data['lr'];
+                                                    } ?></td>
                             </tr>
                         </table>
 
@@ -1095,7 +1210,7 @@
                             </thead>
                             <tbody>
                                 <?php
-                                    $q_frist = mysqli_query($con, "SELECT a.flag,
+                                $q_frist = mysqli_query($con, "SELECT a.flag,
                                                                         case
                                                                             when tds.code_new is null then a.kode 
                                                                             else tds.code_new
@@ -1120,17 +1235,17 @@
                                                                     LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
                                                                     WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' $garam order by a.flag ASC");
                                 ?>
-                                <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
-                                <tr>
-                                    <td><?= $d_frist['flag']; ?></td>
-                                    <td><?= $d_frist['kode']; ?></td>
-                                    <td><?= $d_frist['nama']; ?></td>
-                                    <td><?= $d_frist['conc']; ?></td>
-                                    <td><?= $d_frist['remark']; ?></td>
-                                </tr>
+                                <?php while ($d_frist = mysqli_fetch_array($q_frist)) { ?>
+                                    <tr>
+                                        <td><?= $d_frist['flag']; ?></td>
+                                        <td><?= $d_frist['kode']; ?></td>
+                                        <td><?= $d_frist['nama']; ?></td>
+                                        <td><?= $d_frist['conc']; ?></td>
+                                        <td><?= $d_frist['remark']; ?></td>
+                                    </tr>
                                 <?php } ?>
                                 <?php
-                                    $q_frist_add = mysqli_query($con, "SELECT 
+                                $q_frist_add = mysqli_query($con, "SELECT 
                                                                             b.recipe_code as recipe_code,
                                                                             case
                                                                                 when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
@@ -1204,14 +1319,14 @@
                                                                         where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
                                                                         group by b.no_resep");
                                 ?>
-                                <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td><?= $d_frist_add['COMMENTLINE']; ?></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
+                                <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)) { ?>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
                                 <?php } ?>
                             </tbody>
                         </table>
@@ -1236,7 +1351,7 @@
                                         <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
                                         </a>
-                                        <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                        <?php if ($_SESSION['userLAB'] == 'cliviaugina') : ?>
                                             &nbsp; &nbsp; &nbsp; &nbsp;
                                             <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
@@ -1250,13 +1365,13 @@
                                 </tr>
                                 <tr>
                                     <td width="50px">Suffix Code</td>
-                                    <td>: 
-                                        <?php 
-                                            if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
-                                                echo substr($data['idm'], 1).'L';
-                                            }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
-                                                echo substr($data['idm'], 2).'L';
-                                            }
+                                    <td>:
+                                        <?php
+                                        if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
+                                            echo substr($data['idm'], 1) . 'L';
+                                        } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
+                                            echo substr($data['idm'], 2) . 'L';
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -1266,7 +1381,11 @@
                                 </tr>
                                 <tr>
                                     <td width="50px">Liquor Ratio (LR)</td>
-                                    <td>: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                                    <td>: <?php if ($data['lr'] == '0') {
+                                                echo $data['second_lr'];
+                                            } else {
+                                                echo $data['lr'];
+                                            } ?></td>
                                 </tr>
                             </table>
                             <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
@@ -1281,7 +1400,7 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                        $q_frist = mysqli_query($con, "SELECT a.flag,
+                                    $q_frist = mysqli_query($con, "SELECT a.flag,
                                                                             case
                                                                                 when tds.code_new is null then a.kode 
                                                                                 else tds.code_new
@@ -1306,17 +1425,17 @@
                                                                         LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode
                                                                         WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from Co-power' $garam order by a.flag ASC");
                                     ?>
-                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
-                                    <tr>
-                                        <td><?= $d_frist['flag']; ?></td>
-                                        <td><?= $d_frist['kode']; ?></td>
-                                        <td><?= $d_frist['nama']; ?></td>
-                                        <td><?= $d_frist['conc']; ?></td>
-                                        <td><?= $d_frist['remark']; ?></td>
-                                    </tr>
+                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)) { ?>
+                                        <tr>
+                                            <td><?= $d_frist['flag']; ?></td>
+                                            <td><?= $d_frist['kode']; ?></td>
+                                            <td><?= $d_frist['nama']; ?></td>
+                                            <td><?= $d_frist['conc']; ?></td>
+                                            <td><?= $d_frist['remark']; ?></td>
+                                        </tr>
                                     <?php } ?>
                                     <?php
-                                        $q_frist_add = mysqli_query($con, "SELECT 
+                                    $q_frist_add = mysqli_query($con, "SELECT 
                                                                                 b.recipe_code as recipe_code,
                                                                                 case
                                                                                     when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
@@ -1387,14 +1506,14 @@
                                                                             where tsm.idm = '$data[idm]' and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
                                                                             group by b.no_resep");
                                     ?>
-                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><?= $d_frist_add['COMMENTLINE']; ?></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)) { ?>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
                                     <?php } ?>
                                 </tbody>
                             </table>
@@ -1410,7 +1529,7 @@
                                         <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
                                         </a>
-                                        <?php if($_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                        <?php if ($_SESSION['userLAB'] == 'cliviaugina') : ?>
                                             &nbsp; &nbsp; &nbsp; &nbsp;
                                             <a class="bbtn btn-sm btn-danger approve" href="ExportRecipeCSV2.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
@@ -1424,13 +1543,13 @@
                                 </tr>
                                 <tr>
                                     <td width="50px">Suffix Code</td>
-                                    <td>: 
-                                        <?php 
-                                            if(substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2'){
-                                                echo substr($data['idm'], 1).'L';
-                                            }elseif(substr(strtoupper($data['idm']), 0, 2) == 'DR' OR substr(strtoupper($data['idm']), 0, 2) == 'OB' OR substr(strtoupper($data['idm']), 0, 2) == 'CD'){
-                                                echo substr($data['idm'], 2).'L';
-                                            }
+                                    <td>:
+                                        <?php
+                                        if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
+                                            echo substr($data['idm'], 1) . 'L';
+                                        } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
+                                            echo substr($data['idm'], 2) . 'L';
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -1440,7 +1559,11 @@
                                 </tr>
                                 <tr>
                                     <td width="50px">Liquor Ratio (LR)</td>
-                                    <td>: <?php if($data['lr'] == '0'){ echo $data['second_lr']; }else{ echo $data['lr']; } ?></td>
+                                    <td>: <?php if ($data['lr'] == '0') {
+                                                echo $data['second_lr'];
+                                            } else {
+                                                echo $data['lr'];
+                                            } ?></td>
                                 </tr>
                             </table>
                             <table class="lookupST display nowrap" width="110%" style="padding-right: 16px;">
@@ -1455,7 +1578,7 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                        $q_frist = mysqli_query($con, "SELECT a.flag,
+                                    $q_frist = mysqli_query($con, "SELECT a.flag,
                                                                                 case
                                                                                     when tds.code_new is null then a.kode 
                                                                                     else tds.code_new
@@ -1480,17 +1603,17 @@
                                                                             LEFT JOIN tbl_dyestuff tds ON tds.code = a.kode 
                                                                         WHERE a.id_matching = '$data[id]' and a.id_status = '$data[id_status]' and (remark = 'from merge Co-power'  $garam order by a.flag ASC");
                                     ?>
-                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)){ ?>
-                                    <tr>
-                                        <td><?= $d_frist['flag']; ?></td>
-                                        <td><?= $d_frist['kode']; ?></td>
-                                        <td><?= $d_frist['nama']; ?></td>
-                                        <td><?= $d_frist['conc']; ?></td>
-                                        <td><?= $d_frist['remark']; ?></td>
-                                    </tr>
+                                    <?php while ($d_frist = mysqli_fetch_array($q_frist)) { ?>
+                                        <tr>
+                                            <td><?= $d_frist['flag']; ?></td>
+                                            <td><?= $d_frist['kode']; ?></td>
+                                            <td><?= $d_frist['nama']; ?></td>
+                                            <td><?= $d_frist['conc']; ?></td>
+                                            <td><?= $d_frist['remark']; ?></td>
+                                        </tr>
                                     <?php } ?>
                                     <?php
-                                        $q_frist_add = mysqli_query($con, "SELECT 
+                                    $q_frist_add = mysqli_query($con, "SELECT 
                                                                                 b.recipe_code as recipe_code,
                                                                                 case
                                                                                     when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
@@ -1546,14 +1669,14 @@
                                                                             where tsm.idm = '$data[idm]' and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 3) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_sh = 0
                                                                             group by b.no_resep");
                                     ?>
-                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)){ ?>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><?= $d_frist_add['COMMENTLINE']; ?></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                    <?php while ($d_frist_add = mysqli_fetch_array($q_frist_add)) { ?>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td><?= $d_frist_add['COMMENTLINE']; ?></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
                                     <?php } ?>
                                 </tbody>
                             </table>

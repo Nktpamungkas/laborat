@@ -2,12 +2,13 @@
 ini_set("error_reporting", 1);
 session_start();
 include "koneksi.php";
-$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, b.id AS id_tblmatching, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.koreksi_resep2, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
+$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, b.id AS id_tblmatching, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, 
+a.koreksi_resep, a.koreksi_resep2,a.koreksi_resep3, a.koreksi_resep4, a.koreksi_resep5, a.koreksi_resep6,  a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.yellowness, a.done_matching, a.ph,
 a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
 a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
 b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
 b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,b.recipe_code,
-b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.bleaching_tm, a.bleaching_sh, a.second_lr,
+b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2,a.colorist3, a.colorist4,a.colorist5, a.colorist6, a.bleaching_tm, a.bleaching_sh, a.second_lr,
 b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.remark_dye
 FROM tbl_status_matching a
 INNER JOIN tbl_matching b ON a.idm = b.no_resep
@@ -267,34 +268,116 @@ $data = mysqli_fetch_array($sql); ?>
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                        <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                    </select>
+                            <?php if ($data['jenis_matching'] == "LD NOW") { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-								<label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
-                                        <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
+                                            <option value="<?php echo $data['koreksi_resep3'] ?>" selected><?php echo $data['koreksi_resep3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
+                                            <option value="<?php echo $data['koreksi_resep4'] ?>" selected><?php echo $data['koreksi_resep4'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
-                                        <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
+                                            <option value="<?php echo $data['koreksi_resep5'] ?>" selected><?php echo $data['koreksi_resep5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
+                                            <option value="<?php echo $data['koreksi_resep6'] ?>" selected><?php echo $data['koreksi_resep6'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
-                                <div class="col-sm-3">
-                                    <select disabled class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
-                                        <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="colorist_3" id="colorist_3">
+                                            <option value="<?php echo $data['colorist3'] ?>" selected><?php echo $data['colorist3'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
+                                            <option value="<?php echo $data['colorist4'] ?>" selected><?php echo $data['colorist4'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="colorist_5" id="colorist_5">
+                                            <option value="<?php echo $data['colorist5'] ?>" selected><?php echo $data['colorist5'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select disabled class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
+                                            <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } else { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
+                                    <div class="col-sm-3">
+                                        <select disabled class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
+                                    <div class="col-sm-3">
+                                        <select disabled class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
+                                    <div class="col-sm-3">
+                                        <select disabled class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                            <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
+                                    <div class="col-sm-3">
+                                        <select disabled class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                            <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            <?php } ?>
+
                             <div class="form-group">
                                 <label for="Matching-ke" class="col-sm-2 control-label">Percobaan-ke</label>
                                 <div class="col-md-5">
@@ -2357,16 +2440,16 @@ $data = mysqli_fetch_array($sql); ?>
                         $(getTr).find("td:last").find('input').val("-----------------------");
                         $(getTr).find("td:last").find('input').prop('disabled', true);
                     } else {
-                        if(response.ket == "Suhu"){
+                        if (response.ket == "Suhu") {
                             $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
                             $(getTr).find("td:last").find('input').prop('disabled', false);
                             $(getTr).find("input.form-control.input-xs.conc").val(0);
                             $(getTr).find("td:last").find('input').val("");
-                        }else{
+                        } else {
                             $(getTr).find("input.form-control.input-xs.conc").prop('disabled', false);
                             $(getTr).find("td:last").find('input').prop('disabled', false);
-                           // $(getTr).find("input.form-control.input-xs.conc").val('');
-                           // $(getTr).find("td:last").find('input').val("");
+                            // $(getTr).find("input.form-control.input-xs.conc").val('');
+                            // $(getTr).find("td:last").find('input').val("");
                         }
                     }
                 },

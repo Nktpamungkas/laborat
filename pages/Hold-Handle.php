@@ -24,6 +24,7 @@ mysqli_query($con, "INSERT INTO log_status_matching SET
                     `do_at` = '$time', 
                     `ip_address` = '$ip_num'");
 
+// echo $data['recipe_code'];
 // Mulai sesi
 session_start();
 
@@ -425,7 +426,7 @@ session_start();
                                     </select>
                                 </div>
                             </div>
-                            <?php if ($_SESSION['jenis_matching'] == "L/D" ||  $_SESSION['jenis_matching'] == "LD NOW") { ?>
+                            <?php if ($_SESSION['jenis_matching'] == "LD NOW") { ?>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">
