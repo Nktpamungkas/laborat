@@ -4,12 +4,13 @@ session_start();
 include "koneksi.php";
 $date = date('Y-m-d');
 $ip_num = $_SERVER['REMOTE_ADDR'];
-$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
+$sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep,a.koreksi_resep2,a.koreksi_resep3,
+        a.koreksi_resep4,a.koreksi_resep5,a.koreksi_resep6, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
         a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
         b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,
-        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, 
+        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6, 
         b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code,b.recipe_code
         FROM tbl_status_matching a
         INNER JOIN tbl_matching b ON a.idm = b.no_resep
