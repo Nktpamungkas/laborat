@@ -28,6 +28,9 @@ mysqli_query($con, "INSERT INTO log_status_matching SET
 // Mulai sesi
 session_start();
 
+
+$role = $_SESSION['jabatanLAB']
+
 ?>
 <style>
     .lookupST {
@@ -426,16 +429,16 @@ session_start();
                                     </select>
                                 </div>
                             </div>
-                            <?php if ($_SESSION['jenis_matching'] == "LD NOW") { ?>
+                            <?php if ($data['jenis_matching'] == "LD NOW") { ?>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                             <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
                                             <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
                                         </select>
                                     </div>
@@ -443,12 +446,12 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
                                             <option value="<?php echo $data['koreksi_resep3'] ?>" selected><?php echo $data['koreksi_resep3'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
                                             <option value="<?php echo $data['koreksi_resep4'] ?>" selected><?php echo $data['koreksi_resep4'] ?></option>
                                         </select>
                                     </div>
@@ -456,25 +459,25 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
                                             <option value="<?php echo $data['koreksi_resep5'] ?>" selected><?php echo $data['koreksi_resep5'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
                                             <option value="<?php echo $data['koreksi_resep6'] ?>" selected><?php echo $data['koreksi_resep6'] ?></option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group ">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
                                             <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                             <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
                                         </select>
                                     </div>
@@ -482,12 +485,12 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_3" id="colorist_3">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_3" id="colorist_3">
                                             <option value="<?php echo $data['colorist3'] ?>" selected><?php echo $data['colorist3'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
                                             <option value="<?php echo $data['colorist4'] ?>" selected><?php echo $data['colorist4'] ?></option>
                                         </select>
                                     </div>
@@ -495,12 +498,12 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_5" id="colorist_5">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_5" id="colorist_5">
                                             <option value="<?php echo $data['colorist5'] ?>" selected><?php echo $data['colorist5'] ?></option>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
                                             <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
                                         </select>
                                     </div>
@@ -509,7 +512,7 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
                                     <div class="col-sm-6">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                             <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
                                         </select>
                                     </div>
@@ -517,13 +520,13 @@ session_start();
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
                                             <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?>class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                             <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
                                         </select>
                                     </div>

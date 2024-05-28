@@ -81,14 +81,14 @@ include "koneksi.php";
                                                                                                                       echo date('Y-m-d');
                                                                                                                     } ?>">
             </div>
-			<div class="form-group mb-2">
+            <div class="form-group mb-2">
               <input type="text" class="form-control input-sm time-picker" name="time_start" id="time_start" value="<?php
                                                                                                                     if ($_POST['submit']) {
                                                                                                                       echo $_POST['time_start'];
                                                                                                                     } else {
                                                                                                                       echo "23:00";
                                                                                                                     } ?>" placeholder="00:00" maxlength="5">
-            </div>  
+            </div>
             <div class="form-group mb-2">
               <i class="fa fa-share" aria-hidden="true"></i>
             </div>
@@ -100,14 +100,14 @@ include "koneksi.php";
                                                                                                                   echo date('Y-m-d', strtotime($day . ' + 1 day'));
                                                                                                                 } ?>">
             </div>
-			<div class="form-group mb-2">
+            <div class="form-group mb-2">
               <input type="text" class="form-control input-sm time-picker" name="time_end" id="time_end" value="<?php
-                                                                                                                    if ($_POST['submit']) {
-                                                                                                                      echo $_POST['time_end'];
-                                                                                                                    } else {
-                                                                                                                      echo "23:00";
-                                                                                                                    } ?>" placeholder="00:00" maxlength="5">
-            </div>   
+                                                                                                                if ($_POST['submit']) {
+                                                                                                                  echo $_POST['time_end'];
+                                                                                                                } else {
+                                                                                                                  echo "23:00";
+                                                                                                                } ?>" placeholder="00:00" maxlength="5">
+            </div>
             <button type="submit" name="submit" value="search" class="btn btn-primary btn-sm mb-2"><i class="fa fa-search" aria-hidden="true"></i>
             </button>
           </form>
@@ -148,12 +148,9 @@ include "koneksi.php";
                 <th class="text-center">cek_dye</th>
                 <th class="text-center">status</th>
                 <th class="text-center">kt_status</th>
-                <th class="text-center">koreksi_resep</th>
-                <th class="text-center">koreksi_resep2</th>
-                <th class="text-center">koreksi_resep3</th>
-                <th class="text-center">koreksi_resep4</th>
-                <th class="text-center">koreksi_resep5</th>
-                <th class="text-center">koreksi_resep6</th>
+                <th class="text-center " colspan="2">koreksi_resep 1&2</th>
+                <th class="text-center " colspan="2">koreksi_resep 3&4</th>
+                <th class="text-center " colspan="2">koreksi_resep 5&6</th>
                 <th class="text-center">percobaan_ke</th>
                 <th class="text-center">percobaan_berapa_kali</th>
                 <th class="text-center">benang_aktual</th>
@@ -194,12 +191,9 @@ include "koneksi.php";
                 <th class="text-center">revisi_by</th>
                 <th class="text-center">kadar_air</th>
                 <th class="text-center">final_matcher</th>
-                <th class="text-center">colorist1</th>
-                <th class="text-center">colorist2</th>
-                <th class="text-center">colorist3</th>
-                <th class="text-center">colorist4</th>
-                <th class="text-center">colorist5</th>
-                <th class="text-center">colorist6</th>
+                <th class="text-center " colspan="2">colorist 1&2</th>
+                <th class="text-center " colspan="2">colorist 3&4</th>
+                <th class="text-center " colspan="2">colorist 5&6</th>
                 <th class="text-center">penanggung_jawab</th>
                 <th class="text-center">bleaching_tm</th>
                 <th class="text-center">bleaching_sh</th>
@@ -212,28 +206,28 @@ include "koneksi.php";
               $date = date('Y-m-d');
               $date_s = $_POST['date_start'];
               $date_e = $_POST['date_end'];
-			  $time_s = $_POST['time_start'];
-              $time_e = $_POST['time_end'];	
+              $time_s = $_POST['time_start'];
+              $time_e = $_POST['time_end'];
 
               if (empty($_POST['submit'])) {
-                $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+                $sql = mysqli_query($con, "SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
                   FROM tbl_status_matching a
                   INNER JOIN tbl_matching b ON a.idm = b.no_resep
                   where a.status = 'selesai' and a.approve = 'TRUE' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d') = '$date'
                   ORDER BY a.id desc limit 50");
               } else {
-                $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+                $sql = mysqli_query($con, "SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
                                           FROM tbl_status_matching a
                                           INNER JOIN tbl_matching b ON a.idm = b.no_resep
                                           where a.status = 'selesai' and a.approve = 'TRUE' and
                                           DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$date_s $time_s' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$date_e $time_e'
                                           ORDER BY a.id desc");
-//				  $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-//                                          FROM tbl_status_matching a
-//                                          INNER JOIN tbl_matching b ON a.idm = b.no_resep
-//                                          where a.status = 'selesai' and a.approve = 'TRUE' and
-//                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') between '$date_s $time_s' AND '$date_e $time_e'
-//                                          ORDER BY a.id desc");
+                //				  $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+                //                                          FROM tbl_status_matching a
+                //                                          INNER JOIN tbl_matching b ON a.idm = b.no_resep
+                //                                          where a.status = 'selesai' and a.approve = 'TRUE' and
+                //                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') between '$date_s $time_s' AND '$date_e $time_e'
+                //                                          ORDER BY a.id desc");
               }
               while ($r = mysqli_fetch_array($sql)) {
                 $no++;
