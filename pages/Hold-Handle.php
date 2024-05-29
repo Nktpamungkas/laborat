@@ -10,7 +10,7 @@ $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.mat
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
         b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,
-        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6, 
+        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6, a.create_resep,a.acc_resep1,a.acc_resep2,a.acc_ulang_ok,
         b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code,b.recipe_code
         FROM tbl_status_matching a
         INNER JOIN tbl_matching b ON a.idm = b.no_resep
@@ -432,6 +432,35 @@ $role = $_SESSION['jabatanLAB']
                             </div>
                             <?php if ($data['jenis_matching'] == "LD NOW") { ?>
                                 <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                            <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
+                                            <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                            <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                            <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!--  -->
+                                <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi" id="koreksi">
@@ -510,6 +539,34 @@ $role = $_SESSION['jabatanLAB']
                                     </div>
                                 </div>
                             <?php } else { ?>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                            <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
+                                            <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                            <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                            <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
                                     <div class="col-sm-6">

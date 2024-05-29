@@ -545,7 +545,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     </div>
                                 </div>
                             <?php } ?>
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Penanggung Jawab</label>
                                 <div class="col-sm-3">
                                     <select class="form-control select_pjawab" required name="penanggung_jawab" id="penanggung_jawab">
@@ -556,7 +556,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                         <option value="Tidak Matching">Tidak Matching</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="form-group">
                                 <label for="keterangan" class="col-sm-2 control-label">Keterangan</label>
                                 <div class="col-sm-9">
@@ -1081,7 +1081,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                 $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#koreksi2").find('option:selected').val(),
                 $("#koreksi3").find('option:selected').val(), $("#koreksi4").find('option:selected').val(),
                 $("#koreksi5").find('option:selected').val(), $("#koreksi6").find('option:selected').val(),
-                $("#penanggung_jawab").find('option:selected').val(),
+                "",
                 $("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
                 $("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),
                 $("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(),
