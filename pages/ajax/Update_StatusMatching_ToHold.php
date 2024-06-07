@@ -6,9 +6,9 @@ $time = date('Y-m-d H:i:s');
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
 $Benang = str_replace("'", "''", $_POST['Benang']);
-mysqli_query($con,"DELETE from tbl_matching_detail where id_matching = '$_POST[id_matching]'  and id_status = '$_POST[id_status]'");
+mysqli_query($con, "DELETE from tbl_matching_detail where id_matching = '$_POST[id_matching]'  and id_status = '$_POST[id_status]'");
 
-mysqli_query($con,"UPDATE `tbl_status_matching` SET
+mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `percobaan_ke` = '$_POST[matching_ke]',
                     `howmany_percobaan_ke` = '$_POST[howmany_Matching_ke]',
                     `benang_aktual` = '$benang_a',
@@ -40,6 +40,8 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     `koreksi_resep4`= '$_POST[koreksi_resep4]',
                     `koreksi_resep5`= '$_POST[koreksi_resep5]',
                     `koreksi_resep6`= '$_POST[koreksi_resep6]', 
+                    `koreksi_resep7`= '$_POST[koreksi_resep7]',
+                    `koreksi_resep8`= '$_POST[koreksi_resep8]',
                     `final_matcher`= '$_POST[final_matcher]',
                     `colorist1` = '$_POST[colorist1]',
                     `colorist2` = '$_POST[colorist2]',
@@ -47,6 +49,8 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     `colorist4` = '$_POST[colorist4]',
                       `colorist5` = '$_POST[colorist5]',
                     `colorist6` = '$_POST[colorist6]',
+                      `colorist7` = '$_POST[colorist7]',
+                    `colorist8` = '$_POST[colorist8]',
                     `matcher` = '$_POST[Matcher]',
                     `grp`='$_POST[Group]',
                     `bleaching_sh`='$_POST[bleaching_sh]',
@@ -55,7 +59,7 @@ mysqli_query($con,"UPDATE `tbl_status_matching` SET
                     where `id` = '$_POST[id_status]' and `idm` = '$_POST[idm]'
 ");
 
-mysqli_query($con,"UPDATE tbl_matching SET 
+mysqli_query($con, "UPDATE tbl_matching SET 
                         `cocok_warna` = '$_POST[cocok_warna]',
                         `proses`='$_POST[proses]',
                         `no_item`='$_POST[item]',
@@ -72,7 +76,7 @@ mysqli_query($con,"UPDATE tbl_matching SET
                         `recipe_code` = '$_POST[recipe_code]'
                         where id = '$_POST[id_matching]'");
 
-mysqli_query($con,"INSERT into log_status_matching set 
+mysqli_query($con, "INSERT into log_status_matching set 
                 `ids` = '$_POST[idm]',
                 `status` = 'hold',
                 `info` = 'Save & Pause',
@@ -81,7 +85,7 @@ mysqli_query($con,"INSERT into log_status_matching set
                 `ip_address` = '$ip_num'");
 
 $response = array(
-    'session' => 'LIB_SUCCSS_HOLD',
-    'exp' => 'updated'
+  'session' => 'LIB_SUCCSS_HOLD',
+  'exp' => 'updated'
 );
 echo json_encode($response);

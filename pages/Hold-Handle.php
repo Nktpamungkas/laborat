@@ -5,12 +5,12 @@ include "koneksi.php";
 $date = date('Y-m-d');
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep,a.koreksi_resep2,a.koreksi_resep3,
-        a.koreksi_resep4,a.koreksi_resep5,a.koreksi_resep6, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
+        a.koreksi_resep4,a.koreksi_resep5,a.koreksi_resep6,a.koreksi_resep7,a.koreksi_resep8, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
         a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
         b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,
-        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6, a.create_resep,a.acc_resep1,a.acc_resep2,a.acc_ulang_ok,
+        b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6,a.colorist7, a.colorist8, a.create_resep,a.acc_resep1,a.acc_resep2,a.acc_ulang_ok,
         b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code,b.recipe_code
         FROM tbl_status_matching a
         INNER JOIN tbl_matching b ON a.idm = b.no_resep
@@ -499,6 +499,19 @@ $role = $_SESSION['jabatanLAB']
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <div class="col-sm-4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi7" id="koreksi7">
+                                            <option value="<?php echo $data['koreksi_resep7'] ?>" selected><?php echo $data['koreksi_resep7'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi8" id="koreksi8">
+                                            <option value="<?php echo $data['koreksi_resep8'] ?>" selected><?php echo $data['koreksi_resep8'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group ">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-4">
@@ -535,6 +548,19 @@ $role = $_SESSION['jabatanLAB']
                                     <div class="col-sm-4">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
                                             <option value="<?php echo $data['colorist6'] ?>" selected><?php echo $data['colorist6'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <div class="col-sm-4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_7" id="colorist_7">
+                                            <option value="<?php echo $data['colorist7'] ?>" selected><?php echo $data['colorist7'] ?></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_8" id="colorist_8">
+                                            <option value="<?php echo $data['colorist8'] ?>" selected><?php echo $data['colorist8'] ?></option>
                                         </select>
                                     </div>
                                 </div>
@@ -1309,17 +1335,33 @@ $role = $_SESSION['jabatanLAB']
             } else {
                 var bleaching_tm = $("#bleaching_tm").val();
             }
-            Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(), $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
-                $("#colorist_2").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
+            Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(),
+                $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(),
+                $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu,
+                $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(),
+                $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi_resep").find('option:selected').val(),
+                $("#koreksi_resep2").find('option:selected').val(), $("#koreksi_resep3").find('option:selected').val(),
+                $("#koreksi_resep4").find('option:selected').val(), $("#koreksi_resep5").find('option:selected').val(),
+                $("#koreksi_resep6").find('option:selected').val(), $("#koreksi_resep7").find('option:selected').val(),
+                $("#koreksi_resep8").find('option:selected').val(),
+                $("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(),
+                $("#colorist_3").find('option:selected').val(), $("#colorist_4").find('option:selected').val(),
+                $("#colorist_5").find('option:selected').val(), $("#colorist_6").find('option:selected').val(),
+                $("#colorist_7").find('option:selected').val(), $("#colorist_8").find('option:selected').val(),
+                $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(),
+                $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(),
+                $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(),
+                $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(),
+                $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
         function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke,
             howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu,
             soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan,
             tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna,
-            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6,
-            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, proses, item, recipe_code, no_warna,
+            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6, koreksi_resep7, koreksi_resep8,
+            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, colorist7, colorist8, proses, item, recipe_code, no_warna,
             warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige, QtyOrder,
             Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
@@ -1361,12 +1403,16 @@ $role = $_SESSION['jabatanLAB']
                     koreksi_resep4: koreksi_resep4,
                     koreksi_resep5: koreksi_resep5,
                     koreksi_resep6: koreksi_resep6,
+                    koreksi_resep7: koreksi_resep7,
+                    koreksi_resep8: koreksi_resep8,
                     colorist1: colorist1,
                     colorist2: colorist2,
                     colorist3: colorist3,
                     colorist4: colorist4,
                     colorist5: colorist5,
                     colorist6: colorist6,
+                    colorist7: colorist7,
+                    colorist8: colorist8,
                     proses: proses,
                     item: item,
                     recipe_code: recipe_code,
@@ -2421,18 +2467,19 @@ $role = $_SESSION['jabatanLAB']
                 $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
                 $("#koreksi2").find('option:selected').val(), $("#koreksi3").find('option:selected').val(),
                 $("#koreksi4").find('option:selected').val(), $("#koreksi5").find('option:selected').val(),
-                $("#koreksi6").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
+                $("#koreksi6").find('option:selected').val(), $("#koreksi7").find('option:selected').val(), $("#koreksi8").find('option:selected').val(), $("#colorist_1").find('option:selected').val(),
                 $("#colorist_2").find('option:selected').val(), $("#colorist_3").find('option:selected').val(),
                 $("#colorist_4").find('option:selected').val(), $("#colorist_5").find('option:selected').val(),
-                $("#colorist_6").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
+                $("#colorist_6").find('option:selected').val(), $("#colorist_7").find('option:selected').val(), $("#colorist_8").find('option:selected').val(), $("#Proses").find('option:selected').val(), $("#item").val(), $("#recipe_code").val(), $('#no_warna').val(), $('#warna').val(), $('#Kain').val(), $('#Benang').val(), $('#Lebar').val(), $('#Gramasi').val(), $('#Tgl_delivery ').val(), $('#Order').val(), $('#po_greige').val(), $('#QtyOrder').val(), $('#Matcher').find('option:selected').val(), $('#Group').find('option:selected').val(), $("#Buyer").find('option:selected').val(), bleaching_sh, bleaching_tm, $('#second_lr').find('option:selected').val())
         }
 
         function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm, matching_ke,
             benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu,
             soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan,
             tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna,
-            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6,
-            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, proses, item, recipe_code,
+            final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6, koreksi_resep7,
+            koreksi_resep8,
+            colorist1, colorist2, colorist3, colorist4, colorist5, colorist6, colorist7, colorist8, proses, item, recipe_code,
             no_warna, warna, Kain, Benang, Lebar, Gramasi, Tgl_delivery, Order, po_greige,
             QtyOrder, Matcher, Group, Buyer, bleaching_sh, bleaching_tm, second_lr) {
             SpinnerShow()
@@ -2474,12 +2521,16 @@ $role = $_SESSION['jabatanLAB']
                     koreksi_resep4: koreksi_resep4,
                     koreksi_resep5: koreksi_resep5,
                     koreksi_resep6: koreksi_resep6,
+                    koreksi_resep7: koreksi_resep7,
+                    koreksi_resep8: koreksi_resep8,
                     colorist1: colorist1,
                     colorist2: colorist2,
                     colorist3: colorist3,
                     colorist4: colorist4,
                     colorist5: colorist5,
                     colorist6: colorist6,
+                    colorist7: colorist7,
+                    colorist8: colorist8,
                     proses: proses,
                     item: item,
                     recipe_code: recipe_code,
