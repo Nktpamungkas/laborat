@@ -463,6 +463,17 @@ $_SESSION['jenis_matching'] = $ldorno;
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 4</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi7" id="koreksi7">
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <select class="form-control select_Koreksi" name="koreksi8" id="koreksi8">
+                                        </select>
+                                    </div>
+                                </div>
 
 
                                 <div class="form-group">
