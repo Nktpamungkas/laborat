@@ -934,22 +934,24 @@
 				<?php
 				$order = $dt_langganan['PROJECTCODE'];
 				$sqljk = db2_exec($conn1, "SELECT 
+												TRIM(p2.CODE) AS CODE,
 												p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
 												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
 												p.ITEMDESCRIPTION AS WARNA,
 												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05,
 												p.ORDERLINE
 											FROM SALESORDERLINE p
+											LEFT JOIN PRODUCTIONDEMAND p2 ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
 											WHERE p.SALESORDERCODE = '$order' AND NOT p.ORDERLINE IS NULL
 											GROUP BY 
-												p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
+												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
 				?>
 				<option value="">Pilih</option>
 				<?php while ($r = db2_fetch_assoc($sqljk)) { ?>
 					<option value="<?= $r['DLVSALESORDERLINEORDERLINE']; ?>" <?php if ($_GET['iditem'] == $r['DLVSALESORDERLINEORDERLINE']) {
 																					echo "SELECTED";
 																				} ?>>
-						<?= $r['ITEMTYPEAFICODE'] . '-' . $r['SUBCODE02'] . '.' . $r['SUBCODE03']; ?> | <?= $r['WARNA']; ?> | <?= $r['ORDERLINE']; ?>
+						<?= $r['ITEMTYPEAFICODE'] . '-' . $r['SUBCODE02'] . '.' . $r['SUBCODE03']; ?> | <?= $r['WARNA']; ?> | <?= $r['ORDERLINE']; ?> | <?= $r['CODE']; ?>
 					</option>
 				<?php } ?>
 			</select>
@@ -958,15 +960,17 @@
 			$order = $dt_langganan['PROJECTCODE'];
 			$getorderline = $_GET['iditem'];
 			$sqlitem = db2_exec($conn1, "SELECT 
+												TRIM(p2.CODE) AS CODE,
 												p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
 												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
 												p.ITEMDESCRIPTION AS WARNA,
 												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05, trim(p.SUBCODE06) AS SUBCODE06, trim(p.SUBCODE07) AS SUBCODE07, trim(p.SUBCODE08) AS SUBCODE08,
 												trim(p.SUBCODE09) AS SUBCODE09, trim(p.SUBCODE10) AS SUBCODE10
 											FROM SALESORDERLINE p
+											LEFT JOIN PRODUCTIONDEMAND p2 ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
 											WHERE p.SALESORDERCODE = '$order' AND p.ORDERLINE = '$getorderline'
 											GROUP BY 
-												p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
+												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
 			$r_item = db2_fetch_assoc($sqlitem)
 			?>
 			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="<?= $r_item['SUBCODE02'] . $r_item['SUBCODE03']; ?>" placeholder="No Item">
