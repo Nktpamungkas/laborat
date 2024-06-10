@@ -82,12 +82,12 @@ include '../../koneksi.php';
                     include '../../koneksi.php';
                     $sql = mysqli_query($con, "SELECT
                                                     a.grp,
-                                                    SUM(IF(a.koreksi_resep IS NOT NULL, 0.5, 0 ) + 
-                                                            IF(a.koreksi_resep2 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.koreksi_resep3 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.koreksi_resep4 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.koreksi_resep5 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.koreksi_resep6 IS NOT NULL, 0.5, 0 )) +
+                                                    -- SUM(IF(a.koreksi_resep IS NOT NULL, 0.5, 0 ) + 
+                                                    --         IF(a.koreksi_resep2 IS NOT NULL, 0.5, 0 ) +
+                                                    --         IF(a.koreksi_resep3 IS NOT NULL, 0.5, 0 ) +
+                                                    --         IF(a.koreksi_resep4 IS NOT NULL, 0.5, 0 ) +
+                                                    --         IF(a.koreksi_resep5 IS NOT NULL, 0.5, 0 ) +
+                                                    --         IF(a.koreksi_resep6 IS NOT NULL, 0.5, 0 )) +
                                                     SUM(IF(a.colorist1 IS NOT NULL, 0.5, 0 ) + 
                                                             IF(a.colorist2 IS NOT NULL, 0.5, 0 ) +
                                                             IF(a.colorist3 IS NOT NULL, 0.5, 0 ) +
