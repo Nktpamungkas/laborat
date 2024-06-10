@@ -523,13 +523,6 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 </div>
                             <?php } else { ?>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                    <div class="col-sm-6">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
                                         <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
@@ -553,7 +546,18 @@ $_SESSION['jenis_matching'] = $ldorno;
                                         </select>
                                     </div>
                                 </div>
-
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                     <div class="col-sm-3">

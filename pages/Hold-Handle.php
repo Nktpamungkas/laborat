@@ -594,10 +594,16 @@ $role = $_SESSION['jabatanLAB']
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep</label>
-                                    <div class="col-sm-6">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-3">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi" id="koreksi">
                                             <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-3">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
                                         </select>
                                     </div>
                                 </div>
