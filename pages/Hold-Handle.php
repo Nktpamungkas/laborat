@@ -614,7 +614,7 @@ $role = $_SESSION['jabatanLAB']
                                             <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                         </select>
                                     </div>
-                                    <label for="Done_Matching" class="col-sm-1 control-label">Colorist2</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
                                     <div class="col-sm-3">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?>class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                             <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
