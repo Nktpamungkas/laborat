@@ -500,7 +500,7 @@ $role = $_SESSION['jabatanLAB']
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 4</label>
                                     <div class="col-sm-4">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="koreksi7" id="koreksi7">
                                             <option value="<?php echo $data['koreksi_resep7'] ?>" selected><?php echo $data['koreksi_resep7'] ?></option>
@@ -552,7 +552,7 @@ $role = $_SESSION['jabatanLAB']
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 3</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 4</label>
                                     <div class="col-sm-4">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="colorist_7" id="colorist_7">
                                             <option value="<?php echo $data['colorist7'] ?>" selected><?php echo $data['colorist7'] ?></option>
@@ -608,13 +608,13 @@ $role = $_SESSION['jabatanLAB']
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-3">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
                                             <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                         </select>
                                     </div>
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
                                     <div class="col-sm-3">
                                         <select <?php if ($role != "Super admin") { ?> disabled <?php } ?>class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                             <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
@@ -1350,7 +1350,7 @@ $role = $_SESSION['jabatanLAB']
                 $("#koreksi2").find('option:selected').val(), $("#koreksi3").find('option:selected').val(),
                 $("#koreksi4").find('option:selected').val(), $("#koreksi5").find('option:selected').val(),
                 $("#koreksi6").find('option:selected').val(), $("#koreksi7").find('option:selected').val(),
-                $("#koreksi_8").find('option:selected').val(),
+                $("#koreksi8").find('option:selected').val(),
                 $("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(),
                 $("#colorist_3").find('option:selected').val(), $("#colorist_4").find('option:selected').val(),
                 $("#colorist_5").find('option:selected').val(), $("#colorist_6").find('option:selected').val(),
