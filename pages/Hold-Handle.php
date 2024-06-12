@@ -425,7 +425,7 @@ $role = $_SESSION['jabatanLAB']
                             <div class="form-group">
                                 <label for="Done_Matching" class="col-sm-2 control-label">Final Matcher</label>
                                 <div class="col-sm-6">
-                                    <select class="form-control select_Fmatcher" required name="f_matcher" id="f_matcher">
+                                    <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Fmatcher" required name="f_matcher" id="f_matcher">
                                         <option value="<?php echo $data['final_matcher'] ?>" selected><?php echo $data['final_matcher'] ?></option>
                                     </select>
                                 </div>
@@ -434,13 +434,13 @@ $role = $_SESSION['jabatanLAB']
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_UserResep" required name="create_resep" id="create_resep">
                                             <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
                                             <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
                                         </select>
                                     </div>
@@ -448,13 +448,13 @@ $role = $_SESSION['jabatanLAB']
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
                                             <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
                                             <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
                                         </select>
                                     </div>
@@ -568,13 +568,13 @@ $role = $_SESSION['jabatanLAB']
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_UserResep" required name="create_resep" id="create_resep">
                                             <option value="<?php echo $data['create_resep'] ?>" selected><?php echo $data['create_resep'] ?></option>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Tes Ulang OK</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" name="acc_ulang_ok" id="acc_ulang_ok">
                                             <option value="<?php echo $data['acc_ulang_ok'] ?>" selected><?php echo $data['acc_ulang_ok'] ?></option>
                                         </select>
                                     </div>
@@ -582,13 +582,13 @@ $role = $_SESSION['jabatanLAB']
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="acc_resep1" id="acc_resep1">
                                             <option value="<?php echo $data['acc_resep1'] ?>" selected><?php echo $data['acc_resep1'] ?></option>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Acc Resep Pertama2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
+                                        <select <?php if ($role != "Super admin") { ?> disabled <?php } ?> class="form-control select_Koreksi" required name="acc_resep2" id="acc_resep2">
                                             <option value="<?php echo $data['acc_resep2'] ?>" selected><?php echo $data['acc_resep2'] ?></option>
                                         </select>
                                     </div>
