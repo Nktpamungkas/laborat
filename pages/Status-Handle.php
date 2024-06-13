@@ -433,44 +433,44 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1">
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi3" id="koreksi3">
+                                        <select class="form-control select_Koreksi" name="koreksi_3" id="koreksi_3">
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi4" id="koreksi4">
+                                        <select class="form-control select_Koreksi" name="koreksi_4" id="koreksi_4">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 3</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi5" id="koreksi5">
+                                        <select class="form-control select_Koreksi" name="koreksi_5" id="koreksi_5">
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi6" id="koreksi6">
+                                        <select class="form-control select_Koreksi" name="koreksi_6" id="koreksi_6">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 4</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi7" id="koreksi7">
+                                        <select class="form-control select_Koreksi" name="koreksi_7" id="koreksi_7">
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi8" id="koreksi8">
+                                        <select class="form-control select_Koreksi" name="koreksi_8" id="koreksi_8">
                                         </select>
                                     </div>
                                 </div>
@@ -479,11 +479,11 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1">
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2">
                                         </select>
                                     </div>
                                 </div>
@@ -549,24 +549,24 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1">
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
+                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1">
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
+                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2">
                                         </select>
                                     </div>
                                 </div>
@@ -1111,11 +1111,11 @@ $_SESSION['jenis_matching'] = $ldorno;
                 RCWaktu, soapingSuhu, soapingWaktu, $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(),
                 $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(), $("#tgl_buat_status").val(),
                 tside_c, tside_min, cside_c, cside_min, $('#kadar_air_true').val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
-                $("#koreksi2").find('option:selected').val(),
-                $("#koreksi3").find('option:selected').val(), $("#koreksi4").find('option:selected').val(),
-                $("#koreksi5").find('option:selected').val(), $("#koreksi6").find('option:selected').val(),
-                $("#koreksi7").find('option:selected').val(), $("#koreksi8").find('option:selected').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi_1").find('option:selected').val(),
+                $("#koreksi_2").find('option:selected').val(),
+                $("#koreksi_3").find('option:selected').val(), $("#koreksi_4").find('option:selected').val(),
+                $("#koreksi_5").find('option:selected').val(), $("#koreksi_6").find('option:selected').val(),
+                $("#koreksi_7").find('option:selected').val(), $("#koreksi_8").find('option:selected').val(),
                 "",
                 $("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
                 $("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),
@@ -2250,14 +2250,14 @@ $_SESSION['jenis_matching'] = $ldorno;
                 $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(),
                 $("#tgl_buat_status").val(), cside_c, cside_min, tside_c, tside_min,
                 $('#kadar_air_true').val(), $('#CocokWarna').val(),
-                $("#f_matcher").find('option:selected').val(), $("#koreksi").find('option:selected').val(),
-                $("#koreksi2").find('option:selected').val(),
-                $("#koreksi3").find('option:selected').val(),
-                $("#koreksi4").find('option:selected').val(),
-                $("#koreksi5").find('option:selected').val(),
-                $("#koreksi6").find('option:selected').val(),
-                $("#koreksi7").find('option:selected').val(),
-                $("#koreksi8").find('option:selected').val(),
+                $("#f_matcher").find('option:selected').val(), $("#koreksi_1").find('option:selected').val(),
+                $("#koreksi_2").find('option:selected').val(),
+                $("#koreksi_3").find('option:selected').val(),
+                $("#koreksi_4").find('option:selected').val(),
+                $("#koreksi_5").find('option:selected').val(),
+                $("#koreksi_6").find('option:selected').val(),
+                $("#koreksi_7").find('option:selected').val(),
+                $("#koreksi_8").find('option:selected').val(),
                 $("#create_resep").find('option:selected').val(), $("#acc_ulang_ok").find('option:selected').val(),
                 $("#acc_resep1").find('option:selected').val(), $("#acc_resep2").find('option:selected').val(),
                 $("#colorist_1").find('option:selected').val(), $("#colorist_2").find('option:selected').val(),
@@ -3463,3 +3463,30 @@ $_SESSION['jenis_matching'] = $ldorno;
     })
 </script>
 <!-- ///////script ajax select 2 -->
+<script>
+    $(document).ready(function() {
+        // Menambahkan event listener untuk setiap select colorist
+        $('select[name^="colorist_"]').change(function() {
+            var id = $(this).attr('id').replace('colorist_', ''); // Mendapatkan angka dari ID colorist
+            var koreksi_id = '#koreksi_' + id; // ID dari select koreksi yang sesuai
+
+            if ($(this).val() !== '') {
+                $(koreksi_id).prop('required', true); // Jika colorist dipilih, koreksi resep menjadi required
+            } else {
+                $(koreksi_id).prop('required', false); // Jika colorist tidak dipilih, koreksi resep tidak required
+            }
+        });
+
+        // Menambahkan event listener untuk setiap select koreksi
+        $('select[name^="koreksi_"]').change(function() {
+            var id = $(this).attr('id').replace('koreksi_', ''); // Mendapatkan angka dari ID koreksi
+            var colorist_id = '#colorist_' + id; // ID dari select colorist yang sesuai
+
+            if ($(this).val() !== '') {
+                $(colorist_id).prop('required', true); // Jika koreksi dipilih, colorist menjadi required
+            } else {
+                $(colorist_id).prop('required', false); // Jika koreksi tidak dipilih, colorist tidak required
+            }
+        });
+    });
+</script>
