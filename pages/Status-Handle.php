@@ -640,22 +640,24 @@ $_SESSION['jenis_matching'] = $ldorno;
                             <label for="L_R" class="col-sm-1 control-label">T-SIDE L:R :</label>
                             <div class="col-sm-2">
                                 <select type="text" style="width: 100%;" class="form-control select2_lr" required name="L_R" id="L_R" placeholder="L_R">
-                                    <option selected disabled>Pilih...</option>
+                                    <option selected disabled value="">Pilih...</option>
                                     <option value="1:6">1:6</option>
                                     <option value="1:9">1:9</option>
                                     <option value="1:10">1:10</option>
                                     <option value="1:12">1:12</option>
+                                    <option value="1:15">1:15</option>
                                 </select>
                                 <span></span>
                             </div>
                             <label for="L_R" class="col-sm-1 control-label">C-SIDE L:R :</label>
                             <div class="col-sm-2">
                                 <select type="text" style="width: 100%;" class="form-control second_lr" required name="second_lr" id="second_lr" placeholder="second_lr">
-                                    <option selected disabled>Pilih...</option>
+                                    <option selected disabled value="0:0">Pilih...</option>
                                     <option value="1:6">1:6</option>
                                     <option value="1:9">1:9</option>
                                     <option value="1:10">1:10</option>
                                     <option value="1:12">1:12</option>
+                                    <option value="1:15">1:15</option>
                                 </select>
                                 <span></span>
                             </div>

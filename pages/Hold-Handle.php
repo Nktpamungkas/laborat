@@ -734,6 +734,7 @@ $role = $_SESSION['jabatanLAB']
                                     <option value="1:9">1:9</option>
                                     <option value="1:10">1:10</option>
                                     <option value="1:12">1:12</option>
+                                    <option value="1:15">1:15</option>
                                 </select>
                                 <span></span>
                             </div>
@@ -745,6 +746,7 @@ $role = $_SESSION['jabatanLAB']
                                     <option value="1:9">1:9</option>
                                     <option value="1:10">1:10</option>
                                     <option value="1:12">1:12</option>
+                                    <option value="1:15">1:15</option>
                                 </select>
                                 <span></span>
                             </div>

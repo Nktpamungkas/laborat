@@ -6,6 +6,20 @@ $time = date('Y-m-d H:i:s');
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
 $Benang = str_replace("'", "''", $_POST['Benang']);
+
+// fungsi regex untuk remove spasi mau satu spasi atau lebih tidak ngaruh
+if (!empty($_POST['second_lr'])) {
+  $second_lr_format = preg_replace('/\s*:\s*/', ':', $_POST['second_lr']);
+} else {
+  $second_lr_format = "0:0";
+}
+
+if (!empty($_POST['l_R'])) {
+  $lr_format = preg_replace('/\s*:\s*/', ':', $_POST['l_R']);
+} else {
+  $lr_format = null;
+}
+
 mysqli_query($con, "DELETE from tbl_matching_detail where id_matching = '$_POST[id_matching]'  and id_status = '$_POST[id_status]'");
 
 mysqli_query($con, "UPDATE `tbl_status_matching` SET
@@ -14,7 +28,7 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `benang_aktual` = '$benang_a',
                     `lebar_aktual` = '$_POST[lebar_a]',
                     `gramasi_aktual` = '$_POST[gramasi_a]',
-                    `lr` = '$_POST[l_R]',
+                    `lr` ='$lr_format',
                     `ph` = '$_POST[kadar_air]',
                     `rc_sh` = '$_POST[RC_Suhu]',
                     `rc_tm` = '$_POST[RCWaktu]',
@@ -43,19 +57,23 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `koreksi_resep7`= '$_POST[koreksi_resep7]',
                     `koreksi_resep8`= '$_POST[koreksi_resep8]',
                     `final_matcher`= '$_POST[final_matcher]',
+                    `create_resep` = '$_POST[create_resep]',
+                    `acc_ulang_ok` = '$_POST[acc_ulang_ok]',
+					          `acc_resep1` = '$_POST[acc_resep1]',
+                    `acc_resep2` = '$_POST[acc_resep2]',
                     `colorist1` = '$_POST[colorist1]',
                     `colorist2` = '$_POST[colorist2]',
-                      `colorist3` = '$_POST[colorist3]',
+                    `colorist3` = '$_POST[colorist3]',
                     `colorist4` = '$_POST[colorist4]',
-                      `colorist5` = '$_POST[colorist5]',
+                    `colorist5` = '$_POST[colorist5]',
                     `colorist6` = '$_POST[colorist6]',
-                      `colorist7` = '$_POST[colorist7]',
+                    `colorist7` = '$_POST[colorist7]',
                     `colorist8` = '$_POST[colorist8]',
                     `matcher` = '$_POST[Matcher]',
                     `grp`='$_POST[Group]',
                     `bleaching_sh`='$_POST[bleaching_sh]',
                     `bleaching_tm`='$_POST[bleaching_tm]',
-                    `second_lr`='$_POST[second_lr]'
+                    `second_lr`='$second_lr_format'
                     where `id` = '$_POST[id_status]' and `idm` = '$_POST[idm]'
 ");
 

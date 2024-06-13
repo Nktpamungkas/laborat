@@ -13,6 +13,21 @@ $menit = ($diff - ($hari * (60 * 60 * 24))) - (($jam) * (60 * 60));
 $timer =  $hari . ' Hari, ' . $jam .  ' Jam, ' . floor($menit / 60) . ' Menit';
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
 $Benang = str_replace("'", "''", $_POST['Benang']);
+
+
+//fungsi regex untuk remove spasi mau satu spasi atau lebih tidak ngaruh
+if (!empty($_POST['second_lr'])) {
+    $second_lr_format = preg_replace('/\s*:\s*/', ':', $_POST['second_lr']);
+} else {
+    $second_lr_format = "0:0";
+}
+
+if (!empty($_POST['l_R'])) {
+    $lr_format = preg_replace('/\s*:\s*/', ':', $_POST['l_R']);
+} else {
+    $lr_format = null;
+}
+
 $hapus = mysqli_query($con, "DELETE from tbl_matching_detail where id_matching = '$_POST[id_matching]' and id_status = '$_POST[id_status]'");
 
 mysqli_query($con, "UPDATE `tbl_status_matching` SET
@@ -20,7 +35,7 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `benang_aktual` = '$benang_a',
                     `lebar_aktual` = '$_POST[lebar_a]',
                     `gramasi_aktual` = '$_POST[gramasi_a]',
-                    `lr` = '$_POST[l_R]',
+                    `lr` = '$lr_format',
                     `ph` = '$_POST[kadar_air]',
                     `rc_sh` = '$_POST[RC_Suhu]',
                     `rc_tm` = '$_POST[RCWaktu]',
@@ -66,9 +81,10 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `grp`='$_POST[Group]',
                     `bleaching_sh`='$_POST[bleaching_sh]',
                     `bleaching_tm`='$_POST[bleaching_tm]',
-                    `second_lr`='$_POST[second_lr]'
+                    `second_lr`='$second_lr_format'
                     where `id` = '$_POST[id_status]' and `idm` = '$_POST[idm]'
 ");
+
 
 mysqli_query($con, "UPDATE tbl_matching SET 
                 `cocok_warna` = '$_POST[cocok_warna]',
