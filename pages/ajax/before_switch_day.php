@@ -88,12 +88,12 @@ include '../../koneksi.php';
                                                     --         IF(a.koreksi_resep4 IS NOT NULL, 0.5, 0 ) +
                                                     --         IF(a.koreksi_resep5 IS NOT NULL, 0.5, 0 ) +
                                                     --         IF(a.koreksi_resep6 IS NOT NULL, 0.5, 0 )) +
-                                                    SUM(IF(a.colorist1 IS NOT NULL, 0.5, 0 ) + 
-                                                            IF(a.colorist2 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.colorist3 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.colorist4 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.colorist5 IS NOT NULL, 0.5, 0 ) +
-                                                            IF(a.colorist6 IS NOT NULL, 0.5, 0 )) AS Total_value
+                                                    SUM(IF(a.koreksi_resep <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep2 <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep3 <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep4 <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep5 <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep6 <> ' ', 0.5, 0 )) AS total_value 
                                                 FROM
                                                     `tbl_status_matching` a
                                                 LEFT JOIN tbl_matching b ON b.no_resep = a.idm

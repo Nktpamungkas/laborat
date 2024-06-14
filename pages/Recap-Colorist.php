@@ -132,7 +132,8 @@
                                                                           OR a.colorist3 = '$colorist'
                                                                           OR a.colorist4 = '$colorist'
                                                                           OR a.colorist5 = '$colorist'
-                                                                          OR a.colorist6 = '$colorist')");
+                                                                          OR a.colorist6 = '$colorist')
+                                                                        AND `status` = 'selesai'");
                                             $data = mysqli_fetch_array($sql);
 
                                             return $data['total_value'];
@@ -202,11 +203,11 @@
                                     function get_val($start, $end, $jenis, $colorist)
                                     {
                                         include "koneksi.php";
-//                                        $sql = mysqli_query($con,"SELECT SUM(IF(a.koreksi_resep != '' , 1, 0)) as total_value
-//                                            from tbl_status_matching a
-//                                            join tbl_matching b on a.idm = b.no_resep
-//                                            where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
-//                                            and jenis_matching = '$jenis' and a.koreksi_resep = '$colorist'");
+                                    //    $sql = mysqli_query($con,"SELECT SUM(IF(a.koreksi_resep != '' , 1, 0)) as total_value
+                                    //        from tbl_status_matching a
+                                    //        join tbl_matching b on a.idm = b.no_resep
+                                    //        where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
+                                    //        and jenis_matching = '$jenis' and a.koreksi_resep = '$colorist'");
 										$sql = mysqli_query($con,"SELECT
                                                                         a.koreksi_resep,
                                                                         a.koreksi_resep2,
@@ -231,7 +232,8 @@
                                                                           OR a.koreksi_resep3 = '$colorist'
                                                                           OR a.koreksi_resep4 = '$colorist'
                                                                           OR a.koreksi_resep5 = '$colorist'
-                                                                          OR a.koreksi_resep6 = '$colorist')");
+                                                                          OR a.koreksi_resep6 = '$colorist')
+                                                                        AND `status` = 'selesai'");
                                         $data = mysqli_fetch_array($sql);
 
                                         return $data['total_value'];
