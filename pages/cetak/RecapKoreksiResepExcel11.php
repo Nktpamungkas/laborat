@@ -28,17 +28,42 @@ $end 	= $date_e." ".$time_e;
 	function get_val($start, $end, $jenis, $colorist)
 	{
 		include "../../koneksi.php";
-		$sql = mysqli_query($con,"SELECT SUM(IF(a.koreksi_resep != '' , 1, 0)) as total_value
-			from tbl_status_matching a
-			join tbl_matching b on a.idm = b.no_resep
-			where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
-			and jenis_matching = '$jenis' and a.koreksi_resep = '$colorist'");
+		$sql = mysqli_query($con,"SELECT
+									a.koreksi_resep,
+									a.koreksi_resep2,
+									a.koreksi_resep3,
+									a.koreksi_resep4,
+									a.koreksi_resep5,
+									a.koreksi_resep6,
+									a.koreksi_resep7,
+									a.koreksi_resep8,
+									SUM(IF( a.koreksi_resep = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep2 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep3 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep4 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep5 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep6 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep7 = '$colorist', 0.5, 0 ) +
+										IF(a.koreksi_resep8 = '$colorist', 0.5, 0 )) AS total_value 
+								FROM
+									tbl_status_matching a
+									JOIN tbl_matching b ON a.idm = b.no_resep 
+								WHERE
+									DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
+									AND jenis_matching = '$jenis' 
+									AND (a.koreksi_resep = '$colorist' 
+										OR a.koreksi_resep2 = '$colorist'
+										OR a.koreksi_resep3 = '$colorist'
+										OR a.koreksi_resep4 = '$colorist'
+										OR a.koreksi_resep5 = '$colorist'
+										OR a.koreksi_resep6 = '$colorist'
+										OR a.koreksi_resep7 = '$colorist'
+										OR a.koreksi_resep8 = '$colorist')
+									AND `status` = 'selesai'");
 		$data = mysqli_fetch_array($sql);
 
 		return $data['total_value'];
 	}
-
-
 			$alll = 0;			
 			$colorist = mysqli_query($con,"SELECT * FROM tbl_colorist WHERE is_active= 'TRUE' ");
 			while ($clrst = mysqli_fetch_array($colorist)) { ?>
