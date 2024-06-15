@@ -93,7 +93,9 @@ include '../../koneksi.php';
                                                         IF(a.koreksi_resep3 <> ' ', 0.5, 0 ) +
                                                         IF(a.koreksi_resep4 <> ' ', 0.5, 0 ) +
                                                         IF(a.koreksi_resep5 <> ' ', 0.5, 0 ) +
-                                                        IF(a.koreksi_resep6 <> ' ', 0.5, 0 )) AS total_value 
+                                                        IF(a.koreksi_resep6 <> ' ', 0.5, 0 ) + 
+                                                        IF(a.koreksi_resep7 <> ' ', 0.5, 0 ) +
+                                                        IF(a.koreksi_resep8 <> ' ', 0.5, 0 )) AS total_value 
                                                 FROM
                                                     `tbl_status_matching` a
                                                 LEFT JOIN tbl_matching b ON b.no_resep = a.idm
@@ -106,7 +108,7 @@ include '../../koneksi.php';
                                                     a.grp");
                     $data = mysqli_fetch_array($sql);
 
-                    return $data['Total_value'];
+                    return $data['total_value'];
                 }
 			?>
             <tbody>
