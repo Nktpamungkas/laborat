@@ -115,12 +115,16 @@
                                                                         colorist4,
                                                                         colorist5,
                                                                         colorist6,
+                                                                        colorist7,
+                                                                        colorist8,
                                                                         SUM(IF(a.colorist1 = '$colorist', 0.5, 0 ) + 
                                                                             IF(a.colorist2 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist3 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist4 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist5 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.colorist6 = '$colorist', 0.5, 0 )) AS total_value 
+                                                                            IF(a.colorist6 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist7 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.colorist8 = '$colorist', 0.5, 0 )) AS total_value 
                                                                     FROM
                                                                         tbl_status_matching a
                                                                         JOIN tbl_matching b ON a.idm = b.no_resep 
@@ -132,7 +136,9 @@
                                                                           OR a.colorist3 = '$colorist'
                                                                           OR a.colorist4 = '$colorist'
                                                                           OR a.colorist5 = '$colorist'
-                                                                          OR a.colorist6 = '$colorist')
+                                                                          OR a.colorist6 = '$colorist'
+                                                                          OR a.colorist7 = '$colorist'
+                                                                          OR a.colorist8 = '$colorist')
                                                                         AND `status` = 'selesai'");
                                             $data = mysqli_fetch_array($sql);
 
@@ -215,12 +221,16 @@
                                                                         a.koreksi_resep4,
                                                                         a.koreksi_resep5,
                                                                         a.koreksi_resep6,
+                                                                        a.koreksi_resep7,
+                                                                        a.koreksi_resep8,
                                                                         SUM(IF( a.koreksi_resep = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep2 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep3 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep4 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.koreksi_resep5 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 )) AS total_value 
+                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep7 = '$colorist', 0.5, 0 ) +
+                                                                            IF(a.koreksi_resep8 = '$colorist', 0.5, 0 )) AS total_value 
                                                                     FROM
                                                                         tbl_status_matching a
                                                                         JOIN tbl_matching b ON a.idm = b.no_resep 
@@ -232,7 +242,9 @@
                                                                           OR a.koreksi_resep3 = '$colorist'
                                                                           OR a.koreksi_resep4 = '$colorist'
                                                                           OR a.koreksi_resep5 = '$colorist'
-                                                                          OR a.koreksi_resep6 = '$colorist')
+                                                                          OR a.koreksi_resep6 = '$colorist'
+                                                                          OR a.koreksi_resep7 = '$colorist'
+                                                                          OR a.koreksi_resep8 = '$colorist')
                                                                         AND `status` = 'selesai'");
                                         $data = mysqli_fetch_array($sql);
 
