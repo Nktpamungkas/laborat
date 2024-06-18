@@ -29,17 +29,14 @@ function get_value($start, $end, $jenis, $colorist)
 {
 include "../../koneksi.php";
 $sql = mysqli_query($con,"SELECT
-							idm,
-							STATUS,
-							approve,
-							colorist1,
-							colorist2,
-							colorist3,
-							colorist4,
-							colorist5,
-							colorist6,
-							colorist7,
-							colorist8,
+							a.colorist1,
+							a.colorist2,
+							a.colorist3,
+							a.colorist4,
+							a.colorist5,
+							a.colorist6,
+							a.colorist7,
+							a.colorist8,
 							SUM(IF(a.colorist1 = '$colorist', 0.5, 0 ) + 
 								IF(a.colorist2 = '$colorist', 0.5, 0 ) +
 								IF(a.colorist3 = '$colorist', 0.5, 0 ) +
@@ -52,8 +49,8 @@ $sql = mysqli_query($con,"SELECT
 							tbl_status_matching a
 							JOIN tbl_matching b ON a.idm = b.no_resep 
 						WHERE
-							DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
-							AND jenis_matching = '$jenis' 
+							DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '2024-06-15 23:00' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '2024-06-16 23:00' 
+							AND b.jenis_matching = '$jenis' 
 							AND (a.colorist1 = '$colorist' 
 								OR a.colorist2 = '$colorist'
 								OR a.colorist3 = '$colorist'
@@ -62,7 +59,7 @@ $sql = mysqli_query($con,"SELECT
 								OR a.colorist6 = '$colorist'
 								OR a.colorist7 = '$colorist'
 								OR a.colorist8 = '$colorist')
-							AND `status` = 'selesai'");
+							AND a.`status` = 'selesai'");
 $data = mysqli_fetch_array($sql);
 
 return $data['total_value'];

@@ -50,7 +50,7 @@ $end 	= $date_e." ".$time_e;
 									JOIN tbl_matching b ON a.idm = b.no_resep 
 								WHERE
 									DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
-									AND jenis_matching = '$jenis' 
+									AND b.jenis_matching = '$jenis' 
 									AND (a.koreksi_resep = '$colorist' 
 										OR a.koreksi_resep2 = '$colorist'
 										OR a.koreksi_resep3 = '$colorist'
@@ -59,7 +59,7 @@ $end 	= $date_e." ".$time_e;
 										OR a.koreksi_resep6 = '$colorist'
 										OR a.koreksi_resep7 = '$colorist'
 										OR a.koreksi_resep8 = '$colorist')
-									AND `status` = 'selesai'");
+									AND a.`status` = 'selesai'");
 		$data = mysqli_fetch_array($sql);
 
 		return $data['total_value'];
