@@ -405,7 +405,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 </div>
                             </div>
 
-                            <?php if ($_SESSION['jenis_matching'] == "LD NOW") { ?>
+                            <?php if ($_SESSION['jenis_matching'] == "LD NOW" || $_SESSION['jenis_matching'] == "L/D") { ?>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
