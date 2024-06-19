@@ -49,7 +49,7 @@ $sql = mysqli_query($con,"SELECT
 							tbl_status_matching a
 							JOIN tbl_matching b ON a.idm = b.no_resep 
 						WHERE
-							DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '2024-06-15 23:00' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '2024-06-16 23:00' 
+							DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
 							AND b.jenis_matching = '$jenis' 
 							AND (a.colorist1 = '$colorist' 
 								OR a.colorist2 = '$colorist'
