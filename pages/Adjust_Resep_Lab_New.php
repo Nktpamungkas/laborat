@@ -268,7 +268,7 @@ $data = mysqli_fetch_array($sql); ?>
                                     </select>
                                 </div>
                             </div>
-                            <?php if ($data['jenis_matching'] == "LD NOW") { ?>
+                            <?php if ($data['jenis_matching'] == "LD NOW" || $data['jenis_matching'] == "L/D") { ?>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">

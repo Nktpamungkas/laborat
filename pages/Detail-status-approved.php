@@ -530,7 +530,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                     </select>
                                 </div>
                             </div>
-                            <?php if ($data['jenis_matching'] == "LD NOW") { ?>
+                            <?php if ($data['jenis_matching'] == "LD NOW" || $data['jenis_matching'] == "L/D") { ?>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
@@ -665,20 +665,6 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                 </div>
                             <?php } else { ?>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
-                                    <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
-                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
-                                        </select>
-                                    </div>
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
-                                    <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
-                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Create Resep</label>
                                     <div class="col-sm-3">
                                         <select class="form-control select_UserResep" required name="create_resep" id="create_resep">
@@ -707,13 +693,28 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi" id="koreksi">
+                                            <option value="<?php echo $data['koreksi_resep'] ?>" selected><?php echo $data['koreksi_resep'] ?></option>
+                                        </select>
+                                    </div>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control select_Koreksi" required name="koreksi2" id="koreksi2">
+                                            <option value="<?php echo $data['koreksi_resep2'] ?>" selected><?php echo $data['koreksi_resep2'] ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-3">
                                         <select class="form-control select_Koreksi" required name="colorist_1" id="colorist_1">
                                             <option value="<?php echo $data['colorist1'] ?>" selected><?php echo $data['colorist1'] ?></option>
                                         </select>
                                     </div>
-                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
+                                    <label for="Done_Matching" class="col-sm-2 control-label">Colorist 2</label>
                                     <div class="col-sm-3">
                                         <select class="form-control select_Koreksi" required name="colorist_2" id="colorist_2">
                                             <option value="<?php echo $data['colorist2'] ?>" selected><?php echo $data['colorist2'] ?></option>
