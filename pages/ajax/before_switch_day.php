@@ -104,6 +104,7 @@ include '../../koneksi.php';
                                                     AND DATE_FORMAT(a.approve_at, '%Y-%m-%d') = DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY)
                                                     AND b.jenis_matching = '$jenismatching'
                                                     AND a.grp = '$group'
+                                                    AND a.`status` = 'selesai'
                                                 GROUP BY 
                                                     a.grp");
                     $data = mysqli_fetch_array($sql);
