@@ -3510,27 +3510,50 @@ $role = $_SESSION['jabatanLAB']
 <!-- ///////script ajax select 2 -->
 <script>
     $(document).ready(function() {
-        // Menambahkan event listener untuk setiap select colorist
-        $('select[name^="colorist_"]').change(function() {
-            var id = $(this).attr('id').replace('colorist_', ''); // Mendapatkan angka dari ID colorist
-            var koreksi_id = '#koreksi_' + id; // ID dari select koreksi yang sesuai
+        // Menetapkan status required berdasarkan nilai awal
+        $('select[name^="colorist_"]').each(function() {
+            var id = $(this).attr('id').replace('colorist_', '');
+            var koreksi_id = '#koreksi_' + id;
 
             if ($(this).val() !== '') {
-                $(koreksi_id).prop('required', true); // Jika colorist dipilih, koreksi resep menjadi required
+                $(koreksi_id).prop('required', true);
             } else {
-                $(koreksi_id).prop('required', false); // Jika colorist tidak dipilih, koreksi resep tidak required
+                $(koreksi_id).prop('required', false);
+            }
+        });
+
+        $('select[name^="koreksi_"]').each(function() {
+            var id = $(this).attr('id').replace('koreksi_', '');
+            var colorist_id = '#colorist_' + id;
+
+            if ($(this).val() !== '') {
+                $(colorist_id).prop('required', true);
+            } else {
+                $(colorist_id).prop('required', false);
+            }
+        });
+
+        // Menambahkan event listener untuk setiap select colorist
+        $('select[name^="colorist_"]').change(function() {
+            var id = $(this).attr('id').replace('colorist_', '');
+            var koreksi_id = '#koreksi_' + id;
+
+            if ($(this).val() !== '') {
+                $(koreksi_id).prop('required', true);
+            } else {
+                $(koreksi_id).prop('required', false);
             }
         });
 
         // Menambahkan event listener untuk setiap select koreksi
         $('select[name^="koreksi_"]').change(function() {
-            var id = $(this).attr('id').replace('koreksi_', ''); // Mendapatkan angka dari ID koreksi
-            var colorist_id = '#colorist_' + id; // ID dari select colorist yang sesuai
+            var id = $(this).attr('id').replace('koreksi_', '');
+            var colorist_id = '#colorist_' + id;
 
             if ($(this).val() !== '') {
-                $(colorist_id).prop('required', true); // Jika koreksi dipilih, colorist menjadi required
+                $(colorist_id).prop('required', true);
             } else {
-                $(colorist_id).prop('required', false); // Jika koreksi tidak dipilih, colorist tidak required
+                $(colorist_id).prop('required', false);
             }
         });
     });
