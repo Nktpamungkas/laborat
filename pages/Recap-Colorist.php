@@ -35,20 +35,20 @@
                                         <div class="col-sm-8 text-center">
                                             <label>Tanggal Awal</label>
                                             <input style="text-align: center;" value="<?php echo $_POST['start'] ?>" type="text" class="form-control input-sm datepicker" required id="start" name="start" placeholder="Start" autocomplete="off">
-											
+
                                         </div>
-										<div class="col-sm-4 text-center">
+                                        <div class="col-sm-4 text-center">
                                             <label>Jam Awal</label>
                                             <input type="text" class="form-control input-sm time-picker" name="time_start" id="time_start" value="<?php
-                                                                                                                    if ($_POST['submit']) {
-                                                                                                                      echo $_POST['time_start'];
-                                                                                                                    } else {
-                                                                                                                      echo "23:00";
-                                                                                                                    } ?>" placeholder="00:00" maxlength="5">											
+                                                                                                                                                    if ($_POST['submit']) {
+                                                                                                                                                        echo $_POST['time_start'];
+                                                                                                                                                    } else {
+                                                                                                                                                        echo "23:00";
+                                                                                                                                                    } ?>" placeholder="00:00" maxlength="5">
                                         </div>
                                     </div>
-									
-                                </div>								
+
+                                </div>
                                 <div class="col-md-1" style="width: 2%;">
                                     <div class="form-group text-center">
                                         <label class="control-label"><i class="fa fa-calendar" aria-hidden="true"></i></label>
@@ -61,14 +61,14 @@
                                             <label>Tanggal Akhir</label>
                                             <input style="text-align: center;" type="text" value="<?php echo $_POST['end'] ?>" class="form-control input-sm datepicker" required id="end" name="end" placeholder="End" autocomplete="off">
                                         </div>
-										<div class="col-sm-4 text-center">
+                                        <div class="col-sm-4 text-center">
                                             <label>Jam Akhir</label>
                                             <input type="text" class="form-control input-sm time-picker" name="time_end" id="time_end" value="<?php
-                                                                                                                    if ($_POST['submit']) {
-                                                                                                                      echo $_POST['time_end'];
-                                                                                                                    } else {
-                                                                                                                      echo "23:00";
-                                                                                                                    } ?>" placeholder="00:00" maxlength="5">											
+                                                                                                                                                if ($_POST['submit']) {
+                                                                                                                                                    echo $_POST['time_end'];
+                                                                                                                                                } else {
+                                                                                                                                                    echo "23:00";
+                                                                                                                                                } ?>" placeholder="00:00" maxlength="5">
                                         </div>
                                     </div>
                                 </div>
@@ -85,7 +85,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="box-header text-center">
-                                    <h4 class="box-title" style="font-weight: bolder;">Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start']. " S/d " . $_POST['end']." ".$_POST['time_end']; ?></h4>
+                                    <h4 class="box-title" style="font-weight: bolder;">Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " . $_POST['end'] . " " . $_POST['time_end']; ?></h4>
                                 </div>
                                 <table class="table table-bordered table-hover" id="table_hasil">
                                     <thead class="bg-green">
@@ -99,24 +99,13 @@
                                         </tr>
                                     </thead>
                                     <?php
-                                        ini_set("error_reporting", 1);
-                                        session_start();
-                                        include "koneksi.php";
-                                        function get_value($start, $end, $jenis, $colorist)
-                                        {
-                                            include "koneksi.php";
-                                            $sql = mysqli_query($con,"SELECT
-                                                                        idm,
-                                                                        STATUS,
-                                                                        approve,
-                                                                        colorist1,
-                                                                        colorist2,
-                                                                        colorist3,
-                                                                        colorist4,
-                                                                        colorist5,
-                                                                        colorist6,
-                                                                        colorist7,
-                                                                        colorist8,
+                                    ini_set("error_reporting", 1);
+                                    session_start();
+                                    global $con;
+                                    function get_value($start, $end, $jenis, $colorist)
+                                    {
+                                        global $con;
+                                        $sql = mysqli_query($con, "SELECT
                                                                         SUM(IF(a.colorist1 = '$colorist', 0.5, 0 ) + 
                                                                             IF(a.colorist2 = '$colorist', 0.5, 0 ) +
                                                                             IF(a.colorist3 = '$colorist', 0.5, 0 ) +
@@ -129,33 +118,28 @@
                                                                         tbl_status_matching a
                                                                         JOIN tbl_matching b ON a.idm = b.no_resep 
                                                                     WHERE
-                                                                        DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
-                                                                        AND jenis_matching = '$jenis' 
-                                                                        AND (a.colorist1 = '$colorist' 
-                                                                          OR a.colorist2 = '$colorist'
-                                                                          OR a.colorist3 = '$colorist'
-                                                                          OR a.colorist4 = '$colorist'
-                                                                          OR a.colorist5 = '$colorist'
-                                                                          OR a.colorist6 = '$colorist'
-                                                                          OR a.colorist7 = '$colorist'
-                                                                          OR a.colorist8 = '$colorist')
-                                                                        AND `status` = 'selesai'");
-                                            $data = mysqli_fetch_array($sql);
+                                                                        a.approve_at >= '$start'
+                                                                        AND a.approve_at < '$end'
+                                                                        AND b.jenis_matching = '$jenis'
+                                                                        AND ('$colorist' IN (a.colorist1, a.colorist2, a.colorist3, a.colorist4,
+                                                                                            a.colorist5, a.colorist6, a.colorist7, a.colorist8))
+                                                                        AND a.status = 'selesai'");
+                                        $data = mysqli_fetch_array($sql);
 
-                                            return $data['total_value'];
-                                        }
-                                        $colorist = mysqli_query($con,"SELECT * FROM tbl_colorist WHERE is_active = 'TRUE'");
-                                        if ($_POST['submit']) {
-                                            $start = $_POST['start']." ".$_POST['time_start'];
-                                            $end = $_POST['end']." ".$_POST['time_end'];
-                                        }
+                                        return $data['total_value'];
+                                    }
+                                    $colorist = mysqli_query($con, "SELECT * FROM tbl_colorist WHERE is_active = 'TRUE'");
+                                    if ($_POST['submit']) {
+                                        $start = $_POST['start'] . " " . $_POST['time_start'];
+                                        $end = $_POST['end'] . " " . $_POST['time_end'];
+                                    }
                                     ?>
                                     <?php if ($_POST['submit']) { ?>
                                         <tbody>
                                             <?php
                                             $all = 0;
-											$start = $_POST['start']." ".$_POST['time_start'];
-                                            $end = $_POST['end']." ".$_POST['time_end'];
+                                            $start = $_POST['start'] . " " . $_POST['time_start'];
+                                            $end = $_POST['end'] . " " . $_POST['time_end'];
                                             while ($clrst = mysqli_fetch_array($colorist)) { ?>
                                                 <tr>
                                                     <td><?php echo $clrst['nama'] ?></td>
@@ -192,7 +176,7 @@
 
                             <div class="col-md-6">
                                 <div class="box-header text-center">
-                                    <h4 class="box-title" style="font-weight: bolder;">Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start']. " S/d " . $_POST['end']." ".$_POST['time_end']; ?></h4>
+                                    <h4 class="box-title" style="font-weight: bolder;">Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " . $_POST['end'] . " " . $_POST['time_end']; ?></h4>
                                 </div>
                                 <table class="table table-bordered table-hover" id="table_hasil_koreksi">
                                     <thead class="bg-yellow">
@@ -208,56 +192,45 @@
                                     <?php
                                     function get_val($start, $end, $jenis, $colorist)
                                     {
-                                        include "koneksi.php";
-                                    //    $sql = mysqli_query($con,"SELECT SUM(IF(a.koreksi_resep != '' , 1, 0)) as total_value
-                                    //        from tbl_status_matching a
-                                    //        join tbl_matching b on a.idm = b.no_resep
-                                    //        where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$start' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$end'
-                                    //        and jenis_matching = '$jenis' and a.koreksi_resep = '$colorist'");
-										$sql = mysqli_query($con,"SELECT
-                                                                        a.koreksi_resep,
-                                                                        a.koreksi_resep2,
-                                                                        a.koreksi_resep3,
-                                                                        a.koreksi_resep4,
-                                                                        a.koreksi_resep5,
-                                                                        a.koreksi_resep6,
-                                                                        a.koreksi_resep7,
-                                                                        a.koreksi_resep8,
-                                                                        SUM(IF( a.koreksi_resep = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep2 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep3 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep4 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep5 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep7 = '$colorist', 0.5, 0 ) +
-                                                                            IF(a.koreksi_resep8 = '$colorist', 0.5, 0 )) AS total_value 
-                                                                    FROM
-                                                                        tbl_status_matching a
-                                                                        JOIN tbl_matching b ON a.idm = b.no_resep 
-                                                                    WHERE
-                                                                        DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) >= '$start' AND DATE_FORMAT( a.approve_at, '%Y-%m-%d %H:%i' ) <= '$end' 
-                                                                        AND jenis_matching = '$jenis' 
-                                                                        AND (a.koreksi_resep = '$colorist' 
-                                                                          OR a.koreksi_resep2 = '$colorist'
-                                                                          OR a.koreksi_resep3 = '$colorist'
-                                                                          OR a.koreksi_resep4 = '$colorist'
-                                                                          OR a.koreksi_resep5 = '$colorist'
-                                                                          OR a.koreksi_resep6 = '$colorist'
-                                                                          OR a.koreksi_resep7 = '$colorist'
-                                                                          OR a.koreksi_resep8 = '$colorist')
-                                                                        AND `status` = 'selesai'");
+                                        global $con;
+
+                                        $sql = mysqli_query($con, "SELECT
+                                        SUM(
+                                            IF(a.koreksi_resep = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep2 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep3 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep4 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep5 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep6 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep7 = '$colorist', 0.5, 0) +
+                                            IF(a.koreksi_resep8 = '$colorist', 0.5, 0)
+                                        ) AS total_value 
+                                    FROM
+                                        tbl_status_matching a
+                                        JOIN tbl_matching b ON a.idm = b.no_resep 
+                                    WHERE
+                                        a.approve_at >= '$start'
+                                        AND a.approve_at < '$end'
+                                        AND b.jenis_matching = '$jenis'
+                                        AND ('$colorist' IN (a.koreksi_resep, a.koreksi_resep2, a.koreksi_resep3, a.koreksi_resep4,
+                                                             a.koreksi_resep5, a.koreksi_resep6, a.koreksi_resep7, a.koreksi_resep8))
+                                        AND a.status = 'selesai'");
                                         $data = mysqli_fetch_array($sql);
 
                                         return $data['total_value'];
                                     }
-                                    if ($_POST['submit']) { ?>
+
+                                    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
+                                        $start = $_POST['start'] . " " . $_POST['time_start'];
+                                        $end = $_POST['end'] . " " . $_POST['time_end'];
+
+                                        $colorist = mysqli_query($con, "SELECT * FROM tbl_colorist WHERE is_active = 'TRUE' ");
+                                    ?>
                                         <tbody>
                                             <?php
                                             $alll = 0;
-                                            $start = $_POST['start']." ".$_POST['time_start'];
-                                            $end = $_POST['end']." ".$_POST['time_end'];
-                                            $colorist = mysqli_query($con,"SELECT * FROM tbl_colorist WHERE is_active= 'TRUE' ");
-                                            while ($clrst = mysqli_fetch_array($colorist)) { ?>
+                                            while ($clrst = mysqli_fetch_array($colorist)) {
+                                            ?>
                                                 <tr>
                                                     <td><?php echo $clrst['nama'] ?></td>
                                                     <td><?php $mu2 = get_val($start, $end, 'Matching Ulang', $clrst['nama']) + get_val($start, $end, 'Matching Ulang NOW', $clrst['nama']);
@@ -275,12 +248,12 @@
                                             <?php } ?>
                                         </tbody>
                                         <?php
-                                            $avg = mysqli_query($con,"SELECT sum(percobaan_ke) as summary,count(jenis_matching) as `row`, jenis_matching
-                                                from tbl_status_matching a 
-                                                join tbl_matching b on a.idm = b.no_resep
-                                                where DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '".$_POST['start']." ".$_POST['time_start']."'
-                                                AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '".$_POST['end']." ".$_POST['time_end']."' 
-                                                group by jenis_matching");
+                                        $avg = mysqli_query($con, "SELECT SUM(percobaan_ke) AS summary, COUNT(jenis_matching) AS `row`, jenis_matching
+                                FROM tbl_status_matching a 
+                                JOIN tbl_matching b ON a.idm = b.no_resep
+                                WHERE a.approve_at >= '" . $_POST['start'] . " " . $_POST['time_start'] . "' 
+                                AND a.approve_at < '" . $_POST['end'] . " " . $_POST['time_end'] . "' 
+                                GROUP BY jenis_matching");
                                         ?>
                                         <tfoot class="bg-yellow">
                                             <tr>
@@ -332,14 +305,14 @@
             dom: 'Bfrtip',
             buttons: [{
                     extend: 'excelHtml5',
-                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " . $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " . $_POST['end'] . " " . $_POST['end_start']; ?>'
                 },
                 {
                     extend: 'pdfHtml5',
-                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " . $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " . $_POST['end'] . " " . $_POST['end_start']; ?>'
                 }, {
                     extend: 'csvHtml5',
-                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " . $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Colorist <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " . $_POST['end'] . " " . $_POST['end_start']; ?>'
                 }
             ]
             // 'rowsGroup': [0, 1]
@@ -358,14 +331,14 @@
             dom: 'Bfrtip',
             buttons: [{
                     extend: 'excelHtml5',
-                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " .  $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " .  $_POST['end'] . " " . $_POST['end_start']; ?>'
                 },
                 {
                     extend: 'pdfHtml5',
-                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " .  $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " .  $_POST['end'] . " " . $_POST['end_start']; ?>'
                 }, {
                     extend: 'csvHtml5',
-                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start']." ".$_POST['time_start'] . " S/d " .  $_POST['end']." ".$_POST['end_start']; ?>'
+                    title: 'Recap Data Koreksi Resep <?php if ($_POST['start']) echo $_POST['start'] . " " . $_POST['time_start'] . " S/d " .  $_POST['end'] . " " . $_POST['end_start']; ?>'
                 }
             ]
             // 'rowsGroup': [0, 1]
