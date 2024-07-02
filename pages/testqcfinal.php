@@ -157,7 +157,7 @@ $role = $_SESSION['jabatanLAB']
 
                                         // Switch case untuk menentukan kondisi berdasarkan nilai tanggal
                                         switch (true) {
-                                            case !empty($tgl_buat) && empty($tgl_terima) && empty($tgl_approve_qc) && empty($tgl_approve_lab):
+                                            case !empty($tgl_buat) && empty($tgl_terima) && empty($tgl_approve_qc):
                                                 $tglBuat = new DateTime($tgl_buat);
                                                 $diffBuat = $now->diff($tglBuat);
 
@@ -166,7 +166,7 @@ $role = $_SESSION['jabatanLAB']
                                                     . $diffBuat->i . " menit";
                                                 break;
 
-                                            case !empty($tgl_buat) && !empty($tgl_terima) && empty($tgl_approve_qc) && empty($tgl_approve_lab):
+                                            case !empty($tgl_buat) && !empty($tgl_terima) && empty($tgl_approve_qc):
                                                 $tgTerima = new DateTime($tgl_terima);
                                                 $diffTerima = $now->diff($tgTerima);
 
@@ -175,7 +175,7 @@ $role = $_SESSION['jabatanLAB']
                                                     . $diffTerima->i . " menit";
                                                 break;
 
-                                            case !empty($tgl_buat) && !empty($tgl_terima) && !empty($tgl_approve_qc) && empty($tgl_approve_lab):
+                                            case !empty($tgl_buat) && !empty($tgl_terima) && !empty($tgl_approve_qc):
                                                 $tgApprove_qc = new DateTime($tgl_approve_qc);
                                                 $diffApprove_qc = $now->diff($tgApprove_qc);
 
