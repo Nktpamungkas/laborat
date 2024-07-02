@@ -309,6 +309,10 @@
                                                         echo "active";
                                                     } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
                                         	</li>
+                                            <li class="<?php if ($_GET['p'] == "UserResep") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=UserResep"><i class="fa fa-user text-red"></i> <span>User Resep</span></a>
+                                            </li>
 										<?php endif; ?>
 										<li class="<?php if ($_GET['p'] == "TestQCFinal") {
                                                         echo "active";
