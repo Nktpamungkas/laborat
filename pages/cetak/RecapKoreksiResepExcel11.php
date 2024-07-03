@@ -9,8 +9,8 @@ header("Expires: 0");
 ini_set("error_reporting", 1);
 include '../../koneksi.php';
 
-$start_date = date('Y-m-d', strtotime("-2 days"));
-$end_date = date('Y-m-d', strtotime("-1 day"));
+$start_date = date('Y-m-d', strtotime("-1 days"));
+$end_date = date('Y-m-d');
 
 $start = $start_date . " 23:00:00";
 $end = $end_date . " 23:00:00";
