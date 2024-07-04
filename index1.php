@@ -1,29 +1,29 @@
 <?php
-    ini_set("error_reporting", 1);
-    session_start();
-    include_once('koneksi.php');
+ini_set("error_reporting", 1);
+session_start();
+include_once('koneksi.php');
 ?>
 <?php
-    if (!isset($_SESSION['userLAB'])) {
+if (!isset($_SESSION['userLAB'])) {
 ?>
-<script>
-    setTimeout("location.href='login'", 500);
-</script>
+    <script>
+        setTimeout("location.href='login'", 500);
+    </script>
 <?php
-        die('Illegal Acces');
-    } else if (!isset($_SESSION['passLAB'])) {
+    die('Illegal Acces');
+} else if (!isset($_SESSION['passLAB'])) {
 ?>
-<script>
-    setTimeout("location.href='lockscreen'", 500);
-</script>
+    <script>
+        setTimeout("location.href='lockscreen'", 500);
+    </script>
 <?php
-        die('Illegal Acces');
-    }
+    die('Illegal Acces');
+}
 
-    $page = isset($_GET['p']) ? $_GET['p'] : '';
-    $act  = isset($_GET['act']) ? $_GET['act'] : '';
-    $id   = isset($_GET['id']) ? $_GET['id'] : '';
-    $page = strtolower($page);
+$page = isset($_GET['p']) ? $_GET['p'] : '';
+$act  = isset($_GET['act']) ? $_GET['act'] : '';
+$id   = isset($_GET['id']) ? $_GET['id'] : '';
+$page = strtolower($page);
 ?>
 <!DOCTYPE html>
 <html>
@@ -117,7 +117,7 @@
                                 or $_SESSION['jabatanLAB'] == 'Colorist'
                                 or $_SESSION['jabatanLAB'] == 'Guest'
                                 or $_SESSION['jabatanLAB'] == 'Lab Head'
-                                ) : 
+                            ) :
                             ?>
                                 <li class="<?php if ($_GET['p'] == "Home" or $_GET['p'] == "") {
                                                 echo "active";
@@ -197,46 +197,46 @@
                                                 } ?>"><a href="?p=DataBase-resep-new"><i class="fa fa-fw fa-file-pdf-o text-success" aria-hidden="true"></i>
                                             <span>Resep</span></a>
                                     </li>
-									<?php if($_SESSION['jabatanLAB']=="Super admin") { ?>
-                                    <li class="<?php if ($_GET['p'] == "Perform-report") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Perform-report"><i class="fa fa-fw fa-address-card text-primary" aria-hidden="true"></i>
-                                            <span>Perform-report</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Recap-Colorist") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Recap-Colorist"><i class="fa fa-fw fa-glass text-warning" aria-hidden="true"></i>
-                                            <span>Recap-Colorist</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Report-Matching") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Report-Matching"><i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
-                                            <span>Search By date</span></a>
-                                    </li>
-                                    <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Other') : ?>
-                                        <li class="<?php if ($_GET['p'] == "Arsip") {
+                                    <?php if ($_SESSION['jabatanLAB'] == "Super admin") { ?>
+                                        <li class="<?php if ($_GET['p'] == "Perform-report") {
                                                         echo "active";
-                                                    } ?>"><a href="?p=Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
-                                                <span>Arsip</span></a>
+                                                    } ?>"><a href="?p=Perform-report"><i class="fa fa-fw fa-address-card text-primary" aria-hidden="true"></i>
+                                                <span>Perform-report</span></a>
                                         </li>
-                                        <li class="<?php if ($_GET['p'] == "Report-Rejected") {
+                                        <li class="<?php if ($_GET['p'] == "Recap-Colorist") {
                                                         echo "active";
-                                                    } ?>"><a href="?p=Report-Rejected"><i class="fa fa-fw fa-trash text-danger" aria-hidden="true"></i>
-                                                <span>All Rejected</span></a>
+                                                    } ?>"><a href="?p=Recap-Colorist"><i class="fa fa-fw fa-glass text-warning" aria-hidden="true"></i>
+                                                <span>Recap-Colorist</span></a>
                                         </li>
-                                    <?php endif; ?>
-                                    <li class="<?php if ($_GET['p'] == "Dyestuff_Utilization") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Dyestuff_Utilization"><i class="fa fa-code text-warning" aria-hidden="true"></i>
-                                            <span>Dyestuff Utilization</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "SearchLog_Perlakuan") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=SearchLog_Perlakuan"><i class="fa fa-search text-warning" aria-hidden="true"></i>
-                                            <span>Search Log Additional Order</span></a>
-                                    </li>
-									<?php } ?>
-									<li class="<?php if ($_GET['p'] == "DataBase-test-report") {
+                                        <li class="<?php if ($_GET['p'] == "Report-Matching") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Report-Matching"><i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
+                                                <span>Search By date</span></a>
+                                        </li>
+                                        <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Other') : ?>
+                                            <li class="<?php if ($_GET['p'] == "Arsip") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
+                                                    <span>Arsip</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Report-Rejected") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Report-Rejected"><i class="fa fa-fw fa-trash text-danger" aria-hidden="true"></i>
+                                                    <span>All Rejected</span></a>
+                                            </li>
+                                        <?php endif; ?>
+                                        <li class="<?php if ($_GET['p'] == "Dyestuff_Utilization") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Dyestuff_Utilization"><i class="fa fa-code text-warning" aria-hidden="true"></i>
+                                                <span>Dyestuff Utilization</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "SearchLog_Perlakuan") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=SearchLog_Perlakuan"><i class="fa fa-search text-warning" aria-hidden="true"></i>
+                                                <span>Search Log Additional Order</span></a>
+                                        </li>
+                                    <?php } ?>
+                                    <li class="<?php if ($_GET['p'] == "DataBase-test-report") {
                                                     echo "active";
                                                 } ?>"><a href="?p=DataBase-test-report"><i class="fa fa-fw fa-database text-success" aria-hidden="true"></i>
                                             <span>Database Test Report</span></a>
@@ -264,7 +264,7 @@
                                 </li>
                             <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order') : ?>
+                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher') : ?>
                                 <li class="dropdown <?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
                                                         echo "active";
                                                     } ?>">
@@ -274,23 +274,25 @@
                                         </span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
-                                        </li>
-                                        <li class="<?php if ($_GET['p'] == "Lampu-Buyer") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Lampu-Buyer"><i class="fa fa-lightbulb-o"></i> <span>Lampu-Buyer</span></a>
-                                        </li>
-                                        <li class="<?php if ($_GET['p'] == "Manage-Proses") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Manage-Proses"><i class="fa fa-spinner"></i> <span>Manage-Proses</span></a>
-                                        </li>
-                                        <li class="<?php if ($_GET['p'] == "Log_Matching") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Log_Matching"><i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                                                <span>Log Perlakuan Resep</span></a>
-                                        </li>
+                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher') : ?>
+                                            <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Lampu-Buyer") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Lampu-Buyer"><i class="fa fa-lightbulb-o"></i> <span>Lampu-Buyer</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Manage-Proses") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Manage-Proses"><i class="fa fa-spinner"></i> <span>Manage-Proses</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Log_Matching") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Log_Matching"><i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+                                                    <span>Log Perlakuan Resep</span></a>
+                                            </li>
+                                        <?php endif; ?>
                                         <?php if ($_SESSION['jabatanLAB'] == 'Super admin') : ?>
                                             <li class="<?php if ($_GET['p'] == "User") {
                                                             echo "active";
@@ -300,36 +302,42 @@
                                                             echo "active";
                                                         } ?>"><a href="?p=announcement"><i class="fa fa-volume-up" aria-hidden="true"></i>
                                                     <span>announcement</span></a>
-                                            </li>                                        
-                                        	<li class="<?php if ($_GET['p'] == "Matcher") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Matcher"><i class="fa fa-user text-green"></i> <span>Matcher</span></a>
-                                        	</li>
-                                        	<li class="<?php if ($_GET['p'] == "Colorist") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
-                                        	</li>
-                                            <li class="<?php if ($_GET['p'] == "UserResep") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=UserResep"><i class="fa fa-user text-red"></i> <span>User Resep</span></a>
                                             </li>
-										<?php endif; ?>
-										<li class="<?php if ($_GET['p'] == "TestQCFinal") {
+                                            <li class="<?php if ($_GET['p'] == "Matcher") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Matcher"><i class="fa fa-user text-green"></i> <span>Matcher</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Colorist") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "UserResep") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=UserResep"><i class="fa fa-user text-red"></i> <span>User Resep</span></a>
+                                            </li>
+                                        <?php endif; ?>
+                                        <li class="<?php if ($_GET['p'] == "TestQCFinal") {
                                                         echo "active";
                                                     } ?>"><a href="?p=TestQCFinal"><i class="fa fa-flask text-red"></i> <span>Test QC Final</span></a>
                                         </li>
-										<li class="<?php if ($_GET['p'] == "ApprovedTestReport") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=ApprovedTestReport"><i class="fa fa-check text-green"></i> <span>Approved Report</span></a>
-                                        </li>
-										<li class="<?php if ($_GET['p'] == "List-Schedule-Rekap") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=List-Schedule-Rekap"><i class="fa fa-archive text-fuchsia"></i> <span>List Schedule Rekap</span></a>
-                                        </li>
-										<li class="<?php if ($_GET['p'] == "Status-Rekap") {
-                                                        echo "active";
-                                                    } ?>"><a href="?p=Status-Rekap"><i class="fa fa-archive text-teal"></i> <span>Status & Resep Rekap</span></a>
-                                        </li>
+                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher') : ?>
+                                            <li class="<?php if ($_GET['p'] == "ApprovedTestReport") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=ApprovedTestReport"><i class="fa fa-check text-green"></i> <span>Approved Report</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Log_Qctest") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Log_Qctest"><i class="glyphicon glyphicon-resize-small"></i> <span>Log QC Test</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "List-Schedule-Rekap") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=List-Schedule-Rekap"><i class="fa fa-archive text-fuchsia"></i> <span>List Schedule Rekap</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Status-Rekap") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=Status-Rekap"><i class="fa fa-archive text-teal"></i> <span>Status & Resep Rekap</span></a>
+                                            </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </li>
                             <?php endif; ?>
@@ -505,18 +513,18 @@
 <script src="bower_components/jquery_validation/jquery.validate.min.js"></script>
 <!-- ////////////////////////////////////////////////////////////////////////////////////////////// -->
 <script>
-	 //Initialize Select2 Elements
-	$('.select2').select2();
-	$('.select3').select2();
-    $('.select').select2();	
-	$("select2").on("select3:select2", function (evt) {
-  var element = evt.params.data.element;
-  var $element = $(element);
-  
-  $element.detach();
-  $(this).append($element);
-  $(this).trigger("change");
-});
+    //Initialize Select2 Elements
+    $('.select2').select2();
+    $('.select3').select2();
+    $('.select').select2();
+    $("select2").on("select3:select2", function(evt) {
+        var element = evt.params.data.element;
+        var $element = $(element);
+
+        $element.detach();
+        $(this).append($element);
+        $(this).trigger("change");
+    });
     //Date picker
     $('#datepicker').datepicker({
             autoclose: true,
@@ -636,7 +644,7 @@
             }
         });
     });
-	$(document).on('click', '.note_laborat_edit', function(e) {
+    $(document).on('click', '.note_laborat_edit', function(e) {
         var m = $(this).attr("id");
         $.ajax({
             url: "pages/note_laborat_edit.php",
@@ -652,7 +660,7 @@
             }
         });
     });
-	$(document).on('click', '.sts_laborat_edit', function(e) {
+    $(document).on('click', '.sts_laborat_edit', function(e) {
         var m = $(this).attr("id");
         $.ajax({
             url: "pages/sts_laborat_edit.php",
