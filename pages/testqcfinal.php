@@ -236,8 +236,8 @@ $role = $_SESSION['jabatanLAB']
                                                         <a type="button" href="?p=Edit_Testing&id=<?php echo $r['id'] ?>" class="btn btn-xs btn-warning">Edit<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                                         </a>
                                                     <?php } ?>
-                                                    <?php if ($role != "Matcher") { ?>
-                                                        <a href="javascript:void(0)" id="<?php echo $r['id'] ?>" class="hapus_test btn btn-xs btn-danger">Delete<i class="fa fa-trash" aria-hidden="true"></i>
+                                                    <?php if ($r['sts_qc'] == "Belum Terima Kain" && $role != "Matcher") { ?>
+                                                        <a href="javascript:void(0)" id="<?php echo $r['id'] ?>" no_counter="<?php echo $r['no_counter'] ?>" class="hapus_test btn btn-xs btn-danger">Delete<i class="fa fa-trash" aria-hidden="true"></i>
                                                         </a>
                                                     <?php } ?>
                                                 </div>
@@ -315,6 +315,8 @@ $role = $_SESSION['jabatanLAB']
         $(document).on('click', '.hapus_test', function() {
             var id_tes = $(this).attr("id");
 
+            var no_counter = $(this).attr("no_counter");
+
             // console.log(id_tes);
 
             Swal.fire({
@@ -332,7 +334,8 @@ $role = $_SESSION['jabatanLAB']
                         type: "POST",
                         url: "pages/ajax/delete_test_qc.php",
                         data: {
-                            id: id_tes
+                            id: id_tes,
+                            no_counter: no_counter,
                         },
                         success: function(response) {
                             if (response.session == "LIB_SUCCSS") {
@@ -343,7 +346,12 @@ $role = $_SESSION['jabatanLAB']
                                 )
                                 location.reload();
                             } else {
-                                toastr.error("ajax error !")
+                                Swal.fire(
+                                    'Failed',
+                                    'Your data not been deleted.',
+                                    'success'
+                                )
+                                location.reload();
                             }
                         },
                         error: function() {

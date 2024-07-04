@@ -5,135 +5,218 @@
 	<meta charset="utf-8">
 	<title>Form Testing</title>
 	<script>
-function uncheckAll() {
-    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(function(checkbox) {
-        checkbox.checked = false;
-    });
-}
-</script>
+		function uncheckAll() {
+			var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+			checkboxes.forEach(function(checkbox) {
+				checkbox.checked = false;
+			});
+		}
+	</script>
 </head>
 
 <body>
 	<?php
-		ini_set("error_reporting", 1);
-		session_start();
+	ini_set("error_reporting", 1);
+	session_start();
+	include "koneksi.php";
+	function nourut($str)
+	{
 		include "koneksi.php";
-		function nourut($str)
-		{
-			include"koneksi.php";
-			date_default_timezone_set('Asia/Jakarta');
-			$bln= date("ym");
-			$today= date("ymd");
-			$sqlnotes = mysqli_query($con,"SELECT no_counter FROM tbl_test_qc WHERE substr(no_counter,1,6) like '%".$bln."%' ORDER BY no_counter DESC LIMIT 1") or die(mysqli_error());
-			$dt=mysqli_num_rows($sqlnotes);
-			if ($dt>0) {
-				$rd=mysqli_fetch_array($sqlnotes);
-				$dt=$rd['no_counter'];
-				$strd=substr($dt, 8, 4);
-				$Urutd = (int)$strd;
-			} else {
-				$Urutd = 0;
-			}
-			$Urutd = $Urutd + 1;
-			$Nold="";
-			$nilaid=4-strlen($Urutd);
-			for ($i=1;$i<=$nilaid;$i++) {
-				$Nold= $Nold."0";
-			}
-			$no2 =$today.$Nold.$Urutd;
-			//$no2 =$today.str_pad($Urutd, 4, "0",  STR_PAD_LEFT);
-			return $no2;
+		date_default_timezone_set('Asia/Jakarta');
+		$bln = date("ym");
+		$today = date("ymd");
+		$sqlnotes = mysqli_query($con, "SELECT no_counter FROM tbl_test_qc WHERE substr(no_counter,1,6) like '%" . $bln . "%' ORDER BY no_counter DESC LIMIT 1") or die(mysqli_error());
+		$dt = mysqli_num_rows($sqlnotes);
+		if ($dt > 0) {
+			$rd = mysqli_fetch_array($sqlnotes);
+			$dt = $rd['no_counter'];
+			$strd = substr($dt, 8, 4);
+			$Urutd = (int)$strd;
+		} else {
+			$Urutd = 0;
 		}
+		$Urutd = $Urutd + 1;
+		$Nold = "";
+		$nilaid = 4 - strlen($Urutd);
+		for ($i = 1; $i <= $nilaid; $i++) {
+			$Nold = $Nold . "0";
+		}
+		$no2 = $today . $Nold . $Urutd;
+		//$no2 =$today.str_pad($Urutd, 4, "0",  STR_PAD_LEFT);
+		return $no2;
+	}
 
-		 $sqlNoCounter = mysqli_query($con,"SELECT no_counter FROM tbl_test_qc where id = (select max(id) from tbl_test_qc) LIMIT 1");
-		 $noCounter = mysqli_fetch_array($sqlNoCounter);
-		 $nourut = nourut($noCounter['no_counter']);
-		 $idR	= $_GET["idk"];	
-		 $sqlMatching = mysqli_query($con,"SELECT * FROM tbl_matching WHERE no_resep='$idR' LIMIT 1");
-		 $dt	= mysqli_fetch_array($sqlMatching);
-		 $buyerTest = trim($dt['buyer'])." ".trim($dt['no_item']);
-		 $conQC=mysqli_connect("10.0.0.10","dit","4dm1n","db_qc"); 
-		 $qMB=mysqli_query($conQC,"SELECT * FROM tbl_masterbuyer_test WHERE buyer='$buyerTest'");					
-		 $dMB=mysqli_fetch_array($qMB);
-		 $detail2=explode(",",$dMB['colorfastness']);	
+	$sqlNoCounter = mysqli_query($con, "SELECT no_counter FROM tbl_test_qc where id = (select max(id) from tbl_test_qc) LIMIT 1");
+	$noCounter = mysqli_fetch_array($sqlNoCounter);
+	$nourut = nourut($noCounter['no_counter']);
+	$idR	= $_GET["idk"];
+	$sqlMatching = mysqli_query($con, "SELECT * FROM tbl_matching WHERE no_resep='$idR' LIMIT 1");
+	$dt	= mysqli_fetch_array($sqlMatching);
+	$buyerTest = trim($dt['buyer']) . " " . trim($dt['no_item']);
+	$conQC = mysqli_connect("10.0.0.10", "dit", "4dm1n", "db_qc");
+	$qMB = mysqli_query($conQC, "SELECT * FROM tbl_masterbuyer_test WHERE buyer='$buyerTest'");
+	$dMB = mysqli_fetch_array($qMB);
+	$detail2 = explode(",", $dMB['colorfastness']);
 
 	?>
 	<?php
-		if (isset($_POST['simpan'])) {
-			$ip_num = $_SERVER['REMOTE_ADDR'];	
-			$warna = str_replace("'", "''", $_POST['warna']);
-			$nowarna = str_replace("'", "", $_POST['nowarna']);
-			$buyer = str_replace("'", "", $_POST['buyer']);
-			$kain = str_replace("'", "", $_POST['jenis_kain']);
-			$item = str_replace("'", "", $_POST['noitem']);
-			$nama = str_replace("'", "", $_POST['nama']);
-			
-			$checkbox1=$_POST['colorfastness'];
-			
-			foreach($checkbox1 as $chk1)  
-   		{  
-      		$chkc .= $chk1.",";  
-        }
-			
-			if (isset($_POST["jen_matching"])) {
-			// Retrieving each selected option 
-			$notrt=1;	
-			foreach ($_POST['jen_matching'] as $index => $subject1) {				
-			if ($index > 0) {
-//				$ktjen = $ktjen . "," . $subject1;
-				$ktjen = $subject1;
-				$nocount = $_POST['no_resep']."-".$notrt;
-				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc SET
-					no_counter ='$nocount',
-					treatment = '$ktjen',
-					jenis_testing='$_POST[Dyestuff]',
-					suffix='$_POST[suffix]',
-					buyer ='$buyer',
-					no_warna='$nowarna',
-					warna='$warna',
-					jenis_kain='$kain',
-					no_item ='$item',
-					permintaan_testing ='$chkc',
-					nama_personil_test='$nama',
-					tgl_buat= now(),
-					tgl_update=now(),
-					sts_laborat='Open',
-					sts_qc='Belum Terima Kain',
-					sts='$_POST[sts]',
-					created_by = '$_SESSION[userLAB]'");
-			} else {
-				$ktjen = $subject1;
-				$nocount = $_POST['no_resep']."-".$notrt;
-				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc SET
-					no_counter ='$nocount',
-					treatment = '$ktjen',
-					jenis_testing='$_POST[Dyestuff]',
-					suffix='$_POST[suffix]',
-					buyer ='$buyer',
-					no_warna='$nowarna',
-					warna='$warna',
-					jenis_kain='$kain',
-					no_item ='$item',
-					permintaan_testing ='$chkc',
-					nama_personil_test='$nama',
-					tgl_buat= now(),
-					tgl_update=now(),
-					sts_laborat='Open',
-					sts_qc='Belum Terima Kain',
-					sts='$_POST[sts]',
-					created_by = '$_SESSION[userLAB]'");
-			}
+	if (isset($_POST['simpan'])) {
+
+		function get_client_ip()
+		{
+			$ipaddress = '';
+			if (isset($_SERVER['HTTP_CLIENT_IP']))
+				$ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+			else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+				$ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			else if (isset($_SERVER['HTTP_X_FORWARDED']))
+				$ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+			else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+				$ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+			else if (isset($_SERVER['HTTP_FORWARDED']))
+				$ipaddress = $_SERVER['HTTP_FORWARDED'];
+			else if (isset($_SERVER['REMOTE_ADDR']))
+				$ipaddress = $_SERVER['REMOTE_ADDR'];
+			else
+				$ipaddress = 'UNKNOWN';
+			return $ipaddress;
+		}
+
+		$ip_num = get_client_ip();
+
+		$warna = mysqli_real_escape_string($con, $_POST['warna']);
+		$nowarna = mysqli_real_escape_string($con, $_POST['nowarna']);
+		$buyer = mysqli_real_escape_string($con, $_POST['buyer']);
+		$kain = mysqli_real_escape_string($con, $_POST['jenis_kain']);
+		$item = mysqli_real_escape_string($con, $_POST['noitem']);
+		$nama = mysqli_real_escape_string($con, $_POST['nama']);
+
+
+		$checkbox1 = $_POST['colorfastness'];
+
+		foreach ($checkbox1 as $chk1) {
+			$chkc .= $chk1 . ",";
+		}
+
+		mysqli_begin_transaction($con);
+
+		$success = true;
+
+		if (isset($_POST["jen_matching"])) {
+			$notrt = 1;
+
+			foreach ($_POST['jen_matching'] as $index => $subject1) {
+				$ktjen = mysqli_real_escape_string($con, $subject1);
+				$nocount = mysqli_real_escape_string($con, $_POST['no_resep'] . "-" . $notrt);
+
+				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc (no_counter, treatment, jenis_testing, suffix, buyer, no_warna, warna, jenis_kain, no_item, permintaan_testing, nama_personil_test, tgl_buat, tgl_update, sts_laborat, sts_qc, sts, created_by)
+	                VALUES ('$nocount', '$ktjen', '$_POST[Dyestuff]', '$_POST[suffix]', '$buyer', '$nowarna', '$warna', '$kain', '$item', '$chkc', '$nama', NOW(), NOW(), 'Open', 'Belum Terima Kain', '$_POST[sts]', '$_SESSION[userLAB]')");
+
+				if (!$qry) {
+					$success = false;
+					break; // Keluar dari loop jika salah satu query gagal
+				}
+
+				// Jika query berhasil, tambahkan juga ke log_qc_test
+				$qry2 = mysqli_query($con, "INSERT INTO log_qc_test (no_counter, `status`, info, do_by, do_at, ip_address)
+	                VALUES ('$nocount', 'Open', 'Kain diserahkan dari laborat', '$_SESSION[userLAB]', NOW(), '$ip_num')");
+
+				if (!$qry2) {
+					$success = false;
+					break; // Keluar dari loop jika salah satu query gagal
+				}
+
 				$notrt++;
+			}
+		}
+
+		// Commit transaksi jika semua operasi berhasil, rollback jika ada yang gagal
+		if ($success) {
+			mysqli_commit($con);
+			echo "<script>alert('Data Tersimpan');window.location.href='?p=TestQCFinal';</script>";
+		} else {
+			mysqli_rollback($con);
+			echo "<script>alert('Gagal menyimpan data. Silakan coba lagi.');window.location.href='?p=FormTesting';</script>";
 		}
 	}
-			
-			
-			if($qry){
-				echo "<script>alert('Data Tersimpan');window.location.href='?p=TestQCFinal';</script>";
-			}
-			
-		}
+	// if (isset($_POST['simpan'])) {
+	// 	$ip_num = $_SERVER['REMOTE_ADDR'];
+	// 	$warna = str_replace("'", "''", $_POST['warna']);
+	// 	$nowarna = str_replace("'", "", $_POST['nowarna']);
+	// 	$buyer = str_replace("'", "", $_POST['buyer']);
+	// 	$kain = str_replace("'", "", $_POST['jenis_kain']);
+	// 	$item = str_replace("'", "", $_POST['noitem']);
+	// 	$nama = str_replace("'", "", $_POST['nama']);
+
+	// 	$checkbox1 = $_POST['colorfastness'];
+
+	// 	foreach ($checkbox1 as $chk1) {
+	// 		$chkc .= $chk1 . ",";
+	// 	}
+
+	// 	if (isset($_POST["jen_matching"])) {
+	// 		// Retrieving each selected option 
+	// 		$notrt = 1;
+	// 		foreach ($_POST['jen_matching'] as $index => $subject1) {
+	// 			if ($index > 0) {
+	// 				//	$ktjen = $ktjen . "," . $subject1;
+	// 				$ktjen = $subject1;
+	// 				$nocount = $_POST['no_resep'] . "-" . $notrt;
+	// 				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc SET
+	// 				no_counter ='$nocount',
+	// 				treatment = '$ktjen',
+	// 				jenis_testing='$_POST[Dyestuff]',
+	// 				suffix='$_POST[suffix]',
+	// 				buyer ='$buyer',
+	// 				no_warna='$nowarna',
+	// 				warna='$warna',
+	// 				jenis_kain='$kain',
+	// 				no_item ='$item',
+	// 				permintaan_testing ='$chkc',
+	// 				nama_personil_test='$nama',
+	// 				tgl_buat= now(),
+	// 				tgl_update=now(),
+	// 				sts_laborat='Open',
+	// 				sts_qc='Belum Terima Kain',
+	// 				sts='$_POST[sts]',
+	// 				created_by = '$_SESSION[userLAB]'");
+
+	// 				$qry2 = "INSERT INTO log_qc_test (no_counter, `status`, info, do_by, do_at, ip_address) 
+	//     		 	VALUES ('$nocount', 'Open', 'Kain diserahkan dari laborat', '$userLAB', NOW(), '$ip_num')";
+	// 			} else {
+	// 				$ktjen = $subject1;
+	// 				$nocount = $_POST['no_resep'] . "-" . $notrt;
+	// 				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc SET
+	// 				no_counter ='$nocount',
+	// 				treatment = '$ktjen',
+	// 				jenis_testing='$_POST[Dyestuff]',
+	// 				suffix='$_POST[suffix]',
+	// 				buyer ='$buyer',
+	// 				no_warna='$nowarna',
+	// 				warna='$warna',
+	// 				jenis_kain='$kain',
+	// 				no_item ='$item',
+	// 				permintaan_testing ='$chkc',
+	// 				nama_personil_test='$nama',
+	// 				tgl_buat= now(),
+	// 				tgl_update=now(),
+	// 				sts_laborat='Open',
+	// 				sts_qc='Belum Terima Kain',
+	// 				sts='$_POST[sts]',
+	// 				created_by = '$_SESSION[userLAB]'");
+
+	// 				$qry2 = "INSERT INTO log_qc_test (no_counter, `status`, info, do_by, do_at, ip_address) 
+	//     		 	VALUES ('$nocount', 'Open', 'Kain diserahkan dari laborat', '$userLAB', NOW(), '$ip_num')";
+	// 			}
+	// 			$notrt++;
+	// 		}
+	// 	}
+
+
+	// 	if ($qry) {
+	// 		echo "<script>alert('Data Tersimpan');window.location.href='?p=TestQCFinal';</script>";
+	// 	}
+	// }
 	?>
 	<div class="row">
 		<div class="col-md-12">
@@ -152,7 +235,7 @@ function uncheckAll() {
 										...
 									</button>
 									<div class="col-sm-2">
-										<select value="<?php echo $_GET['Dystf'] ?>" type="text" class="form-control select2" id="Dyestuff" name="Dyestuff"  required>
+										<select value="<?php echo $_GET['Dystf'] ?>" type="text" class="form-control select2" id="Dyestuff" name="Dyestuff" required>
 											<option value="" selected disabled>Pilih Jenis Testing</option>
 											<?php
 											$sqlmstrcd = mysqli_query($con, "SELECT kode, `value` from tbl_mstrjnstesting;");
@@ -172,11 +255,13 @@ function uncheckAll() {
 									</div>
 								</div>
 								<div class="form-group">
-		<label for="suffix" class="col-sm-2 control-label">Suffix</label>
-		<div class="col-sm-4">
-			<input name="suffix" placeholder="Suffix ..." type="text" onkeyup="this.value = this.value.toUpperCase();" class="form-control suffixcuy" id="order" onchange="window.location='?p=Form-Testing&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value" value="<?php if ($_GET['idk'] != "") { echo $_GET['idk']; } ?>" required>
-		</div>
-	</div>
+									<label for="suffix" class="col-sm-2 control-label">Suffix</label>
+									<div class="col-sm-4">
+										<input name="suffix" placeholder="Suffix ..." type="text" onkeyup="this.value = this.value.toUpperCase();" class="form-control suffixcuy" id="order" onchange="window.location='?p=Form-Testing&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value" value="<?php if ($_GET['idk'] != "") {
+																																																																															echo $_GET['idk'];
+																																																																														} ?>" required>
+									</div>
+								</div>
 								<div class=" form-group">
 									<label for="jen_matching" class="col-sm-2 control-label">Treatment</label>
 									<div class="col-sm-3">
@@ -280,53 +365,55 @@ function uncheckAll() {
 </div>
 <!--/////////////////////////////////////////////////////////////// inputanTest -->
 <div id="inputanTest" style="display: none;">
-	
+
 	<div class="form-group">
 		<label for="buyer" class="col-sm-2 control-label">Buyer</label>
 		<div class="col-sm-8">
 			<input name="buyer" type="text" class="form-control" id="buyer" placeholder="buyer" value="<?php if ($cek > 0) {
-																														echo $rw['langganan'];
-																													}else{	echo $dt['buyer'];} ?>">
+																											echo $rw['langganan'];
+																										} else {
+																											echo $dt['buyer'];
+																										} ?>">
 		</div>
-	</div>	
+	</div>
 	<div class="form-group">
 		<label for="nowarna" class="col-sm-2 control-label">No Warna</label>
 		<div class="col-sm-6">
 			<input name="nowarna" type="text" class="form-control" id="nowarna" placeholder="No Warna" value="<?php if ($cek1 > 0) {
-																											echo $r1['color'];
-																										} else {
-																											echo $dt['no_warna'];
-																										} ?>">
+																													echo $r1['color'];
+																												} else {
+																													echo $dt['no_warna'];
+																												} ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Nama Warna</label>
 		<div class="col-sm-6">
 			<input name="warna" type="text" class="form-control" id="warna" placeholder="Nama Warna" value="<?php if ($cek1 > 0) {
-																											echo $r1['color'];
-																										} else {
-																											echo $dt['warna'];
-																										} ?>">
+																												echo $r1['color'];
+																											} else {
+																												echo $dt['warna'];
+																											} ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="noitem" class="col-sm-2 control-label">Item</label>
 		<div class="col-sm-6">
 			<input name="noitem" type="text" class="form-control" id="noitem" placeholder="No Item" value="<?php if ($cek1 > 0) {
-																														echo $r1['colorno'];
-																													} else {
-																														echo $dt['no_item'];
-																													} ?>">
+																												echo $r1['colorno'];
+																											} else {
+																												echo $dt['no_item'];
+																											} ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="jenis_kain" class="col-sm-2 control-label">Jenis Kain</label>
 		<div class="col-sm-8">
 			<input name="jenis_kain" type="text" class="form-control" id="jenis_kain" placeholder="Jenis Kain" value="<?php if ($cek1 > 0) {
-																										echo htmlentities($r1['description'], ENT_QUOTES);
-																									} else {
-																										echo $dt['jenis_kain'];
-																									} ?>">
+																															echo htmlentities($r1['description'], ENT_QUOTES);
+																														} else {
+																															echo $dt['jenis_kain'];
+																														} ?>">
 		</div>
 	</div>
 	<div class="form-group">
@@ -336,66 +423,94 @@ function uncheckAll() {
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="permintaan_testing" class="col-sm-2 control-label">Permintaan Testing</label>			
+		<label for="permintaan_testing" class="col-sm-2 control-label">Permintaan Testing</label>
 		<div class="col-sm-2">
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="WASHING" <?php if(in_array("WASHING",$detail2)){echo "checked";} ?>> Washing Fastness
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PERSPIRATION ACID" <?php if(in_array("PERSPIRATION ACID",$detail2)){echo "checked";} ?>> Perpiration Fastness ACID
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PERSPIRATION ALKALINE" <?php if(in_array("PERSPIRATION ACID",$detail2)){echo "checked";} ?>> Perpiration Fastness ALKALINE
-						</label>					
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="WATER" <?php if(in_array("WATER",$detail2)){echo "checked";} ?>> Water Fastness 
-						</label>
-						
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="CROCKING" <?php if(in_array("CROCKING",$detail2)){echo "checked";} ?>> Crocking Fastness
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="COLOR MIGRATION-OVEN TEST" <?php if(in_array("COLOR MIGRATION-OVEN TEST",$detail2)){echo "checked";} ?>> Color Migration - Oven Test
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="COLOR MIGRATION" <?php if(in_array("COLOR MIGRATION",$detail2)){echo "checked";} ?>> Color Migration Fastness 
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="CHLORIN & NON-CHLORIN" <?php if(in_array("CHLORIN & NON-CHLORIN",$detail2)){echo "checked";} ?>> Chlorin &amp; Non-Chlorin 
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="BLEEDING <?php if(in_array("BLEEDING",$detail2)){echo "checked";} ?>"> Bleeding 
-						</label>
-						<br>
-						<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PHENOLIC YELLOWING" <?php if(in_array("PHENOLIC YELLOWING",$detail2)){echo "checked";} ?>> Phenolic Yellowing 
-						</label>
-							
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="WASHING" <?php if (in_array("WASHING", $detail2)) {
+																										echo "checked";
+																									} ?>> Washing Fastness
+			</label>
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PERSPIRATION ACID" <?php if (in_array("PERSPIRATION ACID", $detail2)) {
+																												echo "checked";
+																											} ?>> Perpiration Fastness ACID
+			</label>
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PERSPIRATION ALKALINE" <?php if (in_array("PERSPIRATION ACID", $detail2)) {
+																													echo "checked";
+																												} ?>> Perpiration Fastness ALKALINE
+			</label>
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="WATER" <?php if (in_array("WATER", $detail2)) {
+																									echo "checked";
+																								} ?>> Water Fastness
+			</label>
+
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="CROCKING" <?php if (in_array("CROCKING", $detail2)) {
+																										echo "checked";
+																									} ?>> Crocking Fastness
+			</label>
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="COLOR MIGRATION-OVEN TEST" <?php if (in_array("COLOR MIGRATION-OVEN TEST", $detail2)) {
+																														echo "checked";
+																													} ?>> Color Migration - Oven Test
+			</label>
+			<br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="COLOR MIGRATION" <?php if (in_array("COLOR MIGRATION", $detail2)) {
+																												echo "checked";
+																											} ?>> Color Migration Fastness
+				<br>
+				<label><input type="checkbox" class="minimal" name="colorfastness[]" value="CHLORIN & NON-CHLORIN" <?php if (in_array("CHLORIN & NON-CHLORIN", $detail2)) {
+																														echo "checked";
+																													} ?>> Chlorin &amp; Non-Chlorin
+				</label>
+				<br>
+				<label><input type="checkbox" class="minimal" name="colorfastness[]" value="BLEEDING <?php if (in_array("BLEEDING", $detail2)) {
+																											echo "checked";
+																										} ?>"> Bleeding
+				</label>
+				<br>
+				<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PHENOLIC YELLOWING" <?php if (in_array("PHENOLIC YELLOWING", $detail2)) {
+																													echo "checked";
+																												} ?>> Phenolic Yellowing
+				</label>
+
 		</div>
 		<div class="col-sm-2">
-			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="LIGHT" <?php if(in_array("LIGHT",$detail2)){echo "checked";} ?>> Light Fastness  
-						</label> <br>
-			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="LIGHT PERSPIRATION" <?php if(in_array("LIGHT PERSPIRATION",$detail2)){echo "checked";} ?>> Light Perspiration  
-						</label> <br>
-			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PH" <?php if(in_array("PH",$detail2)){echo "checked";} ?>> PH3 &amp; PH4
-						</label> <br>
-			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="SUHU" <?php if(in_array("SUHU",$detail2)){echo "checked";} ?>> SUHU 30'C &amp; 40'C  
-						</label> <br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="LIGHT" <?php if (in_array("LIGHT", $detail2)) {
+																									echo "checked";
+																								} ?>> Light Fastness
+			</label> <br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="LIGHT PERSPIRATION" <?php if (in_array("LIGHT PERSPIRATION", $detail2)) {
+																												echo "checked";
+																											} ?>> Light Perspiration
+			</label> <br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="PH" <?php if (in_array("PH", $detail2)) {
+																								echo "checked";
+																							} ?>> PH3 &amp; PH4
+			</label> <br>
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="SUHU" <?php if (in_array("SUHU", $detail2)) {
+																									echo "checked";
+																								} ?>> SUHU 30'C &amp; 40'C
+			</label> <br>
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="sts" class="col-sm-2 control-label"></label>
 		<div class="col-sm-6">
-		<a href="#" class="btn btn-xs btn-danger" onclick="uncheckAll();">Full Test</a>
-		</div>	
-	</div>	
+			<a href="#" class="btn btn-xs btn-danger" onclick="uncheckAll();">Full Test</a>
+		</div>
+	</div>
 	<div class="form-group">
 		<label for="sts" class="col-sm-2 control-label">Status</label>
 		<div class="col-sm-6">
-		<select class="form-control select2" id="sts" name="sts" required>
-		<option value="" selected disabled>Pilih status</option>
-		<option value="normal">Normal</option>
-		<option value="urgent">Urgent</option>	
-		</select>	
+			<select class="form-control select2" id="sts" name="sts" required>
+				<option value="" selected disabled>Pilih status</option>
+				<option value="normal">Normal</option>
+				<option value="urgent">Urgent</option>
+			</select>
 		</div>
-	</div>	
+	</div>
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -413,33 +528,33 @@ function uncheckAll() {
 			todayHighlight: true,
 		})
 
-		if ($('.form-control.suffixcuy').val().length >= 2) {			
-			
-			
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#inputanTest').appendTo('#echoing_the_choice');
-				$("#inputanTest").show()
-			
+		if ($('.form-control.suffixcuy').val().length >= 2) {
+
+
+			$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+			$('#inputanTest').appendTo('#echoing_the_choice');
+			$("#inputanTest").show()
+
 		}
 
 		let antrian = $('#shadow_no_resep').val();
-		var no_resep_fix = antrian + $(this).find(":selected").val() ;
+		var no_resep_fix = antrian + $(this).find(":selected").val();
 		$('#no_resep').val(no_resep_fix);
 
 		$('#Dyestuff').change(function() {
 			var Q = $('#shadow_no_resep').val();
-			var no_resep_fix = Q + $(this).find(":selected").val()  ;
+			var no_resep_fix = Q + $(this).find(":selected").val();
 			$('#no_resep').val(no_resep_fix);
 		})
 
 		$('#jen_matching').change(function() {
-			if ($(this).find(":selected").val() != '') { 
+			if ($(this).find(":selected").val() != '') {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#inputanTest').appendTo('#echoing_the_choice');
 				$("#inputanTest").show()
 			}
 		})
-		
+
 	});
 </script>
 

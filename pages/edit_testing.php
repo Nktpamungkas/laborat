@@ -15,8 +15,37 @@
     ?>
     <?php
     if (isset($_POST['simpan'])) {
+        function get_client_ip()
+        {
+            $ipaddress = '';
+            if (isset($_SERVER['HTTP_CLIENT_IP']))
+                $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+            else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+                $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            else if (isset($_SERVER['HTTP_X_FORWARDED']))
+                $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+            else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+                $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+            else if (isset($_SERVER['HTTP_FORWARDED']))
+                $ipaddress = $_SERVER['HTTP_FORWARDED'];
+            else if (isset($_SERVER['REMOTE_ADDR']))
+                $ipaddress = $_SERVER['REMOTE_ADDR'];
+            else
+                $ipaddress = 'UNKNOWN';
+            return $ipaddress;
+        }
+
+        $ip_num = get_client_ip();
 
         $id = mysqli_real_escape_string($con, $_GET['id']);
+        $no_counter = mysqli_real_escape_string($con, $_POST['no_resep']);
+        $buyer = mysqli_real_escape_string($con, $_POST['buyer']);
+        $nowarna = mysqli_real_escape_string($con, $_POST['nowarna']);
+        $warna = mysqli_real_escape_string($con, $_POST['warna']);
+        $item = mysqli_real_escape_string($con, $_POST['noitem']);
+        $kain = mysqli_real_escape_string($con, $_POST['jenis_kain']);
+        $nama = mysqli_real_escape_string($con, $_POST['nama']);
+        $sts = mysqli_real_escape_string($con, $_POST['sts']);
 
         $checkbox1 = $_POST['colorfastness'];
 
@@ -24,16 +53,10 @@
             $chkc .= $chk1 . ",";
         }
 
-        $buyer = str_replace("'", "", $_POST['buyer']);
-        $nowarna = str_replace("'", "", $_POST['nowarna']);
-        $warna = str_replace("'", "''", $_POST['warna']);
-        $item = str_replace("'", "", $_POST['noitem']);
-        $kain = str_replace("'", "", $_POST['jenis_kain']);
-        $nama = str_replace("'", "", $_POST['nama']);
-        $sts = str_replace("'", "", $_POST['sts']);
+        mysqli_begin_transaction($con);
 
+        $success = true;
 
-        // Query untuk melakukan update data
         $query = "UPDATE tbl_test_qc SET 
               buyer = '$buyer',
               no_warna = '$nowarna',
@@ -45,29 +68,51 @@
               permintaan_testing ='$chkc'
               WHERE id = '$id'";
 
-        // Lakukan query
-        if (mysqli_query($con, $query)) {
-            // Jika berhasil, panggil SweetAlert menggunakan <script>
-            echo "<script>
-                Swal.fire(
-                    'Sukses',
-                    'Data berhasil diubah.',
-                    'success'
-                );
-              </script>";
+        $qry_update = mysqli_query($con, $query);
+
+        if (!$qry_update) {
+            $success = false;
+        }
+
+
+        $qry_log = mysqli_query($con, "INSERT INTO log_qc_test (no_counter, `status`, info, do_by, do_at, ip_address)
+                                   VALUES ('$no_counter', 'Open', 'Perubahan data untuk $no_counter', '$_SESSION[userLAB]', NOW(), '$ip_num')");
+
+        if (!$qry_log) {
+            $success = false;
+        }
+
+
+        if ($success) {
+            mysqli_commit($con);
+
+            echo "<script>Swal.fire({
+            title: 'Sukses',
+            text: 'Data berhasil diubah.',
+            type: 'success',
+            }).then((result) => {
+            if (result.value) {
+            window.location='index1.php?p=TestQCFinal';
+            }
+            });</script>";
         } else {
-            // Jika gagal, panggil SweetAlert menggunakan <script>
-            echo "<script>
-                Swal.fire(
-                    'Kesalahan !',
-                    'Data gagal diubah.',
-                    'error'
-                );
-              </script>";
+            mysqli_rollback($con);
+
+            echo "<script>Swal.fire({
+            title: 'Gagal',
+            text: 'Data gagal diubah.',
+            type: 'error',
+            }).then((result) => {
+            if (result.value) {
+            window.location='index1.php?p=TestQCFinal';
+            }
+            });</script>";
         }
     }
 
     ?>
+
+
     <div class="row">
         <div class="col-md-12">
             <!-- Custom Tabs -->

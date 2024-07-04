@@ -3,7 +3,7 @@ ini_set("error_reporting", 1);
 session_start();
 include("../koneksi.php");
 $modal_id = $_GET['id'];
-$modal = mysqli_query($con,"SELECT * FROM `tbl_test_qc` WHERE id='$modal_id' ");
+$modal = mysqli_query($con, "SELECT * FROM `tbl_test_qc` WHERE id='$modal_id' ");
 while ($r = mysqli_fetch_array($modal)) {
 ?>
   <div class="modal-dialog ">
@@ -16,8 +16,13 @@ while ($r = mysqli_fetch_array($modal)) {
         </div>
         <div class="modal-body">
           <input type="hidden" id="id" name="id" value="<?php echo $r['id']; ?>">
-		  <input type="hidden" id="sts_laborat" name="sts_laborat" value="<?php echo $r['sts_laborat']; ?>">	
-      	<?php if($r['sts_laborat']=="Waiting Approval Full"){ echo "Approved Full"; }else if($r['sts_laborat']=="Waiting Approval Parsial"){ echo "Approved Parsial ?";} ?> 	
+          <input type="hidden" id="no_counter" name="no_counter" value="<?php echo $r['no_counter']; ?>">
+          <input type="hidden" id="sts_laborat" name="sts_laborat" value="<?php echo $r['sts_laborat']; ?>">
+          <?php if ($r['sts_laborat'] == "Waiting Approval Full") {
+            echo "Approved Full";
+          } else if ($r['sts_laborat'] == "Waiting Approval Parsial") {
+            echo "Approved Parsial ?";
+          } ?>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>

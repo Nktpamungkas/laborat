@@ -23,10 +23,48 @@ function get_client_ip()
     return $ipaddress;
 }
 
-mysqli_query($con, "UPDATE `tbl_test_qc` SET `deleted_at` = NOW() WHERE `id` = '$_POST[id]'");
+$ip_num = get_client_ip();
 
-$response = array(
-    'session' => 'LIB_SUCCSS',
-    'exp' => 'updated',
-);
-echo json_encode($response);
+$success = true;
+
+mysqli_begin_transaction($con);
+
+
+$query_delete = "UPDATE `tbl_test_qc` SET `deleted_at` = NOW() WHERE `id` = '$_POST[id]'";
+$result_delete = mysqli_query($con, $query_delete);
+
+
+if (!$result_delete) {
+    $success = false;
+}
+
+
+$no_counter = $_POST['no_counter'];
+$log_info = "Menghapus test $no_counter";
+
+
+$query_log = "INSERT INTO log_qc_test (no_counter, `status`, info, do_by, do_at, ip_address)
+                  VALUES ('$no_counter', 'Open', '$log_info', '$_SESSION[userLAB]', NOW(), '$ip_num')";
+$result_log = mysqli_query($con, $query_log);
+
+
+if (!$result_log) {
+    $success = false;
+}
+
+if ($success) {
+    mysqli_commit($con);
+
+    $response = array(
+        'session' => 'LIB_SUCCSS',
+        'exp' => 'updated',
+    );
+    echo json_encode($response);
+} else {
+    mysqli_rollback($con);
+    $response = array(
+        'session' => 'LIB_FAILED',
+        'exp' => 'updated',
+    );
+    echo json_encode($response);
+}
