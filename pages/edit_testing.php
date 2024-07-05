@@ -155,7 +155,7 @@
                                         <div class="col-sm-2">
                                             <select disabled value="<?php echo $jenis_testing; ?>" type="text" class="form-control select2" id="Dyestuff" name="Dyestuff" required>
                                                 <?php
-                                                $sqlmstrcd = mysqli_query($con, "SELECT kode, `value` FROM tbl_mstrjnstesting;");
+                                                $sqlmstrcd = mysqli_query($con, "SELECT kode, `value` FROM tbl_mstrjnstesting ORDER BY kode ASC;");
                                                 while ($li = mysqli_fetch_array($sqlmstrcd)) { ?>
                                                     <option value="<?php echo $li['value'] ?>" <?php if ($li['value'] == $jenis_testing) {
                                                                                                     echo 'selected';

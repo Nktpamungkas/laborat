@@ -238,7 +238,7 @@
 										<select value="<?php echo $_GET['Dystf'] ?>" type="text" class="form-control select2" id="Dyestuff" name="Dyestuff" required>
 											<option value="" selected disabled>Pilih Jenis Testing</option>
 											<?php
-											$sqlmstrcd = mysqli_query($con, "SELECT kode, `value` from tbl_mstrjnstesting;");
+											$sqlmstrcd = mysqli_query($con, "SELECT kode, `value` FROM tbl_mstrjnstesting ORDER BY kode ASC;");
 											while ($li = mysqli_fetch_array($sqlmstrcd)) { ?>
 												<option value="<?php echo $li['value'] ?>" <?php if ($li['value'] == $_GET['Dystf']) {
 																								echo 'selected';
