@@ -7,14 +7,11 @@ $db_name="TM";
 $time = date('Y-m-d H:i:s');
 $connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
 $conn     = sqlsrv_connect( $host, $connInfo);
-$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat_test");
+$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat");
 
 $hostname="10.0.0.21";
-$database = "NOWTEST";
-// $database = "NOWPRD";
-
-// $hostname="10.0.1.105";
-// $database = "NOWPRD2";
+// $database = "NOWTEST"; // SERVER NOW 20
+$database = "NOWPRD"; // SERVER NOW 22
 $user = "db2admin";
 $passworddb2 = "Sunkam@24809";
 $port="25000";
