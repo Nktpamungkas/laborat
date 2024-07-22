@@ -7,6 +7,8 @@ $ip_num = $_SERVER['REMOTE_ADDR'];
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
 $Benang = str_replace("'", "''", $_POST['Benang']);
 
+$keterangan = mysqli_real_escape_string($con, "$_POST[keterangan]");
+
 // fungsi regex untuk remove spasi mau satu spasi atau lebih tidak ngaruh
 if (!empty($_POST['second_lr'])) {
   $second_lr_format = preg_replace('/\s*:\s*/', ':', $_POST['second_lr']);
@@ -40,7 +42,7 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `yellowness` = '$_POST[yellowness]',
                     `spektro_r` = '$_POST[Spektro_R]',
                     `done_matching` = '$_POST[Done_Matching]',
-                    `ket` = '$_POST[keterangan]',
+                    `ket` = '$keterangan',
                     `hold_by` = '$_SESSION[userLAB]',
                     `hold_at` = '$time',
                     `tside_c` = '$_POST[tside_c]',

@@ -5,7 +5,7 @@ include "koneksi.php";
 $date = date('Y-m-d');
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.matcher, a.cek_warna, a.cek_dye, a.status, a.kt_status, a.koreksi_resep,a.koreksi_resep2,a.koreksi_resep3,
-        a.koreksi_resep4,a.koreksi_resep5,a.koreksi_resep6,a.koreksi_resep7,a.koreksi_resep8, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint, a.done_matching, a.ph,
+        a.koreksi_resep4,a.koreksi_resep5,a.koreksi_resep6,a.koreksi_resep7,a.koreksi_resep8, a.percobaan_ke, a.benang_aktual, a.lebar_aktual, a.gramasi_aktual, a.soaping_sh, a.soaping_tm, a.rc_sh, a.rc_tm, a.lr, a.cie_wi, a.cie_tint,a.yellowness, a.done_matching, a.ph,
         a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, a.cside_c,
         a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve,
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
@@ -407,7 +407,7 @@ $role = $_SESSION['jabatanLAB']
                             <div class="form-group">
                                 <label for="YELLOWNESS" class="col-sm-2 control-label">YELLOWNESS</label>
                                 <div class="col-sm-9">
-                                    <input type="text" required class="form-control" name="YELLOWNESS" id="YELLOWNESS" placeholder="YELLOWNESS">
+                                    <input type="text" required class="form-control" name="YELLOWNESS" id="YELLOWNESS" placeholder="YELLOWNESS" value="<?php if (floatval($data['yellowness']) != 0) echo floatval($data['yellowness']) ?>">
                                 </div>
                             </div>
                             <!-- <div class="form-group"> -->
@@ -1346,7 +1346,7 @@ $role = $_SESSION['jabatanLAB']
             Update_StatusMatching_ToHold($("#id_matching").val(), $("#id_status").val(), $("#idm").val(), $('#Matching-ke').val(),
                 $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(),
                 $("#L_R").find('option:selected').val(), $("#kadar_air").val(), RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu,
-                $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(),
+                $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(), $("#Spektro_R").val(), $("#Done_Matching").val(), $("#keterangan").val(),
                 $("#tgl_buat_status").val(), tside_c, tside_min, cside_c, cside_min, $("#kadar_air_true").val(), $('#CocokWarna').val(),
                 $("#f_matcher").find('option:selected').val(), $("#koreksi_1").find('option:selected').val(),
                 $("#koreksi_2").find('option:selected').val(), $("#koreksi_3").find('option:selected').val(),
@@ -1368,7 +1368,7 @@ $role = $_SESSION['jabatanLAB']
 
         function Update_StatusMatching_ToHold(id_matching, id_status, idm, matching_ke,
             howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu,
-            soapingSuhu, soapingWaktu, cie_wi, cie_tint, Spektro_R, Done_Matching, keterangan,
+            soapingSuhu, soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan,
             tgl_buat_status, tside_c, tside_min, cside_c, cside_min, kadar_air_true, cocok_warna,
             final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5, koreksi_resep6, koreksi_resep7,
             koreksi_resep8, create_resep, acc_ulang_ok, acc_resep1, acc_resep2,
@@ -1397,6 +1397,7 @@ $role = $_SESSION['jabatanLAB']
                     soapingWaktu: soapingWaktu,
                     cie_wi: cie_wi,
                     cie_tint: cie_tint,
+                    yellowness: yellowness,
                     Spektro_R: Spektro_R,
                     Done_Matching: Done_Matching,
                     keterangan: keterangan,
@@ -1450,14 +1451,14 @@ $role = $_SESSION['jabatanLAB']
                 },
                 success: function(response) {
                     if (response.session == "LIB_SUCCSS_HOLD") {
-                        console.log(response)
+
                         after_Hold_Insert_dataTableResep_toDB()
                     } else {
-                        toastr.error("ajax error !")
+                        alert(response)
                     }
                 },
-                error: function() {
-                    alert("Error");
+                error: function(err) {
+                    alert('error');
                 }
             });
         }
