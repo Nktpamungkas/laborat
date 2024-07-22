@@ -14,6 +14,7 @@ $timer =  $hari . ' Hari, ' . $jam .  ' Jam, ' . floor($menit / 60) . ' Menit';
 $benang_a = str_replace("'", "''", $_POST['benang_a']);
 $Benang = str_replace("'", "''", $_POST['Benang']);
 
+$keterangan = mysqli_real_escape_string($con, "$_POST[keterangan]");
 
 //fungsi regex untuk remove spasi mau satu spasi atau lebih tidak ngaruh
 if (!empty($_POST['second_lr'])) {
@@ -47,7 +48,7 @@ mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `yellowness` = '$_POST[yellowness]',
                     `spektro_r` = '$_POST[Spektro_R]',
                     `done_matching` = '$_POST[Done_Matching]',
-                    `ket` = '$_POST[keterangan]',
+                    `ket` = '$keterangan',
                     `selesai_by` = '$_SESSION[userLAB]',
                     `selesai_at` = '$time',
                     `tside_c` = '$_POST[tside_c]',
