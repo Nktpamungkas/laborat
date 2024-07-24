@@ -73,7 +73,7 @@ $end = $end_date . " 23:00:00";
 			<td><?php $md2 = get_val($start, $end, 'Matching Development', $clrst['nama']) + 0;
 				echo $md2; ?> </td>
 			<td><?php $totall = $mu2 + $mp2 + $ld2 + $md2;
-				echo $totall ?></td>
+				echo number_format($totall, 2); ?></td>
 			<?php $alll += $totall; ?>
 		</tr>
 	<?php } ?>
