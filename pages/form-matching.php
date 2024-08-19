@@ -1504,116 +1504,103 @@
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
 			<?php
-				$itemtype = $assoc_colorcode['ITEMTYPEAFICODE'];
-				$s1 = $assoc_colorcode['SUBCODE01'];
-				$s2 = $assoc_colorcode['SUBCODE02'];
-				$s3 = $assoc_colorcode['SUBCODE03'];
-				$s4 = $assoc_colorcode['SUBCODE04'];
-				$s6 = $assoc_colorcode['SUBCODE06'];
+				$q_itxviewkk	= db2_exec($conn1, "SELECT * FROM ITXVIEWKK i WHERE PROJECTCODE = '$_GET[idk]' AND ORDERLINE = '$_GET[iditem]'");
+				$d_itxviewkk	= db2_fetch_assoc($q_itxviewkk);
 
-				if($itemtype == 'KFF'){
-					IF($s1 == 'T' OR $s1 == 'TX') { 
-						IF(str_contains($assoc_colorcode['WARNA'], 'BLACK')){
-							$SUBCODE04_Rajut	= 'D01';
-						}ELSE{
-							IF($s4 == 'L02'){
-								$SUBCODE04_Rajut		= 'L02';
-							}ELSE{
-								IF($s6 = 'RP04'){
-									$SUBCODE04_Rajut	= $s4;
-								}ELSE{
-									$SUBCODE04_Rajut	= 'L01';
-								}
-							}
-						}
-					}ELSE{ 
-						$SUBCODE04_Rajut	= $s4;
-					}
-				}else{
-					$SUBCODE04_Rajut	= $s4;
+				if($d_itxviewkk['ITEMTYPEAFICODE'] == 'KFF'){
+					$subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
+				}elseif ($d_itxviewkk['ITEMTYPEAFICODE'] == 'FKF') {
+					$subcode04 = $d_itxviewkk['SUBCODE04'];
 				}
 
-				$sql_benang_rajut	= db2_exec($conn1, "SELECT * FROM ITXVIEW_RAJUT WHERE (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')
-																						AND ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
-																						AND SUBCODE01 = '$s1'
-																						AND SUBCODE02 = '$s2'
-																						AND SUBCODE03 = '$s3'
-																						AND SUBCODE04 = '$SUBCODE04_Rajut'");
-				$r_benang_rajut		= db2_fetch_assoc($sql_benang_rajut);
-				$d_benang_rajut		= $r_benang_rajut['SUMMARIZEDDESCRIPTION'];
+				$q_rajut	= db2_exec($conn1, "SELECT
+														*
+													FROM
+														ITXVIEW_RAJUT
+													WHERE
+														SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+														AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+														AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+														AND SUBCODE04 = '$subcode04'
+														AND ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
+														AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_rajut	= db2_fetch_assoc($q_rajut);
 
-				$sql_benang_booking_new		= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_NEW WHERE SALESORDERCODE = '$_GET[idk]'
-																						AND ORDERLINE = '$_GET[iditem]'");
-				$r_benang_booking_new		= db2_fetch_assoc($sql_benang_booking_new);
-				$d_benang_booking_new		= $r_benang_booking_new['SUMMARIZEDDESCRIPTION'];
+				$q_booking_blm_ready_1	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_1	= db2_fetch_assoc($q_booking_blm_ready_1);
+				
+				$q_booking_blm_ready_2	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA2]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_2	= db2_fetch_assoc($q_booking_blm_ready_2);
+				
+				$q_booking_blm_ready_3	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA3]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_3	= db2_fetch_assoc($q_booking_blm_ready_3);
+				
+				$q_booking_blm_ready_4	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA4]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_4	= db2_fetch_assoc($q_booking_blm_ready_4);
+				
+				$q_booking_blm_ready_5	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA4]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_5	= db2_fetch_assoc($q_booking_blm_ready_5);
 
-				$sql_salesorder_additional	= db2_exec($conn1, "SELECT 
-																	a2.VALUESTRING AS ADDITIONALDATA,
-																	a3.VALUESTRING AS ADDITIONALDATA2,
-																	a4.VALUESTRING AS ADDITIONALDATA3,
-																	a5.VALUESTRING AS ADDITIONALDATA4,
-																	a6.VALUESTRING AS ADDITIONALDATA5
-																	FROM 
-																		PRODUCTIONDEMAND PRODUCTIONDEMAND
-																	LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a2.FIELDNAME = 'ProAllow'
-																	LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a3.FIELDNAME = 'ProAllow2'
-																	LEFT JOIN ADSTORAGE a4 ON a4.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a4.FIELDNAME = 'ProAllow3'
-																	LEFT JOIN ADSTORAGE a5 ON a5.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a5.FIELDNAME = 'ProAllow4'
-																	LEFT JOIN ADSTORAGE a6 ON a6.UNIQUEID = PRODUCTIONDEMAND.ABSUNIQUEID AND a6.FIELDNAME = 'ProAllow5'
-																WHERE
-																	PRODUCTIONDEMAND.ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]'
-																	AND PRODUCTIONDEMAND.ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
-				$r_salesorder_additional	= db2_fetch_assoc($sql_salesorder_additional);
-
-				$sql_benang_booking_blm_ready	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
-																												AND SUBCODE01 = '$s1'
-																												AND SUBCODE02 = '$s2'
-																												AND SUBCODE03 = '$s3'
-																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA]'");
-				$r_benang_booking_blm_ready		= db2_fetch_assoc($sql_benang_booking_blm_ready);
-				$d_benang_booking_blm_ready		= $r_benang_booking_blm_ready['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready['ORIGDLVSALORDLINESALORDERCODE'];																			
-				
-				$sql_benang_booking_blm_ready2	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
-																												AND SUBCODE01 = '$s1'
-																												AND SUBCODE02 = '$s2'
-																												AND SUBCODE03 = '$s3'
-																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA2]'");
-				$r_benang_booking_blm_ready2	= db2_fetch_assoc($sql_benang_booking_blm_ready2);
-				$d_benang_booking_blm_ready2	= $r_benang_booking_blm_ready2['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready2['ORIGDLVSALORDLINESALORDERCODE'];																			
-				
-				$sql_benang_booking_blm_ready3	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
-				 																								AND SUBCODE01 = '$s1'
-				 																								AND SUBCODE02 = '$s2'
-				 																								AND SUBCODE03 = '$s3'
-				 																								AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA3]'");
-				$r_benang_booking_blm_ready3	= db2_fetch_assoc($sql_benang_booking_blm_ready3);
-				$d_benang_booking_blm_ready3	= $r_benang_booking_blm_ready3['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready3['ORIGDLVSALORDLINESALORDERCODE'];																			
-				
-				$sql_benang_booking_blm_ready4	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
-																												AND SUBCODE01 = '$s1'
-																												AND SUBCODE02 = '$s2'
-																												AND SUBCODE03 = '$s3'
-																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA4]'");
-				$r_benang_booking_blm_ready4	= db2_fetch_assoc($sql_benang_booking_blm_ready4);
-				$d_benang_booking_blm_ready4	= $r_benang_booking_blm_ready4['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready4['ORIGDLVSALORDLINESALORDERCODE'];																			
-				
-				$sql_benang_booking_blm_ready5	= db2_exec($conn1, "SELECT * FROM ITXVIEW_BOOKING_BLM_READY WHERE ITEMTYPEAFICODE = 'KGF'
-																												AND SUBCODE01 = '$s1'
-																												AND SUBCODE02 = '$s2'
-																												AND SUBCODE03 = '$s3'
-																												AND ORIGDLVSALORDLINESALORDERCODE = '$r_salesorder_additional[ADDITIONALDATA5]'");
-				$r_benang_booking_blm_ready5	= db2_fetch_assoc($sql_benang_booking_blm_ready5);
-				$d_benang_booking_blm_ready5	= $r_benang_booking_blm_ready5['SUMMARIZEDDESCRIPTION'].' - '.$r_benang_booking_blm_ready5['ORIGDLVSALORDLINESALORDERCODE'];																			
+				$q_booking_new	= db2_exec($conn1, "SELECT
+														*
+													FROM
+														ITXVIEW_BOOKING_NEW ibn 
+													WHERE
+														SALESORDERCODE = '$_GET[idk]'
+														AND ORDERLINE = '$_GET[iditem]'");
+				$d_booking_new	= db2_fetch_assoc($q_booking_new);
 			?>
-			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang">
-				<?php if($d_benang_rajut){ echo $d_benang_rajut; } ?>&#13;&#10;
-				<?php if($d_benang_booking_new){ echo $d_benang_booking_new; } ?>&#13;&#10;
-				<?php if($d_benang_booking_blm_ready){ echo $d_benang_booking_blm_ready; } ?>&#13;&#10;
-				<?php if($d_benang_booking_blm_ready2){ echo $d_benang_booking_blm_ready2; } ?>&#13;&#10;
-				<?php if($d_benang_booking_blm_ready3){ echo $d_benang_booking_blm_ready3; } ?>&#13;&#10;
-				<?php if($d_benang_booking_blm_ready4){ echo $d_benang_booking_blm_ready4; } ?>&#13;&#10;
-				<?php if($d_benang_booking_blm_ready5){ echo $d_benang_booking_blm_ready4; } ?>
-			</textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?php if($d_rajut['SUMMARIZEDDESCRIPTION']){ echo $d_rajut['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_new['SUMMARIZEDDESCRIPTION']){ echo $d_booking_new['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; } ?></textarea>
 		</div>
 	</div>
 	<!-- HIDDEN VALUE -->
