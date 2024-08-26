@@ -1511,6 +1511,8 @@
 					$subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
 				}elseif ($d_itxviewkk['ITEMTYPEAFICODE'] == 'FKF') {
 					$subcode04 = $d_itxviewkk['SUBCODE04'];
+				}else{
+					$subcode04 = $d_itxviewkk['SUBCODE04'];
 				}
 
 				$q_rajut	= db2_exec($conn1, "SELECT
