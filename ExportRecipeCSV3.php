@@ -239,20 +239,20 @@ $SEQUENCE = 1;
             $groupnumber_sc     = '10';
         }
         $q_scouring         = db2_exec($conn1, "SELECT
-                                                r2.GROUPNUMBER,
-                                                r2.GROUPTYPECODE,
-                                                r2.LINETYPE,
-                                                r2.SEQUENCE,
-                                                r2.SUBSEQUENCE,
-                                                r2.ITEMTYPEAFICODE,
-                                                r2.SUBCODE01,
-                                                r2.SUFFIXCODE
+                                                    r2.GROUPNUMBER,
+                                                    r2.GROUPTYPECODE,
+                                                    r2.LINETYPE,
+                                                    r2.SEQUENCE,
+                                                    r2.SUBSEQUENCE,
+                                                    r2.ITEMTYPEAFICODE,
+                                                    r2.SUBCODE01,
+                                                    r2.SUFFIXCODE
                                                 FROM	
-                                                RECIPE r 
+                                                    RECIPE r 
                                                 LEFT JOIN RECIPECOMPONENT r2 ON r2.RECIPENUMBERID = r.NUMBERID
                                                 LEFT JOIN RECIPE r3 ON r3.SUBCODE01 = r2.SUBCODE01 AND r3.SUFFIXCODE = r2.SUFFIXCODE 
                                                 WHERE 
-                                                r.SUBCODE01 = '$_GET[rcode]'
+                                                    r.SUBCODE01 = '$_GET[rcode]'
                                                 AND r.SUFFIXCODE = '001'
                                                 AND r2.SUBCODE01 LIKE '%SC%'");
         $data_scouring      = db2_fetch_assoc($q_scouring);
@@ -306,7 +306,7 @@ $SEQUENCE = 1;
                                                                 'RFD',
                                                                 '$RECIPESUBCODE01', 
                                                                 '$suffix[no_resep_convert]',
-                                                                '$groupnumber_sc', 
+                                                                '$data_scouring[GROUPNUMBER]', 
                                                                 '201',
                                                                 '2',
                                                                 '10',
@@ -619,12 +619,12 @@ if ($jenis_suffix == "1") {
                                     END	as COMMENTLINE";
     $where_soaping      = "and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 2) = 'A2') and (not left(tsm.idm, 2) = 'D2' or not left(tsm.idm, 2) = 'DR')";
     $where_rc           = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR' or left(tsm.idm, 2) = 'A2') and not tsm.rc_tm = 0";
-    $where_bleaching    = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
+    // $where_bleaching    = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
 } elseif ($jenis_suffix == "2") {
     $where_suhu         = "concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT') as COMMENTLINE";
     $where_soaping      = "and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 3) = 'DR2' or left(tsm.idm, 2) = 'A2')";
     $where_rc           = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.rc_tm = 0";
-    $where_bleaching    = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
+    // $where_bleaching    = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
 }
 
 // EXPORT COMMENT
@@ -678,22 +678,7 @@ $sql_suhu_menit = mysqli_query($con, "SELECT
                                                     left join tbl_matching_detail a on a.id_matching = b.id
                                                     where tsm.idm = '$number_suffix' $where_rc
                                                     group by b.no_resep
-                                                    union 
-                                                    SELECT
-                                                        b.recipe_code as recipe_code,
-                                                        SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 1), ' ', -1) as recipe_code_1,
-                                                        SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 2), ' ', -1) as recipe_code_2,
-                                                        case
-                                                            when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
-                                                            when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
-                                                        end as no_resep_convert,
-                                                        concat('BLEACHING ',trim(tsm.bleaching_sh),'`C X ', trim(tsm.bleaching_tm), ' MNT') as COMMENTLINE
-                                                    from 
-                                                        tbl_status_matching tsm 
-                                                    left join tbl_matching b on b.no_resep = tsm.idm
-                                                    left join tbl_matching_detail a on a.id_matching = b.id
-                                                    where tsm.idm = '$number_suffix' $where_bleaching
-                                                    group by b.no_resep");
+                                                    ");
 
 $GROUPNUMBER = 2;
 while ($r_cmp_suhu_bleaching_rc_soaping = $sql_suhu_menit->fetch_assoc()) {
@@ -791,9 +776,9 @@ $q_update_no_urut = mysqli_query($con, "UPDATE importautocounter SET nomor_urut 
 $recipe_add = mysqli_query($con, "SELECT
                                         CONCAT(10000, a.id) AS id_matching_detail,
                                         c.approve_at,
-                                        b.no_warna,
+                                        SUBSTR(b.no_warna, 1, 16) AS no_warna_substring,
                                         left(b.no_item, 3) AS no_item2,
-                                        b.benang,
+                                        SUBSTR(b.benang, 1, 250) AS benang_substring,
                                         b.no_resep,
                                         a.*, b.*, c.*
                                     FROM
@@ -1032,7 +1017,7 @@ $insert_adstoragebean5 = db2_exec($conn1, "INSERT INTO ADSTORAGEBEAN(FATHERID,
                                                                             'Recipe',
                                                                             'LDGrouping',
                                                                             'LDGrouping',
-                                                                            '$d_add[no_warna]',
+                                                                            '$d_add[no_warna_substring]',
                                                                             0,
                                                                             0,
                                                                             NULL,
@@ -1199,7 +1184,7 @@ $insert_adstoragebean8 = db2_exec($conn1, "INSERT INTO ADSTORAGEBEAN(FATHERID,
                                                                             0,
                                                                             0)");
 
-$benang = addslashes($d_add['benang']);
+$benang = addslashes($d_add['benang_substring']);
 $benang2 = db2_escape_string($benang);
 $insert_adstoragebean9 = db2_exec($conn1, "INSERT INTO ADSTORAGEBEAN(FATHERID,
                                                                                 IMPORTAUTOCOUNTER,
