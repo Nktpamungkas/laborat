@@ -1504,7 +1504,7 @@
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
 			<?php
-				$q_itxviewkk	= db2_exec($conn1, "SELECT * FROM ITXVIEWKK i WHERE PROJECTCODE = '$_GET[idk]' AND ORDERLINE = '$_GET[iditem]'");
+				$q_itxviewkk	= db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i WHERE SALESORDERCODE = '$_GET[idk]' AND ORDERLINE = '$_GET[iditem]'");
 				$d_itxviewkk	= db2_fetch_assoc($q_itxviewkk);
 
 				if($d_itxviewkk['ITEMTYPEAFICODE'] == 'KFF'){
