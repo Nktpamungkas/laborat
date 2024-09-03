@@ -1175,12 +1175,12 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                             <tr>
                                 <td colspan="2">EXPORT TO BEAN</td>
                                 <td colspan="2">
-                                    <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                    <!-- <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                         <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
-                                    </a>
-                                    <?php if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
-                                        <br>
-                                        <br>
+                                    </a> -->
+                                    <?php // if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                        <!-- <br>
+                                        <br> -->
                                         <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_1']; ?>
                                         </a>
@@ -1189,7 +1189,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                         <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>&ab=1">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe Setelah Celup <?= $data['recipe_code_1']; ?>
                                         </a> -->
-                                    <?php endif; ?>
+                                    <?php // endif; ?>
                                 </td>
                                 <?php
                                 $q_dbrecipebean = db2_exec($conn1, "SELECT COUNT(*) AS jumlahrecipe FROM RECIPEBEAN WHERE TRIM(SUBCODE01) = '$data[recipe_code_1]'");
@@ -1381,12 +1381,12 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                 <tr>
                                     <td>EXPORT TO BEAN</td>
                                     <td>
-                                        <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                        <!-- <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_1']; ?>
-                                        </a>
-                                        <?php if ($_SESSION['userLAB'] == 'Cliviaugina'OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
-                                            <br>
-                                            <br>
+                                        </a> -->
+                                        <?php // if ($_SESSION['userLAB'] == 'Cliviaugina'OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                            <!-- <br>
+                                            <br> -->
                                             <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_1']; ?>
                                             </a>
@@ -1395,7 +1395,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                             <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>&ab=1">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe Setelah Celup <?= $data['recipe_code_1']; ?>
                                             </a> -->
-                                        <?php endif; ?>
+                                        <?php // endif; ?>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1565,12 +1565,12 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                 <tr>
                                     <td>EXPORT TO BEAN</td>
                                     <td>
-                                        <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                        <!-- <a class="bbtn btn-sm btn-success approve" href="ExportRecipeCSV.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Recipe <?= $data['recipe_code_2']; ?>
-                                        </a>
-                                        <?php if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
-                                            <br>
-                                            <br>
+                                        </a> -->
+                                        <?php // if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
+                                            <!-- <br>
+                                            <br> -->
                                             <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_2']; ?>
                                             </a>
@@ -1579,7 +1579,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                             <a class="bbtn btn-sm btn-primary approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>&ab=1">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe Setelah Celup <?= $data['recipe_code_2']; ?>
                                             </a> -->
-                                        <?php endif; ?>
+                                        <?php //endif; ?>
                                     </td>
                                 </tr>
                                 <tr>
