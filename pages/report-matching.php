@@ -230,7 +230,7 @@ include "koneksi.php";
                                           FROM tbl_status_matching a
                                           INNER JOIN tbl_matching b ON a.idm = b.no_resep
                                           where a.status = 'selesai' and a.approve = 'TRUE' and
-                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$date_s $time_s' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$date_e $time_e'
+                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$date_s $time_s' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') < '$date_e $time_e'
                                           ORDER BY a.id desc");
                 //				  $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
                 //                                          FROM tbl_status_matching a
