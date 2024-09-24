@@ -30,7 +30,7 @@
 		if ($dt > 0) {
 			$rd = mysqli_fetch_array($sqlnotes);
 			$dt = $rd['no_counter'];
-			$strd = substr($dt, 8, 4);
+			$strd = substr($dt, 6, 4);
 			$Urutd = (int)$strd;
 		} else {
 			$Urutd = 0;
@@ -136,7 +136,7 @@
 			echo "<script>alert('Data Tersimpan');window.location.href='?p=TestQCFinal';</script>";
 		} else {
 			mysqli_rollback($con);
-			echo "<script>alert('Gagal menyimpan data. Silakan coba lagi.');window.location.href='?p=FormTesting';</script>";
+			echo "<script>alert('Gagal menyimpan data. Silakan coba lagi.');window.location.href='?p=Form-Testing';</script>";
 		}
 	}
 	// if (isset($_POST['simpan'])) {
