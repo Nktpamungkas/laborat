@@ -206,40 +206,40 @@
 		}
 	?>
 	<?php
-		$sqljkd = sqlsrv_query($conn, "SELECT processcontrol.id AS pcid,
-											processcontrolJO.SODID,
-											salesorders.ponumber,
-											joborders.documentno,
-											processcontrol.productid,
-											salesorders.customerid,
-											CONVERT ( VARCHAR ( 10 ), SODetails.RequiredDate, 121 ) AS RequiredDate,
-											salesorders.buyerid,
-											processcontrolbatches.lotno,
-											productcode,
-											productmaster.color,
-											colorno,
-											description,
-											productmaster.weight,
-											cuttablewidth,
-											SOSampleColor.OtherDesc,
-											SOSampleColor.Flag,
-											hangerno 
-										FROM
-											Joborders
-										LEFT JOIN salesorders ON soid = salesorders.id
-										LEFT JOIN SOSampleColor ON SOSampleColor.SOID= SalesOrders.id
-										LEFT JOIN SODetails ON SalesOrders.id= SODetails.SOID
-										LEFT JOIN productmaster ON productmaster.id= SODetails.productid
-										LEFT JOIN productpartner ON productpartner.productid= SODetails.productid
-										LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
-										LEFT JOIN processcontrol ON processcontrolJO.pcid = processcontrol.id
-										LEFT JOIN processcontrolbatches ON processcontrolbatches.pcid = processcontrol.id 
-										WHERE
-											productmaster.id= '$_GET[iditem]' 
-											AND processcontrol.productid= '$_GET[iditem]' 
-											AND JobOrders.documentno= '$_GET[idk]'", array(), array("Scrollable" => 'static'));
-		$r1 = sqlsrv_fetch_array($sqljkd);
-		$cek1 = sqlsrv_num_rows($sqljkd);
+		// $sqljkd = sqlsrv_query($conn, "SELECT processcontrol.id AS pcid,
+		// 									processcontrolJO.SODID,
+		// 									salesorders.ponumber,
+		// 									joborders.documentno,
+		// 									processcontrol.productid,
+		// 									salesorders.customerid,
+		// 									CONVERT ( VARCHAR ( 10 ), SODetails.RequiredDate, 121 ) AS RequiredDate,
+		// 									salesorders.buyerid,
+		// 									processcontrolbatches.lotno,
+		// 									productcode,
+		// 									productmaster.color,
+		// 									colorno,
+		// 									description,
+		// 									productmaster.weight,
+		// 									cuttablewidth,
+		// 									SOSampleColor.OtherDesc,
+		// 									SOSampleColor.Flag,
+		// 									hangerno 
+		// 								FROM
+		// 									Joborders
+		// 								LEFT JOIN salesorders ON soid = salesorders.id
+		// 								LEFT JOIN SOSampleColor ON SOSampleColor.SOID= SalesOrders.id
+		// 								LEFT JOIN SODetails ON SalesOrders.id= SODetails.SOID
+		// 								LEFT JOIN productmaster ON productmaster.id= SODetails.productid
+		// 								LEFT JOIN productpartner ON productpartner.productid= SODetails.productid
+		// 								LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
+		// 								LEFT JOIN processcontrol ON processcontrolJO.pcid = processcontrol.id
+		// 								LEFT JOIN processcontrolbatches ON processcontrolbatches.pcid = processcontrol.id 
+		// 								WHERE
+		// 									productmaster.id= '$_GET[iditem]' 
+		// 									AND processcontrol.productid= '$_GET[iditem]' 
+		// 									AND JobOrders.documentno= '$_GET[idk]'", array(), array("Scrollable" => 'static'));
+		// $r1 = sqlsrv_fetch_array($sqljkd);
+		// $cek1 = sqlsrv_num_rows($sqljkd);
 	?>
 	<?php
 		if (isset($_POST['simpan'])) {
@@ -470,25 +470,21 @@
 		<div class="col-sm-10">
 			<select name="no_item" class="form-control selectNoItem" id="no_item" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" required style="width: 400px;">
 				<?php
-				$sqljk = sqlsrv_query($conn, "select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
-									left join salesorders on soid= salesorders.id
-									left join SODetails on SalesOrders.id=SODetails.SOID
-									left join productmaster on productmaster.id= SODetails.productid
-									left join productpartner on productpartner.productid= SODetails.productid
-									where JobOrders.documentno='$_GET[idk]'
-									GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
-									productmaster.colorno,productmaster.hangerno");
+				// $sqljk = sqlsrv_query($conn, "select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
+				// 					left join salesorders on soid= salesorders.id
+				// 					left join SODetails on SalesOrders.id=SODetails.SOID
+				// 					left join productmaster on productmaster.id= SODetails.productid
+				// 					left join productpartner on productpartner.productid= SODetails.productid
+				// 					where JobOrders.documentno='$_GET[idk]'
+				// 					GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
+				// 					productmaster.colorno,productmaster.hangerno");
 				?>
 				<option value="">Pilih</option>
-				<?php while ($r = sqlsrv_fetch_array($sqljk)) {
-				?>
-					<option value="<?php echo $r['id']; ?>" <?php if ($_GET['iditem'] == $r['id']) {
-																echo "SELECTED";
-															} ?>>
-						<?php echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?>
+				<?php //while ($r = sqlsrv_fetch_array($sqljk)) { ?>
+					<option value="<?php// echo $r['id']; ?>" <?php //if ($_GET['iditem'] == $r['id']) { echo "SELECTED"; } ?>>
+						<?php //echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?>
 					</option>
-				<?php
-				} ?>
+				<?php // } ?>
 			</select>
 			<input name="no_item1" type="hidden" class="form-control" id="no_item1" placeholder="No Item" value="<?php if ($cek1 > 0) {
 																														if ($r1['hangerno'] != "") {
@@ -502,16 +498,16 @@
 		</div>
 	</div>
 	<?php
-	$ko = sqlsrv_query($conn, "SELECT 
-									ko.KONo 
-								FROM
-									ProcessControlJO pcjo 
-								INNER JOIN ProcessControl pc ON pcjo.PCID = pc.ID 
-								LEFT JOIN KnittingOrders ko ON pc.CID = ko.CID AND pcjo.KONo = ko.KONo
-								WHERE
-									pcjo.PCID = '$r1[pcid]'
-							GROUP BY ko.KONo");
-	$r2 = sqlsrv_fetch_array($ko);
+	// $ko = sqlsrv_query($conn, "SELECT 
+	// 								ko.KONo 
+	// 							FROM
+	// 								ProcessControlJO pcjo 
+	// 							INNER JOIN ProcessControl pc ON pcjo.PCID = pc.ID 
+	// 							LEFT JOIN KnittingOrders ko ON pc.CID = ko.CID AND pcjo.KONo = ko.KONo
+	// 							WHERE
+	// 								pcjo.PCID = '$r1[pcid]'
+	// 						GROUP BY ko.KONo");
+	// $r2 = sqlsrv_fetch_array($ko);
 	?>
 	<div class="form-group">
 		<label for="color_code" class="col-sm-2 control-label">Color Code</label>
@@ -530,7 +526,7 @@
 		<label for="no_po" class="col-sm-2 control-label">PO Greige</label>
 
 		<div class="col-sm-4">
-			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?php echo $r2['KONo']; ?>">
+			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?php //echo $r2['KONo']; ?>">
 		</div>
 	</div>
 	<div class="form-group">
@@ -581,24 +577,20 @@
 		</div>
 	</div>
 	<?php
-		$bng = sqlsrv_query($conn, "SELECT 
-										CAST(SODetailsAdditional.Note AS NVARCHAR(255)) AS note 
-									FROM 
-										Joborders
-									LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
-									LEFT JOIN SODetailsAdditional ON processcontrolJO.sodid = SODetailsAdditional.sodid
-									WHERE 
-										JobOrders.documentno='$_GET[idk]' AND processcontrolJO.pcid='$r1[pcid]'");
-		$r3 = sqlsrv_fetch_array($bng);
+		// $bng = sqlsrv_query($conn, "SELECT 
+		// 								CAST(SODetailsAdditional.Note AS NVARCHAR(255)) AS note 
+		// 							FROM 
+		// 								Joborders
+		// 							LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
+		// 							LEFT JOIN SODetailsAdditional ON processcontrolJO.sodid = SODetailsAdditional.sodid
+		// 							WHERE 
+		// 								JobOrders.documentno='$_GET[idk]' AND processcontrolJO.pcid='$r1[pcid]'");
+		// $r3 = sqlsrv_fetch_array($bng);
 	?>
 	<div class="form-group">
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
-			<textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php if (htmlentities($r3['note'], ENT_QUOTES) != "") {
-																										echo htmlentities($r3['note'], ENT_QUOTES);
-																									} else {
-																										echo $r3['note'];
-																									}  ?></textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
 		</div>
 	</div>
 	<div class="form-group">
