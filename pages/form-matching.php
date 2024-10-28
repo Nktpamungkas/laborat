@@ -1116,34 +1116,36 @@
 	<input name="no_po" type="hidden" class="form-control" id="no_po" value="-">
 	<!-- HIDDEN -->
 	<div class="form-group">
-		<label for="warna" class="col-sm-2 control-label">No. Item</label>
+		<label for="warna" class="col-sm-2 control-label">No. Item..</label>
 		<div class="col-sm-6">
 			<select name="no_item" class="form-control selectNoItemNOW" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" id="no_item" required style="width: 400px;">
 				<?php
 					$order = $dt_langganan['PROJECTCODE'];
-					$sqljk = db2_exec($conn1, "SELECT 
-												p.DLVSALESORDERLINEORDERLINE AS DLVSALESORDERLINEORDERLINE,
-												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
-												i.WARNA AS WARNA,
-												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05,
+					$sqljk = db2_exec($conn1, "SELECT
+												i.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
+												i.ITEMTYPEAFICODE,
+												i.WARNA,
+												trim(i.SUBCODE01) AS SUBCODE01,
+												trim(i.SUBCODE02) AS SUBCODE02,
+												trim(i.SUBCODE03) AS SUBCODE03,
+												trim(i.SUBCODE04) AS SUBCODE04,
+												trim(i.SUBCODE05) AS SUBCODE05, 
 												SUM(i2.USERPRIMARYQUANTITY) AS BRUTO
-											FROM PRODUCTIONDEMAND p 
-											LEFT JOIN ITXVIEWCOLOR i ON i.ITEMTYPECODE = p.ITEMTYPEAFICODE 
-																	AND i.SUBCODE01 = p.SUBCODE01 
-																	AND i.SUBCODE02 = p.SUBCODE02 
-																	AND i.SUBCODE03 = p.SUBCODE03 
-																	AND i.SUBCODE04 = p.SUBCODE04 
-																	AND i.SUBCODE05 = p.SUBCODE05 
-																	AND i.SUBCODE06 = p.SUBCODE06 
-																	AND i.SUBCODE07 = p.SUBCODE07 
-																	AND i.SUBCODE08 = p.SUBCODE08 
-																	AND i.SUBCODE09 = p.SUBCODE09 
-																	AND i.SUBCODE10 = p.SUBCODE10
-											LEFT JOIN ITXVIEWKGBRUTOBONORDER2 i2 ON i2.ORIGDLVSALORDLINESALORDERCODE = '$order' AND i2.ORIGDLVSALORDERLINEORDERLINE = p.DLVSALESORDERLINEORDERLINE
-											LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME = 'OriginalPDCode'
-											WHERE p.ORIGDLVSALORDLINESALORDERCODE = '$order' AND NOT p.DLVSALESORDERLINEORDERLINE IS NULL AND a.VALUESTRING IS NULL
+											FROM
+												ITXVIEWBONORDER i
+											LEFT JOIN ITXVIEWKGBRUTOBONORDER2 i2 ON i2.ORIGDLVSALORDLINESALORDERCODE = i.SALESORDERCODE AND i2.ORIGDLVSALORDERLINEORDERLINE = i.ORDERLINE 
+											WHERE
+												i.SALESORDERCODE = '$order'
 											GROUP BY 
-												p.DLVSALESORDERLINEORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,p.ITEMTYPEAFICODE,i.WARNA");
+												i.ORDERLINE,
+												i.ITEMTYPEAFICODE,
+												i.WARNA,
+												i.SUBCODE01,
+												i.SUBCODE02,
+												i.SUBCODE03,
+												i.SUBCODE04,
+												i.SUBCODE05,
+												i2.USERPRIMARYQUANTITY");
 				?>
 				<option value="">Pilih</option>
 				<?php while ($r = db2_fetch_assoc($sqljk)) { ?>
