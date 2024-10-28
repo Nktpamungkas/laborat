@@ -291,7 +291,7 @@
     <div class="form-group">
         <label for="benang" class="col-sm-2 control-label">Benang</label>
         <div class="col-sm-8">
-            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
+            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php echo $data['benang'] ?></textarea>
         </div>
     </div>
     <div class="form-group">
@@ -769,7 +769,7 @@
     <div class="form-group">
         <label for="benang" class="col-sm-2 control-label">Benang</label>
         <div class="col-sm-8">
-            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
+            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php echo $data['benang'] ?></textarea>
         </div>
     </div>
     <div class="form-group">
