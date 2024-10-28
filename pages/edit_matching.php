@@ -195,52 +195,44 @@
         <div class="col-sm-10">
             <select name="no_item" class="form-control selectNoItem" id="no_item" required style="width: 400px;">
                 <?php
-                $sqljk = sqlsrv_query($conn, "select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
-                                    left join salesorders on soid= salesorders.id
-                                    left join SODetails on SalesOrders.id=SODetails.SOID
-                                    left join productmaster on productmaster.id= SODetails.productid
-                                    left join productpartner on productpartner.productid= SODetails.productid
-                                    where JobOrders.documentno='$data[no_order]'
-                                    GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
-                                    productmaster.colorno,productmaster.hangerno");
+                // $sqljk = sqlsrv_query($conn, "select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
+                //                     left join salesorders on soid= salesorders.id
+                //                     left join SODetails on SalesOrders.id=SODetails.SOID
+                //                     left join productmaster on productmaster.id= SODetails.productid
+                //                     left join productpartner on productpartner.productid= SODetails.productid
+                //                     where JobOrders.documentno='$data[no_order]'
+                //                     GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
+                //                     productmaster.colorno,productmaster.hangerno");
                 ?>
                 <option value="">Pilih</option>
-                <?php while ($r = sqlsrv_fetch_array($sqljk)) { ?>
-                    <option value="<?php echo $r['id']; ?>" <?php if ($r['hangerno'] == $data['no_item']) echo "selected"; ?>><?php echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?></option>
+                <?php //while ($r = sqlsrv_fetch_array($sqljk)) { ?>
+                    <option value="<?php //echo $r['id']; ?>" <?php //if ($r['hangerno'] == $data['no_item']) echo "selected"; ?>><?php //echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?></option>
                     <?php
-                    if ($r['hangerno'] == $data['no_item']) {
-                        $idItem = $r['id'];
-                        $order = $data['no_order'];
-                    }
+                    // if ($r['hangerno'] == $data['no_item']) {
+                    //     $idItem = $r['id'];
+                    //     $order = $data['no_order'];
+                    // }
                     ?>
-                <?php } ?>
+                <?php //} ?>
             </select>
             <?php
-                $sqljkd = sqlsrv_query($conn, "select processcontrol.id as pcid,processcontrolJO.SODID,salesorders.ponumber,joborders.documentno,
-                                    processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
-                                    salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
-                                    SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
-                                    Left join salesorders on soid= salesorders.id
-                                    Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
-                                    Left join SODetails on SalesOrders.id=SODetails.SOID
-                                    left join productmaster on productmaster.id= SODetails.productid
-                                    left join productpartner on productpartner.productid= SODetails.productid
-                                    left join processcontrolJO on processcontrolJO.joid = Joborders.id
-                                    left join processcontrol on processcontrolJO.pcid = processcontrol.id
-                                    left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-                                    where productmaster.id='$idItem' and processcontrol.productid='$idItem' and JobOrders.documentno='$order' ");
-                $r1 = sqlsrv_fetch_array($sqljkd);
-                $cek1 = sqlsrv_num_rows($sqljkd);
+                // $sqljkd = sqlsrv_query($conn, "select processcontrol.id as pcid,processcontrolJO.SODID,salesorders.ponumber,joborders.documentno,
+                //                     processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
+                //                     salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
+                //                     SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
+                //                     Left join salesorders on soid= salesorders.id
+                //                     Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
+                //                     Left join SODetails on SalesOrders.id=SODetails.SOID
+                //                     left join productmaster on productmaster.id= SODetails.productid
+                //                     left join productpartner on productpartner.productid= SODetails.productid
+                //                     left join processcontrolJO on processcontrolJO.joid = Joborders.id
+                //                     left join processcontrol on processcontrolJO.pcid = processcontrol.id
+                //                     left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
+                //                     where productmaster.id='$idItem' and processcontrol.productid='$idItem' and JobOrders.documentno='$order' ");
+                // $r1 = sqlsrv_fetch_array($sqljkd);
+                // $cek1 = sqlsrv_num_rows($sqljkd);
             ?>
-            <input name="no_item1" type="hidden" class="form-control" id="no_item1" placeholder="No Item" value="<?php if ($cek1 > 0) {
-                                                                                                                        if ($r1['hangerno'] != "") {
-                                                                                                                            echo $r1['hangerno'];
-                                                                                                                        } else {
-                                                                                                                            echo $r1['productcode'];
-                                                                                                                        }
-                                                                                                                    } else {
-                                                                                                                        echo $data['no_item'];
-                                                                                                                    } ?>">
+            <input name="no_item1" type="hidden" class="form-control" id="no_item1" placeholder="No Item" value="<?php echo $data['no_item']; ?>">
         </div>
     </div>
     <div class="form-group">
@@ -265,61 +257,41 @@
     <div class="form-group">
         <label for="kain" class="col-sm-2 control-label">Kain</label>
         <div class="col-sm-8">
-            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="<?php if ($cek1 > 0) {
-                                                                                                        echo htmlentities($r1['description'], ENT_QUOTES);
-                                                                                                    } else {
-                                                                                                        echo $data['jenis_kain'];
-                                                                                                    } ?>">
+            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="<?php $data['jenis_kain']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="warna" class="col-sm-2 control-label">Warna</label>
         <div class="col-sm-6">
-            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php if ($cek1 > 0) {
-                                                                                                            echo $r1['color'];
-                                                                                                        } else {
-                                                                                                            echo $data['warna'];
-                                                                                                        } ?>">
+            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php echo $data['warna']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="no_warna" class="col-sm-2 control-label">No Warna</label>
         <div class="col-sm-6">
-            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="<?php if ($cek1 > 0) {
-                                                                                                                    echo $r1['colorno'];
-                                                                                                                } else {
-                                                                                                                    echo $data['no_warna'];
-                                                                                                                } ?>">
+            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="<?php echo $data['no_warna']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="lebar" class="col-sm-2 control-label">Lebar x Gramasi</label>
         <div class="col-sm-2">
-            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php if ($cek1 > 0) {
-                                                                                                            echo round($r1['cuttablewidth']);
-                                                                                                        } else {
-                                                                                                            echo $data['lebar'];
-                                                                                                        } ?>">
+            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php echo $data['lebar']; ?>">
         </div>
         <div class="col-sm-2">
-            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php if ($cek1 > 0) {
-                                                                                                                echo round($r1['weight']);
-                                                                                                            } else {
-                                                                                                                echo $data['gramasi'];
-                                                                                                            } ?>">
+            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php echo $data['gramasi']; ?>">
         </div>
     </div>
     <?php
-        $bng = sqlsrv_query($conn, "SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
-        left join processcontrolJO on processcontrolJO.joid = Joborders.id
-        left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-        WHERE  JobOrders.documentno='$order' and processcontrolJO.pcid='$r1[pcid]'");
-        $r3 = sqlsrv_fetch_array($bng);
+        // $bng = sqlsrv_query($conn, "SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
+        // left join processcontrolJO on processcontrolJO.joid = Joborders.id
+        // left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
+        // WHERE  JobOrders.documentno='$order' and processcontrolJO.pcid='$r1[pcid]'");
+        // $r3 = sqlsrv_fetch_array($bng);
     ?>
     <div class="form-group">
         <label for="benang" class="col-sm-2 control-label">Benang</label>
         <div class="col-sm-8">
-            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php echo htmlentities(/*$r3[note]*/$data['benang'], ENT_QUOTES); ?></textarea>
+            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
         </div>
     </div>
     <div class="form-group">
@@ -763,61 +735,41 @@
     <div class="form-group">
         <label for="kain" class="col-sm-2 control-label">Kain</label>
         <div class="col-sm-8">
-            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="<?php if ($cek1 > 0) {
-                                                                                                        echo htmlentities($r1['description'], ENT_QUOTES);
-                                                                                                    } else {
-                                                                                                        echo $data['jenis_kain'];
-                                                                                                    } ?>">
+            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="<?php echo $data['jenis_kain']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="warna" class="col-sm-2 control-label">Warna</label>
         <div class="col-sm-6">
-            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php if ($cek1 > 0) {
-                                                                                                            echo $r1['color'];
-                                                                                                        } else {
-                                                                                                            echo $data['warna'];
-                                                                                                        } ?>">
+            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php echo $data['warna']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="no_warna" class="col-sm-2 control-label">No Warna</label>
         <div class="col-sm-6">
-            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="<?php if ($cek1 > 0) {
-                                                                                                                    echo $r1['colorno'];
-                                                                                                                } else {
-                                                                                                                    echo $data['no_warna'];
-                                                                                                                } ?>">
+            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="<?php echo $data['no_warna']; ?>">
         </div>
     </div>
     <div class="form-group">
         <label for="lebar" class="col-sm-2 control-label">Lebar x Gramasi</label>
         <div class="col-sm-2">
-            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php if ($cek1 > 0) {
-                                                                                                            echo round($r1['cuttablewidth']);
-                                                                                                        } else {
-                                                                                                            echo $data['lebar'];
-                                                                                                        } ?>">
+            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php echo $data['lebar']; ?>">
         </div>
         <div class="col-sm-2">
-            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php if ($cek1 > 0) {
-                                                                                                                echo round($r1['weight']);
-                                                                                                            } else {
-                                                                                                                echo $data['gramasi'];
-                                                                                                            } ?>">
+            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php echo $data['gramasi']; ?>">
         </div>
     </div>
     <?php
-        $bng = sqlsrv_query($conn, "SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
-        left join processcontrolJO on processcontrolJO.joid = Joborders.id
-        left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-        WHERE  JobOrders.documentno='$order' and processcontrolJO.pcid='$r1[pcid]'");
-    $r3 = sqlsrv_fetch_array($bng);
+    //     $bng = sqlsrv_query($conn, "SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
+    //     left join processcontrolJO on processcontrolJO.joid = Joborders.id
+    //     left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
+    //     WHERE  JobOrders.documentno='$order' and processcontrolJO.pcid='$r1[pcid]'");
+    // $r3 = sqlsrv_fetch_array($bng);
     ?>
     <div class="form-group">
         <label for="benang" class="col-sm-2 control-label">Benang</label>
         <div class="col-sm-8">
-            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php echo htmlentities(/*$r3[note]*/$data['benang'], ENT_QUOTES); ?></textarea>
+            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
         </div>
     </div>
     <div class="form-group">

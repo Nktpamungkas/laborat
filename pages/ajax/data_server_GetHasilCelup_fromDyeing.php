@@ -70,32 +70,32 @@ $no = 1;
 while ($row = mysqli_fetch_array($query)) {
     $idkk = $row["nokk"];
 
-    $siquel = sqlsrv_query($conn,"SELECT stockmovement.dono,stockmovement.documentno as no_doku,processcontrolbatches.documentno,lotno,customerid,
-                                    processcontrol.productid ,processcontrol.id as pcid, 
-                                    sum(stockmovementdetails.weight) as berat,
-                                    count(stockmovementdetails.weight) as roll,processcontrolbatches.dated as tgllot
-                                    from stockmovement 
-                                    LEFT join stockmovementdetails on StockMovement.id=stockmovementdetails.StockmovementID
-                                    left join processcontrolbatches on processcontrolbatches.id=stockmovement.pcbid
-                                    left join processcontrol on processcontrol.id=processcontrolbatches.pcid
-                                    where wid='12' and processcontrolbatches.documentno='$idkk' and (transactiontype='7' or transactiontype='4')
-                                    group by stockmovement.DocumentNo,processcontrolbatches.DocumentNo,processcontrolbatches.LotNo,stockmovement.dono,
-                                    processcontrol.CustomerID,processcontrol.ProductID,processcontrol.ID,processcontrolbatches.Dated") or die("gagal");
-    $sqls = sqlsrv_query($conn,"SELECT processcontrolJO.SODID,salesorders.ponumber,processcontrol.productid,salesorders.customerid,joborders.documentno,
-                                    salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,weight,cuttablewidth from Joborders 
-                                    left join processcontrolJO on processcontrolJO.joid = Joborders.id
-                                    left join salesorders on soid= salesorders.id
-                                    left join processcontrol on processcontrolJO.pcid = processcontrol.id
-                                    left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-                                    left join productmaster on productmaster.id= processcontrol.productid
-                                    left join productpartner on productpartner.productid= processcontrol.productid
-                                    where processcontrolbatches.documentno='$idkk'");
-    $ssr = sqlsrv_fetch_array($sqls);
-    $r = sqlsrv_fetch_array($siquel);
-    $bng11 = sqlsrv_query($conn,"SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders left join processcontrolJO on processcontrolJO.joid = Joborders.id
-                                left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-                                WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
-    $r3 = sqlsrv_fetch_array($bng11);
+    // $siquel = sqlsrv_query($conn,"SELECT stockmovement.dono,stockmovement.documentno as no_doku,processcontrolbatches.documentno,lotno,customerid,
+    //                                 processcontrol.productid ,processcontrol.id as pcid, 
+    //                                 sum(stockmovementdetails.weight) as berat,
+    //                                 count(stockmovementdetails.weight) as roll,processcontrolbatches.dated as tgllot
+    //                                 from stockmovement 
+    //                                 LEFT join stockmovementdetails on StockMovement.id=stockmovementdetails.StockmovementID
+    //                                 left join processcontrolbatches on processcontrolbatches.id=stockmovement.pcbid
+    //                                 left join processcontrol on processcontrol.id=processcontrolbatches.pcid
+    //                                 where wid='12' and processcontrolbatches.documentno='$idkk' and (transactiontype='7' or transactiontype='4')
+    //                                 group by stockmovement.DocumentNo,processcontrolbatches.DocumentNo,processcontrolbatches.LotNo,stockmovement.dono,
+    //                                 processcontrol.CustomerID,processcontrol.ProductID,processcontrol.ID,processcontrolbatches.Dated") or die("gagal");
+    // $sqls = sqlsrv_query($conn,"SELECT processcontrolJO.SODID,salesorders.ponumber,processcontrol.productid,salesorders.customerid,joborders.documentno,
+    //                                 salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,weight,cuttablewidth from Joborders 
+    //                                 left join processcontrolJO on processcontrolJO.joid = Joborders.id
+    //                                 left join salesorders on soid= salesorders.id
+    //                                 left join processcontrol on processcontrolJO.pcid = processcontrol.id
+    //                                 left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
+    //                                 left join productmaster on productmaster.id= processcontrol.productid
+    //                                 left join productpartner on productpartner.productid= processcontrol.productid
+    //                                 where processcontrolbatches.documentno='$idkk'");
+    // $ssr = sqlsrv_fetch_array($sqls);
+    // $r = sqlsrv_fetch_array($siquel);
+    // $bng11 = sqlsrv_query($conn,"SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders left join processcontrolJO on processcontrolJO.joid = Joborders.id
+    //                             left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
+    //                             WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
+    // $r3 = sqlsrv_fetch_array($bng11);
 
 
     $nestedData = array();
@@ -122,7 +122,7 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["k_resep"];
     $nestedData[] = $row["proses"];
     $nestedData[] = $row["status"];
-    $nestedData[] = $r3['note'];
+    $nestedData[] = '';
     $nestedData[] = $row["ket"];
     $nestedData[] = $row["lama_proses"];
     $nestedData[] = '<a href="javascript:void(0)" data="pages/cetak/simpan_cetak.php?kk=' . $row["nokk"] . '&g=1" class="btn btn-xs btn-info bon_resep">Resep</a>';	
