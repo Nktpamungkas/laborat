@@ -209,6 +209,7 @@ include "koneksi.php";
                 <th class="text-center">bleaching_sh</th>
                 <th class="text-center">second_lr</th>
                 <th class="text-center">remark_dye</th>
+                <th class="text-center">selesai_proses</th>
               </tr>
             </thead>
             <tbody>
@@ -335,6 +336,16 @@ include "koneksi.php";
                   <td><?php echo $r['bleaching_sh'] ?></td>
                   <td><?php echo $r['second_lr'] ?></td>
                   <td><?php echo $r['remark_dye'] ?></td>
+                  <td>
+                    <?php
+                      $tgl_buat = new DateTime($r['tgl_buat']);
+                      $selesai_at = new DateTime($r['selesai_at']);
+
+                      // Menghitung selisih antara dua tanggal
+                      $interval = $tgl_buat->diff($selesai_at);
+                      echo $interval->format('%d hari, %h jam, %i menit, %s detik');
+                    ?>
+                  </td>
                 </tr>
               <?php } ?>
             </tbody>
