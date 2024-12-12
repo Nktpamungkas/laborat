@@ -136,72 +136,75 @@
 															LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
 															WHERE s.CODE LIKE '%$order%'");
 				$dt_langganan = db2_fetch_assoc($query_langganan);
-			} else {
-				$sqlLot = sqlsrv_query($conn, "SELECT
-														x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
-														dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
-													FROM( SELECT
-														so.CustomerID, so.BuyerID,
-														sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
-														pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
-														pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
-													FROM
-														SalesOrders so INNER JOIN
-														JobOrders jo ON jo.SOID=so.ID INNER JOIN
-														SODetails sod ON so.ID = sod.SOID INNER JOIN
-														SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
-														ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
-														ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
-														ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
-														ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
-														ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
-													WHERE jo.DocumentNo='" . $_GET['idk'] . "' AND pcb.Gross<>'0'
-														GROUP BY
-															so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
-															sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
-															soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
-															pcb.ID, pcb.DocumentNo, pcb.Gross,
-															pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
-															pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
-														) x INNER JOIN
-														ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
-														Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
-														Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
-														Partners cust ON x.CustomerID = cust.ID LEFT JOIN
-														Partners buy ON x.BuyerID = buy.ID LEFT JOIN
-														UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
-														UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
-														UnitDescription udb ON x.BatchUnitID = udb.ID
-													ORDER BY
-														x.SODID, x.PCBID");
-				$sLot = sqlsrv_fetch_array($sqlLot);
+			} else if ($jns_match == "Matching Development") {
+				$resultKKTas = db2_exec($conn1, "SELECT * FROM ITXVIEW_KK_TAS WHERE PROJECTCODE LIKE '%$order%'");
+				$dt_kk_tas = db2_fetch_assoc($resultKKTas);
+			}else {
+				// $sqlLot = sqlsrv_query($conn, "SELECT
+				// 										x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
+				// 										dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
+				// 									FROM( SELECT
+				// 										so.CustomerID, so.BuyerID,
+				// 										sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
+				// 										pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
+				// 										pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
+				// 									FROM
+				// 										SalesOrders so INNER JOIN
+				// 										JobOrders jo ON jo.SOID=so.ID INNER JOIN
+				// 										SODetails sod ON so.ID = sod.SOID INNER JOIN
+				// 										SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
+				// 										ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
+				// 										ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
+				// 										ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
+				// 										ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
+				// 										ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
+				// 									WHERE jo.DocumentNo='" . $_GET['idk'] . "' AND pcb.Gross<>'0'
+				// 										GROUP BY
+				// 											so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
+				// 											sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
+				// 											soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
+				// 											pcb.ID, pcb.DocumentNo, pcb.Gross,
+				// 											pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
+				// 											pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
+				// 										) x INNER JOIN
+				// 										ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
+				// 										Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
+				// 										Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
+				// 										Partners cust ON x.CustomerID = cust.ID LEFT JOIN
+				// 										Partners buy ON x.BuyerID = buy.ID LEFT JOIN
+				// 										UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
+				// 										UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
+				// 										UnitDescription udb ON x.BatchUnitID = udb.ID
+				// 									ORDER BY
+				// 										x.SODID, x.PCBID");
+				// $sLot = sqlsrv_fetch_array($sqlLot);
 
-				$cLot = sqlsrv_num_rows($sqlLot);
-				$child = $sLot['ChildLevel'];
+				// $cLot = sqlsrv_num_rows($sqlLot);
+				// $child = $sLot['ChildLevel'];
 
-				if ($child > 0) {
-					$sqlgetparent = sqlsrv_query($conn, "select ID,LotNo from ProcessControlBatches where ID='$sLot[RootID]' and ChildLevel='0'");
-					$rowgp = sqlsrv_fetch_array($sqlgetparent);
+				// if ($child > 0) {
+				// 	$sqlgetparent = sqlsrv_query($conn, "select ID,LotNo from ProcessControlBatches where ID='$sLot[RootID]' and ChildLevel='0'");
+				// 	$rowgp = sqlsrv_fetch_array($sqlgetparent);
 
-					$nomLot = $rowgp['LotNo'];
-					$nomorLot = "$nomLot/K$sLot[ChildLevel]&nbsp;";
-				} else {
-					$nomorLot = $sLot['LotNo'];
-				}
+				// 	$nomLot = $rowgp['LotNo'];
+				// 	$nomorLot = "$nomLot/K$sLot[ChildLevel]&nbsp;";
+				// } else {
+				// 	$nomorLot = $sLot['LotNo'];
+				// }
 
-				$sqlLot1 = "Select count(*) as TotalLot From ProcessControlBatches where PCID='$sLot[PCID]' and RootID='0' and LotNo < '1000'";
-				$qryLot1 = sqlsrv_query($conn, $sqlLot1) or die('A error occured : ');
-				$rowLot = sqlsrv_fetch_array($qryLot1);
+				// $sqlLot1 = "Select count(*) as TotalLot From ProcessControlBatches where PCID='$sLot[PCID]' and RootID='0' and LotNo < '1000'";
+				// $qryLot1 = sqlsrv_query($conn, $sqlLot1) or die('A error occured : ');
+				// $rowLot = sqlsrv_fetch_array($qryLot1);
 
-				$sqls = sqlsrv_query($conn, "select salesorders.customerid,salesorders.buyerid from Joborders
-						left join salesorders on soid= salesorders.id
-						where JobOrders.documentno='$_GET[idk]'", array(), array("Scrollable" => 'static'));
-				$ssr = sqlsrv_fetch_array($sqls);
-				$cek = sqlsrv_num_rows($sqls);
-				$lgn1 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[customerid]'");
-				$ssr1 = sqlsrv_fetch_array($lgn1);
-				$lgn2 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[buyerid]'");
-				$ssr2 = sqlsrv_fetch_array($lgn2);
+				// $sqls = sqlsrv_query($conn, "select salesorders.customerid,salesorders.buyerid from Joborders
+				// 		left join salesorders on soid= salesorders.id
+				// 		where JobOrders.documentno='$_GET[idk]'", array(), array("Scrollable" => 'static'));
+				// $ssr = sqlsrv_fetch_array($sqls);
+				// $cek = sqlsrv_num_rows($sqls);
+				// $lgn1 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[customerid]'");
+				// $ssr1 = sqlsrv_fetch_array($lgn1);
+				// $lgn2 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[buyerid]'");
+				// $ssr2 = sqlsrv_fetch_array($lgn2);
 			}
 		}
 	?>
@@ -767,13 +770,14 @@
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
-			<input name="no_order" type="text" class="form-control" id="order" onkeyup="this.value = this.value.toUpperCase();" required placeholder="No Order...">
+			<input name="no_order" type="text" class="form-control orderdevelopment" id="order" required placeholder="No Order..."
+			onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?= $_GET['idk']; ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="langganan" class="col-sm-2 control-label">Langganan</label>
 		<div class="col-sm-8">
-			<input name="langganan" type="text" class="form-control" id="langganan" placeholder="Langganan">
+			<input name="langganan" type="text" class="form-control" id="langganan" value="<?= $dt_kk_tas['BUYER'] ?>" placeholder="Langganan">
 		</div>
 	</div>
 	<!-- HIDDEN -->
@@ -782,13 +786,13 @@
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">No. Item</label>
 		<div class="col-sm-6">
-			<input type="text" value="" name="no_item1" id="no_item1" class="form-control" required placeholder="No. item ...">
+			<input type="text" name="no_item1" id="no_item1" class="form-control" required placeholder="No. item ..." value="<?= $dt_kk_tas['NO_HANGER'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="color_code" class="col-sm-2 control-label">Color Code</label>
 		<div class="col-sm-4">
-			<input name="color_code" type="text" class="form-control" id="color_code" placeholder="Color Code" value="">
+			<input name="color_code" type="text" class="form-control" id="color_code" placeholder="Color Code" value="<?= $dt_kk_tas['NO_WARNA'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
@@ -801,13 +805,13 @@
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Jenis Kain</label>
 		<div class="col-sm-6">
-			<input name="kain" type="text" value="" class="form-control" required id="kain" placeholder="Jenis kain...">
+			<input name="kain" type="text" value="<?= $dt_kk_tas['JENIS_KAIN'] ?>" class="form-control" required id="kain" placeholder="Jenis kain...">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Warna</label>
 		<div class="col-sm-6">
-			<input name="warna" type="text" class="form-control" id="warna" placeholder="Warna">
+			<input name="warna" type="text" class="form-control" id="warna" value="<?= $dt_kk_tas['WARNA'] ?>" placeholder="Warna">
 		</div>
 	</div>
 	<div class="form-group">
@@ -820,37 +824,29 @@
 	<div class="form-group">
 		<label for="gramasi" class="col-sm-2 control-label">Gramasi</label>
 		<div class="col-sm-2">
-			<input name="lebar" required type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php if ($cek1 > 0) {
-																													echo round($r1['cuttablewidth']);
-																												} else {
-																													echo $rw['warna'];
-																												} ?>">
+			<input name="lebar" required type="text" class="form-control" id="lebar" placeholder="Inci" value="<?= $dt_kk_tas['LEBAR'] ?>">
 		</div>
 		<div class="col-sm-2">
-			<input name="gramasi" required type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php if ($cek1 > 0) {
-																														echo round($r1['weight']);
-																													} else {
-																														echo $rw['warna'];
-																													} ?>">
+			<input name="gramasi" required type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?= $dt_kk_tas['GRAMASI'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="benang" class="col-sm-2 control-label">Benang</label>
 		<div class="col-sm-8">
-			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang">-</textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?= $dt_kk_tas['JENIS_BENANG'] ?></textarea>
 		</div>
 	</div>
 	<!-- HIDDEN VALUE -->
 	<div class="form-group">
 		<label for="cocok_warna" class="col-sm-2 control-label">Cocok Warna</label>
 		<div class="col-sm-8">
-			<input name="cocok_warna" type="text" class="form-control" id="cocok_warna" placeholder="Cocok Warna">
+			<input name="cocok_warna" type="text" class="form-control" id="cocok_warna" placeholder="Cocok Warna" value="<?= $dt_kk_tas['STDCCKWARNA'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="tgl_delivery" class="col-sm-2 control-label">Tgl Delivery</label>
 		<div class="col-sm-3">
-			<input name="tgl_delivery" type="text" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
+			<input name="tgl_delivery" type="text" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery" value="<?= $dt_kk_tas['TGL_KIRIM'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
@@ -867,7 +863,7 @@
 	<div class="form-group">
 		<label for="qty" class="col-sm-2 control-label">Qty Order</label>
 		<div class="col-sm-3">
-			<input name="qty" type="text" required class="form-control" id="qty" placeholder="Qty Order">
+			<input name="qty" type="text" required class="form-control" id="qty" placeholder="Qty Order" value="<?= $dt_kk_tas['QTY'] ?>">
 		</div>
 	</div>
 	<div class="form-group">
@@ -1685,10 +1681,18 @@
 			todayHighlight: true,
 		})
 
+		
 		if ($('.form-control.ordercuy').val().length >= 12) {
-			$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-			$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-			$("#Matching_ulang_perbaikan").show()
+			if (document.getElementById("jen_matching").value = "Matching Development") {
+				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+				$('#Development').appendTo('#echoing_the_choice');
+				$("#Development").show()
+			}else{
+				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+				$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
+				$("#Matching_ulang_perbaikan").show()
+			}
+			// console.log(document.getElementById("jen_matching").value);
 		} else if ($('.form-control.ordernowcuy').val().length >= 6) {
 			if ($('.form-control.ordernowcuyld').val().includes("LAB")) {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
