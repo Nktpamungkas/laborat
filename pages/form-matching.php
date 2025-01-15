@@ -501,16 +501,16 @@
 		</div>
 	</div>
 	<?php
-	// $ko = sqlsrv_query($conn, "SELECT 
-	// 								ko.KONo 
-	// 							FROM
-	// 								ProcessControlJO pcjo 
-	// 							INNER JOIN ProcessControl pc ON pcjo.PCID = pc.ID 
-	// 							LEFT JOIN KnittingOrders ko ON pc.CID = ko.CID AND pcjo.KONo = ko.KONo
-	// 							WHERE
-	// 								pcjo.PCID = '$r1[pcid]'
-	// 						GROUP BY ko.KONo");
-	// $r2 = sqlsrv_fetch_array($ko);
+		// $ko = sqlsrv_query($conn, "SELECT 
+		// 								ko.KONo 
+		// 							FROM
+		// 								ProcessControlJO pcjo 
+		// 							INNER JOIN ProcessControl pc ON pcjo.PCID = pc.ID 
+		// 							LEFT JOIN KnittingOrders ko ON pc.CID = ko.CID AND pcjo.KONo = ko.KONo
+		// 							WHERE
+		// 								pcjo.PCID = '$r1[pcid]'
+		// 						GROUP BY ko.KONo");
+		// $r2 = sqlsrv_fetch_array($ko);
 	?>
 	<div class="form-group">
 		<label for="color_code" class="col-sm-2 control-label">Color Code</label>
@@ -775,7 +775,7 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="langganan" class="col-sm-2 control-label">Langganan</label>
+		<label for="langganan" class="col-sm-2 control-label">Langganan dev</label>
 		<div class="col-sm-8">
 			<input name="langganan" type="text" class="form-control" id="langganan" value="<?= $dt_kk_tas['BUYER'] ?>" placeholder="Langganan">
 		</div>
@@ -1683,7 +1683,7 @@
 
 		
 		if ($('.form-control.ordercuy').val().length >= 12) {
-			if (document.getElementById("jen_matching").value = "Matching Development") {
+			if (document.getElementById("jen_matching").value == "Matching Development") {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#Development').appendTo('#echoing_the_choice');
 				$("#Development").show()
@@ -1699,9 +1699,16 @@
 				$('#LDNOW').appendTo('#echoing_the_choice');
 				$("#LDNOW").show()
 			} else {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#NowForm').appendTo('#echoing_the_choice');
-				$("#NowForm").show()
+				// console.log(document.getElementById("jen_matching").value);
+				if (document.getElementById("jen_matching").value == "Matching Development") {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#Development').appendTo('#echoing_the_choice');
+					$("#Development").show()
+				}else{
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#NowForm').appendTo('#echoing_the_choice');
+					$("#NowForm").show()
+				}
 			}
 		}
 

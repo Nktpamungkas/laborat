@@ -12,92 +12,10 @@
     session_start();
     include "koneksi.php";
     if ($_GET['idk'] != "") {
-        $sqlLot = sqlsrv_query($conn,"SELECT
-			x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
-      dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
-FROM( SELECT
-				so.CustomerID, so.BuyerID,
-				sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
-				pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
-				pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
-			FROM
-				SalesOrders so INNER JOIN
-				JobOrders jo ON jo.SOID=so.ID INNER JOIN
-				SODetails sod ON so.ID = sod.SOID INNER JOIN
-				SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
-				ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
-				ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
-				ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
-				ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
-				ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
-			WHERE jo.DocumentNo='$_GET[idk]' AND pcb.Gross<>'0'
-				GROUP BY
-					so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
-					sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
-					soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
-					pcb.ID, pcb.DocumentNo, pcb.Gross,
-					pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
-					pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
-				) x INNER JOIN
-				ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
-				Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
-				Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
-				Partners cust ON x.CustomerID = cust.ID LEFT JOIN
-				Partners buy ON x.BuyerID = buy.ID LEFT JOIN
-				UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
-				UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
-				UnitDescription udb ON x.BatchUnitID = udb.ID
-			ORDER BY
-				x.SODID, x.PCBID");
-        $sLot = sqlsrv_fetch_array($sqlLot);
-
-        $cLot = sqlsrv_num_rows($sqlLot);
-        $child = $sLot['ChildLevel'];
-
-        if ($child > 0) {
-            $sqlgetparent = sqlsrv_query($conn,"select ID,LotNo from ProcessControlBatches where ID='$sLot[RootID]' and ChildLevel='0'");
-            $rowgp = sqlsrv_fetch_assoc($sqlgetparent);
-
-            $nomLot = $rowgp['LotNo'];
-            $nomorLot = "$nomLot/K$sLot[ChildLevel]&nbsp;";
-        } else {
-            $nomorLot = $sLot['LotNo'];
-        }
-
-        $sqlLot1 = "Select count(*) as TotalLot From ProcessControlBatches where PCID='$sLot[PCID]' and RootID='0' and LotNo < '1000'";
-        $qryLot1 = sqlsrv_query($conn,$sqlLot1) or die('A error occured : ');
-        $rowLot = sqlsrv_fetch_assoc($qryLot1);
-
-        $sqls = sqlsrv_query($conn,"select salesorders.customerid,salesorders.buyerid from Joborders
-							left join salesorders on soid= salesorders.id
-							where JobOrders.documentno='$_GET[idk]'");
-        $ssr = sqlsrv_fetch_array($sqls);
-        $cek = sqlsrv_num_rows($sqls);
-        $lgn1 = sqlsrv_query($conn,"select partnername from partners where id='$ssr[customerid]'");
-        $ssr1 = sqlsrv_fetch_array($lgn1);
-        $lgn2 = sqlsrv_query($conn,"select partnername from partners where id='$ssr[buyerid]'");
-        $ssr2 = sqlsrv_fetch_array($lgn2);
+        
     }
-    //
-
     ?>
-    <?php
-    $sqljkd = sqlsrv_query($conn,"select processcontrol.id as pcid,processcontrolJO.SODID,salesorders.ponumber,joborders.documentno,
-    processcontrol.productid,salesorders.customerid,CONVERT(varchar(10), SODetails.RequiredDate, 121) as RequiredDate,
-	salesorders.buyerid,processcontrolbatches.lotno,productcode,productmaster.color,colorno,description,productmaster.weight,cuttablewidth,
-	SOSampleColor.OtherDesc,SOSampleColor.Flag,hangerno from Joborders
-    Left join salesorders on soid= salesorders.id
-    Left join SOSampleColor on SOSampleColor.SOID=SalesOrders.id
-		Left join SODetails on SalesOrders.id=SODetails.SOID
-	  left join productmaster on productmaster.id= SODetails.productid
-    left join productpartner on productpartner.productid= SODetails.productid
-		left join processcontrolJO on processcontrolJO.joid = Joborders.id
-		left join processcontrol on processcontrolJO.pcid = processcontrol.id
-    left join processcontrolbatches on processcontrolbatches.pcid = processcontrol.id
-    where productmaster.id='$_GET[iditem]' and processcontrol.productid='$_GET[iditem]' and JobOrders.documentno='$_GET[idk]' ");
-    $r1 = sqlsrv_fetch_array($sqljkd);
-    $cek1 = sqlsrv_num_rows($sqljkd);
-    ?>
+    
 
     <div class="row">
         <div class="col-md-12">
@@ -124,131 +42,63 @@ FROM( SELECT
                                     <div class="form-group">
                                         <label for="order" class="col-sm-2 control-label">No Order</label>
                                         <div class="col-sm-4">
-                                            <input name="no_order" placeholder="No order ..." type="text" class="form-control ordercuy" id="order" onchange="window.location='?p=Detect_benang&idk='+this.value+'&Dystf=1'" value="<?php if ($_GET['idk'] != "") {
-                                                                                                                                                                                                                                        echo $_GET['idk'];
-                                                                                                                                                                                                                                    } ?>" placeholder="No Order" required>
+                                            <input name="no_order" placeholder="No order ..." type="text" class="form-control ordercuy" id="order" onchange="window.location='?p=Detect_benang&idk='+this.value+'&Dystf=1'" value="" placeholder="No Order" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="langganan" class="col-sm-2 control-label">Langganan</label>
                                         <div class="col-sm-8">
-                                            <input name="langganan" type="text" class="form-control" id="langganan" placeholder="Langganan" value="<?php if ($cek > 0) {
-                                                                                                                                                        echo $ssr1['partnername'] . "/" . $ssr2['partnername'];
-                                                                                                                                                    } else {
-                                                                                                                                                        echo $rw['langganan'];
-                                                                                                                                                    } ?>">
+                                            <input name="langganan" type="text" class="form-control" id="langganan" placeholder="Langganan" value="">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="no_item" class="col-sm-2 control-label">Item</label>
                                         <div class="col-sm-10">
                                             <select name="no_item" class="form-control selectNoItem" id="no_item" onchange="window.location='?p=Detect_benang&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf=1'" required style="width: 400px;">
-                                                <?php
-                                                $sqljk = sqlsrv_query($conn,"select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
-                                                                        left join salesorders on soid= salesorders.id
-                                                                        left join SODetails on SalesOrders.id=SODetails.SOID
-                                                                        left join productmaster on productmaster.id= SODetails.productid
-                                                                        left join productpartner on productpartner.productid= SODetails.productid
-                                                                        where JobOrders.documentno='$_GET[idk]'
-                                                                        GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
-                                                                        productmaster.colorno,productmaster.hangerno");
-                                                ?>
                                                 <option value="">Pilih</option>
-                                                <?php while ($r = sqlsrv_fetch_array($sqljk)) {
-                                                ?>
-                                                    <option value="<?php echo $r['id']; ?>" <?php if ($_GET['iditem'] == $r['id']) {
-                                                                                                echo "SELECTED";
-                                                                                            } ?>>
-                                                        <?php echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?>
-                                                    </option>
-                                                <?php
-                                                } ?>
+                                                    <option value=""></option>
                                             </select>
-                                            <input name="no_item1" type="hidden" class="form-control" id="no_item1" placeholder="No Item" value="<?php if ($cek1 > 0) {
-                                                                                                                                                        if ($r1['hangerno'] != "") {
-                                                                                                                                                            echo $r1['hangerno'];
-                                                                                                                                                        } else {
-                                                                                                                                                            echo $r1['productcode'];
-                                                                                                                                                        }
-                                                                                                                                                    } else {
-                                                                                                                                                        echo $rw['no_item'];
-                                                                                                                                                    } ?>">
+                                            <input name="no_item1" type="hidden" class="form-control" id="no_item1" placeholder="No Item" value="">
                                         </div>
                                     </div>
-                                    <?php $ko = sqlsrv_query($conn,"select  ko.KONo from
-                                                            ProcessControlJO pcjo inner join
-                                                            ProcessControl pc on pcjo.PCID = pc.ID left join
-                                                            KnittingOrders ko on pc.CID = ko.CID and pcjo.KONo = ko.KONo
-                                                            where
-                                                            pcjo.PCID = '$r1[pcid]'
-                                                            group by ko.KONo");
-                                    $r2 = sqlsrv_fetch_array($ko);
-                                    ?>
                                     <div class="form-group">
                                         <label for="no_po" class="col-sm-2 control-label">PO Greige</label>
 
                                         <div class="col-sm-4">
-                                            <input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?php echo $r2['KONo']; ?>">
+                                            <input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="kain" class="col-sm-2 control-label">Kain</label>
                                         <div class="col-sm-8">
-                                            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="<?php if ($cek1 > 0) {
-                                                                                                                                        echo htmlentities($r1['description'], ENT_QUOTES);
-                                                                                                                                    } else {
-                                                                                                                                        echo $rw['jenis_kain'];
-                                                                                                                                    } ?>">
+                                            <input name="kain" type="text" class="form-control" id="kain" placeholder="Kain" value="">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="warna" class="col-sm-2 control-label">Warna</label>
                                         <div class="col-sm-6">
-                                            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php if ($cek1 > 0) {
-                                                                                                                                            echo $r1['color'];
-                                                                                                                                        } else {
-                                                                                                                                            echo $rw['warna'];
-                                                                                                                                        } ?>">
+                                            <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="no_warna" class="col-sm-2 control-label">No Warna</label>
                                         <div class="col-sm-6">
-                                            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="<?php if ($cek1 > 0) {
-                                                                                                                                                    echo $r1['colorno'];
-                                                                                                                                                } else {
-                                                                                                                                                    echo $rw['no_warna'];
-                                                                                                                                                } ?>">
+                                            <input name="no_warna" type="text" class="form-control" id="no_warna" placeholder="No Warna" value="">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="gramasi" class="col-sm-2 control-label">Gramasi</label>
                                         <div class="col-sm-2">
-                                            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="<?php if ($cek1 > 0) {
-                                                                                                                                            echo round($r1['cuttablewidth']);
-                                                                                                                                        } else {
-                                                                                                                                            echo $rw['warna'];
-                                                                                                                                        } ?>">
+                                            <input name="lebar" type="text" class="form-control" id="lebar" placeholder="Inci" value="">
                                         </div>
                                         <div class="col-sm-2">
-                                            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="<?php if ($cek1 > 0) {
-                                                                                                                                                echo round($r1['weight']);
-                                                                                                                                            } else {
-                                                                                                                                                echo $rw['warna'];
-                                                                                                                                            } ?>">
+                                            <input name="gramasi" type="text" class="form-control" id="gramasi" placeholder="Gr/M2" value="">
                                         </div>
                                     </div>
-                                    <?php
-                                    $bng = sqlsrv_query($conn,"SELECT CAST(SODetailsAdditional.Note AS NVARCHAR(255)) as note from Joborders
-                                                        left join processcontrolJO on processcontrolJO.joid = Joborders.id
-                                                        left join SODetailsAdditional on processcontrolJO.sodid=SODetailsAdditional.sodid
-                                                        WHERE  JobOrders.documentno='$_GET[idk]' and processcontrolJO.pcid='$r1[pcid]'");
-                                    $r3 = sqlsrv_fetch_array($bng);
-                                    ?>
                                     <div class="form-group">
                                         <label for="benang" class="col-sm-2 control-label">Benang</label>
                                         <div class="col-sm-8">
-                                            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"><?php echo htmlentities($r3['note'], ENT_QUOTES); ?></textarea>
+                                            <textarea name="benang" rows="6" class="form-control" id="benang" placeholder="Benang"></textarea>
                                         </div>
                                     </div>
                                 </div>
