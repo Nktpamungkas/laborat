@@ -137,7 +137,13 @@
 															WHERE s.CODE LIKE '%$order%'");
 				$dt_langganan = db2_fetch_assoc($query_langganan);
 			} else if ($jns_match == "Matching Development") {
-				$resultKKTas = db2_exec($conn1, "SELECT * FROM ITXVIEW_KK_TAS WHERE PROJECTCODE LIKE '%$order%'");
+				$demand = $_GET['demand'];
+				if($demand){
+					$where_demand = "AND TRIM(NO_DEMAND) = '$demand'";
+				}else{
+					$where_demand = "";
+				}
+				$resultKKTas = db2_exec($conn1, "SELECT * FROM ITXVIEW_KK_TAS WHERE PROJECTCODE LIKE '%$order%' $where_demand");
 				$dt_kk_tas = db2_fetch_assoc($resultKKTas);
 			}else {
 				// $sqlLot = sqlsrv_query($conn, "SELECT
@@ -771,7 +777,27 @@
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
 			<input name="no_order" type="text" class="form-control orderdevelopment" id="order" required placeholder="No Order..."
-			onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?= $_GET['idk']; ?>">
+			onchange="window.location='?p=Form-Matching&idk='+document.getElementById(`order`).value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?= $_GET['idk']; ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="demand" class="col-sm-2 control-label" style="font-style: italic;">No Production Demand</label>
+		<div class="col-sm-2">
+			<select name="demand" id="demand" class="form-control" style="width: 100%;"
+			onchange="window.location='?p=Form-Matching&idk='+document.getElementById(`order`).value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value+'&demand='+document.getElementById(`demand`).value">
+				<option value="" selected disabled>Pilih...</option>
+				<?php if($_GET['idk']) : ?>
+					<?php 
+						$sql = db2_exec($conn1, "SELECT DISTINCT NO_DEMAND FROM ITXVIEW_KK_TAS WHERE PROJECTCODE LIKE '%$_GET[idk]%'");
+						while ($row = db2_fetch_assoc($sql)) {
+							echo '<option value="'.$row['NO_DEMAND'].'" '.($_GET['demand'] == $row['NO_DEMAND'] ? 'selected' : '').'>'.$row['NO_DEMAND'].'</option>';
+						}
+					?>
+				<?php endif; ?>
+			</select>
+		</div>
+		<div class="col-sm-2">
+			<span style="color: red;">*Production demand bersifat referensi dan tidak tersimpan di database.</span>
 		</div>
 	</div>
 	<div class="form-group">
