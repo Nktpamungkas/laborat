@@ -1079,8 +1079,8 @@
         <col class="col7">
         <tbody>
             <?php
-                $no_mesin = 'LABCP02.0KW001';
-                ini_set("error_reporting", 1);
+                $no_mesin = isset($_GET['kode']) ? $_GET['kode'] : '';
+                ini_set("error_reporting", 0);
 
                 $query_breakdown = "SELECT
                                         p.PMBOMCODE AS NO_MESIN,
