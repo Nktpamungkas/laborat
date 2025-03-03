@@ -29,15 +29,16 @@
     $result_barang = mysqli_query($con, $query_barang);
 
     $data_barang = mysqli_fetch_assoc($result_barang);
+    // print_r($data_barang);
 
     $DESCRIPTION   = $data_barang['DESCRIPTION'];
     $ITEMTYPECODE  = $data_barang['ITEMTYPECODE'];
     $DECOSUBCODE01 = $data_barang['DECOSUBCODE01'];
     $DECOSUBCODE02 = $data_barang['DECOSUBCODE02'];
     $DECOSUBCODE03 = $data_barang['DECOSUBCODE03'];
-    $DECOSUBCODE03 = $data_barang['DECOSUBCODE04'];
-    $DECOSUBCODE03 = $data_barang['DECOSUBCODE05'];
-    $DECOSUBCODE03 = $data_barang['DECOSUBCODE06'];
+    $DECOSUBCODE04 = $data_barang['DECOSUBCODE04'];
+    $DECOSUBCODE05 = $data_barang['DECOSUBCODE05'];
+    $DECOSUBCODE06 = $data_barang['DECOSUBCODE06'];
     $UNIOFMEASURE  = $data_barang['UNITOFMEASURE'];
 
     // Deklarasi Awal
@@ -50,7 +51,7 @@
     $data = [];
 
     if ($data_barang) {
-        $stock_awal_db = $data_barang['stock'];
+        $stock_awal_db = $data_barang['STOCK'];
     }
 
     // Total Masuk
@@ -107,7 +108,8 @@
     // echo $informasi;
 
     // List data
-    $query_data = "SELECT * FROM STOCKTRANSACTION WHERE
+    $query_data = "SELECT *
+        FROM STOCKTRANSACTION WHERE
         (TEMPLATECODE ='OPN'
         OR TEMPLATECODE ='QCR'
         OR TEMPLATECODE='201')
@@ -122,6 +124,8 @@
         AND TRANSACTIONDATE BETWEEN '$tglawal' AND '$tglakhir'
         ORDER BY CREATIONDATETIME ASC";
 
+    // echo $query_data;
+
     $exec_query_data = db2_exec($conn1, $query_data);
 
     while ($row = db2_fetch_assoc($exec_query_data)) {
@@ -135,19 +139,33 @@
 
         // Tanggal Masuk , Tanggal Keluar, Jumlah Masuk, Jumlah Keluar
         if ($row['TEMPLATECODE'] === 'OPN' || $row['TEMPLATECODE'] === 'QCR') {
-            $tanggal      = $row['TRANSACTIONDATE'];
             $jumlah_masuk = (float) $row['USERPRIMARYQUANTITY'];
 
             $stock_akhir = $stock_awal + $jumlah_masuk;
-        } else if ($row['TEMPLATECODE'] === '120') {
-            $tanggal       = $row['TRANSACTIONDATE'];
+        } else if ($row['TEMPLATECODE'] === '201') {
             $jumlah_keluar = (float) ($row['USERPRIMARYQUANTITY']);
 
             $stock_akhir = $stock_awal - $jumlah_keluar;
         }
 
-        // $surat_jalan = $row['ORDERCODE'];
-        // $keterangan  = $row['ORDERCODE'];
+        $tanggal = $row['TRANSACTIONDATE'];
+
+        $query_pmbe = "SELECT PMWORKORDDLTPMWORKORDERCODE AS WORKORDER FROM PMWORKORDERACTIVITYSPARES p
+        WHERE p.ITEMTYPEAFICODE ='$ITEMTYPECODE'
+        AND p.SUBCODE01 ='$DECOSUBCODE01'
+        AND p.SUBCODE02 ='$DECOSUBCODE02'
+        AND p.SUBCODE03 ='$DECOSUBCODE03'
+        AND p.SUBCODE04 ='$DECOSUBCODE04'
+        AND p.SUBCODE05 ='$DECOSUBCODE05'
+        AND p.SUBCODE06 ='$DECOSUBCODE06'";
+
+        $exec_query_pmbe = db2_exec($conn1, $query_pmbe);
+        $row_pmbe        = db2_fetch_assoc($exec_query_pmbe);
+
+        $surat_jalan_parts = array_filter([$row_pmbe['WORKORDER'], $row['ORDERCODE']]);
+        $surat_jalan       = implode("-", $surat_jalan_parts);
+
+        $keterangan = $row['TRANSACTIONNUMBER'];
 
         // Array Data
         $data[] = [
@@ -261,7 +279,7 @@
             </td>
         </tr>
         <tr>
-            <td align="center" style="width: 10%; font-weight: bold;">Tgl/td>
+            <td align="center" style="width: 10%; font-weight: bold;">Tgl</td>
             <td align="center" style="width: 10%; font-weight: bold;">Stock Awal</td>
             <td align="center" style="width: 10%; font-weight: bold;">Quantity Penerimaan</td>
             <td align="center" style="width: 10%; font-weight: bold;">Quantity Pengeluaran</td>
