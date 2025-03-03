@@ -148,7 +148,8 @@
             $stock_akhir = $stock_awal - $jumlah_keluar;
         }
 
-        $tanggal = $row['TRANSACTIONDATE'];
+        $tanggal   = $row['TRANSACTIONDATE'];
+        $ORDERCODE = $row['ORDERCODE'];
 
         $query_pmbe = "SELECT PMWORKORDDLTPMWORKORDERCODE AS WORKORDER FROM PMWORKORDERACTIVITYSPARES p
         WHERE p.ITEMTYPEAFICODE ='$ITEMTYPECODE'
@@ -157,7 +158,8 @@
         AND p.SUBCODE03 ='$DECOSUBCODE03'
         AND p.SUBCODE04 ='$DECOSUBCODE04'
         AND p.SUBCODE05 ='$DECOSUBCODE05'
-        AND p.SUBCODE06 ='$DECOSUBCODE06'";
+        AND p.SUBCODE06 ='$DECOSUBCODE06'
+        AND p.IDINTDOCUMENTPROVISIONALCODE='$ORDERCODE'";
 
         $exec_query_pmbe = db2_exec($conn1, $query_pmbe);
         $row_pmbe        = db2_fetch_assoc($exec_query_pmbe);
