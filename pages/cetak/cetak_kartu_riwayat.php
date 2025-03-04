@@ -1099,6 +1099,7 @@
                                     LEFT JOIN UNITOFMEASURE u ON u.CODE = p4.QUANTITYUOMCODE
                                     WHERE
                                         p.PMBOMCODE = '$no_mesin'
+                                    AND p.COUNTERCODE = 'PBD007'
                                     ORDER BY
                                         p.IDENTIFIEDDATE ASC";
                 $q_breakdown_header   = db2_exec($conn1, $query_breakdown);
