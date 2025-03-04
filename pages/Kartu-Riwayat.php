@@ -69,7 +69,7 @@
                                     FROM
                                         PMBOM p
                                     LEFT JOIN PMBREAKDOWNENTRY pbe  ON p.CODE = pbe.PMBOMCODE
-                                    WHERE pbe.COUNTERCODE ='PBD007'");
+                                    WHERE pbe.COUNTERCODE ='PBD007' GROUP BY p.CODE, p.LONGDESCRIPTION");
                     $no = 1;
                     while ($value = db2_fetch_assoc($q_mesinLAB)) {
                     ?>
