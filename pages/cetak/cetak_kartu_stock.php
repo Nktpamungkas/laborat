@@ -67,7 +67,8 @@
     AND DECOSUBCODE04 ='$DECOSUBCODE04'
     AND DECOSUBCODE05 ='$DECOSUBCODE05'
     AND DECOSUBCODE06 ='$DECOSUBCODE06'
-    AND TRANSACTIONDATE < '$tglawal'";
+    AND TRANSACTIONDATE < '$tglawal'
+    AND CREATIONDATETIME > '2025-02-25 13:00:00'";
 
     $exec_query_masuk  = db2_exec($conn1, $query_masuk);
     $fetch_query_masuk = db2_fetch_assoc($exec_query_masuk);
@@ -88,7 +89,8 @@
     AND DECOSUBCODE04 ='$DECOSUBCODE04'
     AND DECOSUBCODE05 ='$DECOSUBCODE05'
     AND DECOSUBCODE06 ='$DECOSUBCODE06'
-    AND TRANSACTIONDATE < '$tglawal'";
+    AND TRANSACTIONDATE < '$tglawal'
+    AND CREATIONDATETIME > '2025-02-25 13:00:00'";
 
     $exec_query_keluar  = db2_exec($conn1, $query_keluar);
     $fetch_query_keluar = db2_fetch_assoc($exec_query_keluar);
@@ -122,6 +124,7 @@
         AND DECOSUBCODE05 ='$DECOSUBCODE05'
         AND DECOSUBCODE06 ='$DECOSUBCODE06'
         AND TRANSACTIONDATE BETWEEN '$tglawal' AND '$tglakhir'
+        AND CREATIONDATETIME > '2025-02-25 13:00:00'
         ORDER BY CREATIONDATETIME ASC";
 
     // echo $query_data;
