@@ -189,6 +189,20 @@
         $stock_awal = $stock_akhir;
     }
 
+    if (empty($data)) {
+        $data[] = [
+            'tanggal'              => '2025-02-24',
+            'stock_awal'           => $stock_awal,
+            'quantity_penerimaan'  => '',
+            'quantity_pengeluaran' => '',
+            'stock_akhir'          => $stock_awal,
+            'surat_jalan'          => '',
+            'nama'                 => '',
+            'paraf'                => '',
+            'keterangan'           => 'Balance per 24 Februari 2025',
+        ];
+    }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
