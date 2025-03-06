@@ -95,7 +95,7 @@
     $fetch_query_keluar = db2_fetch_assoc($exec_query_keluar);
 
     if ($fetch_query_keluar) {
-        $total_keluar = (float) ($fetch_query_keluar['TOTAL'] / 1000);
+        $total_keluar = (float) ($fetch_query_keluar['TOTAL']);
     }
 
     $stock_awal = ($stock_awal_db + $total_masuk) - $total_keluar;
@@ -208,8 +208,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kartu Stok Obat Finishing</title>
+    <title>Kartu Stok Obat Laborat</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+
         tr {
             border-bottom: 1px solid black;
         }
@@ -241,7 +246,7 @@
                 <img src="images/logoitti.png" width="70">
             </td>
             <td width="50%" align="center" colspan="5" >
-                <strong style="font-size:x-large;">KARTU STOK</strong>
+                <strong style="font-size:large;">KARTU STOK</strong>
             </td>
             <td width="40%" colspan="3">
                 <table>
