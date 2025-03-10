@@ -12,7 +12,7 @@
 <html>
 
 <head>
-    <title>KARTU RIWAYAT</title>
+    <title>DETAIL KARTU RIWAYAT</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="generator" content="PhpSpreadsheet, https://github.com/PHPOffice/PhpSpreadsheet">
     <meta name="author" content="W-DIT-000187" />
@@ -1121,7 +1121,11 @@
                 <td class="column0 style29 s style30" colspan="2">Mesin</td>
                 <td class="column2 style1 null style1" colspan="2"><?php echo $row_breakdown_header['MESIN'] ?></td>
                 <td class="column4 style31 s">Type</td>
-                <td class="column5 style1 null style2" colspan="2">&nbsp;</td>
+                <td class="column5 style1 null style2" colspan="2"> &nbsp;
+                    <?php
+                        // echo date('Y-m-d', strtotime($_GET['tanggal']));
+                    ?>
+                </td>
             </tr>
             <tr class="row4">
                 <td class="column0 style32 s style33" colspan="2">No. Mesin</td>
@@ -1144,11 +1148,7 @@
                 <tr class="row7">
                     <td class="column0 style25 null"><?php echo $no++; ?></td>
                     <td class="column1 style26 null"><?php echo date("d-M-Y", strtotime($row_breakdown['TANGGAL'])); ?></td>
-                    <td class="column2 style27 null style28" colspan="5">
-                        <a href="cetak_kartu_riwayat_detail.php?kode=<?php echo urlencode($row_breakdown['NO_MESIN']); ?>&tanggal=<?php echo urlencode($row_breakdown['TANGGAL']); ?>" target="_blank" style="color: black; text-decoration: none;">
-                            <?php echo $row_breakdown['KEGIATAN']; ?> -<?php echo $row_breakdown['SPAREPARTS']; ?>
-                        </a>
-                    </td>
+                    <td class="column2 style27 null style28" colspan="5"><?php echo $row_breakdown['KEGIATAN']; ?><?php echo ' - ' . $row_breakdown['SPAREPARTS']; ?></td>
                 </tr>
             <?php }?>
             <tr class="row8">
