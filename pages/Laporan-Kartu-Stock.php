@@ -46,20 +46,20 @@
                     <center><h4><strong>Laporan & Kartu Stock Laborat</strong></h4></center>
                 </div>
                 <div class="box-body">
-                    <div class="form-group">
-                        <label for="nama_barang">Nama Barang</label>
-                        <select class="form-control" id="nama_barang">
-                            <option value="all">All</option>
-                            <?php
-                                $query  = "SELECT id, description FROM tbl_master_barang";
-                                $result = mysqli_query($con, $query);
+                <div class="form-group">
+                    <label for="nama_barang">Nama Barang</label>
+                    <select class="form-control select2" id="nama_barang" style="width: 100%;">
+                        <option value="all">All</option>
+                        <?php
+                            $query  = "SELECT id, description FROM tbl_master_barang";
+                            $result = mysqli_query($con, $query);
 
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    echo "<option value='" . $row['id'] . "'>" . $row['description'] . "</option>";
-                                }
-                            ?>
-                        </select>
-                    </div>
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                echo "<option value='" . $row['id'] . "'>" . $row['description'] . "</option>";
+                            }
+                        ?>
+                    </select>
+                </div>
 
                     <div class="form-group">
                         <label for="tanggal_awal">Tanggal Awal</label>
@@ -80,3 +80,12 @@
     </div>
 </body>
 </html>
+
+<script>
+    $(document).ready(function() {
+        $('#nama_barang').select2({
+            placeholder: "Pilih Barang",
+            allowClear: true
+        });
+    });
+</script>
