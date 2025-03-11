@@ -147,12 +147,16 @@
                                                 p2.GENERICDATA2 AS TYPE,
                                                 d.SHORTDESCRIPTION AS DOCUMENT,
                                                 p.IDENTIFIEDDATE AS TANGGAL,
-                                                p3.REMARKS AS KEGIATAN
+                                                p3.REMARKS AS KEGIATAN,
+                                                p4.PRODUCTSHORTDESC || ' ( ' || floor(p4.ACTUALQUANITY) || ' ' || u.LONGDESCRIPTION  || ')' AS SPAREPARTS
+
                                             FROM
                                                 PMBREAKDOWNENTRY p
                                             LEFT JOIN PMBOM p2 ON p2.CODE = p.PMBOMCODE
                                             LEFT JOIN DEPARTMENT d ON d.CODE = p2.DEPARTMENTCODE
                                             LEFT JOIN PMWORKORDER p3 ON p3.PMBREAKDOWNENTRYCODE = p.CODE
+                                            LEFT JOIN PMWORKORDERACTIVITYSPARES p4 ON p4.PMWORKORDDLTPMWORKORDERCODE = p3.CODE
+                                            LEFT JOIN UNITOFMEASURE u ON u.CODE = p4.QUANTITYUOMCODE
                                             WHERE
                                                 p3.CODE = '$workordercode'
                                             AND p.PMBOMCODE = '$no_mesin'
@@ -175,7 +179,7 @@
                         <td colspan="2" class="highlight">No. Mesin:</td>
                         <td colspan="2"><?php echo $row_breakdown_header['NO_MESIN'] ?></td>
                         <td class="highlight">Kegiatan:</td>
-                        <td colspan="2"><?php echo $row_breakdown_header['KEGIATAN'] ?></td>
+                        <td colspan="2"><?php echo $row_breakdown_header['KEGIATAN']; ?> -<?php echo $row_breakdown_header['SPAREPARTS']; ?></td>
                     </tr>
                 </tbody>
             </table>
