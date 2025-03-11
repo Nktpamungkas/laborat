@@ -112,14 +112,15 @@
                         </thead>
                         <tbody>
                             <?php
-                                $breakdownentrycode = $row_breakdown_header['BREAKDOWNENTRYCODE'];
-                                $q_mesinLAB         = db2_exec($conn1, "SELECT * FROM PMWORKORDERDETAIL WHERE ASSIGNEDTOUSERID ='clivi.lab' ");
-                                $no                 = 1;
+                                $q_mesinLAB = db2_exec($conn1, "SELECT *,pw.PMBREAKDOWNENTRYCODE AS WORKORDERCODE FROM PMWORKORDERDETAIL pwd
+                                LEFT JOIN PMWORKORDER pw ON pw.CODE=pwd.PMWORKORDERCODE WHERE pwd.ASSIGNEDTOUSERID ='clivi.lab'
+                                ");
+                                $no = 1;
                                 while ($value = db2_fetch_assoc($q_mesinLAB)) {
                                 ?>
                                 <tr>
                                     <td class="text-center"><?php echo $no++; ?></td>
-                                    <td class="text-center"><?php echo $breakdownentrycode ?></td>
+                                    <td class="text-center"><?php echo $value['WORKORDERCODE'] ?></td>
                                     <td class="text-center"><?php echo date('Y-m-d H:i:s', strtotime($value['STARTDATE'])); ?></td>
                                     <td class="text-center"><?php echo date('Y-m-d H:i:s', strtotime($value['ENDDATE'])); ?></td>
                                     <td class="text-center"><?php echo $value['REMARKS'] ?></td>
