@@ -12,7 +12,7 @@
 <html>
 
 <head>
-    <title>KARTU RIWAYAT</title>
+    <title>Kartu Riwayat</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="generator" content="PhpSpreadsheet, https://github.com/PHPOffice/PhpSpreadsheet">
     <meta name="author" content="W-DIT-000187" />
@@ -1084,6 +1084,7 @@
                 ini_set("error_reporting", 0);
 
                 $query_breakdown = "SELECT
+                                        p3.CODE AS WORKORDERCODE,
                                         p.PMBOMCODE AS NO_MESIN,
                                         p2.SHORTDESCRIPTION AS MESIN,
                                         p2.GENERICDATA2 AS TYPE,
@@ -1145,7 +1146,7 @@
                     <td class="column0 style25 null"><?php echo $no++; ?></td>
                     <td class="column1 style26 null"><?php echo date("d-M-Y", strtotime($row_breakdown['TANGGAL'])); ?></td>
                     <td class="column2 style27 null style28" colspan="5">
-                        <a href="cetak_kartu_riwayat_detail.php?kode=<?php echo urlencode($row_breakdown['NO_MESIN']); ?>&tanggal=<?php echo urlencode($row_breakdown['TANGGAL']); ?>" target="_blank" style="color: black; text-decoration: none;">
+                        <a href="cetak_kartu_riwayat_detail.php?kode=<?php echo urlencode($row_breakdown['NO_MESIN']); ?>&tanggal=<?php echo urlencode($row_breakdown['TANGGAL']); ?>&workordercode=<?php echo urlencode($row_breakdown['WORKORDERCODE']); ?>" target="_blank" style="color: black; text-decoration: none;">
                             <?php echo $row_breakdown['KEGIATAN']; ?> -<?php echo $row_breakdown['SPAREPARTS']; ?>
                         </a>
                     </td>

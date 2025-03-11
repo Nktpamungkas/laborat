@@ -61,32 +61,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                <?php
+                            <?php
 
-                    $q_mesinLAB = db2_exec($conn1, "SELECT
-                                    p.CODE AS KODE_MESIN,
-                                    p.LONGDESCRIPTION AS NAMA_MESIN
-                                    FROM
-                                        PMBOM p
-                                    LEFT JOIN PMBREAKDOWNENTRY pbe  ON p.CODE = pbe.PMBOMCODE
-                                    WHERE pbe.COUNTERCODE ='PBD007' GROUP BY p.CODE, p.LONGDESCRIPTION");
-                    $no = 1;
-                    while ($value = db2_fetch_assoc($q_mesinLAB)) {
-                    ?>
-                    <tr>
-                        <td><?php echo $no++; ?></td>
-                        <td><?php echo $value['KODE_MESIN'] ?></td>
-                        <td><?php echo $value['NAMA_MESIN'] ?></td>
-                        <td class="text-center">
-                            <a href="pages/cetak/cetak_kartu_riwayat.php?kode=<?php echo $value['KODE_MESIN'] ?>" target="_blank" rel="noopener noreferrer">
-                                <i class="fa fa-print"></i> Print
-                            </a>
-                        </td>
-                    </tr>
-                    <?php }?>
+                                $q_mesinLAB = db2_exec($conn1, "SELECT
+                                                p.CODE AS KODE_MESIN,
+                                                p.LONGDESCRIPTION AS NAMA_MESIN
+                                                FROM
+                                                    PMBOM p
+                                                LEFT JOIN PMBREAKDOWNENTRY pbe  ON p.CODE = pbe.PMBOMCODE
+                                                WHERE pbe.COUNTERCODE ='PBD007' GROUP BY p.CODE, p.LONGDESCRIPTION");
+                                $no = 1;
+                                while ($value = db2_fetch_assoc($q_mesinLAB)) {
+                                ?>
+                                <tr>
+                                    <td><?php echo $no++; ?></td>
+                                    <td><?php echo $value['KODE_MESIN'] ?></td>
+                                    <td><?php echo $value['NAMA_MESIN'] ?></td>
+                                    <td class="text-center">
+                                        <a href="pages/cetak/cetak_kartu_riwayat.php?kode=<?php echo $value['KODE_MESIN'] ?>" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa fa-print"></i> Print
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php }?>
 
-                </tbody>
+                        </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
