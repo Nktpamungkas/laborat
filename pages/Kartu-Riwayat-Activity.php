@@ -10,41 +10,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kartu Riwayat Activity</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-
-    <style>
-        #dataku {
-            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 9pt !important;
-            display: none; /* Tabel disembunyikan di awal */
-        }
-
-        #dataku td, #dataku th {
-            border: 1px solid #ddd;
-            padding: 4px;
-        }
-
-        #dataku tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        #dataku tr:hover {
-            background-color: rgb(151, 170, 212);
-        }
-
-        #dataku th {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            text-align: left;
-            background-color: #337AB7;
-            color: white;
-        }
-    </style>
-
 </head>
 <body>
     <div class="row">
@@ -138,7 +103,18 @@
                     $("#dataku tbody").html(response);
 
                     // Inisialisasi ulang DataTable
-                    dataTable = $("#dataku").DataTable();
+                    dataTable = $("#dataku").DataTable({
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'excelHtml5',
+                                text: '<i class="fa fa-file-excel-o"></i> Export Excel',
+                                titleAttr: 'Export ke Excel',
+                                className: 'btn btn-secondary'
+                            }
+                        ]
+                    });
+
                 },
                 error: function () {
                     alert("Gagal mengambil data!");
