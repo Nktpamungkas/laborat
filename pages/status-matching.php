@@ -293,6 +293,7 @@ include "koneksi.php";
                           <?php } else { ?></php>
                             <a style="color: white;" href="?p=Status-Handle&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep! <i class="fa fa-pencil"></i></a>
                             <!-- <a style="color: white;" href="?p=Status-Handle-NOW&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep NOW! <i class="fa fa-pencil"></i></a> -->
+                            <a href="#" class="btn btn-xs btn-danger _ketstatus" value="<?= $r['kt_status'] ?>" attribute="<?= $r['id_status'] ?>" codem="<?= $r['idm'] ?>">Ket. Status <i class="fa fa-exchange" aria-hidden="true"></i>
 
                           <?php } ?>
                           <a href="#" class="btn btn-xs btn-info _tunggu" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Tunggu <i class="fa fa-clock-o" aria-hidden="true"></i>
@@ -567,6 +568,56 @@ include "koneksi.php";
 </script>
 <script>
   $(document).ready(function() {
+    $(document).on('click', '._ketstatus', function() {
+      var code = $(this).attr('codem');
+      let previousStatus = this.getAttribute('value'); // Mengambil keterangan status
+      Swal.fire({
+        title: "Keterangan Status !",
+        text: "Ubah keterangan status anda",
+        input: 'select',  // Mengubah tipe input menjadi 'select'
+        inputOptions: {  // Mendefinisikan opsi untuk dropdown
+            'Normal': 'Normal',
+            'Urgent': 'Urgent'
+        },
+        inputValue: previousStatus,  // Pra-pilih status sebelumnya
+        inputPlaceholder: 'Pilih Keterangan anda ...',  // Memperbarui teks placeholder
+        showCancelButton: true,
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.value) {
+          $.ajax({
+            dataType: "json",
+            type: "POST",
+            url: "pages/ajax/ChangeKetStatus.php",
+            data: {
+              id_status: $(this).attr('attribute'),
+              idm: $(this).attr('codem'),
+              newStatus: result.value
+            },
+            success: function(response) {
+              Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Status Matching ' + code + ' telah di rubah. !',
+                showConfirmButton: false,
+                timer: 1500
+              })
+              setTimeout(function() {
+                location.reload();
+              }, 1505);
+            },
+            error: function() {
+              alert("Error");
+            }
+          });
+        } else if (result.value !== "") {
+          consol.log('button cancel clicked !')
+        } else {
+          Swal.fire('Status Tidak di pilih !')
+        }
+      });
+    })
+    
     $(document).on('click', '._tunggu', function() {
       var code = $(this).attr('codem');
       Swal.fire({
