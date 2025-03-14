@@ -117,7 +117,7 @@ include "koneksi.php";
                                     JOIN tbl_matching b ON a.idm = b.no_resep
                                     where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
                                     group by a.idm, b.no_resep
-                                    ORDER BY a.id asc");  
+                                    ORDER BY a.id desc");  
                 while ($r = mysqli_fetch_array($sql)) {
                   $no++;
                   $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
@@ -292,7 +292,7 @@ include "koneksi.php";
 
                           <?php } else { ?></php>
                             <a style="color: white;" href="?p=Status-Handle&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep! <i class="fa fa-pencil"></i></a>
-                            <a style="color: white;" href="?p=Status-Handle-NOW&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep NOW! <i class="fa fa-pencil"></i></a>
+                            <!-- <a style="color: white;" href="?p=Status-Handle-NOW&idm=<?php echo $r['id_status'] ?>" class="btn btn-xs btn-success">Resep NOW! <i class="fa fa-pencil"></i></a> -->
 
                           <?php } ?>
                           <a href="#" class="btn btn-xs btn-info _tunggu" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Tunggu <i class="fa fa-clock-o" aria-hidden="true"></i>
