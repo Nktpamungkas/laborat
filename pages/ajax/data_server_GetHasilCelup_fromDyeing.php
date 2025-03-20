@@ -2,6 +2,18 @@
 ini_set("error_reporting", 1);
 include '../../koneksi.php';
 $time = date('Y-m-d H:i:s');
+function cekDesimal($angka)
+								{
+									$bulat = round($angka);
+									if ($bulat > $angka) {
+										$jam = $bulat - 1;
+										$waktu = $jam . ":30";
+									} else {
+										$jam = $bulat;
+										$waktu = $jam . ":00";
+									}
+									return $waktu;
+								}
 
 $requestData = $_REQUEST;
 $columns = array(
@@ -99,7 +111,7 @@ while ($row = mysqli_fetch_array($query)) {
     //                             WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
     // $r3 = sqlsrv_fetch_array($bng11);
 
-
+    
     $nestedData = array();
     if ($_POST['p'] == 'Detail-status-approved') {
         $index = $no++;
@@ -127,7 +139,7 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["status"];
     $nestedData[] = '';
     $nestedData[] = $row["ket"];
-    $nestedData[] = $row["target"];
+    $nestedData[] = cekDesimal($row["target"]);
     $nestedData[] = $row["lama_proses"];
     $nestedData[] = '<a href="javascript:void(0)" data="pages/cetak/simpan_cetak.php?kk=' . $row["nokk"] . '&g=1" class="btn btn-xs btn-info bon_resep">Resep</a>';	
     $nestedData[] = $data_action;

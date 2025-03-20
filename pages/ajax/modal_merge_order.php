@@ -1310,7 +1310,7 @@ $data = mysqli_fetch_array($sql);
             ],
             createdRow: function(row, data, rowIndex) {
                 $.each($('td', row), function(colIndex) {
-                    if (colIndex == 8) {
+                    if (colIndex == 9) {
                         $(this).attr('data-name', 'edit_kesetabilan');
                         $(this).attr('class', 'edit_kesetabilan text-center text-primary');
                         $(this).attr('data-type', 'select');
