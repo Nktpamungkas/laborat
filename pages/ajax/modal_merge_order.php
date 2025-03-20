@@ -80,6 +80,7 @@ $data = mysqli_fetch_array($sql);
         </div>
         <div class="form-horizontal" id="form-status">
             <div class="tab-content">
+        <!-- Col Additional Order -->
                 <div id="Merge-order" class="tab-pane fade in active">
                     <div class="row" style="margin-top: 20px">
                         <form action="#" id="form-merge-order" method="post">
@@ -148,6 +149,9 @@ $data = mysqli_fetch_array($sql);
                         </form>
                     </div>
                 </div>
+        <!-- End -->
+
+        <!-- Col Basic Info -->
                 <div id="input-status" class="tab-pane fade in">
                     <div class="row" style="margin-top: 20px">
                         <input type="hidden" name="id_matching" id="id_matching" value="<?php echo $data['id'] ?>" readonly="true">
@@ -412,6 +416,9 @@ $data = mysqli_fetch_array($sql);
                         </div>
                     </div>
                 </div>
+        <!-- End -->
+
+        <!-- Col Resep -->
                 <!-- step1 -->
                 <div id="step1" class="tab-pane fade">
                     <br />
@@ -717,6 +724,9 @@ $data = mysqli_fetch_array($sql);
                         </div>
                     </div>
                 </div>
+        <!-- End -->
+
+        <!-- Col Hasil Celup -->
                 <div id="hasil_celup" class="tab-pane fade in active">
                     <div class="row" style="margin-top:20px; background-color: white;">
                         <div class="col-md-12" style="margin-top: 10px;">
@@ -741,6 +751,7 @@ $data = mysqli_fetch_array($sql);
                                     <th>No.</th>
                                     <th>No .Order</th>
                                     <th>No .KK</th>
+                                    <th>No .Demand</th>
                                     <th>Lot</th>
                                     <th>Qty</th>
                                     <th>Loading</th>
@@ -751,6 +762,7 @@ $data = mysqli_fetch_array($sql);
                                     <th>Status Celup</th>
                                     <th>Benang</th>
                                     <th style="width: 30mm;">Keterangan</th>
+                                    <th>Target</th>
                                     <th>Waktu</th>
                                     <th>Bon Resep</th>
                                     <th>Note</th>
@@ -783,7 +795,8 @@ $data = mysqli_fetch_array($sql);
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        <!-- End -->
         <!-- <button class="btn btn-success" id="test">test</button> -->
         <div class="modal-footer" style="border-top: 1px solid black; height: 45px;">
             <div class="pull-right">
