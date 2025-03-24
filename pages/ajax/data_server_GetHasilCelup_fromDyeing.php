@@ -2,6 +2,18 @@
 ini_set("error_reporting", 1);
 include '../../koneksi.php';
 $time = date('Y-m-d H:i:s');
+function cekDesimal($angka)
+								{
+									$bulat = round($angka);
+									if ($bulat > $angka) {
+										$jam = $bulat - 1;
+										$waktu = $jam . ":30";
+									} else {
+										$jam = $bulat;
+										$waktu = $jam . ":00";
+									}
+									return $waktu;
+								}
 
 $requestData = $_REQUEST;
 $columns = array(
@@ -44,7 +56,9 @@ $sql = "SELECT
             b.analisa_resep,
             z.note,
             b.ket, 
-            d.benang
+            d.benang,
+            d.nodemand,
+            c.target
         FROM db_laborat.tbl_status_matching a
         join db_laborat.tbl_matching x on a.idm = x.no_resep
         join db_dying.tbl_hasilcelup b on a.idm = b.rcode
@@ -97,7 +111,7 @@ while ($row = mysqli_fetch_array($query)) {
     //                             WHERE  JobOrders.documentno='$ssr[documentno]' and processcontrolJO.pcid='$r[pcid]'");
     // $r3 = sqlsrv_fetch_array($bng11);
 
-
+    
     $nestedData = array();
     if ($_POST['p'] == 'Detail-status-approved') {
         $index = $no++;
@@ -113,7 +127,8 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["no_order"];
 	/*$nestedData[] = $row["nokk"];*/
     // $nestedData[] = '<a href="javascript:void(0)" data="pages/cetak/posisikk.php?id=' . $row["nokk"] . '" class="posisi_kk">'. $row["nokk"] .'</a>';
-    $nestedData[] = '<a target="_BLANK" href="http://10.0.0.10/laporan/ppc_filter_steps.php?prod_order='.$row["nokk"].'">'. $row["nokk"] .'</a>';
+    $nestedData[] = '<a target="_BLANK" href="http://online.indotaichen.com/laporan/ppc_filter.php?prod_order='.$row["nokk"].'&kkoke=ya">'. $row["nokk"] .'</a>';
+    $nestedData[] = $row["nodemand"];
     $nestedData[] = $row["lot"];
     $nestedData[] = $row["bruto"] . ' Kg';
     $nestedData[] = round($row["loading_fix"], 4) . ' %';
@@ -124,6 +139,7 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["status"];
     $nestedData[] = '';
     $nestedData[] = $row["ket"];
+    $nestedData[] = cekDesimal($row["target"]);
     $nestedData[] = $row["lama_proses"];
     $nestedData[] = '<a href="javascript:void(0)" data="pages/cetak/simpan_cetak.php?kk=' . $row["nokk"] . '&g=1" class="btn btn-xs btn-info bon_resep">Resep</a>';	
     $nestedData[] = $data_action;
