@@ -1383,10 +1383,10 @@ $data = mysqli_fetch_array($sql);
             }
         })
 
-        $(document).on('click', '.bon_resep', function() {
-            var url_bon = $(this).attr('data');
-            centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
-        })
+        // $(document).on('click', '.bon_resep', function() {
+        //     var url_bon = $(this).attr('data');
+        //     centeredPopup(url_bon, 'myWindow', '800', '400', 'yes');
+        // })
 
         $(document).on('click', '#AddNote', function(e) {
             let m = '<?php echo $data['id_status'] ?>'
