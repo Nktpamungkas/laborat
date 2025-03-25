@@ -58,7 +58,13 @@ $sql = "SELECT
             b.ket, 
             d.benang,
             d.nodemand,
-            c.target
+            c.target,
+            SUBSTRING_INDEX(b.no_resep, '-', 1) AS productionorder_resep1_dye,
+            SUBSTRING_INDEX(b.no_resep, '-', -1) AS line_resep1_dye,
+            SUBSTRING_INDEX(b.no_resep2, '-', 1) AS productionorder_resep2_dye,
+            SUBSTRING_INDEX(b.no_resep2, '-', -1) AS line_resep2_dye,
+            b.no_resep as resep1_dye,
+            b.no_resep2 as resep2_dye
         FROM db_laborat.tbl_status_matching a
         join db_laborat.tbl_matching x on a.idm = x.no_resep
         join db_dying.tbl_hasilcelup b on a.idm = b.rcode
@@ -121,6 +127,12 @@ while ($row = mysqli_fetch_array($query)) {
         </a>';
         $data_action = '<strong style="border-bottom: solid #808080 1px;">LAB : ' . $row['note'] . ' <br> <br> DYE : ' . $row['analisa_resep'] . ' </strong> <br /><a href="javascript:void(0)" class="btn btn-xs btn-warning _addnoteclp" data-kk="' . $row["nokk"] . '"><i class="fa fa-edit"></i></a>';
     }
+    $linkresep = '<a href="https://online.indotaichen.com/laporan/dye_search_detail_recipe.php?prod_order=' . $row["productionorder_resep1_dye"] . '&line=' . $row["line_resep1_dye"] . '" class="btn btn-xs btn-info bon_resep" target="_blank" style="display: block; margin-bottom: 5px;">Resep 1 : ' . $row["resep1_dye"] . '</a>';
+
+    if (!empty($row["productionorder_resep2_dye"]) && !empty($row["line_resep2_dye"])) {
+        // Jika ada, buat link untuk Resep 2
+        $linkresep .= '<a href="https://online.indotaichen.com/laporan/dye_search_detail_recipe.php?prod_order=' . $row["productionorder_resep2_dye"] . '&line=' . $row["line_resep2_dye"] . '" class="btn btn-xs btn-info bon_resep" target="_blank" style="display: block; margin-bottom: 5px;">Resep 2 : ' . $row["resep2_dye"] . '</a>';
+    }
 
     $nestedData[] = $row["id"];
     $nestedData[] = $index;
@@ -141,7 +153,7 @@ while ($row = mysqli_fetch_array($query)) {
     $nestedData[] = $row["ket"];
     $nestedData[] = cekDesimal($row["target"]);
     $nestedData[] = $row["lama_proses"];
-    $nestedData[] = '<a href="javascript:void(0)" data="pages/cetak/simpan_cetak.php?kk=' . $row["nokk"] . '&g=1" class="btn btn-xs btn-info bon_resep">Resep</a>';	
+    $nestedData[] = $linkresep;
     $nestedData[] = $data_action;
 	$nestedData[] = $row["tgl_update"];
 	$nestedData[] = $row["analisa"];
