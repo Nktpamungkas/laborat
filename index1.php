@@ -162,6 +162,28 @@ $page = strtolower($page);
                             <?php endif; ?>
 
 
+                            <!-- DB CycleTime -->
+                            <!-- <li class="dropdown <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-flask" aria-hidden="true"></i>
+                                    <span>DB CycleTime</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-fw fa-angle-down pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="<?php if ($_GET['p'] == "Cycle-Time" or $_GET['p'] == "Form-CycleTime") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Cycle-Time"><i class="fa fa-fw fa-file-pdf-o text-success" aria-hidden="true"></i>
+                                            <span>Cycle Time</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Cycle-Time-Arsip") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Cycle-Time-Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
+                                            <span>Arsip</span></a>
+                                    </li>
+                                </ul>
+                            <?php endif; ?> -->
+                            
                             <!-- STATUS & RESEP -->
                             <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>
                                 <li class="<?php if ($_GET['p'] == "Status-Matching" or $_GET['p'] == 'Status-Handle' or $_GET['p'] == 'Hold-Handle') {
@@ -182,9 +204,10 @@ $page = strtolower($page);
 
 
                             <!-- DATA BASE RESEP GROUP -->
-                            <li class="dropdown                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <?php if ($_GET['p'] == "Today-Approved" or $_GET['p'] == 'Detail-status-approved' or $_GET['p'] == "Today-Rejected" or $_GET['p'] == 'Detail-status-rejected' or $_GET['p'] == "Report-Matching" or $_GET['p'] == 'DataBase-resep-new' or $_GET['p'] == 'Report-Rejected' or $_GET['p'] == "Dyestuff_Utilization" or $_GET['p'] == "Perform-report" or $_GET['p'] == "Recap-Colorist") {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                echo "active";
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            } ?>">
+                            <li class="dropdown <?php if ($_GET['p'] == "Today-Approved" or $_GET['p'] == 'Detail-status-approved' or $_GET['p'] 
+                            == "Today-Rejected" or $_GET['p'] == 'Detail-status-rejected' or $_GET['p'] == "Report-Matching" or $_GET['p'] 
+                            == 'DataBase-resep-new' or $_GET['p'] == 'Report-Rejected' or $_GET['p'] == "Dyestuff_Utilization" or $_GET['p'] 
+                            == "Perform-report" or $_GET['p'] == "Recap-Colorist") {echo "active";} ?>">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-flask" aria-hidden="true"></i>
                                     <span>DB Resep</span>
                                     <span class="pull-right-container">
@@ -505,9 +528,9 @@ $page = strtolower($page);
         <footer class="main-footer">
             <div class="container">
                 <div class="pull-right hidden-xs">
-                    <b>Laborat</b> V.2.0
+                    <b>Laborat</b> V.3.0
                 </div>
-                <strong>Copyright &copy; 2020 <a href="javascript:void(0)">PT. Indotaichen Textile Industry</a>.</strong> DIT Departement
+                <strong>Copyright &copy; 2025 <a href="javascript:void(0)">PT. Indo Taichen Textile Industry</a>.</strong> DIT Departement
             </div>
             <!-- /.container -->
         </footer>

@@ -56,8 +56,6 @@ include "koneksi.php";
     <div class="col-xs-12">
       <div class="box">
         <div class="box-header with-border">
-          <!-- <h3 class="box-title">Status Matching</h3>
-          <a href="pages/cetak/cetak-data-permohonan.php" target="_blank" class="btn btn-sm btn-success pull-right"><span class="fa fa-file-pdf-o"></span> Cetak</a> -->
           <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">
             <table id="Table-sm" class="table table-sm display compact" style="width: 100%;">
               <thead>
@@ -106,18 +104,12 @@ include "koneksi.php";
               </thead>
               <tbody>
                 <?php
-                /*$sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-                                    FROM tbl_status_matching a
-                                    JOIN tbl_matching b ON a.idm = b.no_resep
-                                    where a.status in ('buka', 'mulai', 'hold', 'batal', 'revisi','tunggu')
-                                    group by a.idm, b.no_resep
-                                    ORDER BY a.id asc");*/
-				$sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-                                    FROM tbl_status_matching a
-                                    JOIN tbl_matching b ON a.idm = b.no_resep
-                                    where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
-                                    group by a.idm, b.no_resep
-                                    ORDER BY a.id desc");  
+				          $sql = mysqli_query($con,"SELECT *, a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+                                            FROM tbl_status_matching a
+                                            JOIN tbl_matching b ON a.idm = b.no_resep
+                                            where a.status in ('buka', 'mulai', 'hold', 'revisi','tunggu')
+                                            group by a.idm, b.no_resep
+                                            ORDER BY a.id desc");  
                 while ($r = mysqli_fetch_array($sql)) {
                   $no++;
                   $bgcolor = ($col++ & 1) ? 'gainsboro' : 'antiquewhite';
@@ -187,15 +179,15 @@ include "koneksi.php";
                     </td>
                     <td valign="center" align="center">
                       <?php
-                      $awal  = strtotime($r['tgl_buat_status']);
-                      $akhir = strtotime(date('Y-m-d H:i:s'));
-                      $diff  = $akhir - $awal;
+                        $awal  = strtotime($r['tgl_buat_status']);
+                        $akhir = strtotime(date('Y-m-d H:i:s'));
+                        $diff  = $akhir - $awal;
 
-                      $hari  = floor($diff / (60 * 60 * 24));
-                      $jam   = floor(($diff - ($hari * (60 * 60 * 24))) / (60 * 60));
-                      $menit = ($diff - ($hari * (60 * 60 * 24))) - (($jam) * (60 * 60));
+                        $hari  = floor($diff / (60 * 60 * 24));
+                        $jam   = floor(($diff - ($hari * (60 * 60 * 24))) / (60 * 60));
+                        $menit = ($diff - ($hari * (60 * 60 * 24))) - (($jam) * (60 * 60));
 
-                      echo "<span>" . $hari . " Hari</span> : <span>" . $jam . " Jam</span> : <span>" . floor($menit / 60) . " Menit</span>";
+                        echo "<span>" . $hari . " Hari</span> : <span>" . $jam . " Jam</span> : <span>" . floor($menit / 60) . " Menit</span>";
                       ?>
 
                     </td>
@@ -298,20 +290,18 @@ include "koneksi.php";
                           <?php } ?>
                           <a href="#" class="btn btn-xs btn-info _tunggu" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Tunggu <i class="fa fa-clock-o" aria-hidden="true"></i>
                           </a>
-						  <!--<a style="color: white;" href="?p=Edit_Status_Matching&rcode=<?php echo $r['no_resep'] ?>" class="btn btn-xs btn-primary">Ubah! <i class="fa fa-edit"></i></a>-->
+                          <!--<a style="color: white;" href="?p=Edit_Status_Matching&rcode=<?php echo $r['no_resep'] ?>" class="btn btn-xs btn-primary">Ubah! <i class="fa fa-edit"></i></a>-->
 
                           <!--<a style="color: black;" href="#" class="btn btn-xs btn-danger batalkan" attribute="<?php echo $r['id_status'] ?>" codem="<?php echo $r['idm'] ?>">Batalkan!</a>-->
 
                         </div>
                       </td>
                     <?php } ?>
-
                     <td class="39"><?php echo $r['status'] ?></td>
                   </tr>
                 <?php } ?>
               </tbody>
             </table>
-            <!-- Modal Popup untuk Edit-->
           </div>
         </div>
       </div>
