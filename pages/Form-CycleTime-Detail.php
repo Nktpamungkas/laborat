@@ -296,7 +296,7 @@
                                                 $colors = ['#b4c6e7', '#d0e4f7', '#f7e4e4'];
 
                                                 while ($rowMasterCycletime = mysqli_fetch_array($resultMasterCycletime)) {
-                                                    $bgColor = $colors[intval($rowCount / 8) % 8];
+                                                    $bgColor = $colors[intval($rowCount / 7) % 7];
                                                 ?>
                                                     <tr style="background-color: <?= $bgColor; ?>; color: black;">
                                                         <td align="Center"><?= $rowMasterCycletime['id']; ?></td>
