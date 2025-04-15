@@ -598,6 +598,8 @@
         let lastChecked = null;
         let startnumber = document.getElementById('start_number').value - 1;
         let endnumber = document.getElementById('end_number').value - 1;
+        let clickedCheckboxes = [];
+
 
         // Fungsi untuk mengatur checkbox berdasarkan data dari database
         function setInitialCheckedStates() {
@@ -637,6 +639,10 @@
                 checkboxes.forEach((cb, index) => {
                     if (index >= start && index <= end) {
                         cb.checked = true; // Centang semua checkbox di antara
+                        // Masukkan ke daftar klik jika belum ada
+                        if (!clickedCheckboxes.includes(cb)) {
+                            clickedCheckboxes.push(cb);
+                        }
                     }
                 });
 
@@ -655,11 +661,13 @@
         // Fungsi untuk mengupdate total poin
         function updateTotalPoints() {
             let totalPoints = 0;
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    totalPoints += parseFloat(checkbox.getAttribute('data-point'));
-                }
+            let checkedList = Array.from(checkboxes).filter(cb => cb.checked);
+
+            // Hitung mulai dari yang kedua (index 1) sampai terakhir
+            checkedList.slice(1).forEach(cb => {
+                totalPoints += parseFloat(cb.getAttribute('data-point')) || 0;
             });
+
             totalPointsDisplay.textContent = totalPoints.toFixed(1);
         }
 
@@ -670,6 +678,7 @@
                 let lastChecked = null;
                 checkbox.checked = false;
             });
+            clickedCheckboxes = [];
             updateTotalPoints(); // Reset total points to 0
         });
     });
@@ -702,41 +711,53 @@
         var proses_CycleTime = document.getElementById('prosesCycleTime').value;
         var id = document.getElementById('id').value;
         var idcycletime = document.getElementById('id_cycletime').value;
+
+        let totalPoint = 0;
         let startNumber = null;
         let endNumber = null;
-        let totalPoint = 0;
-        let checkedCount = 0; // Variabel untuk menghitung jumlah checkbox yang dicentang
 
-        checkboxes.forEach((checkbox, index) => {
-            if (checkbox.checked) {
-                checkedCount++; // Menambahkan jumlah checkbox yang dicentang
-                if (startNumber === null) {
-                    startNumber = index + 1; // Menyimpan nomor baris pertama yang dicentang
-                }
-                endNumber = index + 1; // Update endNumber ke indeks checkbox yang dicentang terakhir
-                totalPoint += parseFloat(checkbox.dataset.point);
-            }
-        });
+        // Ambil semua checkbox yang dicentang
+        const checkedList = Array.from(checkboxes).map((cb, index) => {
+            return cb.checked ? { index: index, point: parseFloat(cb.dataset.point) || 0 } : null;
+        }).filter(item => item !== null);
 
-        // Jika hanya satu checkbox yang dicentang, set endNumber menjadi null
+        const checkedCount = checkedList.length;
+
         if (checkedCount === 1) {
+            // Jika hanya 1 yang dicentang → hanya isi startNumber untuk StartProses
+            startNumber = checkedList[0].index + 1;
             endNumber = null;
+            totalPoint = 0;
+        } else if (checkedList.length >= 2) {
+            // Ambil mulai dari checkbox kedua yang dicentang
+            const sliced = checkedList.slice(1);
+            startNumber = sliced[0].index;
+            endNumber = sliced[sliced.length - 1].index + 1;
+
+            sliced.forEach(item => {
+                totalPoint += item.point;
+            });
         }
 
+        // Validasi status wajib isi
         if (status === null || status.trim() === '') {
             toastr.error('Status wajib diisi!');
             return false;
-        } else {
-            if (proses_CycleTime == 'StartProses' && startNumber == null) {
-                toastr.error('Harap pilih cycle time MULAI anda!');
+        }
+
+        // Validasi berdasarkan jenis proses
+        if (proses_CycleTime == 'StartProses' && startNumber == null) {
+            toastr.error('Harap pilih cycle time MULAI anda!');
+            return false;
+        } else if (proses_CycleTime == 'EndProses') {
+            if (checkedCount < 2 || endNumber == null) {
+                toastr.error('Harap pilih minimal 2 cycle time untuk SELESAI!');
                 return false;
-            }else if(proses_CycleTime == 'EndProses' && endNumber == null){
-                toastr.error('Harap pilih cycle time SELESAI anda!');
-                return false;
-            } else {
-                insertInto_cycletime(id, idcycletime, status, startNumber, endNumber, totalPoint, statusCycleTime);
             }
         }
+        // Kirim data
+        insertInto_cycletime(id, idcycletime, status, startNumber, endNumber, totalPoint, statusCycleTime);
+
     }
 
     function insertInto_cycletime(id, idcycletime, status, startNumber, endNumber, totalPoint, statusCycleTime) {
