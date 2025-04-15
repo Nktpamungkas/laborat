@@ -265,9 +265,13 @@
 				$salesman = "0";
 			}
 			$char = preg_replace('/[^a-z]/i', '', $_POST['no_resep']);
-			$noUrut = nourut($noResep['no_resep']);
-			// $no_resep = $char . $nourut;
-			$no_resep = $_POST['Dyestuff'] . $nourut;
+
+			// get data no urut terakhir
+			$queryGetNoUrut = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
+			$fetchGetNoUrut = mysqli_fetch_array($queryGetNoUrut);
+			$dataNoUrut = $fetchGetNoUrut['nourut'] + 1;
+			$no_resep = $_POST['Dyestuff'] . $dataNoUrut;
+
 			$recipe = str_replace("'", "''", $_POST['recipe_code']);
 			$colorcode = str_replace("'", "''", $_POST['color_code']);
 			$gLD = str_replace("'", "''", $_POST['g_LD']);
