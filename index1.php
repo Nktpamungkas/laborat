@@ -162,7 +162,7 @@ $page = strtolower($page);
                             <?php endif; ?>
 
 
-                            <!-- DB CycleTime -->
+                            <!-- DB CycleTime
                             <li class="dropdown <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-flask" aria-hidden="true"></i>
                                     <span>DB CycleTime</span>
@@ -180,6 +180,23 @@ $page = strtolower($page);
                                                     echo "active";
                                                 } ?>"><a href="?p=Cycle-Time-Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
                                             <span>Arsip</span></a>
+                                    </li>
+                                </ul>
+                            <?php endif; ?> -->
+                            
+                            <!-- Cycle Time Schedule -->
+                            <li class="dropdown <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-circle-o-notch" aria-hidden="true"></i>
+                                    <span>Cycle Time</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-fw fa-angle-down pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="<?php if ($_GET['p'] == "Preliminary-Schedule" or $_GET['p'] == "Form-Preliminary-Schedule") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Preliminary-Schedule"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Preliminary Schedule</span></a>
                                     </li>
                                 </ul>
                             <?php endif; ?>
