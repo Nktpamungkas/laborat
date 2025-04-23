@@ -3,6 +3,14 @@
         font-style: italic;
         font-size: 12px;
     }
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+    }
+
 </style>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
@@ -27,7 +35,7 @@
             <div class="form-group" id="tempWrapper">
                 <label for="temp" class="col-sm-2 control-label">Temp</label>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
+                    <input type="text" onkeypress="return blockQuote(event)" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
                 </div>
             </div>
             <div class="box-footer">
@@ -50,23 +58,17 @@
                 <table id="tablee" class="table" width="100%">
                     <thead class="bg-green">
                         <tr>
-                            <th width="24">
+                            <th>
                                 <div align="center">No</div>
                             </th>
-                            <th width="24">
+                            <th>
                                 <div align="center">Suffix</div>
                             </th>
-                            <th width="24">
-                                <div align="center">Temp 1</div>
+                            <th>
+                                <div align="center">Temp</div>
                             </th>
-                            <th width="24">
-                                <div align="center">Temp 2</div>
-                            </th>
-                            <th width="24">
-                                <div align="center">Qty Bottle 1</div>
-                            </th>
-                            <th width="24">
-                                <div align="center">Qty Bottle 2</div>
+                            <th>
+                                <div align="center">Action</div>
                             </th>
                         </tr>
                     </thead>
@@ -204,6 +206,7 @@
                     }
                 },
                 error: function() {
+                    console.log(response); // Debugging response
                     alert('Terjadi kesalahan saat mengirim data!');
                 }
             });
@@ -220,12 +223,12 @@
 
                 data.forEach((item, index) => {
                     const row = `<tr>
-                        <td>${index + 1}</td>
+                        <td align="center">${index + 1}</td>
                         <td>${item.no_resep}</td>
-                        <td>${item.temp_1}</td>
-                        <td>${item.temp_2}</td>
-                        <td>${item.bottle_qty_1}</td>
-                        <td>${item.bottle_qty_2 || "-"}</td>
+                        <td>${item.temp}</td>
+                        <td align="center">
+                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                        </td>
                     </tr>`;
                     tbody.innerHTML += row;
                 });
@@ -235,9 +238,69 @@
             });
     }
 
+    function deleteData(id) {
+        Swal.fire({
+            title: 'Apakah kamu yakin?',
+            text: "Data ini akan dihapus secara permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("pages/ajax/Delete_PreliminarySchedule.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "id=" + id
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Data berhasil dihapus.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        loadData();
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Data tidak berhasil dihapus. ' || result.message,
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(err => {
+                    Swal.fire({
+                        title: 'Oops!',
+                        text: 'Terjadi kesalahan saat menghapus data.',
+                        icon: 'error'
+                    });
+                    console.error("Gagal menghapus data:", err);
+                });
+            }
+        });
+    }
+
     // Jalankan pertama kali saat halaman dibuka
     loadData();
 
     // Auto-refresh tiap 3 detik
     setInterval(loadData, 3000);
+
+    function blockQuote(event) {
+        const char = String.fromCharCode(event.which || event.keyCode);
+        const blockedChars = ["'", '"', "<", ">"];
+        if (blockedChars.includes(char)) {
+            return false;
+        }
+        return true;
+    }
+
 </script>
