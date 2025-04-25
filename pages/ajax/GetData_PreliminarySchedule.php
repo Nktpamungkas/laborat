@@ -6,7 +6,8 @@ ini_set("display_errors", 1);
 include "../../koneksi.php"; // pastikan file ini hanya koneksi
 
 try {
-    $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY CAST(SUBSTRING_INDEX(temp, '°', 1) AS UNSIGNED) DESC");
+    // $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY CAST(SUBSTRING_INDEX(temp, '°', 1) AS UNSIGNED) DESC, id DESC");
+    $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY id DESC");
 
     $data = [];
     while ($row = mysqli_fetch_assoc($result)) {
