@@ -41,6 +41,16 @@ $act = $_GET['g'];
                         `do_at` = '$time', 
                         `ip_address` = '$ip_num'");
   ?>
+  <?php
+    include('../../phpqrcode/qrlib.php');
+
+    // Data untuk QR Code
+    $qrcode = $_GET['idkk'];
+
+    // Membuat QR Code dalam file PNG
+    $fileqr = 'qrcode.png';
+    QRcode::png($qrcode, $fileqr);
+  ?>
   <table width="100%" border="0">
     <tr style="font-size: 10px;">
       <td width="13%">GRAMASI PERMINTAAN:</td>
@@ -492,7 +502,10 @@ $act = $_GET['g'];
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td align="left" colspan="5" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
+        <td align="center" colspan="2" rowspan="2">
+          <img src="<?php echo $fileqr; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
+        </td>
+        <td align="left" colspan="3" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
@@ -512,7 +525,7 @@ $act = $_GET['g'];
       <tr> 
         <?php $sqlOrder = mysqli_query($con, "SELECT * FROM tbl_orderchild where id_matching = '$data[id]' AND NOT `order` = '$data[no_order]' "); ?>
         <td rowspan="2" style="height: 80px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
-        <td rowspan="7" colspan="5" valign="top"> 
+        <td rowspan="7" colspan="3" valign="top"> 
           <?php if ($data['jenis_matching'] == "L/D") : ?>
             <strong style="font-size: 21px;">R</strong>EQUEST NO :
           <?php elseif ($data['jenis_matching'] == "LD NOW") : ?>
@@ -798,7 +811,7 @@ $act = $_GET['g'];
 
 </html>
 <script>
-  setTimeout(function() {
-    window.print()
-  }, 1500);
+  // setTimeout(function() {
+  //   window.print()
+  // }, 1500);
 </script>
