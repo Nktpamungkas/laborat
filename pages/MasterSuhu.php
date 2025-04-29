@@ -99,7 +99,11 @@ include "koneksi.php";
                         </div>
                         <div class="form-group">
                             <label for="keterangan">Keterangan</label>
-                            <input type="text" id="keterangan" name="keterangan" class="form-control" required>
+                            <!-- <input type="text" id="keterangan" name="keterangan" class="form-control" required> -->
+                             <select id="keterangan" name="keterangan" class="form-control" required>
+                                <option value="POLY">POLY</option>
+                                <option value="COTTON">COTTON</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>

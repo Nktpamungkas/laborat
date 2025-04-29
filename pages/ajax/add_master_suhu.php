@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $product_name = trim($_POST['product_name']);
     $program = $_POST['program'];
-    $keterangan = trim($_POST['keterangan']);
+    $keterangan = $_POST['keterangan'];
 
     // Ambil suhu & durasi dari product_name
     preg_match("/(\d+)[^\d]+X[^\d]+(\d+)/", $product_name, $matches);
