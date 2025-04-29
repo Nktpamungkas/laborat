@@ -226,14 +226,31 @@
                 success: function(response) {
                     console.log(response); // Debugging response
                     // Tampilkan pesan sukses atau gagal
-                    if (response.session === "LIB_SUCCESS") {
-                        toastr.success("Data berhasil disimpan !")
-                        // Reset form setelah berhasil simpan
-                        document.querySelector("form").reset();
-                        input.focus(); // Fokus kembali ke input no_resep
+                    // if (response.session === "LIB_SUCCESS") {
+                    //     toastr.success("Data berhasil disimpan !")
+                    //     // Reset form setelah berhasil simpan
+                    //     document.querySelector("form").reset();
+                    //     input.focus(); // Fokus kembali ke input no_resep
+                    //     loadData();
+                    // } else {
+                    //     alert('Gagal menyimpan data.');
+                    // }
+
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('form')[0].reset();
+                        $('#no_resep').focus();
+
+                        $('#productNameDisplay').text('');
+                        $('#productNameDisplay_1').text('');
+                        $('#productNameDisplay_2').text('');
+                        
                         loadData();
                     } else {
-                        alert('Gagal menyimpan data.');
+                        toastr.error(response.message);
+                        if (response.errors) {
+                            console.error("Detail error:", response.errors);
+                        }
                     }
                 },
                 error: function() {
