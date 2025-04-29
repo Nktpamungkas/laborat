@@ -3,6 +3,9 @@
         font-style: italic;
         font-size: 12px;
     }
+    #tempWrapper {
+        margin-bottom: 0;
+    }
     @keyframes shake {
         0% { transform: translateX(0); }
         25% { transform: translateX(-5px); }
@@ -36,6 +39,11 @@
                 <label for="temp" class="col-sm-2 control-label">Temp</label>
                 <div class="col-sm-2">
                     <input type="text" onkeypress="return blockQuote(event)" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" id="productNameWrapper">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
                 </div>
             </div>
             <div class="box-footer">
@@ -84,6 +92,7 @@
     const input = document.getElementById("no_resep");
     const bottleWrapper = document.getElementById("bottleQtyWrapper");
     const tempWrapper = document.getElementById("tempWrapper");
+    const productNameWrapper = document.getElementById("productNameWrapper");
     let inputBuffer = '';
     let lastTime = 0;
     let timer = null;
@@ -115,6 +124,10 @@
 
             // ✨ Cek apakah scan diawali dengan "DR"
             if (input.value.substring(0, 2).toUpperCase() === "DR") {
+                productNameWrapper.innerHTML = '';
+
+                setTimeout(setupTempListenersDR, 100);
+
                 // DR case → tampilkan 2 bottle & 2 temp
                 bottleWrapper.innerHTML = `
                     <label for="bottle_qty_1" class="col-sm-2 control-label">Bottle Quantity (1)</label>
@@ -134,6 +147,16 @@
                         <input type="text" class="form-control style-ph" name="temp_2" id="temp_2" placeholder="Input Temp 2" required autocomplete="off">
                     </div>
                 `;
+
+                productNameWrapper.innerHTML = `
+                    <label class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <p id="productNameDisplay_1" style="font-weight: bold; color: #0073b7;"></p>
+                    </div>
+                    <div class="col-sm-2">
+                        <p id="productNameDisplay_2" style="font-weight: bold; color: #0073b7;"></p>
+                    </div>
+                `;
             } else {
                 // Normal case → tampilkan 1 bottle & 1 temp
                 bottleWrapper.innerHTML = `
@@ -148,6 +171,14 @@
                         <input type="text" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
                     </div>
                 `;
+                productNameWrapper.innerHTML = `
+                    <div class="col-sm-offset-2 col-sm-4">
+                        <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
+                    </div>
+                `;
+                setTimeout(() => {
+                    listenTempWithId('#temp', '#productNameDisplay');
+                }, 100);
             }
 
         }, 100); // tunggu sebentar agar input selesai
@@ -301,6 +332,95 @@
             return false;
         }
         return true;
+    }
+
+</script>
+
+<script>
+    let tempScanTimer;
+    $('#temp').on('input', function () {
+        clearTimeout(tempScanTimer); // reset timer setiap kali input berubah
+
+        const code = $(this).val().trim();
+
+        if (code.length >= 6) {
+            tempScanTimer = setTimeout(function () {
+                $.ajax({
+                    url: 'pages/ajax/get_program_by_code.php',
+                    method: 'GET',
+                    data: { code: code },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#productNameDisplay').text(response.product_name);
+                        } else {
+                            $('#productNameDisplay').text('');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kode Tidak Ditemukan',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan saat mengambil data.'
+                        });
+                    }
+                });
+            }, 300);
+        } else {
+            $('#productNameDisplay').text('');
+        }
+    });
+
+
+    function setupTempListenersDR() {
+        listenTempWithId('#temp_1', '#productNameDisplay_1');
+        listenTempWithId('#temp_2', '#productNameDisplay_2');
+    }
+
+    function listenTempWithId(tempSelector, displaySelector) {
+        let timer;
+
+        $(document).off('input', tempSelector).on('input', tempSelector, function () {
+            clearTimeout(timer);
+            const code = $(this).val().trim();
+
+            if (code.length >= 6) {
+                timer = setTimeout(() => {
+                    $.ajax({
+                        url: 'pages/ajax/get_program_by_code.php',
+                        method: 'GET',
+                        data: { code },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                $(displaySelector).text(response.product_name);
+                            } else {
+                                $(displaySelector).text('');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Kode Tidak Ditemukan',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat mengambil data.'
+                            });
+                        }
+                    });
+                }, 300);
+            } else {
+                $(displaySelector).text('');
+            }
+        });
     }
 
 </script>
