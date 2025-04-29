@@ -6,8 +6,17 @@ ini_set("display_errors", 1);
 include "../../koneksi.php"; // pastikan file ini hanya koneksi
 
 try {
-    // $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY CAST(SUBSTRING_INDEX(temp, '°', 1) AS UNSIGNED) DESC, id DESC");
-    $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY id DESC");
+    // $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY id DESC");
+    $result = mysqli_query($con, "
+        SELECT 
+            tbl_preliminary_schedule.*, 
+            master_suhu.product_name 
+        FROM tbl_preliminary_schedule
+        LEFT JOIN master_suhu 
+            ON tbl_preliminary_schedule.code = master_suhu.code
+        ORDER BY tbl_preliminary_schedule.id DESC
+    ");
+
 
     $data = [];
     while ($row = mysqli_fetch_assoc($result)) {

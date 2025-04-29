@@ -92,7 +92,7 @@
         const now = new Date().getTime();
         const delta = now - lastTime;
 
-        if (delta > 100 && input.value.length > 1) {
+        if (delta > 10000 && input.value.length > 1) {
             input.value = "";
             inputBuffer = "";
             input.style.borderColor = 'red';
@@ -225,7 +225,7 @@
                     const row = `<tr>
                         <td align="center">${index + 1}</td>
                         <td>${item.no_resep}</td>
-                        <td>${item.temp}</td>
+                        <td>${item.product_name}</td>
                         <td align="center">
                             <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </td>

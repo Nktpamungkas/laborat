@@ -13,7 +13,7 @@ $username       = $_SESSION['userLAB'];
 for ($i = 0; $i < $bottle_qty_1; $i++) {
     mysqli_query($con, "INSERT INTO `tbl_preliminary_schedule` SET
         `no_resep` = '$no_resep',
-        `temp` = '$temp_1',
+        `code` = '$temp_1',
         `username` = '$username'
     ") or die(mysqli_error($con));
 }
@@ -21,7 +21,7 @@ for ($i = 0; $i < $bottle_qty_1; $i++) {
 for ($i = 0; $i < $bottle_qty_2; $i++) {
     mysqli_query($con, "INSERT INTO `tbl_preliminary_schedule` SET
         `no_resep` = '$no_resep',
-        `temp` = '$temp_2',
+        `code` = '$temp_2',
         `username` = '$username'
     ") or die(mysqli_error($con));
 }

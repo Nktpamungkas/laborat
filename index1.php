@@ -315,6 +315,10 @@ $page = strtolower($page);
                                     </a>
                                     <ul class="dropdown-menu">
                                         <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
+                                            <li class="<?php if ($_GET['p'] == "MasterSuhu") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=MasterSuhu"><i class="fa fa-plus-square"></i> <span>Master Suhu</span></a>
+                                            </li>
                                             <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
                                                             echo "active";
                                                         } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
