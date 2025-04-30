@@ -139,34 +139,107 @@ include "koneksi.php";
         });
 
         // Handling the modal form submission
+        // $('#addForm').on('submit', function(event) {
+        //     event.preventDefault();
+
+        //     const formData = $(this).serialize();
+
+        //     $.ajax({
+        //         url: 'pages/ajax/add_master_suhu.php',
+        //         method: 'POST',
+        //         data: formData,
+        //         success: function(response) {
+        //             $('#addModal').modal('hide');
+        //              Swal.fire({
+        //                 icon: response.status === 'success' ? 'success' : 'error',
+        //                 title: response.status === 'success' ? 'Berhasil' : 'Gagal',
+        //                 text: response.message,
+        //                 timer: 2000,
+        //                 showConfirmButton: false
+        //             });
+        //             if (response.status === 'success') {
+        //                 $('#masterSuhuTable').DataTable().ajax.reload();
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             Swal.fire({
+        //                 icon: 'error',
+        //                 title: 'Error',
+        //                 text: 'Terjadi kesalahan saat mengirim data.',
+        //                 footer: `<pre>${xhr.responseText}</pre>`
+        //             });
+        //         }
+        //     });
+        // });
+
         $('#addForm').on('submit', function(event) {
             event.preventDefault();
 
             const formData = $(this).serialize();
+            const productName = $('#product_name').val().trim();
+
+            if (!productName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan!',
+                    text: 'Nama Produk tidak boleh kosong!'
+                });
+                return;
+            }
+
 
             $.ajax({
-                url: 'pages/ajax/add_master_suhu.php',
-                method: 'POST',
-                data: formData,
+                url: 'pages/ajax/check_product_name_exists.php',
+                method: 'GET',
+                data: { product_name: productName },
                 success: function(response) {
-                    $('#addModal').modal('hide');
-                     Swal.fire({
-                        icon: response.status === 'success' ? 'success' : 'error',
-                        title: response.status === 'success' ? 'Berhasil' : 'Gagal',
-                        text: response.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    if (response.status === 'success') {
-                        $('#masterSuhuTable').DataTable().ajax.reload();
+                    if (response.status === 'exists') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Nama Produk sudah ada di database!'
+                        });
+                    } else {
+                        // Jika product_name belum ada, lanjutkan submit form
+                        $.ajax({
+                            url: 'pages/ajax/add_master_suhu.php',
+                            method: 'POST',
+                            data: formData,
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: 'Data berhasil ditambahkan.',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                $('#addModal').modal('hide');
+                                $('#masterSuhuTable').DataTable().ajax.reload();
+
+                                // Reset input setelah submit
+                                $('#product_name').val('');
+                                $('#program').val('');
+                                $('#keterangan').val('');
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: 'Terjadi kesalahan saat menyimpan data.'
+                                });
+                            }
+                        });
                     }
                 },
                 error: function(xhr, status, error) {
+                    console.log("Status: " + status);
+                    console.log("Error: " + error);
+                    console.log("Response: " + xhr.responseText);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'Terjadi kesalahan saat mengirim data.',
-                        footer: `<pre>${xhr.responseText}</pre>`
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan saat pengecekan nama produk.'
                     });
                 }
             });
