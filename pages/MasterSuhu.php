@@ -88,7 +88,7 @@ include "koneksi.php";
                     <form id="addForm">
                         <div class="form-group">
                             <label for="product_name">Product Name</label>
-                            <input type="text" id="product_name" name="product_name" class="form-control" required>
+                            <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Masukan Product Name" required>
                         </div>
                         <div class="form-group">
                             <label for="program">Program</label>
