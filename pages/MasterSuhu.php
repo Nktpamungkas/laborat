@@ -139,7 +139,10 @@ include "koneksi.php";
                             return `<button class="btn btn-danger btn-sm" onclick="deleteData(${data})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>`;
                         }
                     }
-                ]
+                ],
+                "language": {
+                    "emptyTable": "No Data."
+                }
             });
 
             $('#addModal').on('hidden.bs.modal', function () {
