@@ -61,7 +61,7 @@ include "koneksi.php";
                                 <th>Product Name</th>
                                 <th>Program</th>
                                 <th>Keterangan</th>
-                                <th>Actions</th>
+                                <th><div align="center">Actions</div></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,13 +74,13 @@ include "koneksi.php";
     </div>
     
     <!-- Modal for Add New Master Suhu -->
-    <div class="modal" id="addModal">
+    <div class="modal fade" tabindex="-1" id="addModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <!-- Modal Header -->
                 <div class="modal-header">
-                    <h4 class="modal-title">Add New Master Suhu</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add New Master Suhu</h4>
                 </div>
                 
                 <!-- Modal Body -->
@@ -93,6 +93,7 @@ include "koneksi.php";
                         <div class="form-group">
                             <label for="program">Program</label>
                             <select id="program" name="program" class="form-control" required>
+                                <option value="">== Pilih Program ==</option>
                                 <option value="KONSTAN">KONSTAN</option>
                                 <option value="RAISING">RAISING</option>
                             </select>
@@ -101,6 +102,7 @@ include "koneksi.php";
                             <label for="keterangan">Keterangan</label>
                             <!-- <input type="text" id="keterangan" name="keterangan" class="form-control" required> -->
                              <select id="keterangan" name="keterangan" class="form-control" required>
+                                <option value="">== Pilih Keterangan ==</option>
                                 <option value="POLY">POLY</option>
                                 <option value="COTTON">COTTON</option>
                             </select>
@@ -115,6 +117,8 @@ include "koneksi.php";
     <script>
         $(document).ready(function() {
             $('#masterSuhuTable').DataTable({
+                "pageLength": 50,
+                "lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "ALL"] ],
                 "ajax": "pages/ajax/fetch_master_suhu.php",
                 "columns": [
                     {
@@ -130,11 +134,16 @@ include "koneksi.php";
                     { "data": "keterangan" },
                     {
                         data: 'id',
+                        "className": "text-center",
                         render: function(data, type, row, meta) {
-                            return `<button class="btn btn-danger btn-sm" onclick="deleteData(${data})">Delete</button>`;
+                            return `<button class="btn btn-danger btn-sm" onclick="deleteData(${data})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>`;
                         }
                     }
                 ]
+            });
+
+            $('#addModal').on('hidden.bs.modal', function () {
+                $('#addForm')[0].reset();
             });
         });
 

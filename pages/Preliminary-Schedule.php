@@ -244,7 +244,7 @@
                         $('#productNameDisplay').text('');
                         $('#productNameDisplay_1').text('');
                         $('#productNameDisplay_2').text('');
-                        
+
                         loadData();
                     } else {
                         toastr.error(response.message);
@@ -440,4 +440,17 @@
         });
     }
 
+</script>
+
+<script>
+    ['bottle_qty', 'bottle_qty_1', 'bottle_qty_2'].forEach(function(id) {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function () {
+                if (this.value < 0) {
+                    this.value = 0;
+                }
+            });
+        }
+    });
 </script>
