@@ -319,6 +319,10 @@ $page = strtolower($page);
                                                             echo "active";
                                                         } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu</span></a>
                                             </li>
+                                            <li class="<?php if ($_GET['p'] == "MasterMesin") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=MasterMesin"><i class="fa fa-building-o" aria-hidden="true"></i> <span>Master Mesin</span></a>
+                                            </li>
                                             <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
                                                             echo "active";
                                                         } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
