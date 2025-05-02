@@ -28,7 +28,7 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $_POST['id'];
-    $no_machine = $_POST['no_machine'];
+    $no_machine = trim($_POST['no_machine']);
     $suhu = $_POST['suhu'] !== '' ? $_POST['suhu'] . '°C' : null;
     $program = $_POST['program'];
     $keterangan = $_POST['keterangan'];
