@@ -371,7 +371,7 @@ include "koneksi.php";
                     if (data.error) {
                         alert(data.error);
                     } else {
-                        var suhu = data.suhu.replace(/[^0-9.]/g, '');
+                        var suhu = data.suhu ? data.suhu.replace(/[^0-9.]/g, '') : '';
 
                         $('#edit_id').val(data.id);
                         $('#edit_no_machine').val(data.no_machine);
