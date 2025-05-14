@@ -69,7 +69,7 @@
     <table width="100%" border="1">
         <label style="font-weight: bold; font-size: 12px;">LAPORAN STOCK </label><br>
         <label style="font-size: 12px;"><u>DEPARTEMEN LABORAT</u></label><br>
-        <label style="font-weight: bold; font-size: 12px;">Periode :                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     <?php echo $date1; ?> s/d &nbsp;<?php echo $date2; ?><br>
+        <label style="font-weight: bold; font-size: 12px;">Periode :                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         <?php echo $date1; ?> s/d &nbsp;<?php echo $date2; ?><br>
         <tr>
             <td width="30">NO</td>
             <td width="180">KODE BARANG</td>
@@ -116,118 +116,107 @@
         $DECOSUBCODE05 = $row_barang['DECOSUBCODE05'];
         $DECOSUBCODE06 = $row_barang['DECOSUBCODE06'];
 
-        $EXTRA_ITEM        = $row_barang['EXTRA_ITEM'];
-        $TRANSACTIONNUMBER = $row_barang['TRANSACTIONNUMBER'];
-
     ?>
-																						        <tr>
-																						            <td style="text-align: center;"><?php echo $no++; ?></td>
-																						            <!-- <td style="text-align: left; font-size: 10px;"><?php echo $row_barang['KODE_BARANG']; ?></td> -->
-																						            <td style="text-align: left; font-size: 10px;<?php echo(($row_barang['TRANSACTIONDATE'] >= $date1 && $row_barang['TRANSACTIONDATE'] <= $date2) ? '' : ''); ?>">
-																						                <?php echo $row_barang['KODE_BARANG']; ?>
-																						            </td>
-																						            <td style="text-align: left;"><?php echo $row_barang['NAMA_BARANG']; ?></td>
-																						            <td style="text-align: center;"><?php echo $row_barang['KATEGORI']; ?></td>
+																							        <tr>
+																							            <td style="text-align: center;"><?php echo $no++; ?></td>
+																							            <!-- <td style="text-align: left; font-size: 10px;"><?php echo $row_barang['KODE_BARANG']; ?></td> -->
+																							            <td style="text-align: left; font-size: 10px;<?php echo(($row_barang['TRANSACTIONDATE'] >= $date1 && $row_barang['TRANSACTIONDATE'] <= $date2) ? '' : ''); ?>">
+																							                <?php echo $row_barang['KODE_BARANG']; ?>
+																							            </td>
+																							            <td style="text-align: left;"><?php echo $row_barang['NAMA_BARANG']; ?></td>
+																							            <td style="text-align: center;"><?php echo $row_barang['KATEGORI']; ?></td>
 
-																						            <td style="text-align: center;">
-																						                &nbsp;
-																						            </td><!-- STOK Min -->
+																							            <td style="text-align: center;">
+																							                &nbsp;
+																							            </td><!-- STOK Min -->
 
-																						            <td style="text-align: center;">
-																						                <?php
-                                                                                                                $id_barang        = $row_barang['ID_BARANG'];
-                                                                                                                $query_stok_awal  = "SELECT * FROM tbl_master_barang where id='$id_barang' LIMIT 1";
-                                                                                                                $result_stok_awal = mysqli_query($con, $query_stok_awal);
+																							            <td style="text-align: center;">
+																							                <?php
+                                                                                                                    $id_barang        = $row_barang['ID_BARANG'];
+                                                                                                                    $query_stok_awal  = "SELECT * FROM tbl_master_barang where id='$id_barang' LIMIT 1";
+                                                                                                                    $result_stok_awal = mysqli_query($con, $query_stok_awal);
 
-                                                                                                                $data_stok_awal = mysqli_fetch_assoc($result_stok_awal);
+                                                                                                                    $data_stok_awal = mysqli_fetch_assoc($result_stok_awal);
 
-                                                                                                                if ($data_stok_awal['STOCK']) {
-                                                                                                                    $stok_awal = $data_stok_awal['STOCK'];
-                                                                                                                } else {
-                                                                                                                    $stok_awal = 0;
-                                                                                                                }
+                                                                                                                    if ($data_stok_awal['STOCK']) {
+                                                                                                                        $stok_awal = $data_stok_awal['STOCK'];
+                                                                                                                    } else {
+                                                                                                                        $stok_awal = 0;
+                                                                                                                    }
 
-                                                                                                                echo $stok_awal;
-                                                                                                            ?>
-																						            </td><!-- STOK AWAL -->
+                                                                                                                    echo $stok_awal;
+                                                                                                                ?>
+																							            </td><!-- STOK AWAL -->
 
-																						            <td style="text-align: center;"><?php echo $row_barang['UNIT']; ?></td>
+																							            <td style="text-align: center;"><?php echo $row_barang['UNIT']; ?></td>
 
-																						            <td style="text-align: center;">
-																						                <?php
-                                                                                                                $query_stok_masuk = "SELECT SUM(USERPRIMARYQUANTITY) AS MASUK
-																						                        FROM STOCKTRANSACTION
-																						                        WHERE (TEMPLATECODE ='OPN' OR TEMPLATECODE ='QCR')
-																						                        AND LOGICALWAREHOUSECODE ='M241'
-																						                        AND ITEMTYPECODE ='$ITEMTYPECODE'
-																						                        AND DECOSUBCODE01 ='$DECOSUBCODE01'
-																						                        AND DECOSUBCODE02 ='$DECOSUBCODE02'
-																						                        AND DECOSUBCODE03 ='$DECOSUBCODE03'
-																						                        AND DECOSUBCODE04 ='$DECOSUBCODE04'
-																						                        AND DECOSUBCODE05 ='$DECOSUBCODE05'
-																						                        AND DECOSUBCODE06 ='$DECOSUBCODE06'
-																						                        AND CREATIONDATETIME > '2025-02-25 13:00:00'
-																						                        AND TRANSACTIONDATE >= '$date1' AND TRANSACTIONDATE <= '$date2'";
+																							            <td style="text-align: center;">
+																							                <?php
+                                                                                                                    $query_stok_masuk = "SELECT SUM(USERPRIMARYQUANTITY) AS MASUK
+																							                        FROM STOCKTRANSACTION
+																							                        WHERE (TEMPLATECODE ='OPN' OR TEMPLATECODE ='QCR')
+																							                        AND LOGICALWAREHOUSECODE ='M241'
+																							                        AND ITEMTYPECODE ='$ITEMTYPECODE'
+																							                        AND DECOSUBCODE01 ='$DECOSUBCODE01'
+																							                        AND DECOSUBCODE02 ='$DECOSUBCODE02'
+																							                        AND DECOSUBCODE03 ='$DECOSUBCODE03'
+																							                        AND DECOSUBCODE04 ='$DECOSUBCODE04'
+																							                        AND DECOSUBCODE05 ='$DECOSUBCODE05'
+																							                        AND DECOSUBCODE06 ='$DECOSUBCODE06'
+																							                        AND CREATIONDATETIME > '2025-02-25 13:00:00'
+																							                        AND TRANSACTIONDATE >= '$date1' AND TRANSACTIONDATE <= '$date2'";
 
-                                                                                                                if ($EXTRA_ITEM) {
-                                                                                                                    $query_stok_masuk .= "AND TRANSACTIONNUMBER <> '$TRANSACTIONNUMBER'";
-                                                                                                                }
+                                                                                                                    $q_stok_masuk = db2_exec($conn1, $query_stok_masuk);
 
-                                                                                                                $q_stok_masuk = db2_exec($conn1, $query_stok_masuk);
+                                                                                                                    $row_stok_masuk = db2_fetch_assoc($q_stok_masuk);
 
-                                                                                                                $row_stok_masuk = db2_fetch_assoc($q_stok_masuk);
+                                                                                                                    if ($row_stok_masuk['MASUK']) {
+                                                                                                                        $stok_masuk = (int) $row_stok_masuk['MASUK'];
+                                                                                                                    } else {
+                                                                                                                        $stok_masuk = 0;
+                                                                                                                    }
 
-                                                                                                                if ($row_stok_masuk['MASUK']) {
-                                                                                                                    $stok_masuk = (int) $row_stok_masuk['MASUK'];
-                                                                                                                } else {
-                                                                                                                    $stok_masuk = 0;
-                                                                                                                }
+                                                                                                                    echo $stok_masuk;
+                                                                                                                ?>
+																							            </td><!-- STOK MASUK -->
 
-                                                                                                                echo $stok_masuk;
-                                                                                                            ?>
-																						            </td><!-- STOK MASUK -->
+																							            <td style="text-align: center;">
+																							                <?php
+                                                                                                                    $query_stok_keluar = "SELECT
+					                                                                                                                        SUM(s.USERPRIMARYQUANTITY) AS KELUAR
+					                                                                                                                    FROM
+					                                                                                                                        STOCKTRANSACTION s
+					                                                                                                                    WHERE
+					                                                                                                                        s.LOGICALWAREHOUSECODE = 'M241'
+					                                                                                                                        AND TRIM(s.DECOSUBCODE01) || '-' ||
+					                                                                                                                            TRIM(s.DECOSUBCODE02) || '-' ||
+					                                                                                                                            TRIM(s.DECOSUBCODE03) || '-' ||
+					                                                                                                                            TRIM(s.DECOSUBCODE04) || '-' ||
+					                                                                                                                            TRIM(s.DECOSUBCODE05) || '-' ||
+					                                                                                                                            TRIM(s.DECOSUBCODE06)  = '$row_barang[KODE_BARANG]'
+					                                                                                                                        AND (s.TEMPLATECODE = '201')
+					                                                                                                                        AND CREATIONDATETIME > '2025-02-25 13:00:00'
+					                                                                                                                        AND (s.TRANSACTIONDATE) >= '$date1' AND (s.TRANSACTIONDATE) <= '$date2'";
 
-																						            <td style="text-align: center;">
-																						                <?php
-                                                                                                                $query_stok_keluar = "SELECT
-				                                                                                                                        SUM(s.USERPRIMARYQUANTITY) AS KELUAR
-				                                                                                                                    FROM
-				                                                                                                                        STOCKTRANSACTION s
-				                                                                                                                    WHERE
-				                                                                                                                        s.LOGICALWAREHOUSECODE = 'M241'
-				                                                                                                                        AND TRIM(s.DECOSUBCODE01) || '-' ||
-				                                                                                                                            TRIM(s.DECOSUBCODE02) || '-' ||
-				                                                                                                                            TRIM(s.DECOSUBCODE03) || '-' ||
-				                                                                                                                            TRIM(s.DECOSUBCODE04) || '-' ||
-				                                                                                                                            TRIM(s.DECOSUBCODE05) || '-' ||
-				                                                                                                                            TRIM(s.DECOSUBCODE06)  = '$row_barang[KODE_BARANG]'
-				                                                                                                                        AND (s.TEMPLATECODE = '201')
-				                                                                                                                        AND CREATIONDATETIME > '2025-02-25 13:00:00'
-				                                                                                                                        AND (s.TRANSACTIONDATE) >= '$date1' AND (s.TRANSACTIONDATE) <= '$date2'";
+                                                                                                                    $q_stok_keluar = db2_exec($conn1, $query_stok_keluar);
 
-                                                                                                                if ($EXTRA_ITEM) {
-                                                                                                                    $query_stok_keluar .= "AND TRANSACTIONNUMBER <> '$TRANSACTIONNUMBER'";
-                                                                                                                }
+                                                                                                                    $row_stok_keluar = db2_fetch_assoc($q_stok_keluar);
+                                                                                                                    if ($row_stok_keluar['KELUAR']) {
+                                                                                                                        $stok_keluar = (int) $row_stok_keluar['KELUAR'];
+                                                                                                                    } else {
+                                                                                                                        $stok_keluar = 0;
+                                                                                                                    }
+                                                                                                                    echo $stok_keluar;
+                                                                                                                ?>
+																							            </td><!-- STOK KELUAR -->
 
-                                                                                                                $q_stok_keluar = db2_exec($conn1, $query_stok_keluar);
+																							            <td style="text-align: center;"><?php echo $row_barang['UNIT']; ?></td>
 
-                                                                                                                $row_stok_keluar = db2_fetch_assoc($q_stok_keluar);
-                                                                                                                if ($row_stok_keluar['KELUAR']) {
-                                                                                                                    $stok_keluar = (int) $row_stok_keluar['KELUAR'];
-                                                                                                                } else {
-                                                                                                                    $stok_keluar = 0;
-                                                                                                                }
-                                                                                                                echo $stok_keluar;
-                                                                                                            ?>
-																						            </td><!-- STOK KELUAR -->
+																							            <td style="text-align: center;"><?php echo $stok_awal + $stok_masuk - $stok_keluar; ?></td>
 
-																						            <td style="text-align: center;"><?php echo $row_barang['UNIT']; ?></td>
-
-																						            <td style="text-align: center;"><?php echo $stok_awal + $stok_masuk - $stok_keluar; ?></td>
-
-																						            <td style="text-align: center;"></td>
-																						        </tr>
-																						        <?php endwhile; ?>
+																							            <td style="text-align: center;"></td>
+																							        </tr>
+																							        <?php endwhile; ?>
     </table>
     <br>
     <table width="100%" border="1">
