@@ -41,9 +41,6 @@
     $DECOSUBCODE06 = $data_barang['DECOSUBCODE06'];
     $UNIOFMEASURE  = $data_barang['UNITOFMEASURE'];
 
-    $EXTRA_ITEM        = $data_barang['EXTRA_ITEM'];
-    $TRANSACTIONNUMBER = $data_barang['TRANSACTIONNUMBER'];
-
     // Deklarasi Awal
     $stock_awal    = 0;
     $stock_akhir   = 0;
@@ -72,10 +69,6 @@
     AND TRANSACTIONDATE < '$tglawal'
     AND CREATIONDATETIME > '2025-02-25 13:00:00'";
 
-    if ($EXTRA_ITEM) {
-        $query_masuk .= "AND TRANSACTIONNUMBER <> '$TRANSACTIONNUMBER'";
-    }
-
     $exec_query_masuk  = db2_exec($conn1, $query_masuk);
     $fetch_query_masuk = db2_fetch_assoc($exec_query_masuk);
 
@@ -97,10 +90,6 @@
     AND DECOSUBCODE06 ='$DECOSUBCODE06'
     AND TRANSACTIONDATE < '$tglawal'
     AND CREATIONDATETIME > '2025-02-25 13:00:00'";
-
-    if ($EXTRA_ITEM) {
-        $query_keluar .= "AND TRANSACTIONNUMBER <> '$TRANSACTIONNUMBER'";
-    }
 
     $exec_query_keluar  = db2_exec($conn1, $query_keluar);
     $fetch_query_keluar = db2_fetch_assoc($exec_query_keluar);
@@ -142,12 +131,6 @@
     $exec_query_data = db2_exec($conn1, $query_data);
 
     while ($row = db2_fetch_assoc($exec_query_data)) {
-
-        if ($EXTRA_ITEM) {
-            if ($TRANSACTIONNUMBER === $row['TRANSACTIONNUMBER']) {
-                continue;
-            }
-        }
 
         $tanggal       = '';
         $jumlah_masuk  = '';
