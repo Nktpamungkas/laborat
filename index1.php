@@ -198,6 +198,11 @@ $page = strtolower($page);
                                                 } ?>"><a href="?p=Preliminary-Schedule"><i class="fa fa-clock-o" aria-hidden="true"></i>
                                             <span>Preliminary Schedule</span></a>
                                     </li>
+                                    <li class="<?php if ($_GET['p'] == "Dispensing-List" or $_GET['p'] == "Form-Dispensing-List") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Dispensing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Dispensing List</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             

@@ -46,11 +46,22 @@
                     <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
                 </div>
             </div>
-            <div class="box-footer">
-                <div class="col-sm-3">
-                    <button type="submit" id="exsecute" value="save" class="btn btn-block btn-social btn-linkedin" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
+
+            <?php
+                include "../koneksi.php";
+
+                $query = mysqli_query($con, "SELECT is_scheduling FROM tbl_is_scheduling LIMIT 1");
+                $row = mysqli_fetch_assoc($query);
+                $showButton = ($row['is_scheduling'] == 0);
+            ?>
+
+            <?php if ($showButton): ?>
+                <div class="box-footer">
+                    <div class="col-sm-3">
+                        <button type="submit" id="exsecute" value="save" class="btn btn-block btn-social btn-linkedin" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </form>
 </div>
@@ -59,7 +70,9 @@
         <div class="box">
             <div class="box-header with-border">
                 <li class="pull-right">
-                    <button type="button" id="exsecute_schedule" class="btn btn-danger btn-sm text-black"><strong>SUBMIT FOR SCHEDULE PROCESS ! <i class="fa fa-save"></i></strong></button>
+                    <button type="button" id="execute_schedule" class="btn btn-danger btn-sm text-black" <?php if (!$showButton): ?>disabled<?php endif; ?>>
+                        <strong>SUBMIT FOR SCHEDULE PROCESS ! <i class="fa fa-save"></i></strong>
+                    </button>
                 </li>
             </div>
             <div class="box-body">
@@ -88,6 +101,363 @@
         </div>
     </div>
 </div>
+
+<?php
+    include "../koneksi.php";
+
+    $query = mysqli_query($con, "SELECT is_scheduling FROM tbl_is_scheduling LIMIT 1");
+    $row = mysqli_fetch_assoc($query);
+    $is_scheduling = ($row['is_scheduling'] == 1);
+?>
+<?php if ($is_scheduling): ?>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div id="schedule_table"></div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // $(document).ready(function() {
+    //     $('#execute_schedule').click(function() {
+
+    //         $('#exsecute').closest('.box-footer').hide();
+
+    //         $.ajax({
+    //             url: 'pages/ajax/fetch_schedule.php',
+    //             type: 'GET',
+    //             dataType: 'json',
+    //             success: function(response) {
+    //                 var schedules = JSON.stringify(response);
+    //                 $.ajax({
+    //                     url: 'pages/ajax/generate_schedule.php',
+    //                     type: 'POST',
+    //                     data: { schedules: schedules },
+    //                     success: function(data) {
+    //                        $('#schedule_table').html(data);
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     });
+    // });
+    $(document).ready(function() {
+        $('#execute_schedule').click(function() {
+
+            $('#exsecute').closest('.box-footer').hide();
+
+            // 1. Jalankan generate_group_id.php
+            $.ajax({
+                url: 'pages/ajax/generate_group_id.php',
+                type: 'POST',
+                success: function(response) {
+                    console.log(response);
+
+                    // 2. Lanjut ambil data schedule
+                    $.ajax({
+                        url: 'pages/ajax/fetch_schedule.php',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            var schedules = JSON.stringify(response);
+
+                            // 3. Generate schedule dengan data yang di-fetch
+                            $.ajax({
+                                url: 'pages/ajax/generate_schedule.php',
+                                type: 'POST',
+                                data: { schedules: schedules },
+                                success: function(data) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil!',
+                                        text: 'Data berhasil diproses.',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                    $('#schedule_table').html(data);
+                                }
+                            });
+                        }
+                    });
+
+                }
+            });
+        });
+    });
+
+</script>
+
+<!-- <script>
+    $(document).ready(function() {
+        $.ajax({
+            url: 'pages/ajax/fetch_schedule.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                var schedules = JSON.stringify(response);
+                $.ajax({
+                    url: 'pages/ajax/generate_schedule.php',
+                    type: 'POST',
+                    data: { schedules: schedules },
+                    success: function (data) {
+                        $('#schedule_table').html(data);
+                    }
+                });
+            }
+        });
+
+        $('#schedule_table').on('click', '#submitForDisp', function () {
+            let dataToSubmit = [];
+
+            // Dapatkan semua select (mesin dropdown)
+            const selects = document.querySelectorAll('#schedule_table select');
+
+            // Untuk tiap select (mesin), cari semua baris di kolom tersebut
+            selects.forEach(select => {
+                const machine = select.value;
+                if (!machine) {
+                    console.log('Mesin tidak dipilih:', select); // Debugging
+                    return; // Skip jika mesin tidak dipilih
+                }
+
+                // Dapatkan kolom index dari th tempat select ini berada
+                const th = select.closest('th');
+                const thRow = th.parentNode;
+                const colIndex = Array.from(thRow.children).indexOf(th);
+
+                // Loop semua baris tbody
+                document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
+                    const td = row.querySelectorAll('td')[colIndex];
+                    if (!td) return;
+
+                    const span = td.querySelector('.resep-item');
+                    if (span) {
+                        const id_schedule = span.getAttribute('data-id');
+                        const no_resep = span.getAttribute('data-resep');
+                        console.log('Menambahkan data:', { id_schedule, no_resep, machine }); // Debugging
+                        dataToSubmit.push({
+                            id_schedule,
+                            no_resep,
+                            machine
+                        });
+                    }
+                });
+            });
+
+            // Cek apakah dataToSubmit kosong atau tidak
+            console.log('Data to submit:', dataToSubmit); // Debugging
+
+            if (dataToSubmit.length > 0) {
+                console.log(dataToSubmit);
+
+                fetch('pages/ajax/submit_dispensing.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ assignments: dataToSubmit })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Data berhasil dikirim');
+                    } else {
+                        alert('Terjadi kesalahan saat menyimpan');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Terjadi error saat mengirim data');
+                });
+            } else {
+                alert('Silakan pilih mesin terlebih dahulu');
+            }
+        });
+
+    });
+
+</script> -->
+
+<script>
+    $(document).ready(function () {
+        // Load schedule awal
+        $.ajax({
+            url: 'pages/ajax/fetch_schedule.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                var schedules = JSON.stringify(response);
+
+                $.ajax({
+                    url: 'pages/ajax/generate_schedule.php',
+                    type: 'POST',
+                    data: { schedules: schedules },
+                    success: function (data) {
+                        $('#schedule_table').html(data);
+                    }
+                });
+            }
+        });
+
+        // Handle klik tombol submit
+        // $('#schedule_table').on('click', '#submitForDisp', function () {
+        //     let dataToSubmit = [];
+        //     const selects = document.querySelectorAll('#schedule_table select');
+
+        //     selects.forEach(select => {
+        //         const machine = select.value;
+        //         if (!machine) {
+        //             console.warn('Mesin tidak dipilih untuk:', select);
+        //             return;
+        //         }
+
+        //         const th = select.closest('th');
+        //         const thRow = th.closest('tr');
+        //         const colIndex = Array.from(thRow.children).indexOf(th);
+
+        //         console.log(`Mesin ${machine} dipilih untuk kolom ke-${colIndex}`);
+
+        //         // Loop setiap baris di tbody
+        //         document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
+        //             const tdList = row.querySelectorAll('td');
+        //             const td = tdList[colIndex];
+
+        //             if (!td) {
+        //                 console.warn(`Kolom index ${colIndex} tidak ditemukan di row`, row);
+        //                 return;
+        //             }
+
+        //             const span = td.querySelector('.resep-item');
+        //             if (span) {
+        //                 const id_schedule = span.getAttribute('data-id');
+        //                 const no_resep = span.getAttribute('data-resep');
+
+        //                 if (id_schedule && machine) {
+        //                     console.log('Menambahkan data:', { id_schedule, no_resep, machine });
+        //                     dataToSubmit.push({
+        //                         id_schedule,
+        //                         no_resep,
+        //                         machine
+        //                     });
+        //                 }
+        //             }
+        //         });
+        //     });
+
+        //     console.log('Data to submit:', dataToSubmit);
+
+        //     if (dataToSubmit.length > 0) {
+        //         fetch('pages/ajax/submit_dispensing.php', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json'
+        //             },
+        //             body: JSON.stringify({ assignments: dataToSubmit })
+        //         })
+        //         .then(res => res.json())
+        //         .then(data => {
+        //             if (data.success) {
+        //                 alert('Data berhasil dikirim');
+        //                 location.reload();
+        //             } else {
+        //                 alert('Terjadi kesalahan saat menyimpan');
+        //             }
+        //         })
+        //         .catch(err => {
+        //             console.error('Error:', err);
+        //             alert('Terjadi error saat mengirim data');
+        //         });
+        //     } else {
+        //         alert('Silakan pilih mesin terlebih dahulu untuk setiap kolom yang berisi resep.');
+        //     }
+        // });
+        $('#schedule_table').on('click', '#submitForDisp', function () {
+            let dataToSubmit = [];
+            const selects = document.querySelectorAll('#schedule_table select');
+
+            // 👉 CEK SEMUA SELECT SUDAH DIPILIH
+            let allSelected = true;
+            selects.forEach(select => {
+                if (!select.value) {
+                    allSelected = false;
+                    select.classList.add('is-invalid'); // Opsional: tandai merah jika pakai Bootstrap
+                } else {
+                    select.classList.remove('is-invalid'); // Hilangkan tanda jika sudah benar
+                }
+            });
+
+            // ❌ Jika ada yang belum dipilih, hentikan proses
+            if (!allSelected) {
+                alert('Semua kolom mesin harus dipilih sebelum mengirim.');
+                return;
+            }
+
+            // ✅ Semua mesin sudah dipilih, lanjutkan proses ambil resep
+            selects.forEach(select => {
+                const machine = select.value;
+                const th = select.closest('th');
+                const thRow = th.parentNode;
+                const colIndex = Array.from(thRow.children).indexOf(th);
+
+                document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
+                    const td = row.querySelectorAll('td')[colIndex];
+                    if (!td) return;
+
+                    const span = td.querySelector('.resep-item');
+                    if (span) {
+                        const id_schedule = span.getAttribute('data-id');
+                        const no_resep = span.getAttribute('data-resep');
+
+                        if (id_schedule && machine) {
+                            dataToSubmit.push({
+                                id_schedule,
+                                no_resep,
+                                machine
+                            });
+                        }
+                    }
+                });
+            });
+
+            console.log('Data to submit:', dataToSubmit);
+
+            if (dataToSubmit.length > 0) {
+                fetch('pages/ajax/submit_dispensing.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ assignments: dataToSubmit })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Simpan flag sukses di localStorage
+                        localStorage.setItem('showSuccessAlert', '1');
+
+                        // Redirect ke halaman tujuan
+                        window.location.href = 'index1.php?p=Dispensing-List';
+                    } else {
+                        alert('Terjadi kesalahan saat menyimpan');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Terjadi error saat mengirim data');
+                });
+            } else {
+                alert('Tidak ada resep yang diproses.');
+            }
+        });
+
+    });
+</script>
+
 <script>
     const input = document.getElementById("no_resep");
     const bottleWrapper = document.getElementById("bottleQtyWrapper");
@@ -267,7 +637,15 @@
             .then(response => response.json())
             .then(data => {
                 const tbody = document.getElementById("dataBody");
+                const executeBtn = document.getElementById("execute_schedule");
+
                 tbody.innerHTML = ""; // Kosongkan dulu
+
+                if (data.length === 0) {
+                    executeBtn.disabled = true;
+                } else {
+                    executeBtn.disabled = false;
+                }
 
                 data.forEach((item, index) => {
                     const row = `<tr>
@@ -275,7 +653,7 @@
                         <td>${item.no_resep}</td>
                         <td>${item.product_name}</td>
                         <td align="center">
-                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </td>
                     </tr>`;
                     tbody.innerHTML += row;
