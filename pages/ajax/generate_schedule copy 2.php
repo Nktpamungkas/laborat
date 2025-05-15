@@ -8,19 +8,19 @@ if (isset($_POST['schedules'])) {
     $maxRows = 24;
     $scheduleChunks = [];
 
-    // Membagi nomor resep per group menjadi beberapa chunk
-    foreach ($schedules as $groupName => $noReseps) {
-        $scheduleChunks[$groupName] = array_chunk($noReseps, $maxRows);
+    // Membagi nomor resep per produk menjadi beberapa chunk
+    foreach ($schedules as $productName => $noReseps) {
+        $scheduleChunks[$productName] = array_chunk($noReseps, $maxRows);
     }
 
     // Menyimpan ID dari tbl_preliminary_schedule untuk tiap resep di tiap chunk
     $idMap = [];
 
-    foreach ($scheduleChunks as $groupName => $chunks) {
-        $idMap[$groupName] = [];
+    foreach ($scheduleChunks as $productName => $chunks) {
+        $idMap[$productName] = [];
 
         foreach ($chunks as $chunkIndex => $chunk) {
-            $idMap[$groupName][$chunkIndex] = [];
+            $idMap[$productName][$chunkIndex] = [];
 
             foreach ($chunk as $no_resep) {
                 $stmt = $con->prepare("SELECT id FROM tbl_preliminary_schedule 
@@ -31,7 +31,7 @@ if (isset($_POST['schedules'])) {
                 $stmt->bind_result($id);
 
                 if ($stmt->fetch()) {
-                    $idMap[$groupName][$chunkIndex][] = $id;
+                    $idMap[$productName][$chunkIndex][] = $id;
                     $stmt->close();
 
                     // Tandai ID ini agar tidak digunakan lagi sementara
@@ -40,12 +40,14 @@ if (isset($_POST['schedules'])) {
                     $stmtUpdate->execute();
                     $stmtUpdate->close();
                 } else {
-                    $idMap[$groupName][$chunkIndex][] = null;
+                    $idMap[$productName][$chunkIndex][] = null;
                     $stmt->close();
                 }
             }
         }
     }
+
+    // $con->query("UPDATE tbl_preliminary_schedule SET no_machine = NULL WHERE no_machine = 'TEMP_USED'");
 ?>
     <h4 style="margin-left: 5px;">Schedule Celup</h4>
     <div class="table-responsive">
@@ -53,12 +55,12 @@ if (isset($_POST['schedules'])) {
             <thead class="table-dark">
                 <tr>
                     <th rowspan="2">No</th>
-                    <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
+                    <?php foreach ($scheduleChunks as $productName => $chunks): ?>
                         <?php
-                            // Ambil keterangan dari master_suhu berdasarkan group
+                            // Ambil keterangan dari master_suhu
                             $keterangan = '';
-                            $stmt = $con->prepare("SELECT keterangan FROM master_suhu WHERE `group` = ? LIMIT 1");
-                            $stmt->bind_param("s", $groupName);
+                            $stmt = $con->prepare("SELECT keterangan FROM master_suhu WHERE product_name = ?");
+                            $stmt->bind_param("s", $productName);
                             $stmt->execute();
                             $stmt->bind_result($keterangan);
                             $stmt->fetch();
@@ -82,14 +84,14 @@ if (isset($_POST['schedules'])) {
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
                             <th colspan="1">
                                 <div class="dropdown-container">
-                                    <select class="form-select form-select-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
+                                    <select class="form-select form-select-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($productName) ?>" data-product="<?= htmlspecialchars($productName) ?>">
                                         <option value="">Pilih Mesin</option>
                                         <?php foreach ($machines as $machine): ?>
                                             <option value="<?= htmlspecialchars($machine) ?>"><?= htmlspecialchars($machine) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <?= htmlspecialchars($groupName) ?>
+                                <?= htmlspecialchars($productName) ?>
                             </th>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
@@ -100,13 +102,13 @@ if (isset($_POST['schedules'])) {
                 <?php for ($i = 0; $i < $maxRows; $i++): ?>
                     <tr>
                         <td><?= $i + 1 ?></td>
-                        <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
+                        <?php foreach ($scheduleChunks as $productName => $chunks): ?>
                             <?php foreach ($chunks as $chunkIndex => $chunk): ?>
                                 <td>
                                     <?php if (isset($chunk[$i])): ?>
                                         <?php
                                             $no_resep = $chunk[$i];
-                                            $id_schedule = $idMap[$groupName][$chunkIndex][$i] ?? null;
+                                            $id_schedule = $idMap[$productName][$chunkIndex][$i] ?? null;
                                         ?>
                                         <?php if ($id_schedule): ?>
                                             <span class="resep-item" data-id="<?= $id_schedule ?>" data-resep="<?= htmlspecialchars($no_resep) ?>">
@@ -129,7 +131,7 @@ if (isset($_POST['schedules'])) {
         </div>
     </div>
 <?php
-    // Bersihkan tanda sementara
+    // Bersihkan TEMP_USED agar siap untuk input berikutnya
     $con->query("UPDATE tbl_preliminary_schedule SET no_machine = NULL WHERE no_machine = 'TEMP_USED'");
 } else {
     echo '<div class="alert alert-warning mt-4">Data tidak tersedia.</div>';

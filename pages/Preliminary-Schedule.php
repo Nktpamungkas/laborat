@@ -162,6 +162,7 @@
                         type: 'GET',
                         dataType: 'json',
                         success: function(response) {
+                            
                             var schedules = JSON.stringify(response);
 
                             // 3. Generate schedule dengan data yang di-fetch
@@ -301,6 +302,10 @@
                         $('#schedule_table').html(data);
                     }
                 });
+            },
+            error: function (xhr, status, error) {
+                console.error('Error in fetch_schedule.php:', status, error);
+                console.log('Response Text:', xhr.responseText);
             }
         });
 
@@ -453,6 +458,45 @@
             } else {
                 alert('Tidak ada resep yang diproses.');
             }
+        });
+
+        $('#schedule_table').on('change', 'select', function () {
+            const allSelects = $('#schedule_table select');
+            const selectedValues = [];
+
+            // Ambil semua mesin yang sudah dipilih
+            allSelects.each(function () {
+                const val = $(this).val();
+                if (val) {
+                    selectedValues.push(val);
+                }
+            });
+
+            // Untuk setiap select, sembunyikan opsi yang sudah dipilih di select lain
+            allSelects.each(function () {
+                const currentSelect = $(this);
+                const currentValue = currentSelect.val();
+
+                currentSelect.find('option').each(function () {
+                    const option = $(this);
+
+                    if (option.val() === '') {
+                        option.show(); // selalu tampilkan opsi default
+                        return;
+                    }
+
+                    // Selalu tampilkan dulu, lalu sembunyikan jika perlu
+                    option.show();
+
+                    // Sembunyikan jika sudah dipilih di select lain (kecuali dirinya sendiri)
+                    if (
+                        selectedValues.includes(option.val()) &&
+                        option.val() !== currentValue
+                    ) {
+                        option.hide();
+                    }
+                });
+            });
         });
 
     });

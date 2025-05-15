@@ -9,7 +9,8 @@ try {
     $result = mysqli_query($con, "
         SELECT 
             tbl_preliminary_schedule.*, 
-            master_suhu.product_name 
+            master_suhu.product_name,
+            master_suhu.keterangan
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code

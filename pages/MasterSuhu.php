@@ -87,9 +87,22 @@ include "koneksi.php";
                 <div class="modal-body">
                     <form id="addForm">
                         <div class="form-group">
-                            <label for="product_name">Product Name</label>
-                            <input type="text" id="product_name" name="product_name" class="form-control" placeholder="Masukan Product Name" required>
+                            <label>Product Name</label>
+                            <div class="form-inline">
+                                <div class="input-group">
+                                    <input type="number" id="suhu" name="suhu" class="form-control" placeholder="Suhu" required style="width: 100px;">
+                                    <span class="input-group-addon">°C</span>
+                                </div>
+
+                                <span class="mx-2" style="margin: 0 10px;">x</span>
+
+                                <div class="input-group">
+                                    <input type="number" id="durasi" name="durasi" class="form-control" placeholder="Durasi" required style="width: 100px;">
+                                    <span class="input-group-addon">MNT</span>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="form-group">
                             <label for="program">Program</label>
                             <select id="program" name="program" class="form-control" required>
@@ -187,18 +200,20 @@ include "koneksi.php";
         $('#addForm').on('submit', function(event) {
             event.preventDefault();
 
-            const formData = $(this).serialize();
-            const productName = $('#product_name').val().trim();
+            // const formData = $(this).serialize();
+            const suhu = $('#suhu').val().trim();
+            const durasi = $('#durasi').val().trim();
 
-            if (!productName) {
+            if (!suhu || !durasi) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Peringatan!',
-                    text: 'Nama Produk tidak boleh kosong!'
+                    text: 'Suhu dan durasi tidak boleh kosong!'
                 });
                 return;
             }
 
+            const productName = `${suhu}°C X ${durasi} MNT`;
 
             $.ajax({
                 url: 'pages/ajax/check_product_name_exists.php',
@@ -212,7 +227,12 @@ include "koneksi.php";
                             text: 'Nama Produk sudah ada di database!'
                         });
                     } else {
-                        // Jika product_name belum ada, lanjutkan submit form
+                        const formData = {
+                            product_name: productName,
+                            program: $('#program').val(),
+                            keterangan: $('#keterangan').val()
+                        };
+
                         $.ajax({
                             url: 'pages/ajax/add_master_suhu.php',
                             method: 'POST',

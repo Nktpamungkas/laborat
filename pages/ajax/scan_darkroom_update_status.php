@@ -5,7 +5,6 @@ include '../../koneksi.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $no_resep = $_POST['no_resep'];
 
-    // Ambil status saat ini
     $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ?");
     $stmt->bind_param("s", $no_resep);
     $stmt->execute();
@@ -15,38 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         $current_status = $row['status'];
         $next_status = null;
 
-        // switch ($current_status) {
-        //     case 'scheduled':
-        //         $next_status = 'in_progress_dispensing';
-        //         break;
-        //     case 'in_progress_dispensing':
-        //         $next_status = 'in_progress_dyeing';
-        //         break;
-        //     case 'in_progress_dyeing':
-        //         $next_status = 'in_progress_darkroom';
-        //         break;
-        //     default:
-        //         http_response_code(400);
-        //         echo json_encode(["success" => false, "error" => "Status tidak valid."]);
-        //         $stmt->close();
-        //         $con->close();
-        //         exit;
-        // }
-
-        if ($current_status === 'scheduled') {
-            $next_status = 'in_progress_dispensing';
+        if ($current_status === 'in_progress_dyeing') {
+            $next_status = 'in_progress_darkroom';
         } else {
             http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Status tidak valid."]);
+            echo json_encode(["success" => false, "error" => "Status tidak valid untuk tahap Darkroom."]);
             $stmt->close();
             $con->close();
             exit;
         }
 
-
-        // Lakukan update status
         $stmt->close();
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dispensing_start = now() WHERE no_resep = ?");
+        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ? WHERE no_resep = ?");
         $update->bind_param("ss", $next_status, $no_resep);
 
         if ($update->execute()) {

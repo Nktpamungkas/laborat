@@ -26,9 +26,9 @@
                 <!-- Container for tables with display flex -->
                 <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
                     
-                    <!-- Dispensing Poly Table -->
+                    <!-- DARK ROOM Poly Table -->
                     <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="polyHeader" class="text-center"><strong>DISPENSING POLY</strong></h4>
+                        <h4 id="polyHeader" class="text-center"><strong>DARK ROOM POLY</strong></h4>
                         <table id="tablePoly" class="table table-bordered" width="100%">
                             <thead class="bg-green">
                                 <tr>
@@ -58,9 +58,9 @@
                         </table>
                     </div>
 
-                    <!-- Dispensing Cotton Table -->
+                    <!-- DARK ROOM Cotton Table -->
                     <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="cottonHeader" class="text-center"><strong>DISPENSING COTTON</strong></h4>
+                        <h4 id="cottonHeader" class="text-center"><strong>DARK ROOM COTTON</strong></h4>
                         <table id="tableCotton" class="table table-bordered" width="100%">
                             <thead class="bg-green">
                                 <tr>
@@ -115,7 +115,7 @@
 
         function updateStatus(noResep) {
             $.ajax({
-                url: 'pages/ajax/scan_dispensing_update_status.php',
+                url: 'pages/ajax/scan_darkroom_update_status.php',
                 method: 'POST',
                 data: { no_resep: noResep },
                 success: function (response) {
@@ -177,7 +177,7 @@
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.dispensing_start}</td>
+                            <td align="center">${item.darkroom_start}</td>
                         </tr>`;
                         tbodyPoly.innerHTML += row;
                         hasPolyData = true;
@@ -194,7 +194,7 @@
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.dispensing_start}</td>
+                            <td align="center">${item.darkroom_start}</td>
                         </tr>`;
                         tbodyCotton.innerHTML += row;
                         hasCottonData = true;

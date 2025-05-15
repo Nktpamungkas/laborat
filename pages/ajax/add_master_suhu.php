@@ -50,8 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Simpan ke database
-        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, keterangan) VALUES (?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, 'issss', $group, $product_name, $code, $program, $keterangan);
+        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, keterangan, suhu, waktu) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, 'issssss', $group, $product_name, $code, $program, $keterangan, $suhu, $durasi);
         $success = mysqli_stmt_execute($stmt);
 
         if ($success) {

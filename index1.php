@@ -203,6 +203,16 @@ $page = strtolower($page);
                                                 } ?>"><a href="?p=Dispensing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
                                             <span>Dispensing List</span></a>
                                     </li>
+                                    <li class="<?php if ($_GET['p'] == "Dyeing-List" or $_GET['p'] == "Form-Dyeing-List") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Dyeing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Dyeing List</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Darkroom-List" or $_GET['p'] == "Form-Darkroom-List") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Darkroom-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Dark Room List</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             
