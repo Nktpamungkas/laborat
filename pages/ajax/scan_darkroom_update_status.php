@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         }
 
         $stmt->close();
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ? WHERE no_resep = ?");
+        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, darkroom_start = now() WHERE no_resep = ?");
         $update->bind_param("ss", $next_status, $no_resep);
 
         if ($update->execute()) {

@@ -14,18 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         $current_status = $row['status'];
         $next_status = null;
 
-        if ($current_status === 'in_progress_dispensing') {
-            $next_status = 'in_progress_dyeing';
+        if ($current_status === 'in_progress_darkroom') {
+            $next_status = 'ok';
         } else {
             http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Status tidak valid."]);
+            echo json_encode(["success" => false, "error" => "Status tidak valid untuk tahap Darkroom."]);
             $stmt->close();
             $con->close();
             exit;
         }
 
         $stmt->close();
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dyeing_start = now() WHERE no_resep = ?");
+        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, darkroom_end = now() WHERE no_resep = ?");
         $update->bind_param("ss", $next_status, $no_resep);
 
         if ($update->execute()) {

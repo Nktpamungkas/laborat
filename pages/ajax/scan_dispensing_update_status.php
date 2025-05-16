@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
             exit;
         }
 
-
         // Lakukan update status
         $stmt->close();
         $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dispensing_start = now() WHERE no_resep = ?");

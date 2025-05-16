@@ -14,6 +14,16 @@
         100% { transform: translateX(0); }
     }
 
+    .blink-warning {
+        color: red;
+        font-weight: bold;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.2; }
+    }
 </style>
 <div class="row">
     <div class="col-xs-12">
@@ -48,7 +58,7 @@
                                         <div align="center">Status</div>
                                     </th>
                                     <th>
-                                        <div align="center">Start</div>
+                                        <div align="center">Dyeing Start</div>
                                     </th>
                                 </tr>
                             </thead>
@@ -80,7 +90,7 @@
                                         <div align="center">Status</div>
                                     </th>
                                     <th>
-                                        <div align="center">Start</div>
+                                        <div align="center">Dyeing Start</div>
                                     </th>
                                 </tr>
                             </thead>
@@ -157,27 +167,44 @@
                 let hasPolyData = false;
                 let hasCottonData = false;
 
-                // Penomoran lokal
                 let polyIndex = 0;
                 let cottonIndex = 0;
 
                 data.forEach((item) => {
                     let row = "";
                     let bgColor = "";
+                    const now = new Date();
+
+                    let warningText = "-";
+
+                    if (item.dyeing_start) {
+                        const startTime = new Date(item.dyeing_start);
+                        const diffMs = now - startTime;
+                        const diffMins = diffMs / 1000 / 60;
+
+                        // Default 0 jika item.waktu null/undefined
+                        const processTime = parseFloat(item.waktu) || 0;
+
+                        if (diffMins > (120 + processTime)) {
+                            warningText = `<span class="blink-warning">⚠ ${item.dyeing_start}</span>`;
+                        } else {
+                            warningText = item.dyeing_start;
+                        }
+                    }
 
                     if (item.keterangan && item.keterangan.trim().toUpperCase() === "POLY") {
                         polyIndex++;
                         const groupIndex = Math.floor((polyIndex - 1) / 16);
                         const rowNumber = (polyIndex - 1) % 16 + 1;
                         bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-                        
+
                         row = `<tr style="background-color: ${bgColor}">
                             <td align="center">${rowNumber}</td>
                             <td align="center">${item.no_resep}</td>
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.dyeing_start}</td>
+                            <td align="center">${warningText}</td>
                         </tr>`;
                         tbodyPoly.innerHTML += row;
                         hasPolyData = true;
@@ -194,18 +221,16 @@
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.dyeing_start}</td>
+                            <td align="center">${warningText}</td>
                         </tr>`;
                         tbodyCotton.innerHTML += row;
                         hasCottonData = true;
                     }
                 });
 
-                // Sembunyikan jika tidak ada data
                 polyTableWrapper.style.display = hasPolyData ? "block" : "none";
                 cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
 
-                // Layout jika hanya satu tabel
                 const tableContainer = document.getElementById("tableContainer");
                 if (hasPolyData && hasCottonData) {
                     tableContainer.style.display = "flex";
@@ -219,7 +244,6 @@
                 console.error("Gagal mengambil data:", err);
             });
     }
-
 </script>
 <script>
     if (localStorage.getItem('showSuccessAlert') === '1') {

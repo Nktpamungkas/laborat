@@ -14,13 +14,23 @@
         100% { transform: translateX(0); }
     }
 
+    .blink-warning {
+        color: red;
+        font-weight: bold;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.2; }
+    }
 </style>
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
             <div class="box-body">
                 <div style="margin-bottom: 10px;">
-                    <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
+                    <input type="text" id="scanInput" placeholder="Scan here to start..." class="form-control" style="width: 250px;" autofocus>
                 </div>
                 
                 <!-- Container for tables with display flex -->
@@ -48,7 +58,7 @@
                                         <div align="center">Status</div>
                                     </th>
                                     <th>
-                                        <div align="center">Start</div>
+                                        <div align="center">Dark Room Start</div>
                                     </th>
                                 </tr>
                             </thead>
@@ -80,7 +90,7 @@
                                         <div align="center">Status</div>
                                     </th>
                                     <th>
-                                        <div align="center">Start</div>
+                                        <div align="center">Dark Room Start</div>
                                     </th>
                                 </tr>
                             </thead>
@@ -157,13 +167,27 @@
                 let hasPolyData = false;
                 let hasCottonData = false;
 
-                // Penomoran lokal
                 let polyIndex = 0;
                 let cottonIndex = 0;
 
                 data.forEach((item) => {
                     let row = "";
                     let bgColor = "";
+                    const now = new Date();
+
+                    let warningText = "-";
+
+                    if (item.darkroom_start) {
+                        const startTime = new Date(item.darkroom_start);
+                        const diffMs = now - startTime;
+                        const diffMins = diffMs / 1000 / 60;
+
+                        if (diffMins > 90) {
+                            warningText = `<span class="blink-warning">⚠ ${item.darkroom_start}</span>`;
+                        } else {
+                            warningText = item.darkroom_start;
+                        }
+                    }
 
                     if (item.keterangan && item.keterangan.trim().toUpperCase() === "POLY") {
                         polyIndex++;
@@ -177,7 +201,7 @@
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.darkroom_start}</td>
+                            <td align="center">${warningText}</td>
                         </tr>`;
                         tbodyPoly.innerHTML += row;
                         hasPolyData = true;
@@ -194,7 +218,7 @@
                             <td align="center">${item.product_name}</td>
                             <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
-                            <td align="center">${item.darkroom_start}</td>
+                            <td align="center">${warningText}</td>
                         </tr>`;
                         tbodyCotton.innerHTML += row;
                         hasCottonData = true;
@@ -219,7 +243,6 @@
                 console.error("Gagal mengambil data:", err);
             });
     }
-
 </script>
 <script>
     if (localStorage.getItem('showSuccessAlert') === '1') {

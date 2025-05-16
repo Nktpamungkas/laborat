@@ -201,17 +201,22 @@ $page = strtolower($page);
                                     <li class="<?php if ($_GET['p'] == "Dispensing-List" or $_GET['p'] == "Form-Dispensing-List") {
                                                     echo "active";
                                                 } ?>"><a href="?p=Dispensing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dispensing List</span></a>
+                                            <span>Dispensing</span></a>
                                     </li>
                                     <li class="<?php if ($_GET['p'] == "Dyeing-List" or $_GET['p'] == "Form-Dyeing-List") {
                                                     echo "active";
                                                 } ?>"><a href="?p=Dyeing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dyeing List</span></a>
+                                            <span>Dyeing</span></a>
                                     </li>
-                                    <li class="<?php if ($_GET['p'] == "Darkroom-List" or $_GET['p'] == "Form-Darkroom-List") {
+                                    <li class="<?php if ($_GET['p'] == "Darkroom-Start" or $_GET['p'] == "Form-Darkroom-Start") {
                                                     echo "active";
-                                                } ?>"><a href="?p=Darkroom-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dark Room List</span></a>
+                                                } ?>"><a href="?p=Darkroom-Start"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Dark Room - Start</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Darkroom-End" or $_GET['p'] == "Form-Darkroom-End") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Darkroom-End"><i class="fa fa-clock-o" aria-hidden="true"></i>
+                                            <span>Dark Room - End</span></a>
                                     </li>
                                 </ul>
                             <?php endif; ?>

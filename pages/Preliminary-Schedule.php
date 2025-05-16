@@ -121,29 +121,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    // $(document).ready(function() {
-    //     $('#execute_schedule').click(function() {
-
-    //         $('#exsecute').closest('.box-footer').hide();
-
-    //         $.ajax({
-    //             url: 'pages/ajax/fetch_schedule.php',
-    //             type: 'GET',
-    //             dataType: 'json',
-    //             success: function(response) {
-    //                 var schedules = JSON.stringify(response);
-    //                 $.ajax({
-    //                     url: 'pages/ajax/generate_schedule.php',
-    //                     type: 'POST',
-    //                     data: { schedules: schedules },
-    //                     success: function(data) {
-    //                        $('#schedule_table').html(data);
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     });
-    // });
     $(document).ready(function() {
         $('#execute_schedule').click(function() {
 
@@ -815,6 +792,36 @@
         }
     });
 
+    $('#no_resep').on('input', function () {
+        clearTimeout(tempScanTimer);
+
+        const code = $(this).val().trim();
+
+        tempScanTimer = setTimeout(function () {
+                $.ajax({
+                url: 'pages/ajax/get_temp_code_by_noresep.php',
+                method: 'GET',
+                data: { no_resep: code },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const codes = response.codes;
+                        if (codes.length === 2) {
+                            $('#temp_1').val(codes[0]).trigger('input');
+                            $('#temp_2').val(codes[1]).trigger('input');
+                        } else if (codes.length === 1) {
+                            $('#temp_1').val(codes[0]).trigger('input');
+                            $('#temp').val(codes[0]).trigger('input');
+                        }
+                    }
+                },
+                error: function() {
+                    console.error('Gagal mengambil data dari server.');
+                }
+            });
+        }, 300);
+
+    });
 
     function setupTempListenersDR() {
         listenTempWithId('#temp_1', '#productNameDisplay_1');

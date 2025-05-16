@@ -10,6 +10,7 @@ try {
         SELECT 
             tbl_preliminary_schedule.*, 
             master_suhu.product_name,
+            master_suhu.waktu,
             master_suhu.keterangan
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
