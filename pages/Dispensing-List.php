@@ -51,9 +51,9 @@
                                     <th>
                                         <div align="center">Temp</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">No. Mesin</div>
-                                    </th>
+                                    </th> -->
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
@@ -83,9 +83,9 @@
                                     <th>
                                         <div align="center">Temp</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">No. Mesin</div>
-                                    </th>
+                                    </th> -->
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
@@ -115,9 +115,9 @@
                                     <th>
                                         <div align="center">Temp</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">No. Mesin</div>
-                                    </th>
+                                    </th> -->
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
@@ -236,7 +236,6 @@
                             <td align="center">${rowNumber}</td>
                             <td align="center">${item.no_resep}</td>
                             <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
                             <td align="center">${warningText}</td>
                         </tr>`;
@@ -253,7 +252,6 @@
                             <td align="center">${rowNumber}</td>
                             <td align="center">${item.no_resep}</td>
                             <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
                             <td align="center">${warningText}</td>
                         </tr>`;
@@ -269,7 +267,6 @@
                             <td align="center">${rowNumber}</td>
                             <td align="center">${item.no_resep}</td>
                             <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
                             <td align="center">${item.status}</td>
                             <td align="center">${warningText}</td>
                         </tr>`;
