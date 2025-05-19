@@ -10,12 +10,14 @@ try {
         SELECT 
             tbl_preliminary_schedule.*, 
             master_suhu.product_name,
+            master_suhu.suhu,
             master_suhu.waktu,
             master_suhu.dispensing
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
         WHERE tbl_preliminary_schedule.status != 'ready'
+        ORDER BY master_suhu.suhu DESC, master_suhu.waktu DESC
     ");
 
     $data = [];
