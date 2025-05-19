@@ -100,6 +100,38 @@
                         </table>
                     </div>
 
+                    <!-- Dispensing White Table -->
+                    <div id="whiteTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                        <h4 id="whiteHeader" class="text-center"><strong>DISPENSING WHITE</strong></h4>
+                        <table id="tableWhite" class="table table-bordered" width="100%">
+                            <thead class="bg-green">
+                                <tr>
+                                    <th>
+                                        <div align="center">No</div>
+                                    </th>
+                                    <th>
+                                        <div align="center">No. Resep</div>
+                                    </th>
+                                    <th>
+                                        <div align="center">Temp</div>
+                                    </th>
+                                    <th>
+                                        <div align="center">No. Mesin</div>
+                                    </th>
+                                    <th>
+                                        <div align="center">Status</div>
+                                    </th>
+                                    <th>
+                                        <div align="center">Dispensing Start</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataBodyWhite">
+                                <!-- Data will be displayed here -->
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -158,17 +190,22 @@
             .then(data => {
                 const tbodyPoly = document.getElementById("dataBodyPoly");
                 const tbodyCotton = document.getElementById("dataBodyCotton");
+                const tbodyWhite = document.getElementById("dataBodyWhite");
                 const polyTableWrapper = document.getElementById("polyTableWrapper");
                 const cottonTableWrapper = document.getElementById("cottonTableWrapper");
+                const whiteTableWrapper = document.getElementById("whiteTableWrapper");
 
                 tbodyPoly.innerHTML = "";
                 tbodyCotton.innerHTML = "";
+                tbodyWhite.innerHTML = "";
 
                 let hasPolyData = false;
                 let hasCottonData = false;
+                let hasWhiteData = false;
 
                 let polyIndex = 0;
                 let cottonIndex = 0;
+                let whiteIndex = 0;
 
                 data.forEach((item) => {
                     let row = "";
@@ -189,7 +226,7 @@
                         }
                     }
 
-                    if (item.keterangan && item.keterangan.trim().toUpperCase() === "POLY") {
+                    if (item.dispensing && item.dispensing.trim() == "1") {
                         polyIndex++;
                         const groupIndex = Math.floor((polyIndex - 1) / 16);
                         const rowNumber = (polyIndex - 1) % 16 + 1;
@@ -206,7 +243,7 @@
                         tbodyPoly.innerHTML += row;
                         hasPolyData = true;
 
-                    } else if (item.keterangan && item.keterangan.trim().toUpperCase() === "COTTON") {
+                    } else if (item.dispensing && item.dispensing.trim() == "2") {
                         cottonIndex++;
                         const groupIndex = Math.floor((cottonIndex - 1) / 16);
                         const rowNumber = (cottonIndex - 1) % 16 + 1;
@@ -222,14 +259,31 @@
                         </tr>`;
                         tbodyCotton.innerHTML += row;
                         hasCottonData = true;
+                    } else {
+                        whiteIndex++;
+                        const groupIndex = Math.floor((whiteIndex - 1) / 16);
+                        const rowNumber = (whiteIndex - 1) % 16 + 1;
+                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+
+                        row = `<tr style="background-color: ${bgColor}">
+                            <td align="center">${rowNumber}</td>
+                            <td align="center">${item.no_resep}</td>
+                            <td align="center">${item.product_name}</td>
+                            <td align="center">${item.no_machine}</td>
+                            <td align="center">${item.status}</td>
+                            <td align="center">${warningText}</td>
+                        </tr>`;
+                        tbodyWhite.innerHTML += row;
+                        hasWhiteData = true;
                     }
                  });
 
                 polyTableWrapper.style.display = hasPolyData ? "block" : "none";
                 cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
+                whiteTableWrapper.style.display = hasWhiteData ? "block" : "none";
 
                 const tableContainer = document.getElementById("tableContainer");
-                if (hasPolyData && hasCottonData) {
+                if ((hasPolyData && hasCottonData && hasWhiteData) || (hasPolyData && hasCottonData) || (hasPolyData && hasWhiteData) || (hasCottonData && hasWhiteData)) {
                     tableContainer.style.display = "flex";
                     tableContainer.style.justifyContent = "space-between";
                 } else {

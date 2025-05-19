@@ -8,8 +8,7 @@ header('Content-Type: application/json');
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $product_name = trim($_POST['product_name']);
     $program = $_POST['program'];
-    $dyeing = $_POST['dyeing'];
-    $dispensing = $_POST['dispensing'];
+    $keterangan = $_POST['keterangan'];
 
     // Ambil suhu & durasi dari product_name
     preg_match("/(\d+)[^\d]+X[^\d]+(\d+)/", $product_name, $matches);
@@ -21,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         if ($program == 'KONSTAN') {
             $prefix = "1";
+            $kode_awalan = str_pad($suhu, 2, "0", STR_PAD_LEFT);
 
             // Cari apakah sudah ada suhu dengan awalan ini
             $query = mysqli_query($con, "SELECT `group` FROM master_suhu WHERE program='KONSTAN' AND product_name LIKE '$suhu%' LIMIT 1");
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $group = (int)("1" . $next_suffix);
             }
 
-            $code = $suhu . str_pad($durasi, 2, '0', STR_PAD_LEFT) . "1" . $dyeing . $dispensing;
+            $code = "1" . str_pad($suhu, 3, '0', STR_PAD_LEFT) . str_pad($durasi, 2, '0', STR_PAD_LEFT);
         } elseif ($program == 'RAISING') {
             // Raising: group selalu naik satu angka
             $prefix = "2";
@@ -43,15 +43,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $last_group = mysqli_fetch_assoc($last)['max_group'];
             $group = $last_group ? $last_group + 1 : 201;
 
-            $code = $suhu . str_pad($durasi, 2, '0', STR_PAD_LEFT) . "2" . $dyeing . $dispensing;
+            $code = "2" . $suhu . str_pad($durasi, 2, '0', STR_PAD_LEFT);
         } else {
             echo "<div style='color:red'>Program tidak valid</div>";
             exit;
         }
 
         // Simpan ke database
-        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, dyeing, dispensing) VALUES (?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, 'isssss', $group, $product_name, $code, $prefix, $dyeing, $dispensing);
+        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, keterangan) VALUES (?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, 'issss', $group, $product_name, $code, $program, $keterangan);
         $success = mysqli_stmt_execute($stmt);
 
         if ($success) {

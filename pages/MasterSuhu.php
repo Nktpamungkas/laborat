@@ -59,8 +59,9 @@ include "koneksi.php";
                                 <th>Code</th>
                                 <th>Group</th>
                                 <th>Product Name</th>
-                                <th>Program</th>
-                                <th>Keterangan</th>
+                                <th title="1.Konstan | 2.Raising">Program</th>
+                                <th title="1.POLY | 2.COTTON">Dyeing</th>
+                                <th title="1.POLY | 2.COTTON | 3.WHITE">Dispensing</th>
                                 <th><div align="center">Actions</div></th>
                             </tr>
                         </thead>
@@ -112,12 +113,22 @@ include "koneksi.php";
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="keterangan">Keterangan</label>
+                            <label for="dyeing">Dyeing</label>
                             <!-- <input type="text" id="keterangan" name="keterangan" class="form-control" required> -->
-                             <select id="keterangan" name="keterangan" class="form-control" required>
-                                <option value="">== Pilih Keterangan ==</option>
-                                <option value="POLY">POLY</option>
-                                <option value="COTTON">COTTON</option>
+                            <select id="dyeing" name="dyeing" class="form-control" required>
+                                <option value="">== Pilih ==</option>
+                                <option value="1">POLY</option>
+                                <option value="2">COTTON</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dispensing">Dispensing</label>
+                            <!-- <input type="text" id="keterangan" name="keterangan" class="form-control" required> -->
+                            <select id="dispensing" name="dispensing" class="form-control" required>
+                                <option value="">== Pilih ==</option>
+                                <option value="1">POLY</option>
+                                <option value="2">COTTON</option>
+                                <option value="3">WHITE</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Add</button>
@@ -144,7 +155,8 @@ include "koneksi.php";
                     { "data": "group" },
                     { "data": "product_name" },
                     { "data": "program" },
-                    { "data": "keterangan" },
+                    { "data": "dyeing" },
+                    { "data": "dispensing" },
                     {
                         data: 'id',
                         "className": "text-center",
@@ -203,6 +215,9 @@ include "koneksi.php";
             // const formData = $(this).serialize();
             const suhu = $('#suhu').val().trim();
             const durasi = $('#durasi').val().trim();
+            const program = $('#program').val() == "KONSTAN" ? "1" : "2";
+            const dyeing = $('#dyeing').val();
+            const dispensing = $('#dispensing').val();
 
             if (!suhu || !durasi) {
                 Swal.fire({
@@ -213,12 +228,16 @@ include "koneksi.php";
                 return;
             }
 
-            const productName = `${suhu}°C X ${durasi} MNT`;
+            // const productName = `${suhu}°C X ${durasi} MNT`;
+            const durasiPadded = padLeft(durasi, 2);
+            const code = suhu + durasiPadded + program + dyeing + dispensing;
 
             $.ajax({
-                url: 'pages/ajax/check_product_name_exists.php',
+                // url: 'pages/ajax/check_product_name_exists.php',
+                url: 'pages/ajax/check_code_exists.php',
                 method: 'GET',
-                data: { product_name: productName },
+                // data: { product_name: productName },
+                data: { code: code },
                 success: function(response) {
                     if (response.status === 'exists') {
                         Swal.fire({
@@ -230,7 +249,8 @@ include "koneksi.php";
                         const formData = {
                             product_name: productName,
                             program: $('#program').val(),
-                            keterangan: $('#keterangan').val()
+                            dyeing: $('#dyeing').val(),
+                            dispensing: $('#dispensing').val()
                         };
 
                         $.ajax({
@@ -252,7 +272,8 @@ include "koneksi.php";
                                 // Reset input setelah submit
                                 $('#product_name').val('');
                                 $('#program').val('');
-                                $('#keterangan').val('');
+                                $('#dyeing').val('');
+                                $('#dispensing').val('');
                             },
                             error: function(xhr, status, error) {
                                 Swal.fire({
@@ -276,6 +297,11 @@ include "koneksi.php";
                 }
             });
         });
+
+        function padLeft(str, length, padChar = '0') {
+            str = str.toString();
+            return str.length >= length ? str : padChar.repeat(length - str.length) + str;
+        }
 
         function deleteData(id) {
             Swal.fire({

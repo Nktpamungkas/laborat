@@ -5,6 +5,7 @@ include '../../koneksi.php';
 if (isset($_POST['schedules'])) {
     $schedules = json_decode($_POST['schedules'], true);
 
+    // print_r($schedules);
     $maxRows = 24;
     $scheduleChunks = [];
 
@@ -57,12 +58,20 @@ if (isset($_POST['schedules'])) {
                         <?php
                             // Ambil keterangan dari master_suhu berdasarkan group
                             $keterangan = '';
-                            $stmt = $con->prepare("SELECT keterangan FROM master_suhu WHERE `group` = ? LIMIT 1");
+                            $stmt = $con->prepare("SELECT dyeing FROM master_suhu WHERE `group` = ? LIMIT 1");
                             $stmt->bind_param("s", $groupName);
                             $stmt->execute();
-                            $stmt->bind_result($keterangan);
+                            $stmt->bind_result($dyeingValue);
                             $stmt->fetch();
                             $stmt->close();
+
+                            
+                            // Konversi dyeing menjadi keterangan
+                            if ($dyeingValue == "1") {
+                                $keterangan = 'POLY';
+                            } elseif ($dyeingValue == "2") {
+                                $keterangan = 'COTTON';
+                            }
 
                             // Ambil mesin berdasarkan keterangan
                             $machines = [];
@@ -77,6 +86,20 @@ if (isset($_POST['schedules'])) {
                                 }
                                 $stmtMesin->close();
                             }
+
+                            // Temp Group
+                            $groupTemp = [];
+                            $stmtTemp = $con->prepare("SELECT product_name FROM master_suhu WHERE `group` = ?");
+                            $stmtTemp->bind_param("s", $groupName);
+                            $stmtTemp->execute();
+                            $resultProd = $stmtTemp->get_result();
+                            while ($row = $resultProd->fetch_assoc()) {
+                                $groupTemp[] = $row['product_name'];
+                            }
+                            $stmtTemp->close();
+
+                            // Gabungkan dengan koma
+                            $tempList = implode(' ; ', $groupTemp);
                         ?>
 
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
@@ -89,7 +112,8 @@ if (isset($_POST['schedules'])) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <?= htmlspecialchars($groupName) ?>
+                                <?= htmlspecialchars($groupName) ?> <br>
+                                [<small><?= htmlspecialchars($tempList) ?></small>]
                             </th>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
