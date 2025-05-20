@@ -112,7 +112,7 @@ if (isset($_POST['schedules'])) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <?= htmlspecialchars($groupName) ?> <br>
+                                <!-- <?= htmlspecialchars($groupName) ?> <br> -->
                                 [<small><?= htmlspecialchars($tempList) ?></small>]
                             </th>
                         <?php endforeach; ?>

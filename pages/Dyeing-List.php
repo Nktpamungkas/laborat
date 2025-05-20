@@ -1,117 +1,180 @@
-<style>
-    input::placeholder {
-        font-style: italic;
-        font-size: 12px;
-    }
-    #tempWrapper {
-        margin-bottom: 0;
-    }
-    @keyframes shake {
-        0% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        50% { transform: translateX(5px); }
-        75% { transform: translateX(-5px); }
-        100% { transform: translateX(0); }
-    }
 
-    .blink-warning {
-        color: red;
-        font-weight: bold;
-        animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.2; }
-    }
-</style>
 <div class="row">
     <div class="col-xs-12">
+        <div style="margin-bottom: 10px;">
+            <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
+        </div>
         <div class="box">
-            <div class="box-body">
-                <div style="margin-bottom: 10px;">
-                    <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
-                </div>
-                
-                <!-- Container for tables with display flex -->
-                <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-                    
-                    <!-- DYEING Poly Table -->
-                    <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="polyHeader" class="text-center"><strong>DYEING POLY</strong></h4>
-                        <table id="tablePoly" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Dyeing Start</div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyPoly">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- DYEING Cotton Table -->
-                    <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="cottonHeader" class="text-center"><strong>DYEING COTTON</strong></h4>
-                        <table id="tableCotton" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Dyeing Start</div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyCotton">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
+            <div id="schedule_table"></div>
         </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+    // $.ajax({
+    //     url: 'pages/ajax/fetch_dyeing_list.php',
+    //     type: 'GET',
+    //     dataType: 'json',
+    //     success: function(response) {
+    //         const schedules = JSON.stringify(response);
+    //         console.log(schedules);       
+
+    //         $.ajax({
+    //             url: 'pages/ajax/generate_dyeing_copy.php',
+    //             type: 'POST',
+    //             dataType: 'json',
+    //             data: { schedules: schedules },
+    //             success: function(data) {
+    //                 // console.log(data);
+                    
+    //                 const { columns, groupInfo, scheduleData, maxRows } = data;
+
+    //                 let html = `
+    //                     <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
+    //                         <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 1200px; width: 100%;">
+    //                             <colgroup>
+    //                                 <col style="width: 3%;"> <!-- Kolom No -->
+    //                 `;
+    //                 columns.forEach(() => {
+    //                     html += `<col style="width: ${Math.floor(95 / columns.length)}%;">`; // Bagi sisa lebarnya
+    //                 });
+    //                 html += `
+    //                             </colgroup>
+    //                             <thead class="table-dark">
+    //                                 <tr>
+    //                                     <th rowspan="2">No</th>
+    //                 `;
+
+    //                 // Baris 1: Mesin
+    //                 columns.forEach(col => {
+    //                     html += `
+    //                             <th>
+    //                                 Mesin ${col.machine || '-'} <br>
+    //                                 <input type="text" class="form-control scan-resep" data-no_machine="${col.machine}" placeholder="Scan here...">
+    //                             </th>`;
+    //                 });
+
+    //                 html += `</tr><tr>`;
+
+    //                 // Baris 2: Group + Product
+    //                 columns.forEach(col => {
+    //                     const groupName = col.group;
+    //                     const productNames = groupInfo[groupName] || '';
+    //                     html += `<th><small>[${productNames}]</small></th>`;
+    //                 });
+
+    //                 html += `</tr></thead><tbody>`;
+
+    //                 for (let i = 0; i < maxRows; i++) {
+    //                     html += `<tr><td>${i + 1}</td>`;
+
+    //                     columns.forEach(col => {
+    //                         const group = col.group;
+    //                         const chunkIndex = col.chunk_index;
+    //                         const cell = scheduleData[i] &&
+    //                                     scheduleData[i][group] &&
+    //                                     scheduleData[i][group][chunkIndex];
+
+    //                         if (cell) {
+    //                             html += `<td>
+    //                                     <div style="display: flex; justify-content: space-evenly;">
+    //                                         <span>${cell.no_resep}</span>
+    //                                         <span class="text-muted">${cell.status}</span>
+    //                                     </div>
+    //                                 </td>`;
+    //                         } else {
+    //                             html += `<td></td>`;
+    //                         }
+    //                     });
+
+    //                     html += `</tr>`;
+    //                 }
+
+    //                 html += `</tbody></table></div>`;
+
+    //                 $('#schedule_table').html(html);
+    //             }
+    //         });
+    //     }
+    // });
+</script>
+<script>
+    function loadScheduleTable() {
+        $.ajax({
+            url: 'pages/ajax/generate_dyeing.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                const { data, maxPerMachine, tempListMap } = response;
+
+                let html = `
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 1200px; width: 100%;">
+                            <colgroup>
+                                <col style="width: 3%;"> <!-- Kolom No -->
+                `;
+
+                const machineCount = Object.keys(data).length;
+                const colWidth = Math.floor(97 / machineCount);
+
+                Object.keys(data).forEach(() => {
+                    html += `<col style="width: ${colWidth}%;">`;
+                });
+
+                html += `</colgroup><thead class="table-dark">`;
+
+                // Row 1: Judul Mesin
+                html += `<tr><th rowspan="2">No</th>`;
+                Object.keys(data).forEach(machine => {
+                    html += `<th>Mesin ${machine}</th>`;
+                });
+                html += `</tr>`;
+
+                // Row 2: Temp List
+                html += `<tr>`;
+                Object.keys(data).forEach(machine => {
+                    const tempList = tempListMap[machine]?.join(' ; ') || '-';
+                    html += `<th><small>[${tempList}]</small></th>`;
+                });
+                html += `</tr>`;
+
+                html += `</thead><tbody>`;
+
+                for (let i = 0; i < maxPerMachine; i++) {
+                    html += `<tr><td>${i + 1}</td>`;
+                    Object.values(data).forEach(rows => {
+                        const cell = rows[i];
+                        if (cell) {
+                            html += `<td>
+                                <div style="display: flex; justify-content: space-around;">
+                                    <span>${cell.no_resep}</span>
+                                    <span class="text-muted">${cell.status}</span>
+                                </div>
+                            </td>`;
+                        } else {
+                            html += `<td></td>`;
+                        }
+                    });
+                    html += `</tr>`;
+                }
+
+                html += `</tbody></table></div>`;
+
+                $('#schedule_table').html(html);
+            },
+            error: function(xhr, status, error) {
+                console.error("Failed to fetch data:", error);
+                $('#schedule_table').html('<div class="alert alert-danger">Gagal memuat data schedule.</div>');
+            }
+        });
+    }
+</script>
 
 <script>
-    $(document).ready(function() {
-        loadData();
+    $(document).ready(function () {
+        loadScheduleTable(); // 🚀 Load awal
 
         $('#scanInput').on('keypress', function (e) {
             if (e.which === 13) { // Enter key
@@ -122,139 +185,33 @@
                 }
             }
         });
-
-        function updateStatus(noResep) {
-            $.ajax({
-                url: 'pages/ajax/scan_dyeing_update_status.php',
-                method: 'POST',
-                data: { no_resep: noResep },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    loadData(); // Refresh data tabel
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr.responseText);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status.',
-                    });
-                }
-            });
-        }
     });
-</script>
-<script>
-    function loadData() {
-        fetch("pages/ajax/GetData_DispensingList.php")
-            .then(response => response.json())
-            .then(data => {
-                const tbodyPoly = document.getElementById("dataBodyPoly");
-                const tbodyCotton = document.getElementById("dataBodyCotton");
-                const polyTableWrapper = document.getElementById("polyTableWrapper");
-                const cottonTableWrapper = document.getElementById("cottonTableWrapper");
 
-                tbodyPoly.innerHTML = "";
-                tbodyCotton.innerHTML = "";
 
-                let hasPolyData = false;
-                let hasCottonData = false;
-
-                let polyIndex = 0;
-                let cottonIndex = 0;
-
-                data.forEach((item) => {
-                    let row = "";
-                    let bgColor = "";
-                    const now = new Date();
-
-                    let warningText = "-";
-
-                    if (item.dyeing_start) {
-                        const startTime = new Date(item.dyeing_start);
-                        const diffMs = now - startTime;
-                        const diffMins = diffMs / 1000 / 60;
-
-                        // Default 0 jika item.waktu null/undefined
-                        const processTime = parseFloat(item.waktu) || 0;
-
-                        if (diffMins > (120 + processTime)) {
-                            warningText = `<span class="blink-warning">⚠ ${item.dyeing_start}</span>`;
-                        } else {
-                            warningText = item.dyeing_start;
-                        }
-                    }
-
-                    if (item.keterangan && item.keterangan.trim().toUpperCase() === "POLY") {
-                        polyIndex++;
-                        const groupIndex = Math.floor((polyIndex - 1) / 16);
-                        const rowNumber = (polyIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyPoly.innerHTML += row;
-                        hasPolyData = true;
-
-                    } else if (item.keterangan && item.keterangan.trim().toUpperCase() === "COTTON") {
-                        cottonIndex++;
-                        const groupIndex = Math.floor((cottonIndex - 1) / 16);
-                        const rowNumber = (cottonIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyCotton.innerHTML += row;
-                        hasCottonData = true;
-                    }
+    function updateStatus(noResep) {
+        $.ajax({
+            url: 'pages/ajax/scan_dyeing_update_status.php',
+            method: 'POST',
+            data: { no_resep: noResep },
+            success: function (response) {
+                console.log("Update sukses:", response);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Diperbarui!',
+                    text: `No. Resep ${noResep} telah diproses.`,
+                    timer: 1200,
+                    showConfirmButton: false
                 });
-
-                polyTableWrapper.style.display = hasPolyData ? "block" : "none";
-                cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
-
-                const tableContainer = document.getElementById("tableContainer");
-                if (hasPolyData && hasCottonData) {
-                    tableContainer.style.display = "flex";
-                    tableContainer.style.justifyContent = "space-between";
-                } else {
-                    tableContainer.style.display = "block";
-                    tableContainer.style.justifyContent = "center";
-                }
-            })
-            .catch(err => {
-                console.error("Gagal mengambil data:", err);
-            });
-    }
-</script>
-<script>
-    if (localStorage.getItem('showSuccessAlert') === '1') {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Data berhasil dikirim',
-            timer: 1500,
-            showConfirmButton: false
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat memperbarui status.',
+                });
+            }
         });
-
-        localStorage.removeItem('showSuccessAlert');
     }
 </script>
