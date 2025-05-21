@@ -33,68 +33,21 @@
                     <input type="text" id="scanInput" placeholder="Scan here to start..." class="form-control" style="width: 250px;" autofocus>
                 </div>
                 
-                <!-- Container for tables with display flex -->
                 <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
                     
-                    <!-- DARK ROOM Poly Table -->
-                    <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="polyHeader" class="text-center"><strong>DARK ROOM POLY</strong></h4>
-                        <table id="tablePoly" class="table table-bordered" width="100%">
+                    <div id="tableWrapper" style="width: 100%;">
+                        <h4 class="text-center"><strong>DARK ROOM START</strong></h4>
+                        <table id="tableCombined" class="table table-bordered" width="100%">
                             <thead class="bg-green">
                                 <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Dark Room Start</div>
-                                    </th>
+                                    <th><div align="center">No</div></th>
+                                    <th><div align="center">No. Resep</div></th>
+                                    <th><div align="center">Temp</div></th>
+                                    <th><div align="center">Status</div></th>
+                                    <th><div align="center">Dark Room Start</div></th>
                                 </tr>
                             </thead>
-                            <tbody id="dataBodyPoly">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- DARK ROOM Cotton Table -->
-                    <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
-                        <h4 id="cottonHeader" class="text-center"><strong>DARK ROOM COTTON</strong></h4>
-                        <table id="tableCotton" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Dark Room Start</div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyCotton">
+                            <tbody id="dataBodyCombined">
                                 <!-- Data will be displayed here -->
                             </tbody>
                         </table>
@@ -153,91 +106,41 @@
 </script>
 <script>
     function loadData() {
-        fetch("pages/ajax/GetData_DispensingList.php")
+        fetch("pages/ajax/GetData_DarkroomStartList.php")
             .then(response => response.json())
             .then(data => {
-                const tbodyPoly = document.getElementById("dataBodyPoly");
-                const tbodyCotton = document.getElementById("dataBodyCotton");
-                const polyTableWrapper = document.getElementById("polyTableWrapper");
-                const cottonTableWrapper = document.getElementById("cottonTableWrapper");
+                const tbodyCombined = document.getElementById("dataBodyCombined");
+                tbodyCombined.innerHTML = "";
 
-                tbodyPoly.innerHTML = "";
-                tbodyCotton.innerHTML = "";
-
-                let hasPolyData = false;
-                let hasCottonData = false;
-
-                let polyIndex = 0;
-                let cottonIndex = 0;
+                let index = 0;
+                const now = new Date();
 
                 data.forEach((item) => {
-                    let row = "";
-                    let bgColor = "";
-                    const now = new Date();
+                    index++;
+                    const rowNumber = index;
+                    const bgColor = index % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
 
                     let warningText = "-";
-
                     if (item.darkroom_start) {
                         const startTime = new Date(item.darkroom_start);
                         const diffMs = now - startTime;
                         const diffMins = diffMs / 1000 / 60;
 
-                        if (diffMins > 90) {
-                            warningText = `<span class="blink-warning">⚠ ${item.darkroom_start}</span>`;
-                        } else {
-                            warningText = item.darkroom_start;
-                        }
+                        warningText = diffMins > 90
+                            ? `<span class="blink-warning">⚠ ${item.darkroom_start}</span>`
+                            : item.darkroom_start;
                     }
 
-                    if (item.keterangan && item.keterangan.trim().toUpperCase() === "POLY") {
-                        polyIndex++;
-                        const groupIndex = Math.floor((polyIndex - 1) / 16);
-                        const rowNumber = (polyIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-                        
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyPoly.innerHTML += row;
-                        hasPolyData = true;
+                    const row = `<tr style="background-color: ${bgColor}">
+                        <td align="center">${rowNumber}</td>
+                        <td align="center">${item.no_resep}</td>
+                        <td align="center">${item.product_name}</td>
+                        <td align="center">${item.status}</td>
+                        <td align="center">${warningText}</td>
+                    </tr>`;
 
-                    } else if (item.keterangan && item.keterangan.trim().toUpperCase() === "COTTON") {
-                        cottonIndex++;
-                        const groupIndex = Math.floor((cottonIndex - 1) / 16);
-                        const rowNumber = (cottonIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.no_machine}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyCotton.innerHTML += row;
-                        hasCottonData = true;
-                    }
+                    tbodyCombined.innerHTML += row;
                 });
-
-                // Sembunyikan jika tidak ada data
-                polyTableWrapper.style.display = hasPolyData ? "block" : "none";
-                cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
-
-                // Layout jika hanya satu tabel
-                const tableContainer = document.getElementById("tableContainer");
-                if (hasPolyData && hasCottonData) {
-                    tableContainer.style.display = "flex";
-                    tableContainer.style.justifyContent = "space-between";
-                } else {
-                    tableContainer.style.display = "block";
-                    tableContainer.style.justifyContent = "center";
-                }
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);

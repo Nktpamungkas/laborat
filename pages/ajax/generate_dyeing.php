@@ -78,34 +78,49 @@ $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, ms.`group`, ms.product_
         FROM tbl_preliminary_schedule tps
         LEFT JOIN master_suhu ms ON tps.code = ms.code
         WHERE tps.status IN ($statusList)
-        ORDER BY tps.no_machine, tps.id ASC";
+        ORDER BY tps.no_machine, tps.id DESC";
 
 $result = mysqli_query($con, $sql);
 
 $data = [];
 $maxPerMachine = 0;
-
-// Kumpulan tempList untuk tiap mesin
 $tempListMap = [];
+// $processedGroups = [];
 
 while ($row = mysqli_fetch_assoc($result)) {
     $machine = $row['no_machine'] ?: 'UNASSIGNED';
+    $group = $row['group'];
+
     $data[$machine][] = [
         'no_resep' => $row['no_resep'],
         'status' => $row['status'],
-        'group' => $row['group'],
+        'group' => $group,
         'product_name' => $row['product_name']
     ];
+
     if (count($data[$machine]) > $maxPerMachine) {
         $maxPerMachine = count($data[$machine]);
     }
 
-    // Kumpulkan product_name berdasarkan mesin
-    if (!isset($tempListMap[$machine])) {
-        $tempListMap[$machine] = [];
-    }
-    if ($row['product_name'] && !in_array($row['product_name'], $tempListMap[$machine])) {
-        $tempListMap[$machine][] = $row['product_name'];
+    // Ambil tempList dari master_suhu berdasarkan group
+    // if ($group && !isset($processedGroups[$group])) {
+    if ($group) {
+        $tempQuery = mysqli_query($con, "SELECT product_name FROM master_suhu WHERE `group` = '$group'");
+        while ($tempRow = mysqli_fetch_assoc($tempQuery)) {
+            foreach ($data as $machineKey => $entries) {
+                foreach ($entries as $entry) {
+                    if ($entry['group'] === $group) {
+                        if (!isset($tempListMap[$machineKey])) {
+                            $tempListMap[$machineKey] = [];
+                        }
+                        if (!in_array($tempRow['product_name'], $tempListMap[$machineKey])) {
+                            $tempListMap[$machineKey][] = $tempRow['product_name'];
+                        }
+                    }
+                }
+            }
+        }
+        // $processedGroups[$group] = true;
     }
 }
 

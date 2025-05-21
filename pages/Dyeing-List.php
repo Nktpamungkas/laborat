@@ -1,6 +1,7 @@
 
 <div class="row">
     <div class="col-xs-12">
+        <h4 id="cottonHeader" class="text-center"><strong>DYEING</strong></h4>
         <div style="margin-bottom: 10px;">
             <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
         </div>
