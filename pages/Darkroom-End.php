@@ -29,7 +29,7 @@
         gap: 5px;
         margin-top: 24px;
         opacity: 0;
-        transform: translateY(20px) scale(0.85);
+        transform: translateX(20px) scale(0.5);
         transition: opacity 0.5s ease, transform 0.5s ease;
         pointer-events: none; /* agar tidak bisa diklik saat invisible */
         will-change: transform, opacity;
@@ -37,7 +37,7 @@
 
     #actionButtons.show {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateX(0) scale(1);
         pointer-events: auto;
     }
     #actionButtons button {
