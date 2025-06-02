@@ -19,6 +19,10 @@
         75% { transform: translateX(-5px); }
         100% { transform: translateX(0); }
     }
+    #tableSchedule {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        font-size: 9pt !important;
+    }
 
 </style>
 <div class="box box-info">
@@ -82,7 +86,7 @@
                 </li>
             </div>
             <div class="box-body">
-                <table id="tablee" class="table" width="100%">
+                <table id="tableSchedule" class="table table-bordered table-striped" width="100%">
                     <thead class="bg-green">
                         <tr>
                             <th>
@@ -269,6 +273,11 @@
 
 <script>
     $(document).ready(function () {
+        $('#tableSchedule').DataTable({
+            pageLength: -1,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] 
+        });
+
         // Load schedule awal
         $.ajax({
             url: 'pages/ajax/fetch_schedule.php',
