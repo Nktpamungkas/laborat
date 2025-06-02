@@ -3,8 +3,14 @@
         font-style: italic;
         font-size: 12px;
     }
-    #tempWrapper {
+    #bottleQtyWrapper {
         margin-bottom: 0;
+    }
+    #productNameWrapper {
+        margin-bottom: 0;
+    }
+    #productNameDisplay, #productNameDisplay_1, #productNameDisplay_2 {
+        margin: -10px 0 10px !important;
     }
     @keyframes shake {
         0% { transform: translateX(0); }
@@ -29,21 +35,21 @@
                     <input name="no_resep" type="text" class="form-control style-ph" id="no_resep" placeholder="scan here..." required autocomplete="off" autofocus>
                 </div>
             </div>
-            <div class="form-group" id="bottleQtyWrapper">
-                <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
-                <div class="col-sm-2">
-                    <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
-                </div>
-            </div>
             <div class="form-group" id="tempWrapper">
                 <label for="temp" class="col-sm-2 control-label">Temp</label>
                 <div class="col-sm-2">
                     <input type="text" onkeypress="return blockQuote(event)" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
                 </div>
             </div>
-            <div class="form-group" id="productNameWrapper">
+            <div class="form-group" id="productNameWrapper" style="display:  none;">
                 <div class="col-sm-offset-2 col-sm-4">
                     <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
+                </div>
+            </div>
+            <div class="form-group" id="bottleQtyWrapper">
+                <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
                 </div>
             </div>
 
@@ -286,98 +292,26 @@
             }
         });
 
-        // Handle klik tombol submit
-        // $('#schedule_table').on('click', '#submitForDisp', function () {
-        //     let dataToSubmit = [];
-        //     const selects = document.querySelectorAll('#schedule_table select');
-
-        //     selects.forEach(select => {
-        //         const machine = select.value;
-        //         if (!machine) {
-        //             console.warn('Mesin tidak dipilih untuk:', select);
-        //             return;
-        //         }
-
-        //         const th = select.closest('th');
-        //         const thRow = th.closest('tr');
-        //         const colIndex = Array.from(thRow.children).indexOf(th);
-
-        //         console.log(`Mesin ${machine} dipilih untuk kolom ke-${colIndex}`);
-
-        //         // Loop setiap baris di tbody
-        //         document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
-        //             const tdList = row.querySelectorAll('td');
-        //             const td = tdList[colIndex];
-
-        //             if (!td) {
-        //                 console.warn(`Kolom index ${colIndex} tidak ditemukan di row`, row);
-        //                 return;
-        //             }
-
-        //             const span = td.querySelector('.resep-item');
-        //             if (span) {
-        //                 const id_schedule = span.getAttribute('data-id');
-        //                 const no_resep = span.getAttribute('data-resep');
-
-        //                 if (id_schedule && machine) {
-        //                     console.log('Menambahkan data:', { id_schedule, no_resep, machine });
-        //                     dataToSubmit.push({
-        //                         id_schedule,
-        //                         no_resep,
-        //                         machine
-        //                     });
-        //                 }
-        //             }
-        //         });
-        //     });
-
-        //     console.log('Data to submit:', dataToSubmit);
-
-        //     if (dataToSubmit.length > 0) {
-        //         fetch('pages/ajax/submit_dispensing.php', {
-        //             method: 'POST',
-        //             headers: {
-        //                 'Content-Type': 'application/json'
-        //             },
-        //             body: JSON.stringify({ assignments: dataToSubmit })
-        //         })
-        //         .then(res => res.json())
-        //         .then(data => {
-        //             if (data.success) {
-        //                 alert('Data berhasil dikirim');
-        //                 location.reload();
-        //             } else {
-        //                 alert('Terjadi kesalahan saat menyimpan');
-        //             }
-        //         })
-        //         .catch(err => {
-        //             console.error('Error:', err);
-        //             alert('Terjadi error saat mengirim data');
-        //         });
-        //     } else {
-        //         alert('Silakan pilih mesin terlebih dahulu untuk setiap kolom yang berisi resep.');
-        //     }
-        // });
         $('#schedule_table').on('click', '#submitForDisp', function () {
             let dataToSubmit = [];
             const selects = document.querySelectorAll('#schedule_table select');
 
             // 👉 CEK SEMUA SELECT SUDAH DIPILIH
-            let allSelected = true;
-            selects.forEach(select => {
-                if (!select.value) {
-                    allSelected = false;
-                    select.classList.add('is-invalid'); // Opsional: tandai merah jika pakai Bootstrap
-                } else {
-                    select.classList.remove('is-invalid'); // Hilangkan tanda jika sudah benar
-                }
-            });
+            // let allSelected = true;
+            // selects.forEach(select => {
+            //     if (!select.value) {
+            //         allSelected = false;
+            //         select.classList.add('is-invalid');
+            //     } else {
+            //         select.classList.remove('is-invalid');
+            //     }
+            // });
 
             // ❌ Jika ada yang belum dipilih, hentikan proses
-            if (!allSelected) {
-                alert('Semua kolom mesin harus dipilih sebelum mengirim.');
-                return;
-            }
+            // if (!allSelected) {
+            //     alert('Semua kolom mesin harus dipilih sebelum mengirim.');
+            //     return;
+            // }
 
             // ✅ Semua mesin sudah dipilih, lanjutkan proses ambil resep
             selects.forEach(select => {
@@ -394,12 +328,14 @@
                     if (span) {
                         const id_schedule = span.getAttribute('data-id');
                         const no_resep = span.getAttribute('data-resep');
+                        const group = span.getAttribute('data-group');
 
                         if (id_schedule && machine) {
                             dataToSubmit.push({
                                 id_schedule,
                                 no_resep,
-                                machine
+                                machine,
+                                group
                             });
                         }
                     }
@@ -739,7 +675,7 @@
     loadData();
 
     // Auto-refresh tiap 3 detik
-    setInterval(loadData, 3000);
+    // setInterval(loadData, 3000);
 
     function blockQuote(event) {
         const char = String.fromCharCode(event.which || event.keyCode);
@@ -769,6 +705,8 @@
                     success: function(response) {
                         if (response.status === 'success') {
                             $('#productNameDisplay').text(response.product_name);
+                            $('#productNameWrapper').show();
+
                         } else {
                             $('#productNameDisplay').text('');
                             Swal.fire({

@@ -6,6 +6,12 @@ ini_set("display_errors", 1);
 include "../../koneksi.php";
 
 try {
+    $statuses = [
+        'in_progress_darkroom'
+    ];
+
+    $statusList = "'" . implode("','", $statuses) . "'";
+    
     $result = mysqli_query($con, "
         SELECT 
             tbl_preliminary_schedule.*, 
@@ -16,7 +22,7 @@ try {
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
-        WHERE tbl_preliminary_schedule.status != 'ready'
+        WHERE tbl_preliminary_schedule.status IN ($statusList)
         ORDER BY 
             (tbl_preliminary_schedule.status = 'in_progress_darkroom') DESC, 
             tbl_preliminary_schedule.id ASC

@@ -26,7 +26,7 @@ if (isset($_POST['schedules'])) {
             foreach ($chunk as $no_resep) {
                 $stmt = $con->prepare("SELECT id FROM tbl_preliminary_schedule 
                                        WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
-                                       ORDER BY id ASC LIMIT 1");
+                                       ORDER BY id DESC LIMIT 1");
                 $stmt->bind_param("s", $no_resep);
                 $stmt->execute();
                 $stmt->bind_result($id);
@@ -50,33 +50,43 @@ if (isset($_POST['schedules'])) {
 ?>
     <h4 style="margin-left: 5px;">Schedule Celup</h4>
     <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle text-center">
+        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
             <thead class="table-dark">
                 <tr>
-                    <th rowspan="2">No</th>
+                    <th rowspan="2" style="width: 3%;">No</th>
                     <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
                         <?php
                             // Ambil keterangan dari master_suhu berdasarkan group
                             $keterangan = '';
-                            $stmt = $con->prepare("SELECT dyeing FROM master_suhu WHERE `group` = ? LIMIT 1");
+                            $suhu = null;
+
+                            // Ambil dyeing dan suhu dari master_suhu
+                            $stmt = $con->prepare("SELECT dyeing, suhu FROM master_suhu WHERE `group` = ? LIMIT 1");
                             $stmt->bind_param("s", $groupName);
                             $stmt->execute();
-                            $stmt->bind_result($dyeingValue);
+                            $stmt->bind_result($dyeingValue, $suhu);
                             $stmt->fetch();
                             $stmt->close();
 
-                            
-                            // Konversi dyeing menjadi keterangan
+                            // Konversi dyeing ke keterangan
                             if ($dyeingValue == "1") {
                                 $keterangan = 'POLY';
                             } elseif ($dyeingValue == "2") {
                                 $keterangan = 'COTTON';
                             }
 
-                            // Ambil mesin berdasarkan keterangan
                             $machines = [];
-                            if ($keterangan) {
-                                $stmtMesin = $con->prepare("SELECT no_machine FROM master_mesin WHERE keterangan = ?");
+
+                            if ($keterangan === 'COTTON' && $suhu == 80) {
+                                // ✅ Khusus: COTTON & suhu 80 hanya A6 dan C1
+                                $machines = ['A6', 'C1'];
+                            } elseif ($keterangan) {
+                                // ✅ Selain itu, ambil dari DB, tapi exclude A6 dan C1
+                                $stmtMesin = $con->prepare("
+                                    SELECT no_machine 
+                                    FROM master_mesin 
+                                    WHERE keterangan = ? AND no_machine NOT IN ('A6', 'C1')
+                                ");
                                 $stmtMesin->bind_param("s", $keterangan);
                                 $stmtMesin->execute();
                                 $resultMesin = $stmtMesin->get_result();
@@ -88,18 +98,30 @@ if (isset($_POST['schedules'])) {
                             }
 
                             // Temp Group
-                            $groupTemp = [];
-                            $stmtTemp = $con->prepare("SELECT product_name FROM master_suhu WHERE `group` = ?");
-                            $stmtTemp->bind_param("s", $groupName);
-                            $stmtTemp->execute();
-                            $resultProd = $stmtTemp->get_result();
-                            while ($row = $resultProd->fetch_assoc()) {
-                                $groupTemp[] = $row['product_name'];
-                            }
-                            $stmtTemp->close();
+                            // $groupTemp = [];
+                            // $stmtTemp = $con->prepare("SELECT product_name FROM master_suhu WHERE `group` = ?");
+                            // $stmtTemp->bind_param("s", $groupName);
+                            // $stmtTemp->execute();
+                            // $resultProd = $stmtTemp->get_result();
+                            // while ($row = $resultProd->fetch_assoc()) {
+                            //     $groupTemp[] = $row['product_name'];
+                            // }
+                            // $stmtTemp->close();
 
                             // Gabungkan dengan koma
-                            $tempList = implode(' ; ', $groupTemp);
+                            // $tempList = implode(' ; ', $groupTemp);
+                            $stmtTemp = $con->prepare("SELECT program, suhu, product_name FROM master_suhu WHERE `group` = ? LIMIT 1");
+                            $stmtTemp->bind_param("s", $groupName);
+                            $stmtTemp->execute();
+                            $result = $stmtTemp->get_result();
+                            $row = $result->fetch_assoc();
+                            $stmtTemp->close();
+
+                            if ($row['program'] == 1) {
+                                $tempGroup = 'Constant ' . $row['suhu'];
+                            } elseif ($row['program'] == 2) {
+                                $tempGroup = 'Raising ' . $row['product_name'];
+                            }
                         ?>
 
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
@@ -113,7 +135,8 @@ if (isset($_POST['schedules'])) {
                                     </select>
                                 </div>
                                 <!-- <?= htmlspecialchars($groupName) ?> <br> -->
-                                [<small><?= htmlspecialchars($tempList) ?></small>]
+                                <!-- [<small><?= htmlspecialchars($tempList) ?></small>] -->
+                                <small class="text-danger"><?= htmlspecialchars($tempGroup) ?></small>
                             </th>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
@@ -133,7 +156,7 @@ if (isset($_POST['schedules'])) {
                                             $id_schedule = $idMap[$groupName][$chunkIndex][$i] ?? null;
                                         ?>
                                         <?php if ($id_schedule): ?>
-                                            <span class="resep-item" data-id="<?= $id_schedule ?>" data-resep="<?= htmlspecialchars($no_resep) ?>">
+                                            <span class="resep-item" data-id="<?= $id_schedule ?>" data-resep="<?= htmlspecialchars($no_resep) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
                                                 <?= htmlspecialchars($no_resep) ?>
                                             </span>
                                         <?php else: ?>

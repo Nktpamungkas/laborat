@@ -9,29 +9,17 @@ $data = json_decode(file_get_contents('php://input'), true);
 $response = ['success' => false];
 
 if (isset($data['assignments']) && is_array($data['assignments'])) {
-    // foreach ($data['assignments'] as $item) {
-    //     $id = intval($item['id_schedule']);
-    //     $machine = trim($item['machine']);
-
-    //     if ($id && $machine) {
-    //         $stmt = $con->prepare("UPDATE tbl_preliminary_schedule 
-    //                                SET no_machine = ?, status = 'in_progress_dispense' 
-    //                                WHERE id = ?");
-    //         $stmt->bind_param("si", $machine, $id);
-    //         $stmt->execute();
-    //         $stmt->close();
-    //     }
-    // }
 
     foreach ($data['assignments'] as $item) {
         $id = intval($item['id_schedule']);
         $machine = trim($item['machine']);
+        $group = trim($item['group']);
 
         if ($id && $machine) {
             $stmt = $con->prepare("UPDATE tbl_preliminary_schedule 
-                                SET no_machine = ?, status = 'scheduled' 
+                                SET no_machine = ?, id_group = ?, status = 'scheduled' 
                                 WHERE id = ?");
-            $stmt->bind_param("si", $machine, $id);
+            $stmt->bind_param("ssi", $machine, $group, $id);
             $stmt->execute();
             $stmt->close();
         }

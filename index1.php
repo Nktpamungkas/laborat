@@ -343,6 +343,10 @@ $page = strtolower($page);
                                                             echo "active";
                                                         } ?>"><a href="?p=MasterMesin"><i class="fa fa-building-o" aria-hidden="true"></i> <span>Master Mesin</span></a>
                                             </li>
+                                            <li class="<?php if ($_GET['p'] == "InsertSchedule") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=InsertSchedule"><i class="fa fa-indent" aria-hidden="true"></i></i> <span>Insert Schedule</span></a>
+                                            </li>
                                             <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
                                                             echo "active";
                                                         } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>

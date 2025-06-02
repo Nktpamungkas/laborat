@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         $next_status = null;
 
         if ($current_status === 'in_progress_darkroom') {
-            $next_status = 'scheduled';
+            $next_status = 'repeat';
         } else {
             http_response_code(400);
             echo json_encode(["success" => false, "error" => "Status tidak valid untuk tahap Darkroom."]);

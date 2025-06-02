@@ -67,8 +67,8 @@
 
                     <!-- Tombol YES/NO -->
                     <div id="actionButtons" style="display: none; flex-direction: row; gap: 5px; margin-top: 22px;">
-                        <button id="btnYes" class="btn btn-success">F1<br><strong>YES</strong></button>
-                        <button id="btnNo" class="btn btn-danger">F2<br><strong>NO</strong></button>
+                        <button id="btnRepeat" class="btn btn-success">F1<br><strong>Repeat</strong></button>
+                        <button id="btnEnd" class="btn btn-danger">F2<br><strong>End</strong></button>
                     </div>
                 </div>
 
@@ -84,7 +84,7 @@
                                     <th><div align="center">No. Resep</div></th>
                                     <th><div align="center">Temp</div></th>
                                     <th><div align="center">Status</div></th>
-                                    <th><div align="center">Dark Room End</div></th>
+                                    <!-- <th><div align="center">Dark Room End</div></th> -->
                                 </tr>
                             </thead>
                             <tbody id="dataBodyCombined">
@@ -155,37 +155,39 @@
             }
         });
 
-        $('#btnYes').on('click', function () {
+        $('#btnEnd').on('click', function () {
             if (currentNoResep !== "") {
                 Swal.fire({
                     title: 'Confirmation',
-                    text: `Is it already OK?`,
+                    text: `You want to END the process?`,
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Process',
+                    confirmButtonText: 'Yes',
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         updateStatusEnd(currentNoResep);
                         resetInput();
+                        loadData()
                     }
                 });
             }
         });
 
-        $('#btnNo').on('click', function () {
+        $('#btnRepeat').on('click', function () {
             if (currentNoResep !== "") {
                 Swal.fire({
                     title: 'Confirmation',
                     text: `You want to REPEAT from the start?`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Process',
+                    confirmButtonText: 'Yes',
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         updateStatusRepeat(currentNoResep);
                         resetInput();
+                        loadData()
                     }
                 });
             }
@@ -256,10 +258,10 @@
             if ($('#actionButtons').is(':visible')) {
                 if (e.key === "F1") {
                     e.preventDefault();
-                    $('#btnYes').click();
+                    $('#btnRepeat').click();
                 } else if (e.key === "F2") {
                     e.preventDefault();
-                    $('#btnNo').click();
+                    $('#btnEnd').click();
                 }
             }
         });
@@ -297,7 +299,6 @@
                         <td align="center">${item.no_resep}</td>
                         <td align="center">${item.product_name}</td>
                         <td align="center">${item.status}</td>
-                        <td align="center">${item.darkroom_end ?? '-'}</td>
                     </tr>`;
 
                     tbodyCombined.innerHTML += row;

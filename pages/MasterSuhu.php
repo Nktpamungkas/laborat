@@ -228,7 +228,7 @@ include "koneksi.php";
                 return;
             }
 
-            // const productName = `${suhu}°C X ${durasi} MNT`;
+            const productName = `${suhu}°C X ${durasi} MNT`;
             const durasiPadded = padLeft(durasi, 2);
             const code = suhu + durasiPadded + program + dyeing + dispensing;
 
@@ -270,7 +270,9 @@ include "koneksi.php";
                                 $('#masterSuhuTable').DataTable().ajax.reload();
 
                                 // Reset input setelah submit
-                                $('#product_name').val('');
+                                // $('#product_name').val('');
+                                $('#suhu').val('');
+                                $('#durasi').val('');
                                 $('#program').val('');
                                 $('#dyeing').val('');
                                 $('#dispensing').val('');

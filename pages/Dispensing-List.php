@@ -57,9 +57,9 @@
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">Dispensing Start</div>
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody id="dataBodyPoly">
@@ -89,9 +89,9 @@
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">Dispensing Start</div>
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody id="dataBodyCotton">
@@ -121,9 +121,9 @@
                                     <th>
                                         <div align="center">Status</div>
                                     </th>
-                                    <th>
+                                    <!-- <th>
                                         <div align="center">Dispensing Start</div>
-                                    </th>
+                                    </th> -->
                                 </tr>
                             </thead>
                             <tbody id="dataBodyWhite">
@@ -184,6 +184,115 @@
     });
 </script>
 <script>
+    // function loadData() {
+    //     fetch("pages/ajax/GetData_DispensingList.php")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const tbodyPoly = document.getElementById("dataBodyPoly");
+    //             const tbodyCotton = document.getElementById("dataBodyCotton");
+    //             const tbodyWhite = document.getElementById("dataBodyWhite");
+    //             const polyTableWrapper = document.getElementById("polyTableWrapper");
+    //             const cottonTableWrapper = document.getElementById("cottonTableWrapper");
+    //             const whiteTableWrapper = document.getElementById("whiteTableWrapper");
+
+    //             tbodyPoly.innerHTML = "";
+    //             tbodyCotton.innerHTML = "";
+    //             tbodyWhite.innerHTML = "";
+
+    //             let hasPolyData = false;
+    //             let hasCottonData = false;
+    //             let hasWhiteData = false;
+
+    //             let polyIndex = 0;
+    //             let cottonIndex = 0;
+    //             let whiteIndex = 0;
+
+    //             data.forEach((item) => {
+    //                 let row = "";
+    //                 let bgColor = "";
+    //                 const now = new Date();
+
+    //                 let warningText = "-";
+
+    //                 if (item.dispensing_start) {
+    //                     const startTime = new Date(item.dispensing_start);
+    //                     const diffMs = now - startTime;
+    //                     const diffMins = diffMs / 1000 / 60;
+
+    //                     if (diffMins > 120) {
+    //                         warningText = `<span class="blink-warning">⚠ ${item.dispensing_start}</span>`;
+    //                     } else {
+    //                         warningText = item.dispensing_start;
+    //                     }
+    //                 }
+
+    //                 if (item.dispensing && item.dispensing.trim() == "1") {
+    //                     polyIndex++;
+    //                     const groupIndex = Math.floor((polyIndex - 1) / 16);
+    //                     const rowNumber = (polyIndex - 1) % 16 + 1;
+    //                     bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+
+    //                     row = `<tr style="background-color: ${bgColor}">
+    //                         <td align="center">${rowNumber}</td>
+    //                         <td align="center">${item.no_resep}</td>
+    //                         <td align="center">${item.product_name}</td>
+    //                         <td align="center">${item.status}</td>
+    //                         <td align="center">${warningText}</td>
+    //                     </tr>`;
+    //                     tbodyPoly.innerHTML += row;
+    //                     hasPolyData = true;
+
+    //                 } else if (item.dispensing && item.dispensing.trim() == "2") {
+    //                     cottonIndex++;
+    //                     const groupIndex = Math.floor((cottonIndex - 1) / 16);
+    //                     const rowNumber = (cottonIndex - 1) % 16 + 1;
+    //                     bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+
+    //                     row = `<tr style="background-color: ${bgColor}">
+    //                         <td align="center">${rowNumber}</td>
+    //                         <td align="center">${item.no_resep}</td>
+    //                         <td align="center">${item.product_name}</td>
+    //                         <td align="center">${item.status}</td>
+    //                         <td align="center">${warningText}</td>
+    //                     </tr>`;
+    //                     tbodyCotton.innerHTML += row;
+    //                     hasCottonData = true;
+    //                 } else {
+    //                     whiteIndex++;
+    //                     const groupIndex = Math.floor((whiteIndex - 1) / 16);
+    //                     const rowNumber = (whiteIndex - 1) % 16 + 1;
+    //                     bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+
+    //                     row = `<tr style="background-color: ${bgColor}">
+    //                         <td align="center">${rowNumber}</td>
+    //                         <td align="center">${item.no_resep}</td>
+    //                         <td align="center">${item.product_name}</td>
+    //                         <td align="center">${item.status}</td>
+    //                         <td align="center">${warningText}</td>
+    //                     </tr>`;
+    //                     tbodyWhite.innerHTML += row;
+    //                     hasWhiteData = true;
+    //                 }
+    //              });
+
+    //             polyTableWrapper.style.display = hasPolyData ? "block" : "none";
+    //             cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
+    //             whiteTableWrapper.style.display = hasWhiteData ? "block" : "none";
+
+    //             const tableContainer = document.getElementById("tableContainer");
+    //             if ((hasPolyData && hasCottonData && hasWhiteData) || (hasPolyData && hasCottonData) || (hasPolyData && hasWhiteData) || (hasCottonData && hasWhiteData)) {
+    //                 tableContainer.style.display = "flex";
+    //                 tableContainer.style.justifyContent = "space-between";
+    //             } else {
+    //                 tableContainer.style.display = "block";
+    //                 tableContainer.style.justifyContent = "center";
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error("Gagal mengambil data:", err);
+    //         });
+    // }
+
     function loadData() {
         fetch("pages/ajax/GetData_DispensingList.php")
             .then(response => response.json())
@@ -191,108 +300,133 @@
                 const tbodyPoly = document.getElementById("dataBodyPoly");
                 const tbodyCotton = document.getElementById("dataBodyCotton");
                 const tbodyWhite = document.getElementById("dataBodyWhite");
-                const polyTableWrapper = document.getElementById("polyTableWrapper");
-                const cottonTableWrapper = document.getElementById("cottonTableWrapper");
-                const whiteTableWrapper = document.getElementById("whiteTableWrapper");
 
                 tbodyPoly.innerHTML = "";
                 tbodyCotton.innerHTML = "";
                 tbodyWhite.innerHTML = "";
 
-                let hasPolyData = false;
-                let hasCottonData = false;
-                let hasWhiteData = false;
+                renderTable(data, tbodyPoly, "1");
+                renderTable(data, tbodyCotton, "2");
+                renderTable(data, tbodyWhite, ""); // White = selain 1 dan 2
 
-                let polyIndex = 0;
-                let cottonIndex = 0;
-                let whiteIndex = 0;
-
-                data.forEach((item) => {
-                    let row = "";
-                    let bgColor = "";
-                    const now = new Date();
-
-                    let warningText = "-";
-
-                    if (item.dispensing_start) {
-                        const startTime = new Date(item.dispensing_start);
-                        const diffMs = now - startTime;
-                        const diffMins = diffMs / 1000 / 60;
-
-                        if (diffMins > 120) {
-                            warningText = `<span class="blink-warning">⚠ ${item.dispensing_start}</span>`;
-                        } else {
-                            warningText = item.dispensing_start;
-                        }
-                    }
-
-                    if (item.dispensing && item.dispensing.trim() == "1") {
-                        polyIndex++;
-                        const groupIndex = Math.floor((polyIndex - 1) / 16);
-                        const rowNumber = (polyIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyPoly.innerHTML += row;
-                        hasPolyData = true;
-
-                    } else if (item.dispensing && item.dispensing.trim() == "2") {
-                        cottonIndex++;
-                        const groupIndex = Math.floor((cottonIndex - 1) / 16);
-                        const rowNumber = (cottonIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyCotton.innerHTML += row;
-                        hasCottonData = true;
-                    } else {
-                        whiteIndex++;
-                        const groupIndex = Math.floor((whiteIndex - 1) / 16);
-                        const rowNumber = (whiteIndex - 1) % 16 + 1;
-                        bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                        row = `<tr style="background-color: ${bgColor}">
-                            <td align="center">${rowNumber}</td>
-                            <td align="center">${item.no_resep}</td>
-                            <td align="center">${item.product_name}</td>
-                            <td align="center">${item.status}</td>
-                            <td align="center">${warningText}</td>
-                        </tr>`;
-                        tbodyWhite.innerHTML += row;
-                        hasWhiteData = true;
-                    }
-                 });
-
-                polyTableWrapper.style.display = hasPolyData ? "block" : "none";
-                cottonTableWrapper.style.display = hasCottonData ? "block" : "none";
-                whiteTableWrapper.style.display = hasWhiteData ? "block" : "none";
+                document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
+                document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
+                document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
 
                 const tableContainer = document.getElementById("tableContainer");
-                if ((hasPolyData && hasCottonData && hasWhiteData) || (hasPolyData && hasCottonData) || (hasPolyData && hasWhiteData) || (hasCottonData && hasWhiteData)) {
-                    tableContainer.style.display = "flex";
-                    tableContainer.style.justifyContent = "space-between";
-                } else {
-                    tableContainer.style.display = "block";
-                    tableContainer.style.justifyContent = "center";
-                }
+                const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
+                tableContainer.style.display = visibleTables > 1 ? "flex" : "block";
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
             });
     }
 
+    // function renderTable(dataArray, tbodyElement, dispensingCode) {
+    //     const rowsPerBlock = 16;
+    //     const now = new Date();
+
+    //     const filtered = dataArray.filter(item => {
+    //         const code = item.dispensing?.trim() ?? "";
+    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+    //     });
+
+    //     filtered.forEach((item, index) => {
+    //         const groupIndex = Math.floor(index / rowsPerBlock);
+    //         const rowNumber = (index % rowsPerBlock) + 1;
+    //         const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+
+    //         let rowHTML;
+
+    //         if (item.status === 'scheduled') {
+    //             let warningText = "-";
+    //             if (item.dispensing_start) {
+    //                 const startTime = new Date(item.dispensing_start);
+    //                 const diffMs = now - startTime;
+    //                 const diffMins = diffMs / 1000 / 60;
+    //             }
+
+    //             rowHTML = `<tr style="background-color: ${bgColor}">
+    //                 <td align="center">${rowNumber}</td>
+    //                 <td align="center">${item.no_resep}</td>
+    //                 <td align="center">${item.product_name}</td>
+    //                 <td align="center">${item.status}</td>
+    //             </tr>`;
+    //         } else {
+    //             // Baris kosong karena status bukan 'scheduled'
+    //             rowHTML = `<tr style="background-color: ${bgColor}; color: #ccc;">
+    //                 <td align="center">${rowNumber}</td>
+    //                 <td colspan="4" align="center"></td>
+    //             </tr>`;
+    //         }
+
+    //         tbodyElement.innerHTML += rowHTML;
+    //     });
+    // }
+    function renderTable(dataArray, tbodyElement, dispensingCode) {
+        const rowsPerBlock = 16;
+        const now = new Date();
+
+        // Filter berdasarkan kode dispensing
+        const filtered = dataArray.filter(item => {
+            const code = item.dispensing?.trim() ?? "";
+            return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+        });
+
+        // Kelompokkan berdasarkan no_resep
+        const groupedByResep = {};
+        filtered.forEach(item => {
+            if (!groupedByResep[item.no_resep]) {
+                groupedByResep[item.no_resep] = [];
+            }
+            groupedByResep[item.no_resep].push(item);
+        });
+
+        // Gabungkan menjadi blok-blok 16 baris
+        const blocks = [];
+        let currentBlock = [];
+        for (const resep in groupedByResep) {
+            const group = groupedByResep[resep];
+            // Jika satu grup lebih besar dari 16, pecah sendiri
+            if (group.length > rowsPerBlock) {
+                for (let i = 0; i < group.length; i += rowsPerBlock) {
+                    blocks.push(group.slice(i, i + rowsPerBlock));
+                }
+            } else {
+                if (currentBlock.length + group.length > rowsPerBlock) {
+                    blocks.push(currentBlock);
+                    currentBlock = [];
+                }
+                currentBlock.push(...group);
+            }
+        }
+        if (currentBlock.length > 0) blocks.push(currentBlock);
+
+        // Render setiap blok ke tabel
+        blocks.forEach((block, blockIndex) => {
+            const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+            block.forEach((item, index) => {
+                const rowNumber = index + 1;
+                let rowHTML;
+
+                if (item.status === 'scheduled') {
+                    rowHTML = `<tr style="background-color: ${bgColor}">
+                        <td align="center">${rowNumber}</td>
+                        <td align="center">${item.no_resep}</td>
+                        <td align="center">${item.product_name}</td>
+                        <td align="center">${item.status}</td>
+                    </tr>`;
+                } else {
+                    rowHTML = `<tr style="background-color: ${bgColor}; color: #ccc;">
+                        <td align="center">${rowNumber}</td>
+                        <td colspan="4" align="center"></td>
+                    </tr>`;
+                }
+
+                tbodyElement.innerHTML += rowHTML;
+            });
+        });
+    }
 </script>
 <script>
     if (localStorage.getItem('showSuccessAlert') === '1') {

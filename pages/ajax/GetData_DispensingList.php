@@ -17,7 +17,7 @@ try {
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
         WHERE tbl_preliminary_schedule.status != 'ready'
-        ORDER BY master_suhu.suhu DESC, master_suhu.waktu DESC
+        ORDER BY master_suhu.suhu DESC, master_suhu.waktu DESC, tbl_preliminary_schedule.no_resep ASC
     ");
 
     $data = [];

@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $last = mysqli_query($con, "SELECT MAX(SUBSTRING(`group`, 2, 2)) as max_suffix FROM master_suhu WHERE program='KONSTAN'");
                 $max_suffix = mysqli_fetch_assoc($last)['max_suffix'];
                 $next_suffix = str_pad(((int)$max_suffix) + 1, 2, '0', STR_PAD_LEFT);
-                $group = (int)("1" . $next_suffix);
+                $group = "1" . $next_suffix;
             }
 
             $code = $suhu . str_pad($durasi, 2, '0', STR_PAD_LEFT) . "1" . $dyeing . $dispensing;
@@ -50,8 +50,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Simpan ke database
-        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, dyeing, dispensing) VALUES (?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, 'isssss', $group, $product_name, $code, $prefix, $dyeing, $dispensing);
+        $stmt = mysqli_prepare($con, "INSERT INTO master_suhu (`group`, product_name, code, program, dyeing, dispensing, suhu, waktu) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, 'ssssssii', $group, $product_name, $code, $prefix, $dyeing, $dispensing, $suhu, $durasi);
         $success = mysqli_stmt_execute($stmt);
 
         if ($success) {

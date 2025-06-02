@@ -109,10 +109,11 @@
             dataType: 'json',
             success: function(response) {
                 const { data, maxPerMachine, tempListMap } = response;
-
+                console.log(response);
+                
                 let html = `
                     <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 1200px; width: 100%;">
+                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
                             <colgroup>
                                 <col style="width: 3%;"> <!-- Kolom No -->
                 `;
@@ -127,7 +128,7 @@
                 html += `</colgroup><thead class="table-dark">`;
 
                 // Row 1: Judul Mesin
-                html += `<tr><th rowspan="2">No</th>`;
+                html += `<tr><th rowspan="2">${( Object.keys(data).length === 0) ? 'No Data' : 'No.'}</th>`;
                 Object.keys(data).forEach(machine => {
                     html += `<th>Mesin ${machine}</th>`;
                 });
@@ -137,7 +138,7 @@
                 html += `<tr>`;
                 Object.keys(data).forEach(machine => {
                     const tempList = tempListMap[machine]?.join(' ; ') || '-';
-                    html += `<th><small>[${tempList}]</small></th>`;
+                    html += `<th><small class="text-danger">${tempList}</small></th>`;
                 });
                 html += `</tr>`;
 
@@ -196,7 +197,9 @@
             data: { no_resep: noResep },
             success: function (response) {
                 console.log("Update sukses:", response);
-                
+
+                loadScheduleTable();
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Status Diperbarui!',
