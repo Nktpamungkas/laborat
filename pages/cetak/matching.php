@@ -50,11 +50,11 @@ $act = $_GET['g'];
     // Membuat QR Code dalam file PNG
 
     if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
-        $qrcodeA = $qrcode . 'A';
+        $qrcodeA = $qrcode . '-A';
         $fileqrA = 'qrcode_A.png';
         QRcode::png($qrcodeA, $fileqrA);
 
-        $qrcodeB = $qrcode . 'B';
+        $qrcodeB = $qrcode . '-B';
         $fileqrB = 'qrcode_B.png';
         QRcode::png($qrcodeB, $fileqrB);
     } else {
