@@ -48,8 +48,19 @@ $act = $_GET['g'];
     $qrcode = $_GET['idkk'];
 
     // Membuat QR Code dalam file PNG
-    $fileqr = 'qrcode.png';
-    QRcode::png($qrcode, $fileqr);
+
+    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+        $qrcodeA = $qrcode . 'A';
+        $fileqrA = 'qrcode_A.png';
+        QRcode::png($qrcodeA, $fileqrA);
+
+        $qrcodeB = $qrcode . 'B';
+        $fileqrB = 'qrcode_B.png';
+        QRcode::png($qrcodeB, $fileqrB);
+    } else {
+        $fileqr = 'qrcode.png';
+        QRcode::png($qrcode, $fileqr);
+    }
   ?>
   <table width="100%" border="0">
     <tr style="font-size: 10px;">
@@ -378,9 +389,19 @@ $act = $_GET['g'];
         <td>&nbsp;</td>
         <td>&nbsp;</td>
       </tr>
+
       <tr>
-        <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
-        <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <?php if (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR'): ?>
+          <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
+            <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
+          </td>
+          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br><br><br><br><br><br><br><br><br></td>
+          <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <?php else: ?>
+          <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
+          <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
+        <?php endif; ?>
+
         <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
@@ -503,7 +524,7 @@ $act = $_GET['g'];
       </tr>
       <tr>
         <td align="center" colspan="2" rowspan="2">
-          <img src="<?php echo $fileqr; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
+          <img src="<?php echo (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR') ? $fileqrB : $fileqr; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
         </td>
         <td align="left" colspan="3" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>

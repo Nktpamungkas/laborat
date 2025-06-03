@@ -81,9 +81,6 @@ foreach ($data as $machine => $entries) {
 
         if ($row) {
             $desc = '';
-            // if ($keterangan) {
-            //     $desc .= "[$keterangan] ";
-            // }
 
             if ($row['program'] == 1) {
                 $desc .= 'Constant ' . $row['suhu'];

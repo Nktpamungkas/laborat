@@ -136,9 +136,9 @@
 
             $('#exsecute').closest('.box-footer').hide();
 
-            // 1. Jalankan generate_group_id.php
+            // 1. Atur is_scheduling
             $.ajax({
-                url: 'pages/ajax/generate_group_id.php',
+                url: 'pages/ajax/is_scheduling_btn.php',
                 type: 'POST',
                 success: function(response) {
                     console.log(response);
@@ -459,63 +459,63 @@
             inputBuffer = "";
 
             // ✨ Cek apakah scan diawali dengan "DR"
-            if (input.value.substring(0, 2).toUpperCase() === "DR") {
-                productNameWrapper.innerHTML = '';
+            // if (input.value.substring(0, 2).toUpperCase() === "DR") {
+            //     productNameWrapper.innerHTML = '';
 
-                setTimeout(setupTempListenersDR, 100);
+            //     setTimeout(setupTempListenersDR, 100);
 
-                // DR case → tampilkan 2 bottle & 2 temp
-                bottleWrapper.innerHTML = `
-                    <label for="bottle_qty_1" class="col-sm-2 control-label">Bottle Quantity (1)</label>
-                    <div class="col-sm-2">
-                        <input type="number" class="form-control style-ph" name="bottle_qty_1" id="bottle_qty_1" placeholder="Input Bottle Qty 1" required autocomplete="off">
-                    </div>
-                    <div class="col-sm-2">
-                        <input type="number" class="form-control style-ph" name="bottle_qty_2" id="bottle_qty_2" placeholder="Input Bottle Qty 2" required autocomplete="off">
-                    </div>
-                `;
-                tempWrapper.innerHTML = `
-                    <label for="temp_1" class="col-sm-2 control-label">Temp (1)</label>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control style-ph" name="temp_1" id="temp_1" placeholder="Input Temp 1" required autocomplete="off">
-                    </div>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control style-ph" name="temp_2" id="temp_2" placeholder="Input Temp 2" required autocomplete="off">
-                    </div>
-                `;
+            //     // DR case → tampilkan 2 bottle & 2 temp
+            //     bottleWrapper.innerHTML = `
+            //         <label for="bottle_qty_1" class="col-sm-2 control-label">Bottle Quantity (1)</label>
+            //         <div class="col-sm-2">
+            //             <input type="number" class="form-control style-ph" name="bottle_qty_1" id="bottle_qty_1" placeholder="Input Bottle Qty 1" required autocomplete="off">
+            //         </div>
+            //         <div class="col-sm-2">
+            //             <input type="number" class="form-control style-ph" name="bottle_qty_2" id="bottle_qty_2" placeholder="Input Bottle Qty 2" required autocomplete="off">
+            //         </div>
+            //     `;
+            //     tempWrapper.innerHTML = `
+            //         <label for="temp_1" class="col-sm-2 control-label">Temp (1)</label>
+            //         <div class="col-sm-2">
+            //             <input type="text" class="form-control style-ph" name="temp_1" id="temp_1" placeholder="Input Temp 1" required autocomplete="off">
+            //         </div>
+            //         <div class="col-sm-2">
+            //             <input type="text" class="form-control style-ph" name="temp_2" id="temp_2" placeholder="Input Temp 2" required autocomplete="off">
+            //         </div>
+            //     `;
 
-                productNameWrapper.innerHTML = `
-                    <label class="col-sm-2 control-label"></label>
-                    <div class="col-sm-2">
-                        <p id="productNameDisplay_1" style="font-weight: bold; color: #0073b7;"></p>
-                    </div>
-                    <div class="col-sm-2">
-                        <p id="productNameDisplay_2" style="font-weight: bold; color: #0073b7;"></p>
-                    </div>
-                `;
-            } else {
-                // Normal case → tampilkan 1 bottle & 1 temp
-                bottleWrapper.innerHTML = `
-                    <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
-                    <div class="col-sm-2">
-                        <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
-                    </div>
-                `;
-                tempWrapper.innerHTML = `
-                    <label for="temp" class="col-sm-2 control-label">Temp</label>
-                    <div class="col-sm-2">
-                        <input type="text" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
-                    </div>
-                `;
-                productNameWrapper.innerHTML = `
-                    <div class="col-sm-offset-2 col-sm-4">
-                        <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
-                    </div>
-                `;
-                setTimeout(() => {
-                    listenTempWithId('#temp', '#productNameDisplay');
-                }, 100);
-            }
+            //     productNameWrapper.innerHTML = `
+            //         <label class="col-sm-2 control-label"></label>
+            //         <div class="col-sm-2">
+            //             <p id="productNameDisplay_1" style="font-weight: bold; color: #0073b7;"></p>
+            //         </div>
+            //         <div class="col-sm-2">
+            //             <p id="productNameDisplay_2" style="font-weight: bold; color: #0073b7;"></p>
+            //         </div>
+            //     `;
+            // } else {
+            //     // Normal case → tampilkan 1 bottle & 1 temp
+            //     bottleWrapper.innerHTML = `
+            //         <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
+            //         <div class="col-sm-2">
+            //             <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
+            //         </div>
+            //     `;
+            //     tempWrapper.innerHTML = `
+            //         <label for="temp" class="col-sm-2 control-label">Temp</label>
+            //         <div class="col-sm-2">
+            //             <input type="text" class="form-control style-ph" name="temp" id="temp" placeholder="Input Temp" required autocomplete="off">
+            //         </div>
+            //     `;
+            //     productNameWrapper.innerHTML = `
+            //         <div class="col-sm-offset-2 col-sm-4">
+            //             <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
+            //         </div>
+            //     `;
+            //     setTimeout(() => {
+            //         listenTempWithId('#temp', '#productNameDisplay');
+            //     }, 100);
+            // }
 
         }, 100); // tunggu sebentar agar input selesai
     });
@@ -546,6 +546,9 @@
             var temp_1 = $('#temp_1').val() ? $('#temp_1').val() : $('#temp').val();
             var temp_2 = $('#temp_2').val() ? $('#temp_2').val() : 0;
 
+            if (!temp_1 || temp_1.trim() === '') {
+                return false;
+            }
 
             // Kirim data ke server menggunakan AJAX
             $.ajax({
