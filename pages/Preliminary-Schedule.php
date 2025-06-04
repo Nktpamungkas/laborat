@@ -322,6 +322,28 @@
             //     return;
             // }
 
+            // ✅ CEK SELECT YANG HARUS DIISI (punya lebih dari 1 option)
+            let allSelected = true;
+
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                const isMachineAvailable = options.length > 1;
+
+                const formGroup = select.closest('.form-group');
+
+                if (isMachineAvailable && !select.value) {
+                    allSelected = false;
+                    if (formGroup) formGroup.classList.add('has-error');
+                } else {
+                    if (formGroup) formGroup.classList.remove('has-error');
+                }
+            });
+
+            if (!allSelected) {
+                alert('Semua kolom yang memiliki mesin harus dipilih sebelum mengirim.');
+                return;
+            }
+
             // ✅ Semua mesin sudah dipilih, lanjutkan proses ambil resep
             selects.forEach(select => {
                 const machine = select.value;
@@ -354,12 +376,21 @@
             console.log('Data to submit:', dataToSubmit);
 
             if (dataToSubmit.length > 0) {
+                let all_ids = [];
+                document.querySelectorAll('#schedule_table .resep-item').forEach(el => {
+                    const id = el.getAttribute('data-id');
+                    if (id) all_ids.push(id);
+                });
+
                 fetch('pages/ajax/submit_dispensing.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ assignments: dataToSubmit })
+                    body: JSON.stringify({
+                        assignments: dataToSubmit,
+                        all_ids: all_ids
+                    })
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -617,10 +648,12 @@
                 }
 
                 data.forEach((item, index) => {
+                    const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
+
                     const row = `<tr>
-                        <td align="center">${index + 1}</td>
-                        <td>${item.no_resep}</td>
-                        <td>${item.product_name}</td>
+                        <td ${isOldStyle} align="center">${index + 1}</td>
+                        <td ${isOldStyle}>${item.no_resep}</td>
+                        <td ${isOldStyle}>${item.product_name}</td>
                         <td align="center">
                             <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </td>

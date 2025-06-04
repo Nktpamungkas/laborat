@@ -7,25 +7,31 @@ include "../../koneksi.php";
 
 try {
     $statuses = [
-        'in_progress_darkroom'
+        'in_progress_darkroom',
+        'hold',
+        'repeat',
     ];
 
     $statusList = "'" . implode("','", $statuses) . "'";
     
     $result = mysqli_query($con, "
         SELECT 
-            tbl_preliminary_schedule.*, 
-            master_suhu.product_name,
-            master_suhu.suhu,
-            master_suhu.waktu,
-            master_suhu.dispensing
-        FROM tbl_preliminary_schedule
-        LEFT JOIN master_suhu 
-            ON tbl_preliminary_schedule.code = master_suhu.code
-        WHERE tbl_preliminary_schedule.status IN ($statusList)
+            tps.*, 
+            ms.product_name,
+            ms.suhu,
+            ms.waktu,
+            ms.dispensing
+        FROM tbl_preliminary_schedule tps
+        INNER JOIN (
+            SELECT MIN(id) AS id
+            FROM tbl_preliminary_schedule
+            WHERE status IN ($statusList)
+            GROUP BY no_resep
+        ) AS sub ON tps.id = sub.id
+        LEFT JOIN master_suhu ms ON tps.code = ms.code
         ORDER BY 
-            (tbl_preliminary_schedule.status = 'in_progress_darkroom') DESC, 
-            tbl_preliminary_schedule.id ASC
+            (tps.status = 'in_progress_darkroom') DESC,
+            tps.id ASC
     ");
 
     $data = [];

@@ -3,9 +3,11 @@
         font-style: italic;
         font-size: 12px;
     }
+
     #tempWrapper {
         margin-bottom: 0;
     }
+
     @keyframes shake {
         0% { transform: translateX(0); }
         25% { transform: translateX(-5px); }
@@ -24,6 +26,7 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.2; }
     }
+
     #actionButtons {
         display: flex;
         gap: 5px;
@@ -31,7 +34,7 @@
         opacity: 0;
         transform: translateX(20px) scale(0.5);
         transition: opacity 0.5s ease, transform 0.5s ease;
-        pointer-events: none; /* agar tidak bisa diklik saat invisible */
+        pointer-events: none;
         will-change: transform, opacity;
     }
 
@@ -40,42 +43,60 @@
         transform: translateX(0) scale(1);
         pointer-events: auto;
     }
-    #actionButtons button {
+
+    #actionSelect button {
+        position: relative;
         line-height: 0.8;
-        padding: 8px 12px;
+        padding: 16px 12px 8px;
         min-width: 80px;
         height: 40px;
         text-align: center;
-        font-size: 11px;
+        font-size: 14px;
+        font-weight: 700;
     }
 
-    #actionButtons button strong {
-        font-size: 16px;
+    .shortcut-label {
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        font-weight: bold;
+        line-height: 1;
+        color: #333;
     }
 </style>
+
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
             <div class="box-body">
 
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
-                    <!-- Input Scan -->
-                    <div style="display: flex; flex-direction: column;">
-                        <label for="scanInput">Scan Resep</label>
-                        <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;">
+                    <!-- Tombol Repeat/End/Hold -->
+                    <div id="actionSelect" style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline-primary action-btn" data-action="repeat">
+                            <span class="shortcut-label">p</span>Repeat
+                        </button>
+                        <button class="btn btn-outline-danger action-btn" data-action="end">
+                            <span class="shortcut-label">q</span>End
+                        </button>
+                        <button class="btn btn-outline-warning action-btn" data-action="hold">
+                            <span class="shortcut-label">y</span>Hold
+                        </button>
                     </div>
 
-                    <!-- Tombol YES/NO -->
-                    <div id="actionButtons" style="display: none; flex-direction: row; gap: 5px; margin-top: 22px;">
-                        <button id="btnRepeat" class="btn btn-success">F1<br><strong>Repeat</strong></button>
-                        <button id="btnEnd" class="btn btn-danger">F2<br><strong>End</strong></button>
+                    <!-- Input Scan -->
+                    <div style="display: flex; flex-direction: column;">
+                        <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;">
                     </div>
                 </div>
 
-
+                <!-- Tabel dan Selected List disamping -->
                 <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
                     
-                    <div id="tableWrapper" style="width: 100%;">
+                    <!-- Tabel -->
+                    <div id="tableWrapper" style="flex: 2;">
                         <h4 class="text-center"><strong>DARK ROOM END</strong></h4>
                         <table id="tableCombined" class="table table-bordered" width="100%">
                             <thead class="bg-green">
@@ -84,223 +105,76 @@
                                     <th><div align="center">No. Resep</div></th>
                                     <th><div align="center">Temp</div></th>
                                     <th><div align="center">Status</div></th>
-                                    <!-- <th><div align="center">Dark Room End</div></th> -->
                                 </tr>
                             </thead>
-                            <tbody id="dataBodyCombined">
-                                <!-- Data will be displayed here -->
-                            </tbody>
+                            <tbody id="dataBodyCombined"></tbody>
                         </table>
                     </div>
 
+                    <!-- Selected List -->
+                    <div id="selectedListContainer" style="flex: 1; min-width: 250px;">
+                        <h5><strong>Selected List:</strong></h5>
+                        <div id="selectedList"></div>
+                        <button id="submitAll" class="btn btn-success" style="margin-top: 10px;" disabled>SUBMIT</button>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
 <script>
-    $(document).ready(function () {
-        let currentNoResep = ""; // Simpan resep yang discan
-        loadData();
+    let currentAction = "";
+    let repeatList = [];
+    let endList = [];
+    let holdList = [];
 
-        // $('#scanInput').on('keypress', function (e) {
-        //     if (e.which === 13) { // Enter key
-        //         currentNoResep = $(this).val().trim();
-        //         if (currentNoResep !== "") {
-        //             $('#actionButtons').show();
-        //             $(this).prop('disabled', true); // Disable input sementara
-        //         }
-        //     }
-        // });
-        $('#scanInput').on('keypress', function (e) {
-            if (e.which === 13) {
-                currentNoResep = $(this).val().trim();
-                if (currentNoResep !== "") {
-                    $.ajax({
-                        url: 'pages/ajax/check_status_darkroom.php',
-                        method: 'POST',
-                        data: { no_resep: currentNoResep },
-                        dataType: 'json',
-                        success: function (res) {
-                            if (res.status == "in_progress_darkroom") {
-                                // $('#actionButtons').show();
-                                setTimeout(() => {
-                                    $('#actionButtons').addClass('show');
-                                }, 500);
-                                $('#scanInput').prop('disabled', true);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Tidak Bisa Diproses',
-                                    text: `No. Resep ini belum bisa di proses saat ini.`,
-                                });
-                                resetInput();
-                            }
-                        },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat memeriksa status resep.',
-                            });
-                            resetInput();
-                        }
-                    });
-                }
-            }
-        });
+    function renderSelectedList() {
+        const container = $("#selectedList");
+        container.empty();
 
-        $('#btnEnd').on('click', function () {
-            if (currentNoResep !== "") {
-                Swal.fire({
-                    title: 'Confirmation',
-                    text: `You want to END the process?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        updateStatusEnd(currentNoResep);
-                        resetInput();
-                        loadData()
-                    }
-                });
-            }
-        });
+        const buildList = (label, list, color) => {
+            if (list.length === 0) return "";
 
-        $('#btnRepeat').on('click', function () {
-            if (currentNoResep !== "") {
-                Swal.fire({
-                    title: 'Confirmation',
-                    text: `You want to REPEAT from the start?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        updateStatusRepeat(currentNoResep);
-                        resetInput();
-                        loadData()
-                    }
-                });
-            }
-        });
+            const rows = list.map((item, index) =>
+                `<li style="margin-bottom: 4px;">
+                    ${index + 1}. ${item} 
+                    <button class="btn btn-xs btn-danger remove-btn" data-type="${label}" data-index="${index}">x</button>
+                </li>`).join("");
 
-        function resetInput() {
-            $('#scanInput').val("").prop('disabled', false).focus();
-            // $('#actionButtons').hide();
-            $('#actionButtons').removeClass('show');
-            currentNoResep = "";
-        }
+            return `<div style="margin-top:10px;">
+                <strong style="color:${color}">${label.toUpperCase()} (${list.length})</strong>
+                <ul>${rows}</ul>
+            </div>`;
+        };
 
-        function updateStatusEnd(noResep) {
-            $.ajax({
-                url: 'pages/ajax/scan_end_darkroom_update_status.php',
-                method: 'POST',
-                data: { no_resep: noResep },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    loadData();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses sebagai END.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr.responseText);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status (END).',
-                    });
-                }
-            });
-        }
+        container.append(buildList("repeat", repeatList, "red"));
+        container.append(buildList("end", endList, "green"));
+        container.append(buildList("hold", holdList, "orange"));
 
-        function updateStatusRepeat(noResep) {
-            $.ajax({
-                url: 'pages/ajax/scan_repeat_darkroom_update_status.php',
-                method: 'POST',
-                data: { no_resep: noResep },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    loadData();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses sebagai REPEAT.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr.responseText);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status (REPEAT).',
-                    });
-                }
-            });
-        }
+        const total = repeatList.length + endList.length + holdList.length;
+        $("#submitAll").prop("disabled", total === 0);
+    }
 
-        $(document).on('keydown', function (e) {
-            if ($('#actionButtons').is(':visible')) {
-                if (e.key === "F1") {
-                    e.preventDefault();
-                    $('#btnRepeat').click();
-                } else if (e.key === "F2") {
-                    e.preventDefault();
-                    $('#btnEnd').click();
-                }
-            }
-        });
-    });
-</script>
-<script>
     function loadData() {
         fetch("pages/ajax/GetData_DarkroomEndList.php")
             .then(response => response.json())
             .then(data => {
                 const tbodyCombined = document.getElementById("dataBodyCombined");
                 tbodyCombined.innerHTML = "";
-
                 let index = 0;
-                const now = new Date();
 
                 data.forEach((item) => {
                     index++;
-                    const rowNumber = index;
                     const bgColor = index % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                    // let warningText = "-";
-                    // if (item.darkroom_end) {
-                    //     const startTime = new Date(item.darkroom_end);
-                    //     const diffMs = now - startTime;
-                    //     const diffMins = diffMs / 1000 / 60;
-
-                    //     warningText = diffMins > 90
-                    //         ? `<span class="blink-warning">⚠ ${item.darkroom_end}</span>`
-                    //         : item.darkroom_end;
-                    // }
-
                     const row = `<tr style="background-color: ${bgColor}">
-                        <td align="center">${rowNumber}</td>
+                        <td align="center">${index}</td>
                         <td align="center">${item.no_resep}</td>
                         <td align="center">${item.product_name}</td>
                         <td align="center">${item.status}</td>
                     </tr>`;
-
                     tbodyCombined.innerHTML += row;
                 });
             })
@@ -308,17 +182,126 @@
                 console.error("Gagal mengambil data:", err);
             });
     }
-</script>
-<script>
-    if (localStorage.getItem('showSuccessAlert') === '1') {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Data berhasil dikirim',
-            timer: 1500,
-            showConfirmButton: false
+
+    $(document).ready(function () {
+        loadData();
+
+        // Pilih tombol aksi
+        $(".action-btn").on("click", function () {
+            $(".action-btn").removeClass("btn-primary").addClass("btn-outline-primary");
+            $(this).removeClass("btn-outline-primary").addClass("btn-primary");
+
+            currentAction = $(this).data("action");
+            $("#scanInput").focus();
         });
 
-        localStorage.removeItem('showSuccessAlert');
-    }
+        // Input scan
+        $('#scanInput').on('keypress', function (e) {
+            if (e.which === 13) {
+                const scanned = $(this).val().trim();
+                if (scanned === "" || currentAction === "") {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Pilih Aksi Terlebih Dahulu',
+                        text: 'Silakan pilih tombol Repeat, End, atau Hold sebelum scan.'
+                    });
+                    return;
+                }
+
+                const exists = [...repeatList, ...endList, ...holdList].includes(scanned);
+                if (exists) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Sudah Ada',
+                        text: `No. Resep ${scanned} sudah dimasukkan.`
+                    });
+                    $(this).val("").focus();
+                    return;
+                }
+
+                if (currentAction === "repeat") repeatList.push(scanned);
+                else if (currentAction === "end") endList.push(scanned);
+                else if (currentAction === "hold") holdList.push(scanned);
+
+                $(this).val("").focus();
+                renderSelectedList();
+            }
+        });
+
+        // Hapus item dari list
+        $('#selectedList').on('click', '.remove-btn', function () {
+            const type = $(this).data("type");
+            const index = $(this).data("index");
+
+            if (type === "repeat") repeatList.splice(index, 1);
+            else if (type === "end") endList.splice(index, 1);
+            else if (type === "hold") holdList.splice(index, 1);
+
+            renderSelectedList();
+        });
+
+        // Submit semua
+        $('#submitAll').on('click', function () {
+            const payload = {
+                repeat: repeatList,
+                end: endList,
+                hold: holdList
+            };
+
+            Swal.fire({
+                title: 'SUBMIT?',
+                text: 'Pastikan data yang akan dikirim sudah benar.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Kirim',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'pages/ajax/submit_batch_darkroom.php',
+                        method: 'POST',
+                        data: JSON.stringify(payload),
+                        contentType: 'application/json',
+                        success: function () {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: 'Semua data berhasil dikirim.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            repeatList = [];
+                            endList = [];
+                            holdList = [];
+                            renderSelectedList();
+                            loadData();
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat mengirim data.',
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // Shortcut tombol: p, q, y
+        $(document).on('keydown', function (e) {
+            const key = e.key.toLowerCase();
+            if (['p', 'q', 'y'].includes(key)) {
+                e.preventDefault();
+            }
+            
+            if (key === 'p') {
+                $("[data-action='repeat']").click();
+            } else if (key === 'q') {
+                $("[data-action='end']").click();
+            } else if (key === 'y') {
+                $("[data-action='hold']").click();
+            }
+        });
+    });
 </script>

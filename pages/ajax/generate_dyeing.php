@@ -67,14 +67,14 @@ include '../../koneksi.php';
 $statuses = [
     // 'scheduled',
     'in_progress_dispensing',
-    // 'in_progress_dyeing',
+    'in_progress_dyeing',
     // 'in_progress_darkroom',
     // 'ok'
 ];
 
 $statusList = "'" . implode("','", $statuses) . "'";
 
-$sql = "SELECT tps.no_resep, tps.no_machine, tps.status, ms.`group`, ms.product_name
+$sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
         FROM tbl_preliminary_schedule tps
         LEFT JOIN master_suhu ms ON tps.code = ms.code
         WHERE tps.status IN ($statusList)

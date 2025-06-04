@@ -1,11 +1,9 @@
 <?php
 header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-
 include "../../koneksi.php";
 
 try {
+    // Ambil data urutan awal berdasar suhu dan waktu
     $result = mysqli_query($con, "
         SELECT 
             tbl_preliminary_schedule.*, 
@@ -17,13 +15,33 @@ try {
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
         WHERE tbl_preliminary_schedule.status != 'ready'
-        ORDER BY master_suhu.suhu DESC, master_suhu.waktu DESC, tbl_preliminary_schedule.no_resep ASC
+        ORDER BY 
+            CASE 
+                WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
+                ELSE 1 
+            END, 
+            tbl_preliminary_schedule.order_index ASC,
+            master_suhu.suhu DESC, 
+            master_suhu.waktu DESC, 
+            tbl_preliminary_schedule.no_resep ASC
     ");
 
-    $data = [];
+    // Cek dan isi order_index jika masih nol
+    $counter = 1;
     while ($row = mysqli_fetch_assoc($result)) {
+        if ($row['order_index'] == 0) {
+            $id = $row['id'];
+            mysqli_query($con, "UPDATE tbl_preliminary_schedule SET order_index = $counter WHERE id = $id");
+            $row['order_index'] = $counter;
+        }
         $data[] = $row;
+        $counter++;
     }
+
+    // Urutkan ulang array berdasarkan order_index agar sesuai drag
+    usort($data, function($a, $b) {
+        return $a['order_index'] - $b['order_index'];
+    });
 
     echo json_encode($data);
 } catch (Exception $e) {
