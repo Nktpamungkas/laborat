@@ -126,8 +126,8 @@ if (isset($_POST['schedules'])) {
 
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
                             <th colspan="1">
-                                <div class="dropdown-container">
-                                    <select class="form-select form-select-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
+                                <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
+                                    <select class="form-control input-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
                                         <option value="">Pilih Mesin</option>
                                         <?php foreach ($machines as $machine): ?>
                                             <option value="<?= htmlspecialchars($machine) ?>"><?= htmlspecialchars($machine) ?></option>

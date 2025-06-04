@@ -25,12 +25,26 @@
         50% { opacity: 0.2; }
     }
 </style>
+<style>
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #ffeeba !important;
+    }
+</style>
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
             <div class="box-body">
-                <div style="margin-bottom: 10px;">
-                    <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
+                <div class="row" style="margin-bottom: 10px;">
+                    <!-- Scan input di kiri -->
+                    <div class="col-xs-6">
+                        <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="max-width: 250px;" autofocus>
+                    </div>
+
+                    <!-- Tombol lock di kanan -->
+                    <div class="col-xs-6 text-right">
+                        <button id="toggleLockBtn" class="btn btn-warning">🔒 Lock Drag</button>
+                    </div>
                 </div>
                 
                 <!-- Container for tables with display flex -->
@@ -139,7 +153,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -307,127 +321,250 @@
 
                 renderTable(data, tbodyPoly, "1");
                 renderTable(data, tbodyCotton, "2");
-                renderTable(data, tbodyWhite, ""); // White = selain 1 dan 2
+                renderTable(data, tbodyWhite, "");
+
+                enableSortableTables();
 
                 document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
                 document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
                 document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
 
-                const tableContainer = document.getElementById("tableContainer");
                 const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
-                tableContainer.style.display = visibleTables > 1 ? "flex" : "block";
+                document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
             });
     }
 
-    // function renderTable(dataArray, tbodyElement, dispensingCode) {
-    //     const rowsPerBlock = 16;
-    //     const now = new Date();
-
-    //     const filtered = dataArray.filter(item => {
-    //         const code = item.dispensing?.trim() ?? "";
-    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
-    //     });
-
-    //     filtered.forEach((item, index) => {
-    //         const groupIndex = Math.floor(index / rowsPerBlock);
-    //         const rowNumber = (index % rowsPerBlock) + 1;
-    //         const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-    //         let rowHTML;
-
-    //         if (item.status === 'scheduled') {
-    //             let warningText = "-";
-    //             if (item.dispensing_start) {
-    //                 const startTime = new Date(item.dispensing_start);
-    //                 const diffMs = now - startTime;
-    //                 const diffMins = diffMs / 1000 / 60;
-    //             }
-
-    //             rowHTML = `<tr style="background-color: ${bgColor}">
-    //                 <td align="center">${rowNumber}</td>
-    //                 <td align="center">${item.no_resep}</td>
-    //                 <td align="center">${item.product_name}</td>
-    //                 <td align="center">${item.status}</td>
-    //             </tr>`;
-    //         } else {
-    //             // Baris kosong karena status bukan 'scheduled'
-    //             rowHTML = `<tr style="background-color: ${bgColor}; color: #ccc;">
-    //                 <td align="center">${rowNumber}</td>
-    //                 <td colspan="4" align="center"></td>
-    //             </tr>`;
-    //         }
-
-    //         tbodyElement.innerHTML += rowHTML;
-    //     });
-    // }
     function renderTable(dataArray, tbodyElement, dispensingCode) {
         const rowsPerBlock = 16;
-        const now = new Date();
-
-        // Filter berdasarkan kode dispensing
         const filtered = dataArray.filter(item => {
             const code = item.dispensing?.trim() ?? "";
             return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
         });
 
-        // Kelompokkan berdasarkan no_resep
-        const groupedByResep = {};
-        filtered.forEach(item => {
-            if (!groupedByResep[item.no_resep]) {
-                groupedByResep[item.no_resep] = [];
-            }
-            groupedByResep[item.no_resep].push(item);
-        });
+        filtered.forEach((item, index) => {
+            const groupIndex = Math.floor(index / rowsPerBlock);
+            const rowNumber = (index % rowsPerBlock) + 1;
+            const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
 
-        // Gabungkan menjadi blok-blok 16 baris
-        const blocks = [];
-        let currentBlock = [];
-        for (const resep in groupedByResep) {
-            const group = groupedByResep[resep];
-            // Jika satu grup lebih besar dari 16, pecah sendiri
-            if (group.length > rowsPerBlock) {
-                for (let i = 0; i < group.length; i += rowsPerBlock) {
-                    blocks.push(group.slice(i, i + rowsPerBlock));
-                }
-            } else {
-                if (currentBlock.length + group.length > rowsPerBlock) {
-                    blocks.push(currentBlock);
-                    currentBlock = [];
-                }
-                currentBlock.push(...group);
-            }
-        }
-        if (currentBlock.length > 0) blocks.push(currentBlock);
+            const rowHTML = `
+                <tr style="background-color: ${bgColor}" data-id="${item.id}">
+                    <td align="center" class="row-number">${rowNumber}</td>
+                    <td align="center">${item.no_resep}</td>
+                    <td align="center">${item.product_name}</td>
+                    <td align="center">${item.status}</td>
+                </tr>
+            `;
 
-        // Render setiap blok ke tabel
-        blocks.forEach((block, blockIndex) => {
-            const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-            block.forEach((item, index) => {
-                const rowNumber = index + 1;
-                let rowHTML;
-
-                if (item.status === 'scheduled') {
-                    rowHTML = `<tr style="background-color: ${bgColor}">
-                        <td align="center">${rowNumber}</td>
-                        <td align="center">${item.no_resep}</td>
-                        <td align="center">${item.product_name}</td>
-                        <td align="center">${item.status}</td>
-                    </tr>`;
-                } else {
-                    rowHTML = `<tr style="background-color: ${bgColor}; color: #ccc;">
-                        <td align="center">${rowNumber}</td>
-                        <td colspan="4" align="center"></td>
-                    </tr>`;
-                }
-
-                tbodyElement.innerHTML += rowHTML;
-            });
+            tbodyElement.innerHTML += rowHTML;
         });
     }
+
+    function enableSortableTables() {
+        const options = {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            handle: 'td',
+            onEnd: function (evt) {
+                const tbody = evt.from;
+                const rows = Array.from(tbody.querySelectorAll("tr"));
+
+                // ✅ Update semua order_index berdasarkan urutan sekarang
+                const newOrder = rows.map((row, index) => ({
+                    id: row.getAttribute("data-id"),
+                    order_index: index + 1
+                }));
+
+                // ✅ Update tampilan
+                updateRowStyles(tbody);
+                updateRowNumbers(tbody);
+
+                // ✅ Kirim semua ID dan order_index ke server
+                fetch("pages/ajax/UpdateOrderIndexes.php", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orders: newOrder })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error("Gagal simpan urutan:", data.message);
+                    }
+                })
+                .catch(err => console.error("AJAX error:", err));
+            }
+        };
+
+        Sortable.create(document.getElementById("dataBodyPoly"), options);
+        Sortable.create(document.getElementById("dataBodyCotton"), options);
+        Sortable.create(document.getElementById("dataBodyWhite"), options);
+    }
+
+    function updateRowStyles(tbody) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const rowsPerBlock = 16;
+
+        rows.forEach((row, index) => {
+            const groupIndex = Math.floor(index / rowsPerBlock);
+            const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+            row.style.backgroundColor = bgColor;
+        });
+    }
+
+    function updateRowNumbers(tbody) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const rowsPerBlock = 16;
+
+        rows.forEach((row, index) => {
+            const rowNumber = (index % rowsPerBlock) + 1;
+            const numberCell = row.querySelector(".row-number");
+            if (numberCell) numberCell.textContent = rowNumber;
+        });
+    }
+
+    // function renderTable(dataArray, tbodyElement, dispensingCode) {
+    //     const rowsPerBlock = 16;
+    //     const now = new Date();
+
+    //     // Filter berdasarkan kode dispensing
+    //     const filtered = dataArray.filter(item => {
+    //         const code = item.dispensing?.trim() ?? "";
+    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+    //     });
+
+    //     // Kelompokkan berdasarkan no_resep
+    //     const groupedByResep = {};
+    //     filtered.forEach(item => {
+    //         if (!groupedByResep[item.no_resep]) {
+    //             groupedByResep[item.no_resep] = [];
+    //         }
+    //         groupedByResep[item.no_resep].push(item);
+    //     });
+
+    //     // Gabungkan menjadi blok-blok 16 baris
+    //     const blocks = [];
+    //     let currentBlock = [];
+    //     for (const resep in groupedByResep) {
+    //         const group = groupedByResep[resep];
+    //         // Jika satu grup lebih besar dari 16, pecah sendiri
+    //         if (group.length > rowsPerBlock) {
+    //             for (let i = 0; i < group.length; i += rowsPerBlock) {
+    //                 blocks.push(group.slice(i, i + rowsPerBlock));
+    //             }
+    //         } else {
+    //             if (currentBlock.length + group.length > rowsPerBlock) {
+    //                 blocks.push(currentBlock);
+    //                 currentBlock = [];
+    //             }
+    //             currentBlock.push(...group);
+    //         }
+    //     }
+    //     if (currentBlock.length > 0) blocks.push(currentBlock);
+
+    //     // Render setiap blok ke tabel
+    //     blocks.forEach((block, blockIndex) => {
+    //         const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+    //         block.forEach((item, index) => {
+    //             const rowNumber = index + 1;
+    //             let rowHTML;
+
+    //             if (item.status === 'scheduled') {
+    //                 rowHTML = `<tr style="background-color: ${bgColor}">
+    //                     <td align="center">${rowNumber}</td>
+    //                     <td align="center">${item.no_resep}</td>
+    //                     <td align="center">${item.product_name}</td>
+    //                     <td align="center">${item.status}</td>
+    //                 </tr>`;
+    //             } else {
+    //                 rowHTML = `<tr style="background-color: ${bgColor}; color: #ccc;">
+    //                     <td align="center">${rowNumber}</td>
+    //                     <td colspan="4" align="center"></td>
+    //                 </tr>`;
+    //             }
+
+    //             tbodyElement.innerHTML += rowHTML;
+    //         });
+    //     });
+    // }
 </script>
+
+<script>
+    let sortables = []; // Simpan semua sortable instance di sini
+    let isLocked = true;
+
+    function enableSortableTables() {
+        const tbodyIds = ["dataBodyPoly", "dataBodyCotton", "dataBodyWhite"];
+        sortables = [];
+
+        tbodyIds.forEach(id => {
+            const tbody = document.getElementById(id);
+            const sortable = Sortable.create(tbody, {
+                animation: 150,
+                ghostClass: "sortable-ghost",
+                disabled: true,
+                onEnd: function (evt) {
+                    const tbody = evt.from;
+                    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+                    const newOrder = rows.map((row, index) => ({
+                        id: row.getAttribute("data-id"),
+                        order_index: index + 1
+                    }));
+
+                    updateRowStyles(tbody);
+                    updateRowNumbers(tbody);
+
+                    fetch("pages/ajax/UpdateOrderIndexes.php", {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orders: newOrder })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error("Gagal simpan urutan:", data.message);
+                        }
+                    })
+                    .catch(err => console.error("AJAX error:", err));
+                }
+            });
+
+            sortables.push(sortable); // Simpan
+        });
+    }
+
+    function toggleLock() {
+        isLocked = !isLocked;
+
+        sortables.forEach(sortable => {
+            sortable.option("disabled", isLocked);
+        });
+
+        const btn = document.getElementById("toggleLockBtn");
+        btn.innerHTML = isLocked ? "🔓 Unlock Drag" : "🔒 Lock Drag";
+        btn.className = isLocked ? "btn btn-success" : "btn btn-warning";
+
+        const scanInput = document.getElementById("scanInput");
+        scanInput.disabled = !isLocked;
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+        enableSortableTables();
+
+        // Awal: drag terkunci => scan aktif
+        document.getElementById("scanInput").disabled = false;
+
+        // Set tombol awal ke status terkunci
+        const btn = document.getElementById("toggleLockBtn");
+        btn.innerHTML = "🔓 Unlock Drag";
+        btn.className = "btn btn-success";
+    });
+
+    document.getElementById("toggleLockBtn").addEventListener("click", toggleLock);
+</script>
+
 <script>
     if (localStorage.getItem('showSuccessAlert') === '1') {
         Swal.fire({

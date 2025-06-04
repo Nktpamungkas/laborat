@@ -1,3 +1,15 @@
+<style>
+    .blink-warning {
+        animation: blink 1s infinite;
+        color: red;
+        font-weight: bold;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
 
 <div class="row">
     <div class="col-xs-12">
@@ -149,8 +161,22 @@
                     Object.values(data).forEach(rows => {
                         const cell = rows[i];
                         if (cell) {
+                            const now = new Date();
+                            let warningClass = '';
+
+                            if (cell.dyeing_start) {
+                                const startTime = new Date(cell.dyeing_start);
+                                const diffMs = now - startTime;
+                                const diffMins = diffMs / 1000 / 60;
+                                const processTime = parseFloat(cell.waktu) || 0;
+
+                                if (diffMins > (120 + processTime)) {
+                                    warningClass = 'blink-warning';
+                                }
+                            }
+
                             html += `<td>
-                                <div style="display: flex; justify-content: space-around;">
+                                <div style="display: flex; justify-content: space-around;" class="${warningClass}">
                                     <span>${cell.no_resep}</span>
                                     <span class="text-muted">${cell.status}</span>
                                 </div>
