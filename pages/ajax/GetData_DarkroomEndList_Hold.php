@@ -7,8 +7,7 @@ include "../../koneksi.php";
 
 try {
     $statuses = [
-        'in_progress_darkroom',
-        'repeat',
+        'hold',
     ];
 
     $statusList = "'" . implode("','", $statuses) . "'";

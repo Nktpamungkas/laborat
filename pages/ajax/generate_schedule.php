@@ -24,15 +24,15 @@ if (isset($_POST['schedules'])) {
             $idMap[$groupName][$chunkIndex] = [];
 
             foreach ($chunk as $no_resep) {
-                $stmt = $con->prepare("SELECT id FROM tbl_preliminary_schedule 
+                $stmt = $con->prepare("SELECT id, is_old_data FROM tbl_preliminary_schedule 
                                        WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
                                        ORDER BY id DESC LIMIT 1");
                 $stmt->bind_param("s", $no_resep);
                 $stmt->execute();
-                $stmt->bind_result($id);
+                $stmt->bind_result($id, $is_old_data);
 
                 if ($stmt->fetch()) {
-                    $idMap[$groupName][$chunkIndex][] = $id;
+                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data];
                     $stmt->close();
 
                     // Tandai ID ini agar tidak digunakan lagi sementara
@@ -48,7 +48,10 @@ if (isset($_POST['schedules'])) {
         }
     }
 ?>
-    <h4 style="margin-left: 5px;">Schedule Celup</h4>
+    <div style="display: flex; gap: 10px; padding: 10px 0px;">
+        <h4 style="margin-left: 5px;">Schedule Celup</h4>
+        <button id="undo" class="btn btn-primary" title="undo" style="border-radius: 50%;"><i class="fa fa-undo" aria-hidden="true"></i></button>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
             <thead class="table-dark">
@@ -149,14 +152,22 @@ if (isset($_POST['schedules'])) {
                         <td><?= $i + 1 ?></td>
                         <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
                             <?php foreach ($chunks as $chunkIndex => $chunk): ?>
-                                <td>
+                                <?php
+                                    $id_info = $idMap[$groupName][$chunkIndex][$i] ?? null;
+                                    $id_schedule = $id_info['id'] ?? null;
+                                    $is_old_data = $id_info['is_old'] ?? 0;
+
+                                    // Atur style td jika is_old_data == 1
+                                    $tdStyle = $is_old_data == 1 ? 'background-color: pink;' : '';
+                                ?>
+                                <td style="<?= $tdStyle ?>">
                                     <?php if (isset($chunk[$i])): ?>
-                                        <?php
-                                            $no_resep = $chunk[$i];
-                                            $id_schedule = $idMap[$groupName][$chunkIndex][$i] ?? null;
-                                        ?>
+                                        <?php $no_resep = $chunk[$i]; ?>
                                         <?php if ($id_schedule): ?>
-                                            <span class="resep-item" data-id="<?= $id_schedule ?>" data-resep="<?= htmlspecialchars($no_resep) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
+                                            <span class="resep-item"
+                                                data-id="<?= $id_schedule ?>"
+                                                data-resep="<?= htmlspecialchars($no_resep) ?>"
+                                                data-group="<?= htmlspecialchars($groupName) ?>">
                                                 <?= htmlspecialchars($no_resep) ?>
                                             </span>
                                         <?php else: ?>
@@ -181,4 +192,3 @@ if (isset($_POST['schedules'])) {
 } else {
     echo '<div class="alert alert-warning mt-4">Data tidak tersedia.</div>';
 }
-?>

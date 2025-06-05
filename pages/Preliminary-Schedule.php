@@ -292,6 +292,24 @@
                     data: { schedules: schedules },
                     success: function (data) {
                         $('#schedule_table').html(data);
+
+                        $('#undo').on('click', function () {
+                            fetch('pages/ajax/undo_schedule.php', {
+                                method: 'POST'
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    alert('Gagal undo schedule.');
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error:', err);
+                                alert('Terjadi kesalahan.');
+                            });
+                        });
                     }
                 });
             },
@@ -305,24 +323,6 @@
             let dataToSubmit = [];
             const selects = document.querySelectorAll('#schedule_table select');
 
-            // 👉 CEK SEMUA SELECT SUDAH DIPILIH
-            // let allSelected = true;
-            // selects.forEach(select => {
-            //     if (!select.value) {
-            //         allSelected = false;
-            //         select.classList.add('is-invalid');
-            //     } else {
-            //         select.classList.remove('is-invalid');
-            //     }
-            // });
-
-            // ❌ Jika ada yang belum dipilih, hentikan proses
-            // if (!allSelected) {
-            //     alert('Semua kolom mesin harus dipilih sebelum mengirim.');
-            //     return;
-            // }
-
-            // ✅ CEK SELECT YANG HARUS DIISI (punya lebih dari 1 option)
             let allSelected = true;
 
             selects.forEach(select => {
@@ -451,7 +451,6 @@
                 });
             });
         });
-
     });
 </script>
 

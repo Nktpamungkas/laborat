@@ -348,15 +348,25 @@
             const groupIndex = Math.floor(index / rowsPerBlock);
             const rowNumber = (index % rowsPerBlock) + 1;
             const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+            const isActiveStatus = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
 
-            const rowHTML = `
-                <tr style="background-color: ${bgColor}" data-id="${item.id}">
-                    <td align="center" class="row-number">${rowNumber}</td>
+            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''}" 
+                            data-id="${item.id}">
+                <td align="center" class="row-number">${rowNumber}</td>`;
+
+            if (isActiveStatus) {
+                rowHTML += `
                     <td align="center">${item.no_resep}</td>
                     <td align="center">${item.product_name}</td>
                     <td align="center">${item.status}</td>
-                </tr>
-            `;
+                `;
+            } else {
+                rowHTML += `
+                    <td colspan="3" align="center"></td>
+                `;
+            }
+
+            rowHTML += `</tr>`;
 
             tbodyElement.innerHTML += rowHTML;
         });
@@ -416,11 +426,16 @@
     function updateRowNumbers(tbody) {
         const rows = Array.from(tbody.querySelectorAll("tr"));
         const rowsPerBlock = 16;
+        let activeIndex = 0;
 
-        rows.forEach((row, index) => {
-            const rowNumber = (index % rowsPerBlock) + 1;
+        rows.forEach((row) => {
             const numberCell = row.querySelector(".row-number");
-            if (numberCell) numberCell.textContent = rowNumber;
+
+            if (numberCell) {
+                const rowNumber = (activeIndex % rowsPerBlock) + 1;
+                numberCell.textContent = rowNumber;
+                activeIndex++;
+            }
         });
     }
 

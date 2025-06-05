@@ -218,6 +218,13 @@ $page = strtolower($page);
                                                 } ?>"><a href="?p=Darkroom-End"><i class="fa fa-clock-o" aria-hidden="true"></i>
                                             <span>Dark Room - End</span></a>
                                     </li>
+
+                                    <li class="divider"></li>
+
+                                    <li class="<?php if ($_GET['p'] == "Hold-Data") echo "active"; ?>">
+                                        <a href="?p=Hold-Data"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
+                                            <span>Hold Data</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             
