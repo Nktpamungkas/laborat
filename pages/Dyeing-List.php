@@ -1,14 +1,14 @@
 <style>
     .blink-warning {
-        animation: blink 1s infinite;
+        /* animation: blink 1s infinite; */
         color: red;
         font-weight: bold;
     }
 
-    @keyframes blink {
+    /* @keyframes blink {
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
-    }
+    } */
 </style>
 
 <div class="row">
@@ -25,94 +25,6 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
-    // $.ajax({
-    //     url: 'pages/ajax/fetch_dyeing_list.php',
-    //     type: 'GET',
-    //     dataType: 'json',
-    //     success: function(response) {
-    //         const schedules = JSON.stringify(response);
-    //         console.log(schedules);       
-
-    //         $.ajax({
-    //             url: 'pages/ajax/generate_dyeing_copy.php',
-    //             type: 'POST',
-    //             dataType: 'json',
-    //             data: { schedules: schedules },
-    //             success: function(data) {
-    //                 // console.log(data);
-                    
-    //                 const { columns, groupInfo, scheduleData, maxRows } = data;
-
-    //                 let html = `
-    //                     <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
-    //                         <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 1200px; width: 100%;">
-    //                             <colgroup>
-    //                                 <col style="width: 3%;"> <!-- Kolom No -->
-    //                 `;
-    //                 columns.forEach(() => {
-    //                     html += `<col style="width: ${Math.floor(95 / columns.length)}%;">`; // Bagi sisa lebarnya
-    //                 });
-    //                 html += `
-    //                             </colgroup>
-    //                             <thead class="table-dark">
-    //                                 <tr>
-    //                                     <th rowspan="2">No</th>
-    //                 `;
-
-    //                 // Baris 1: Mesin
-    //                 columns.forEach(col => {
-    //                     html += `
-    //                             <th>
-    //                                 Mesin ${col.machine || '-'} <br>
-    //                                 <input type="text" class="form-control scan-resep" data-no_machine="${col.machine}" placeholder="Scan here...">
-    //                             </th>`;
-    //                 });
-
-    //                 html += `</tr><tr>`;
-
-    //                 // Baris 2: Group + Product
-    //                 columns.forEach(col => {
-    //                     const groupName = col.group;
-    //                     const productNames = groupInfo[groupName] || '';
-    //                     html += `<th><small>[${productNames}]</small></th>`;
-    //                 });
-
-    //                 html += `</tr></thead><tbody>`;
-
-    //                 for (let i = 0; i < maxRows; i++) {
-    //                     html += `<tr><td>${i + 1}</td>`;
-
-    //                     columns.forEach(col => {
-    //                         const group = col.group;
-    //                         const chunkIndex = col.chunk_index;
-    //                         const cell = scheduleData[i] &&
-    //                                     scheduleData[i][group] &&
-    //                                     scheduleData[i][group][chunkIndex];
-
-    //                         if (cell) {
-    //                             html += `<td>
-    //                                     <div style="display: flex; justify-content: space-evenly;">
-    //                                         <span>${cell.no_resep}</span>
-    //                                         <span class="text-muted">${cell.status}</span>
-    //                                     </div>
-    //                                 </td>`;
-    //                         } else {
-    //                             html += `<td></td>`;
-    //                         }
-    //                     });
-
-    //                     html += `</tr>`;
-    //                 }
-
-    //                 html += `</tbody></table></div>`;
-
-    //                 $('#schedule_table').html(html);
-    //             }
-    //         });
-    //     }
-    // });
-</script>
 <script>
     function loadScheduleTable() {
         $.ajax({
