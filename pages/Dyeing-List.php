@@ -121,49 +121,58 @@
             dataType: 'json',
             success: function(response) {
                 const { data, maxPerMachine, tempListMap } = response;
-                console.log(response);
-                
+                const machineKeys = Object.keys(data);
+                const machineCount = machineKeys.length;
+
+                // (1) Tidak perlu hitung min-width yg terlalu besar.
+                //    Kita hanya membiarkan .table-responsive yang mengatur scroll.
                 let html = `
                     <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
+                        <table class="table table-bordered table-striped align-middle text-center"
+                            style="table-layout: auto; width: 100%;">
                             <colgroup>
-                                <col style="width: 3%;"> <!-- Kolom No -->
+                                <col style="min-width: 50px;"> <!-- Kolom “No.” cukup kecil saja -->
                 `;
 
-                const machineCount = Object.keys(data).length;
-                const colWidth = Math.floor(97 / machineCount);
-
-                Object.keys(data).forEach(() => {
-                    html += `<col style="width: ${colWidth}%;">`;
+                machineKeys.forEach(() => {
+                    html += `<col style="min-width: 300px;">`;
                 });
 
-                html += `</colgroup><thead class="table-dark">`;
+                html += `
+                            </colgroup>
+                            <thead class="table-dark">
+                                <tr>
+                                    <th rowspan="2">No.</th>
+                `;
 
-                // Row 1: Judul Mesin
-                html += `<tr><th rowspan="2">${( Object.keys(data).length === 0) ? 'No Data' : 'No.'}</th>`;
-                Object.keys(data).forEach(machine => {
+                // Judul Mesin
+                machineKeys.forEach(machine => {
                     html += `<th>Mesin ${machine}</th>`;
                 });
-                html += `</tr>`;
+                html += `</tr><tr>`;
 
-                // Row 2: Temp List
-                html += `<tr>`;
-                Object.keys(data).forEach(machine => {
-                    const tempList = tempListMap[machine]?.join(' ; ') || '-';
+                // Baris Temp List
+                machineKeys.forEach(machine => {
+                    const tempList = Array.isArray(tempListMap[machine]) && tempListMap[machine].length
+                                ? tempListMap[machine].join(' ; ')
+                                : '-';
                     html += `<th><small class="text-danger">${tempList}</small></th>`;
                 });
-                html += `</tr>`;
+                html += `</tr>
+                            </thead>
+                            <tbody>
+                `;
 
-                html += `</thead><tbody>`;
-
+                // Baris Data (maxPerMachine baris)
                 for (let i = 0; i < maxPerMachine; i++) {
                     html += `<tr><td>${i + 1}</td>`;
-                    Object.values(data).forEach(rows => {
-                        const cell = rows[i];
+                    machineKeys.forEach(machine => {
+                        const rowsForMachine = data[machine];
+                        const cell = rowsForMachine[i];
+
                         if (cell) {
                             const now = new Date();
                             let warningClass = '';
-
                             if (cell.dyeing_start) {
                                 const startTime = new Date(cell.dyeing_start);
                                 const diffMs = now - startTime;
@@ -175,12 +184,14 @@
                                 }
                             }
 
-                            html += `<td>
-                                <div style="display: flex; justify-content: space-around;" class="${warningClass}">
-                                    <span>${cell.no_resep}</span>
-                                    <span class="text-muted">${cell.status}</span>
-                                </div>
-                            </td>`;
+                            html += `
+                                <td class="${warningClass}">
+                                    <div style="display: flex; justify-content: space-around; white-space: nowrap;">
+                                        <span>${cell.no_resep}</span>
+                                        <span class="text-muted">${cell.status}</span>
+                                    </div>
+                                </td>
+                            `;
                         } else {
                             html += `<td></td>`;
                         }
@@ -188,7 +199,11 @@
                     html += `</tr>`;
                 }
 
-                html += `</tbody></table></div>`;
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
 
                 $('#schedule_table').html(html);
             },

@@ -93,7 +93,9 @@ while ($row = mysqli_fetch_assoc($result)) {
         'no_resep' => $row['no_resep'],
         'status' => $row['status'],
         'group' => $group,
-        'product_name' => $row['product_name']
+        'product_name' => $row['product_name'],
+        'dyeing_start' => $row['dyeing_start'],
+        'waktu' => $row['waktu']
     ];
 
     if (count($data[$machine]) > $maxPerMachine) {

@@ -6,12 +6,9 @@ ini_set("display_errors", 1);
 include "../../koneksi.php";
 
 try {
-    $statuses = [
-        'in_progress_darkroom',
-    ];
-
+    $statuses = ['repeat'];
     $statusList = "'" . implode("','", $statuses) . "'";
-    
+
     $result = mysqli_query($con, "
         SELECT 
             tps.*, 
@@ -27,9 +24,7 @@ try {
             GROUP BY no_resep
         ) AS sub ON tps.id = sub.id
         LEFT JOIN master_suhu ms ON tps.code = ms.code
-        ORDER BY 
-            (tps.status = 'in_progress_darkroom') DESC,
-            tps.id ASC
+        ORDER BY (tps.status = 'repeat') DESC, tps.id ASC
     ");
 
     $data = [];

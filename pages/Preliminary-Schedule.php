@@ -80,17 +80,23 @@
     </form>
 </div>
 <div class="row">
-    <div class="col-xs-12">
+    <!-- Wrapper untuk tabel utama (Schedule) -->
+    <div id="scheduleWrapper" class="col-xs-12">
         <div class="box">
             <div class="box-header with-border">
                 <li class="pull-right">
-                    <button type="button" id="execute_schedule" class="btn btn-danger btn-sm text-black" <?php if (!$showButton): ?>disabled<?php endif; ?>>
+                    <button type="button"
+                            id="execute_schedule"
+                            class="btn btn-danger btn-sm text-black"
+                            <?php if (!$showButton): ?>disabled<?php endif; ?>>
                         <strong>SUBMIT FOR SCHEDULE PROCESS ! <i class="fa fa-save"></i></strong>
                     </button>
                 </li>
             </div>
             <div class="box-body">
-                <table id="tableSchedule" class="table table-bordered table-striped" width="100%">
+                <table id="tableSchedule"
+                       class="table table-bordered table-striped"
+                       width="100%">
                     <thead class="bg-green">
                         <tr>
                             <th>
@@ -108,7 +114,33 @@
                         </tr>
                     </thead>
                     <tbody id="dataBody">
-                        <!-- Data akan ditampilkan di sini -->
+                        <!-- Data akan ditampilkan di sini oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrapper untuk daftar “REPEAT ITEMS” (secara default tersembunyi) -->
+    <div id="repeatWrapper" class="col-xs-4" style="display: none;">
+        <div class="box">
+            <div class="box-header with-border">
+                <h4 class="box-title">REPEAT ITEMS</h4>
+            </div>
+            <div class="box-body">
+                <table id="tableRepeat"
+                       class="table table-bordered table-striped"
+                       width="100%">
+                    <thead class="bg-red">
+                        <tr>
+                            <th><div align="center">No</div></th>
+                            <th><div align="center">No. Resep</div></th>
+                            <th><div align="center">Product Name</div></th>
+                            <th><div align="center">Status</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="repeatBody">
+                        <!-- Data REPEAT akan di‐inject oleh JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -180,100 +212,11 @@
                 }
             });
         });
+
+        checkRepeatItems();
     });
 
 </script>
-
-<!-- <script>
-    $(document).ready(function() {
-        $.ajax({
-            url: 'pages/ajax/fetch_schedule.php',
-            type: 'GET',
-            dataType: 'json',
-            success: function (response) {
-                var schedules = JSON.stringify(response);
-                $.ajax({
-                    url: 'pages/ajax/generate_schedule.php',
-                    type: 'POST',
-                    data: { schedules: schedules },
-                    success: function (data) {
-                        $('#schedule_table').html(data);
-                    }
-                });
-            }
-        });
-
-        $('#schedule_table').on('click', '#submitForDisp', function () {
-            let dataToSubmit = [];
-
-            // Dapatkan semua select (mesin dropdown)
-            const selects = document.querySelectorAll('#schedule_table select');
-
-            // Untuk tiap select (mesin), cari semua baris di kolom tersebut
-            selects.forEach(select => {
-                const machine = select.value;
-                if (!machine) {
-                    console.log('Mesin tidak dipilih:', select); // Debugging
-                    return; // Skip jika mesin tidak dipilih
-                }
-
-                // Dapatkan kolom index dari th tempat select ini berada
-                const th = select.closest('th');
-                const thRow = th.parentNode;
-                const colIndex = Array.from(thRow.children).indexOf(th);
-
-                // Loop semua baris tbody
-                document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
-                    const td = row.querySelectorAll('td')[colIndex];
-                    if (!td) return;
-
-                    const span = td.querySelector('.resep-item');
-                    if (span) {
-                        const id_schedule = span.getAttribute('data-id');
-                        const no_resep = span.getAttribute('data-resep');
-                        console.log('Menambahkan data:', { id_schedule, no_resep, machine }); // Debugging
-                        dataToSubmit.push({
-                            id_schedule,
-                            no_resep,
-                            machine
-                        });
-                    }
-                });
-            });
-
-            // Cek apakah dataToSubmit kosong atau tidak
-            console.log('Data to submit:', dataToSubmit); // Debugging
-
-            if (dataToSubmit.length > 0) {
-                console.log(dataToSubmit);
-
-                fetch('pages/ajax/submit_dispensing.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ assignments: dataToSubmit })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Data berhasil dikirim');
-                    } else {
-                        alert('Terjadi kesalahan saat menyimpan');
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    alert('Terjadi error saat mengirim data');
-                });
-            } else {
-                alert('Silakan pilih mesin terlebih dahulu');
-            }
-        });
-
-    });
-
-</script> -->
 
 <script>
     $(document).ready(function () {
@@ -569,6 +512,58 @@
 <script>
     $(document).ready(function() {
         loadData();
+
+        checkRepeatItems();
+
+        function checkRepeatItems() {
+            $.ajax({
+                url: 'pages/ajax/GetRepeatItems.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(repeatData) {
+
+                    if (Array.isArray(repeatData) && repeatData.length > 0) {
+
+                        $('#scheduleWrapper')
+                            .removeClass('col-xs-12')
+                            .addClass('col-xs-8');
+
+                        $('#repeatWrapper').show();
+
+                        const $repeatBody = $('#repeatBody');
+                        $repeatBody.empty();
+
+                        repeatData.forEach((item, idx) => {
+                            const nomor = idx + 1;
+                            const rowHtml = `
+                                <tr>
+                                    <td align="center">${nomor}</td>
+                                    <td>${item.no_resep}</td>
+                                    <td>${item.product_name || '-'}</td>
+                                    <td align="center">${item.status}</td>
+                                </tr>
+                            `;
+                            $repeatBody.append(rowHtml);
+                        });
+                    } else {
+                        $('#scheduleWrapper')
+                            .removeClass('col-xs-7')
+                            .addClass('col-xs-12');
+
+                        $('#repeatWrapper').hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Gagal mengambil data REPEAT:', error);
+                    // Jika error, kita tetap sembunyikan repeatWrapper
+                    $('#scheduleWrapper')
+                        .removeClass('col-xs-7')
+                        .addClass('col-xs-12');
+                    $('#repeatWrapper').hide();
+                }
+            });
+        }
+
         $('#exsecute').click(function(e) {
             e.preventDefault();
             var no_resep = $('#no_resep').val();
