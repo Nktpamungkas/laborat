@@ -24,6 +24,10 @@
         font-size: 9pt !important;
     }
 
+    .form-group.has-error .form-control, .form-group.has-error .input-group-addon {
+        background-color: #ff6347;
+    }
+
 </style>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
