@@ -327,11 +327,18 @@
 
             selects.forEach(select => {
                 const options = select.querySelectorAll('option');
-                const isMachineAvailable = options.length > 1;
+                // Hanya hitung opsi yang:
+                // 1) value-nya tidak kosong (bukan placeholder)
+                // 2) style.display tidak 'none'
+                const visibleMachineOptions = Array.from(options).filter(opt => {
+                    return opt.value !== "" && opt.style.display !== 'none';
+                });
 
+                const isMachineAvailable = visibleMachineOptions.length > 0;
                 const formGroup = select.closest('.form-group');
 
                 if (isMachineAvailable && !select.value) {
+                    // Jika masih ada mesin yang “visible” dan user belum memilih → error
                     allSelected = false;
                     if (formGroup) formGroup.classList.add('has-error');
                 } else {
@@ -340,16 +347,15 @@
             });
 
             if (!allSelected) {
-                alert('Semua kolom yang memiliki mesin harus dipilih sebelum mengirim.');
+                alert('Semua kolom yang memiliki mesin yang tersedia harus dipilih sebelum mengirim.');
                 return;
             }
 
-            // ✅ Semua mesin sudah dipilih, lanjutkan proses ambil resep
+            // Jika validasi lulus, kumpulkan data
             selects.forEach(select => {
                 const machine = select.value;
                 const th = select.closest('th');
-                const thRow = th.parentNode;
-                const colIndex = Array.from(thRow.children).indexOf(th);
+                const colIndex = Array.from(th.parentNode.children).indexOf(th);
 
                 document.querySelectorAll('#schedule_table tbody tr').forEach(row => {
                     const td = row.querySelectorAll('td')[colIndex];
@@ -395,10 +401,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        // Simpan flag sukses di localStorage
                         localStorage.setItem('showSuccessAlert', '1');
-
-                        // Redirect ke halaman tujuan
                         window.location.href = 'index1.php?p=Dispensing-List';
                     } else {
                         alert('Terjadi kesalahan saat menyimpan');
