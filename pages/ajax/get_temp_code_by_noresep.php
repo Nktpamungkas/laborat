@@ -7,8 +7,15 @@ $no_resep = $_GET['no_resep'] ?? '';
 $response = ['success' => false, 'codes' => []];
 
 if ($no_resep) {
-    $stmt = $con->prepare("SELECT DISTINCT code FROM tbl_preliminary_schedule WHERE no_resep = ? AND darkroom_end IS NOT NULL");
-    $stmt->bind_param("s", $no_resep);
+
+    $stmt = $con->prepare("
+        SELECT DISTINCT code AS code FROM tbl_preliminary_schedule 
+        WHERE no_resep = ? AND status = 'repeat' AND code IS NOT NULL
+        UNION
+        SELECT DISTINCT temp_code AS code FROM tbl_matching 
+        WHERE no_resep = ? AND temp_code IS NOT NULL
+    ");
+    $stmt->bind_param("ss", $no_resep, $no_resep);
     $stmt->execute();
     $result = $stmt->get_result();
 

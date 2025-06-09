@@ -135,7 +135,7 @@
                         <tr>
                             <th><div align="center">No</div></th>
                             <th><div align="center">No. Resep</div></th>
-                            <th><div align="center">Product Name</div></th>
+                            <th><div align="center">Temp</th>
                             <th><div align="center">Status</div></th>
                         </tr>
                     </thead>
@@ -212,8 +212,6 @@
                 }
             });
         });
-
-        checkRepeatItems();
     });
 
 </script>
@@ -430,7 +428,7 @@
             }, 300);
             return;
         }
-
+        
         inputBuffer = input.value;
         lastTime = now;
 
@@ -511,9 +509,6 @@
 </script>
 <script>
     $(document).ready(function() {
-        loadData();
-
-        checkRepeatItems();
 
         function checkRepeatItems() {
             $.ajax({
@@ -564,6 +559,43 @@
             });
         }
 
+        function loadData() {
+            fetch("pages/ajax/GetData_PreliminarySchedule.php")
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById("dataBody");
+                    const executeBtn = document.getElementById("execute_schedule");
+
+                    tbody.innerHTML = ""; // Kosongkan dulu
+
+                    if (data.length === 0) {
+                        executeBtn.disabled = true;
+                    } else {
+                        executeBtn.disabled = false;
+                    }
+
+                    data.forEach((item, index) => {
+                        const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
+
+                        const row = `<tr>
+                            <td ${isOldStyle} align="center">${index + 1}</td>
+                            <td ${isOldStyle}>${item.no_resep}</td>
+                            <td ${isOldStyle}>${item.product_name}</td>
+                            <td align="center">
+                                <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            </td>
+                        </tr>`;
+                        tbody.innerHTML += row;
+                    });
+                })
+                .catch(err => {
+                    console.error("Gagal mengambil data:", err);
+                });
+        }
+
+        loadData();
+        checkRepeatItems();
+
         $('#exsecute').click(function(e) {
             e.preventDefault();
             var no_resep = $('#no_resep').val();
@@ -595,17 +627,6 @@
                     temp_2: temp_2
                 },
                 success: function(response) {
-                    console.log(response); // Debugging response
-                    // Tampilkan pesan sukses atau gagal
-                    // if (response.session === "LIB_SUCCESS") {
-                    //     toastr.success("Data berhasil disimpan !")
-                    //     // Reset form setelah berhasil simpan
-                    //     document.querySelector("form").reset();
-                    //     input.focus(); // Fokus kembali ke input no_resep
-                    //     loadData();
-                    // } else {
-                    //     alert('Gagal menyimpan data.');
-                    // }
 
                     if (response.success) {
                         toastr.success(response.message);
@@ -617,6 +638,7 @@
                         $('#productNameDisplay_2').text('');
 
                         loadData();
+                        checkRepeatItems();
                     } else {
                         toastr.error(response.message);
                         if (response.errors) {
@@ -625,7 +647,6 @@
                     }
                 },
                 error: function() {
-                    console.log(response); // Debugging response
                     alert('Terjadi kesalahan saat mengirim data!');
                 }
             });
@@ -633,40 +654,6 @@
     });
 </script>
 <script>
-    function loadData() {
-        fetch("pages/ajax/GetData_PreliminarySchedule.php")
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.getElementById("dataBody");
-                const executeBtn = document.getElementById("execute_schedule");
-
-                tbody.innerHTML = ""; // Kosongkan dulu
-
-                if (data.length === 0) {
-                    executeBtn.disabled = true;
-                } else {
-                    executeBtn.disabled = false;
-                }
-
-                data.forEach((item, index) => {
-                    const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
-
-                    const row = `<tr>
-                        <td ${isOldStyle} align="center">${index + 1}</td>
-                        <td ${isOldStyle}>${item.no_resep}</td>
-                        <td ${isOldStyle}>${item.product_name}</td>
-                        <td align="center">
-                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
-                        </td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            })
-            .catch(err => {
-                console.error("Gagal mengambil data:", err);
-            });
-    }
-
     function deleteData(id) {
         Swal.fire({
             title: 'Apakah kamu yakin?',
@@ -717,12 +704,6 @@
         });
     }
 
-    // Jalankan pertama kali saat halaman dibuka
-    loadData();
-
-    // Auto-refresh tiap 3 detik
-    // setInterval(loadData, 3000);
-
     function blockQuote(event) {
         const char = String.fromCharCode(event.which || event.keyCode);
         const blockedChars = ["'", '"', "<", ">"];
@@ -735,102 +716,28 @@
 </script>
 
 <script>
-    let tempScanTimer;
-    $('#temp').on('input', function () {
-        clearTimeout(tempScanTimer); // reset timer setiap kali input berubah
+    $(document).ready(function () {
 
-        const code = $(this).val().trim();
+        let tempScanTimer;
+        $('#temp').on('input', function () {
+            clearTimeout(tempScanTimer); // reset timer setiap kali input berubah
 
-        if (code.length >= 6) {
-            tempScanTimer = setTimeout(function () {
-                $.ajax({
-                    url: 'pages/ajax/get_program_by_code.php',
-                    method: 'GET',
-                    data: { code: code },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            $('#productNameDisplay').text(response.product_name);
-                            $('#productNameWrapper').show();
-
-                        } else {
-                            $('#productNameDisplay').text('');
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Kode Tidak Ditemukan',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: 'Terjadi kesalahan saat mengambil data.'
-                        });
-                    }
-                });
-            }, 300);
-        } else {
-            $('#productNameDisplay').text('');
-        }
-    });
-
-    $('#no_resep').on('input', function () {
-        clearTimeout(tempScanTimer);
-
-        const code = $(this).val().trim();
-
-        tempScanTimer = setTimeout(function () {
-                $.ajax({
-                url: 'pages/ajax/get_temp_code_by_noresep.php',
-                method: 'GET',
-                data: { no_resep: code },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        const codes = response.codes;
-                        if (codes.length === 2) {
-                            $('#temp_1').val(codes[0]).trigger('input');
-                            $('#temp_2').val(codes[1]).trigger('input');
-                        } else if (codes.length === 1) {
-                            $('#temp_1').val(codes[0]).trigger('input');
-                            $('#temp').val(codes[0]).trigger('input');
-                        }
-                    }
-                },
-                error: function() {
-                    console.error('Gagal mengambil data dari server.');
-                }
-            });
-        }, 300);
-
-    });
-
-    function setupTempListenersDR() {
-        listenTempWithId('#temp_1', '#productNameDisplay_1');
-        listenTempWithId('#temp_2', '#productNameDisplay_2');
-    }
-
-    function listenTempWithId(tempSelector, displaySelector) {
-        let timer;
-
-        $(document).off('input', tempSelector).on('input', tempSelector, function () {
-            clearTimeout(timer);
             const code = $(this).val().trim();
 
             if (code.length >= 6) {
-                timer = setTimeout(() => {
+                tempScanTimer = setTimeout(function () {
                     $.ajax({
                         url: 'pages/ajax/get_program_by_code.php',
                         method: 'GET',
-                        data: { code },
+                        data: { code: code },
                         dataType: 'json',
-                        success: function (response) {
+                        success: function(response) {
                             if (response.status === 'success') {
-                                $(displaySelector).text(response.product_name);
+                                $('#productNameDisplay').text(response.product_name);
+                                $('#productNameWrapper').show();
+
                             } else {
-                                $(displaySelector).text('');
+                                $('#productNameDisplay').text('');
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Kode Tidak Ditemukan',
@@ -838,7 +745,7 @@
                                 });
                             }
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal',
@@ -848,11 +755,90 @@
                     });
                 }, 300);
             } else {
-                $(displaySelector).text('');
+                $('#productNameDisplay').text('');
             }
         });
-    }
 
+        $('#no_resep').on('input', function () {
+            clearTimeout(tempScanTimer);
+
+            const code = $(this).val().trim();
+
+            tempScanTimer = setTimeout(function () {
+                    $.ajax({
+                    url: 'pages/ajax/get_temp_code_by_noresep.php',
+                    method: 'GET',
+                    data: { no_resep: code },
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log(Response);
+                        
+                        if (response.success) {
+                            const codes = response.codes;
+                            
+                            if (codes.length === 2) {
+                                $('#temp_1').val(codes[0]).trigger('input');
+                                $('#temp_2').val(codes[1]).trigger('input');
+                            } else if (codes.length === 1) {                           
+                                $('#temp').val(codes[0]).trigger('input');
+                            }
+                        }
+                    },
+                    error: function() {
+                        console.error('Gagal mengambil data dari server.');
+                    }
+                });
+            }, 300);
+
+        });
+
+        function setupTempListenersDR() {
+            listenTempWithId('#temp_1', '#productNameDisplay_1');
+            listenTempWithId('#temp_2', '#productNameDisplay_2');
+        }
+
+        function listenTempWithId(tempSelector, displaySelector) {
+            let timer;
+
+            $(document).off('input', tempSelector).on('input', tempSelector, function () {
+                clearTimeout(timer);
+                const code = $(this).val().trim();
+
+                if (code.length >= 6) {
+                    timer = setTimeout(() => {
+                        $.ajax({
+                            url: 'pages/ajax/get_program_by_code.php',
+                            method: 'GET',
+                            data: { code },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    $(displaySelector).text(response.product_name);
+                                } else {
+                                    $(displaySelector).text('');
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Kode Tidak Ditemukan',
+                                        text: response.message
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: 'Terjadi kesalahan saat mengambil data.'
+                                });
+                            }
+                        });
+                    }, 300);
+                } else {
+                    $(displaySelector).text('');
+                }
+            });
+        }
+
+    });
 </script>
 
 <script>

@@ -250,6 +250,7 @@
 		// $r1 = sqlsrv_fetch_array($sqljkd);
 		// $cek1 = sqlsrv_num_rows($sqljkd);
 	?>
+
 	<?php
 		if (isset($_POST['simpan'])) {
 			$ip_num = $_SERVER['REMOTE_ADDR'];
@@ -283,6 +284,7 @@
 			// } else {
 			$jnsMtch = $_POST['jen_matching'];
 			// }
+			$tempCode = $_POST['temp_code'];
 
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
 					no_resep='$no_resep',
@@ -303,13 +305,14 @@
 					buyer='$_POST[buyer]',
 					tgl_delivery='$_POST[tgl_delivery]',
 					jenis_matching='$jnsMtch',
+					temp_code='$tempCode',
 					recipe_code='$recipe',
 					color_code='$colorcode',
 					g_ld='$gLD',
 					tgl_buat= now(),
 					tgl_update=now(),
 					salesman_sample='" . $salesman . "',
-					created_by = '$_SESSION[userLAB]'
+					created_by = '$_SESSION[userLAB]',
 					");
 
 			// update nomor urut terakhir
@@ -394,6 +397,24 @@
 										</select>
 									</div>
 								</div>
+								<!-- Temp -->
+								<div class="form-group">
+									<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+									<div class="col-sm-2">
+										<select name="temp_code" id="temp_code" class="form-control">
+											<option>Pilih...</option>
+											<?php
+											$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+											$result = mysqli_query($con, $query);
+
+											while ($row = mysqli_fetch_assoc($result)) {
+												echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+											}
+											?>
+										</select>
+									</div>
+								</div>
+								<!-- End Temp -->
 								<div id="echoing_the_choice">
 									<div id="before_append">
 										<div class=" form-group">

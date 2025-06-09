@@ -52,11 +52,11 @@ if (isset($_POST['schedules'])) {
         <h4 style="margin-left: 5px;">Schedule Celup</h4>
         <button id="undo" class="btn btn-primary" title="undo" style="border-radius: 50%;"><i class="fa fa-undo" aria-hidden="true"></i></button>
     </div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
+    <div class="table-responsive" style="overflow-x: auto;">
+        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: auto; width: 100%;">
             <thead class="table-dark">
                 <tr>
-                    <th rowspan="2" style="width: 3%;">No</th>
+                    <th rowspan="2" style="min-width: 50px;">No</th>
                     <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
                         <?php
                             // Ambil keterangan dari master_suhu berdasarkan group
@@ -128,7 +128,7 @@ if (isset($_POST['schedules'])) {
                         ?>
 
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
-                            <th colspan="1">
+                            <th colspan="1" style="min-width: 115px;">
                                 <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
                                     <select class="form-control input-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
                                         <option value="">Pilih Mesin</option>
