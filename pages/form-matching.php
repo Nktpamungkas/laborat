@@ -312,7 +312,7 @@
 					tgl_buat= now(),
 					tgl_update=now(),
 					salesman_sample='" . $salesman . "',
-					created_by = '$_SESSION[userLAB]',
+					created_by = '$_SESSION[userLAB]'
 					");
 
 			// update nomor urut terakhir
