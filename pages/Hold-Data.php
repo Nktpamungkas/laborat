@@ -247,7 +247,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: 'pages/ajax/submit_batch_darkroom.php',
+                        url: 'pages/ajax/submit_batch_darkroom_hold.php',
                         method: 'POST',
                         data: JSON.stringify(payload),
                         contentType: 'application/json',

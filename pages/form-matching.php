@@ -285,6 +285,7 @@
 			$jnsMtch = $_POST['jen_matching'];
 			// }
 			$tempCode = $_POST['temp_code'];
+			$tempCode2 = $_POST['temp_code2'];
 
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
 					no_resep='$no_resep',
@@ -306,6 +307,7 @@
 					tgl_delivery='$_POST[tgl_delivery]',
 					jenis_matching='$jnsMtch',
 					temp_code='$tempCode',
+					temp_code2='$tempCode2',
 					recipe_code='$recipe',
 					color_code='$colorcode',
 					g_ld='$gLD',
@@ -674,7 +676,25 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
+
+	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -797,7 +817,25 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
+
+	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -964,7 +1002,25 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
+
+	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -1180,7 +1236,25 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
+
+	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -1778,7 +1852,25 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
+
+	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -2072,5 +2164,22 @@
 		})
 	});
 </script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const dyestuffSelect = document.getElementById('Dyestuff');
+		const temp2Wrapper = document.getElementById('temp2-wrapper');
 
+		function toggleTemp2() {
+			if (dyestuffSelect.value === 'DR') {
+				temp2Wrapper.style.display = 'flex';
+			} else {
+				temp2Wrapper.style.display = 'none';
+			}
+		}
+
+		toggleTemp2();
+
+		dyestuffSelect.addEventListener('change', toggleTemp2);
+	});
+	</script>
 </html>
