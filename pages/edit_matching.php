@@ -25,6 +25,7 @@
         $langganan = str_replace("'", "''", $_POST['langganan']);
         $recipe = str_replace("'", "''", $_POST['recipe_code']);
         $colorcode = str_replace("'", "''", $_POST['color_code']);
+        $tempCode = $_POST['temp_code'];
 
         $qry = mysqli_query($con, "UPDATE tbl_matching SET
             no_order='$_POST[no_order]',
@@ -45,7 +46,8 @@
             proses='$_POST[proses]',
             buyer='$_POST[buyer]',
             tgl_delivery='$_POST[tgl_delivery]',
-            jenis_matching='$_POST[jen_matching]'
+            jenis_matching='$_POST[jen_matching]',
+            temp_code='$tempCode'
             where no_resep = '$_POST[no_resep]' LIMIT 1
             ");
 
@@ -340,6 +342,24 @@
             </select>
         </div>
     </div>
+    <!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
+                }
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -451,6 +471,23 @@
             </select>
         </div>
     </div>
+    <div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
+                }
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -684,6 +721,23 @@
             </select>
         </div>
     </div>
+    <div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
+                }
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -818,6 +872,23 @@
             </select>
         </div>
     </div>
+    <div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
+                }
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
