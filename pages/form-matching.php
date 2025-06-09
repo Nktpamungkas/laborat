@@ -397,23 +397,7 @@
 										</select>
 									</div>
 								</div>
-								<!-- Temp -->
-								<div class="form-group">
-									<label for="temp_code" class="col-sm-2 control-label">Temp</label>
-									<div class="col-sm-2">
-										<select name="temp_code" id="temp_code" class="form-control">
-											<option>Pilih...</option>
-											<?php
-											$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-											$result = mysqli_query($con, $query);
-
-											while ($row = mysqli_fetch_assoc($result)) {
-												echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
-											}
-											?>
-										</select>
-									</div>
-								</div>
+								
 								<!-- End Temp -->
 								<div id="echoing_the_choice">
 									<div id="before_append">
@@ -685,11 +669,29 @@
 			</select>
 		</div>
 	</div>
+	<!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
 		</div>
 	</div>
+	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// LD -->
 <div id="LD" style="display: none;">
@@ -790,11 +792,29 @@
 			</select>
 		</div>
 	</div>
+	<!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
 		</div>
 	</div>
+	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// Development -->
 <div id="Development" style="display: none;">
@@ -939,11 +959,29 @@
 			</select>
 		</div>
 	</div>
+	<!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
 		</div>
 	</div>
+	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// LD NOW -->
 <div id="LDNOW" style="display: none;">
@@ -1137,11 +1175,29 @@
 			</select>
 		</div>
 	</div>
+	<!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
 		</div>
 	</div>
+	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// NowForm -->
 <div id="NowForm" style="display: none;">
@@ -1715,6 +1771,23 @@
 			</select>
 			<?php // endif; 
 			?>
+		</div>
+	</div>
+	<!-- Temp -->
+	<div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
 		</div>
 	</div>
 	<div class="box-footer">
