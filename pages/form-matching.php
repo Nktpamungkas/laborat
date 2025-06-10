@@ -1902,28 +1902,33 @@
 			if (document.getElementById("jen_matching").value == "Matching Development") {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#Development').appendTo('#echoing_the_choice');
-				$("#Development").show()
+				$("#Development").show();
+				toggleTemp2();
 			}else{
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-				$("#Matching_ulang_perbaikan").show()
+				$("#Matching_ulang_perbaikan").show();
+				toggleTemp2();
 			}
 			// console.log(document.getElementById("jen_matching").value);
 		} else if ($('.form-control.ordernowcuy').val().length >= 6) {
 			if ($('.form-control.ordernowcuyld').val().includes("LAB")) {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#LDNOW').appendTo('#echoing_the_choice');
-				$("#LDNOW").show()
+				$("#LDNOW").show();
+				toggleTemp2();
 			} else {
 				// console.log(document.getElementById("jen_matching").value);
 				if (document.getElementById("jen_matching").value == "Matching Development") {
 					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 					$('#Development').appendTo('#echoing_the_choice');
-					$("#Development").show()
+					$("#Development").show();
+					toggleTemp2();
 				}else{
 					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 					$('#NowForm').appendTo('#echoing_the_choice');
-					$("#NowForm").show()
+					$("#NowForm").show();
+					toggleTemp2();
 				}
 			}
 		}
@@ -1942,23 +1947,28 @@
 			if ($(this).find(":selected").val() == 'Matching Ulang' || $(this).find(":selected").val() == 'Perbaikan') {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-				$("#Matching_ulang_perbaikan").show()
+				$("#Matching_ulang_perbaikan").show();
+				toggleTemp2();
 			} else if ($(this).find(":selected").val() == 'L/D') {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#LD').appendTo('#echoing_the_choice');
-				$("#LD").show()
+				$("#LD").show();
+				toggleTemp2();
 			} else if ($(this).find(":selected").val() == 'LD NOW') {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#LDNOW').appendTo('#echoing_the_choice');
-				$("#LDNOW").show()
+				$("#LDNOW").show();
+				toggleTemp2();
 			} else if ($(this).find(":selected").val() == "Matching Development") {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#Development').appendTo('#echoing_the_choice');
-				$("#Development").show()
+				$("#Development").show();
+				toggleTemp2();
 			} else if ($(this).find(":selected").val() == 'Matching Ulang NOW' || $(this).find(":selected").val() == 'Perbaikan NOW') {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#NowForm').appendTo('#echoing_the_choice');
-				$("#NowForm").show()
+				$("#NowForm").show();
+				toggleTemp2();
 			}
 		})
 
@@ -2165,21 +2175,26 @@
 	});
 </script>
 <script>
-	document.addEventListener('DOMContentLoaded', function () {
+	function toggleTemp2() {
 		const dyestuffSelect = document.getElementById('Dyestuff');
 		const temp2Wrapper = document.getElementById('temp2-wrapper');
 
-		function toggleTemp2() {
+		if (dyestuffSelect && temp2Wrapper) {
 			if (dyestuffSelect.value === 'DR') {
 				temp2Wrapper.style.display = 'flex';
 			} else {
 				temp2Wrapper.style.display = 'none';
 			}
 		}
+	}
 
-		toggleTemp2();
-
-		dyestuffSelect.addEventListener('change', toggleTemp2);
+	document.addEventListener('DOMContentLoaded', function () {
+		const dyestuffSelect = document.getElementById('Dyestuff');
+		if (dyestuffSelect) {
+			toggleTemp2();
+			dyestuffSelect.addEventListener('change', toggleTemp2);
+		}
 	});
-	</script>
+</script>
+
 </html>

@@ -164,9 +164,37 @@ $act = $_GET['g'];
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td rowspan="2" style="border-left:0px #000000 solid;"><strong style="font-size: 9px;"><?Php echo $data['warna']; ?></strong></td>
       </tr>
+      <?php
+        // Ambil data suhu pertama
+        $tempCode1 = $data['temp_code'];
+        $query1 = "SELECT suhu, waktu FROM master_suhu WHERE code = ?";
+        $stmt1 = $con->prepare($query1);
+        $stmt1->bind_param("s", $tempCode1);
+        $stmt1->execute();
+        $result1 = $stmt1->get_result();
+        $row1 = $result1->fetch_assoc();
+        $suhu1 = $row1['suhu'];
+        $waktu1 = $row1['waktu'];
+
+        // Ambil data suhu kedua
+        $tempCode2 = $data['temp_code2'];
+        $query2 = "SELECT suhu, waktu FROM master_suhu WHERE code = ?";
+        $stmt2 = $con->prepare($query2);
+        $stmt2->bind_param("s", $tempCode2);
+        $stmt2->execute();
+        $result2 = $stmt2->get_result();
+        $row2 = $result2->fetch_assoc();
+        $suhu2 = $row2['suhu'];
+        $waktu2 = $row2['waktu'];
+      ?>
+
       <tr>
-        <td colspan="2" align="right">&nbsp;&nbsp; &deg;C X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Menit</td>
-        <td colspan="2" align="right">&nbsp;&nbsp; &deg;C X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Menit</td>
+        <td colspan="2" align="right">
+          &nbsp;&nbsp; <?php echo $suhu1; ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $waktu1; ?> Menit
+        </td>
+        <td colspan="2" align="right">
+          &nbsp;&nbsp; <?php echo $suhu2; ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $waktu2; ?> Menit
+        </td>
       </tr>
       <tr><?php $i = 1;
           $sqlLamp = mysqli_query($con, "SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]' order by flag"); ?>
@@ -395,7 +423,7 @@ $act = $_GET['g'];
           <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
             <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
           </td>
-          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br><br><br><br><br><br><br><br><br></td>
+          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br><br><br><br><br><br></td>
           <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <?php else: ?>
           <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
@@ -642,7 +670,7 @@ $act = $_GET['g'];
     </tbody>
     <hr>
   </table>
-  <br>
+  <!-- <br>
   <?php if ($data['jenis_matching'] == "LD NOW" OR $data['jenis_matching'] == "L/D") : ?>
     <table width="100%" border="0" class="table-list1">
       <tbody>
@@ -827,7 +855,7 @@ $act = $_GET['g'];
         </tr>
       </tbody>
     </table>
-  <?php endif; ?>
+  <?php endif; ?> -->
 </body>
 
 </html>

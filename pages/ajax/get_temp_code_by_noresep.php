@@ -7,14 +7,26 @@ $no_resep = $_GET['no_resep'] ?? '';
 $response = ['success' => false, 'codes' => []];
 
 if ($no_resep) {
+    $no_resep_base = $no_resep;
+    $matching_column = 'temp_code';
 
-    $stmt = $con->prepare("
+    if (str_ends_with($no_resep, '-A')) {
+        $no_resep_base = substr($no_resep, 0, -2);
+        // kolom tetap 'temp_code'
+    } elseif (str_ends_with($no_resep, '-B')) {
+        $no_resep_base = substr($no_resep, 0, -2);
+        $matching_column = 'temp_code2';
+    }
+
+    $query = "
         SELECT DISTINCT code AS code FROM tbl_preliminary_schedule 
         WHERE no_resep = ? AND status = 'repeat' AND code IS NOT NULL
         UNION
-        SELECT DISTINCT temp_code AS code FROM tbl_matching 
-        WHERE no_resep = ? AND temp_code IS NOT NULL
-    ");
+        SELECT DISTINCT $matching_column AS code FROM tbl_matching 
+        WHERE no_resep = ? AND $matching_column IS NOT NULL
+    ";
+
+    $stmt = $con->prepare($query);
     $stmt->bind_param("ss", $no_resep, $no_resep);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -26,6 +26,7 @@
         $recipe = str_replace("'", "''", $_POST['recipe_code']);
         $colorcode = str_replace("'", "''", $_POST['color_code']);
         $tempCode = $_POST['temp_code'];
+        $tempCode2 = $_POST['temp_code2'];
 
         $qry = mysqli_query($con, "UPDATE tbl_matching SET
             no_order='$_POST[no_order]',
@@ -47,7 +48,8 @@
             buyer='$_POST[buyer]',
             tgl_delivery='$_POST[tgl_delivery]',
             jenis_matching='$_POST[jen_matching]',
-            temp_code='$tempCode'
+            temp_code='$tempCode',
+            temp_code2='$tempCode2'
             where no_resep = '$_POST[no_resep]' LIMIT 1
             ");
 
@@ -360,6 +362,24 @@
 			</select>
 		</div>
 	</div>
+    <!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
+				<?php
+				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result2 = mysqli_query($con, $query2);
+
+				while ($row = mysqli_fetch_assoc($result2)) {
+                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
+					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -488,6 +508,23 @@
 			</select>
 		</div>
 	</div>
+    <div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
+				<?php
+				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result2 = mysqli_query($con, $query2);
+
+				while ($row = mysqli_fetch_assoc($result2)) {
+                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
+					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -611,6 +648,40 @@
             </select>
         </div>
     </div>
+    <div class="form-group">
+		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
+		<div class="col-sm-2">
+			<select name="temp_code" id="temp_code" class="form-control">
+				<option>Pilih...</option>
+				<?php
+				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result = mysqli_query($con, $query);
+
+				while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
+                }
+				?>
+			</select>
+		</div>
+	</div>
+    <div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
+				<?php
+				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result2 = mysqli_query($con, $query2);
+
+				while ($row = mysqli_fetch_assoc($result2)) {
+                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
+					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -734,6 +805,23 @@
                     $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
                     echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
                 }
+				?>
+			</select>
+		</div>
+	</div>
+    <div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
+				<?php
+				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result2 = mysqli_query($con, $query2);
+
+				while ($row = mysqli_fetch_assoc($result2)) {
+                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
+					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
+				}
 				?>
 			</select>
 		</div>
@@ -889,6 +977,23 @@
 			</select>
 		</div>
 	</div>
+    <div class="form-group" id="temp2-wrapper" style="display: none;">
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<div class="col-sm-2">
+			<select name="temp_code2" id="temp_code2" class="form-control">
+				<option value="">Pilih...</option>
+				<?php
+				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
+				$result2 = mysqli_query($con, $query2);
+
+				while ($row = mysqli_fetch_assoc($result2)) {
+                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
+					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
+				}
+				?>
+			</select>
+		</div>
+	</div>
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -1020,39 +1125,47 @@
         if ($('.form-control.ordercuy').val().length >= 12) {
 			$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 			$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-			$("#Matching_ulang_perbaikan").show()
+			$("#Matching_ulang_perbaikan").show();
+            toggleTemp2();
 		} else if ($('.form-control.ordernowcuy').val().length >= 6) {
 			if ($('.form-control.ordernowcuyld').val().includes("LAB")) {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#LDNOW').appendTo('#echoing_the_choice');
-				$("#LDNOW").show()
+				$("#LDNOW").show();
+                toggleTemp2();
 			} else {
 				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
 				$('#NowForm').appendTo('#echoing_the_choice');
-				$("#NowForm").show()
+				$("#NowForm").show();
+                toggleTemp2();
 			}
 		}
 
         if ($(this).find(":selected").val() == 'Matching Ulang' || $(this).find(":selected").val() == 'Perbaikan') {
             $("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
             $('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-            $("#Matching_ulang_perbaikan").show()
+            $("#Matching_ulang_perbaikan").show();
+            toggleTemp2();
         } else if ($(this).find(":selected").val() == 'L/D') {
             $("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
             $('#LD').appendTo('#echoing_the_choice');
-            $("#LD").show()
+            $("#LD").show();
+            toggleTemp2();
         } else if ($(this).find(":selected").val() == 'LD NOW') {
             $("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
             $('#LDNOW').appendTo('#echoing_the_choice');
-            $("#LDNOW").show()
+            $("#LDNOW").show();
+            toggleTemp2();
         } else if ($(this).find(":selected").val() == "Matching Development") {
             $("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
             $('#Development').appendTo('#echoing_the_choice');
-            $("#Development").show()
+            $("#Development").show();
+            toggleTemp2();
         } else if ($(this).find(":selected").val() == 'Matching Ulang NOW' || $(this).find(":selected").val() == 'Perbaikan NOW') {
             $("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
             $('#NowForm').appendTo('#echoing_the_choice');
-            $("#NowForm").show()
+            $("#NowForm").show();
+            toggleTemp2();
         }
 
 
@@ -1257,6 +1370,30 @@
 			})
 		})
     });
+</script>
+
+<script>
+	function toggleTemp2() {
+		const noResepInput = document.getElementById('no_resep');
+		const temp2Wrapper = document.getElementById('temp2-wrapper');
+
+		if (noResepInput && temp2Wrapper) {
+			// Cek apakah value no_resep diawali dengan 'DR'
+			if (noResepInput.value.trim().toUpperCase().startsWith('DR')) {
+				temp2Wrapper.style.display = 'flex';
+			} else {
+				temp2Wrapper.style.display = 'none';
+			}
+		}
+	}
+
+	document.addEventListener('DOMContentLoaded', function () {
+		const noResepInput = document.getElementById('no_resep');
+		if (noResepInput) {
+			toggleTemp2();
+			noResepInput.addEventListener('input', toggleTemp2);
+		}
+	});
 </script>
 
 </html>
