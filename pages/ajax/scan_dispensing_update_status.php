@@ -15,24 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         $current_status = $row['status'];
         $next_status = null;
 
-        // switch ($current_status) {
-        //     case 'scheduled':
-        //         $next_status = 'in_progress_dispensing';
-        //         break;
-        //     case 'in_progress_dispensing':
-        //         $next_status = 'in_progress_dyeing';
-        //         break;
-        //     case 'in_progress_dyeing':
-        //         $next_status = 'in_progress_darkroom';
-        //         break;
-        //     default:
-        //         http_response_code(400);
-        //         echo json_encode(["success" => false, "error" => "Status tidak valid."]);
-        //         $stmt->close();
-        //         $con->close();
-        //         exit;
-        // }
-
         if ($current_status === 'scheduled') {
             $next_status = 'in_progress_dispensing';
         } else {

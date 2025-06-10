@@ -1,6 +1,7 @@
 <?php
 ini_set("error_reporting", 1);
 include "../../koneksi.php";
+include "../../includes/log_helper.php";
 session_start();
 
 $no_resep       = htmlspecialchars($_POST['no_resep']);
@@ -69,6 +70,9 @@ try {
     // Jika ada data yang berhasil diinsert
     if ($insertedCount > 0) {
         $con->commit();
+
+        // insertCycleLog($con, $no_resep, 1, 'scheduled', 'Preliminary scheduled');
+
         $success = true;
         echo json_encode([
             'success' => true,

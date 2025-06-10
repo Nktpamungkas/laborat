@@ -52,14 +52,14 @@ $act = $_GET['g'];
     if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
         $qrcodeA = $qrcode . '-A';
         $fileqrA = 'qrcode_A.png';
-        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 3, 0);
+        QRcode::png($qrcodeA, $fileqrA);
 
         $qrcodeB = $qrcode . '-B';
         $fileqrB = 'qrcode_B.png';
-        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 3, 0);
+        QRcode::png($qrcodeB, $fileqrB);
     } else {
         $fileqr = 'qrcode.png';
-        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 3, 0);
+        QRcode::png($qrcode, $fileqr);
     }
   ?>
   <table width="100%" border="0">
@@ -71,7 +71,7 @@ $act = $_GET['g'];
       <td width="16%">BERAT:</td>
       <td width="15%">&nbsp;</td>
       <td width="9%">&nbsp;</td>
-      <td width="15%" style="text-align: right;">No. Form : <?= (strtoupper(substr($qrcode, 0, 2)) === 'DR' ? 'FW-12-LAB-05(A)/00' : 'FW-12-LAB-05/06') ?></td>
+      <td width="15%" style="text-align: right;">No. Form : FW-12-LAB-05</td>
     </tr>
   </table>
   <table width="100%" border="0" class="table-list1">
@@ -136,8 +136,8 @@ $act = $_GET['g'];
         <td colspan="2" rowspan="2" style="border-right:0px #000000 solid;"><strong><?Php echo $data['recipe_code']; ?></strong></td>
         <td width="107" rowspan="2">Color Code</td>
         <td colspan="2" rowspan="2" style="border-right:0px #000000 solid;"><?Php echo $data['color_code']; ?></strong></td>
-        <td rowspan="2" style="border-right:0px #000000 solid;">STD COCOK WARNA </td>
-        <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;"></td>
+        <td rowspan="2" style="border-right:0px #000000 solid;">STD COCOK WARNA</td>
+        <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td style="border-left:0px #000000 solid;">1. <strong><?Php echo $data['cocok_warna']; ?></strong></td>
       </tr>
       <tr>
@@ -167,31 +167,33 @@ $act = $_GET['g'];
       <?php
         // Ambil data suhu pertama
         $tempCode1 = $data['temp_code'];
-        $query1 = "SELECT * FROM master_suhu WHERE code = ?";
+        $query1 = "SELECT suhu, waktu FROM master_suhu WHERE code = ?";
         $stmt1 = $con->prepare($query1);
         $stmt1->bind_param("s", $tempCode1);
         $stmt1->execute();
         $result1 = $stmt1->get_result();
         $row1 = $result1->fetch_assoc();
-        $product_name1 = empty($row1['product_name']) ? '...°C X ...MNT' : $row1['product_name'];
+        $suhu1 = $row1['suhu'];
+        $waktu1 = $row1['waktu'];
 
         // Ambil data suhu kedua
         $tempCode2 = $data['temp_code2'];
-        $query2 = "SELECT * FROM master_suhu WHERE code = ?";
+        $query2 = "SELECT suhu, waktu FROM master_suhu WHERE code = ?";
         $stmt2 = $con->prepare($query2);
         $stmt2->bind_param("s", $tempCode2);
         $stmt2->execute();
         $result2 = $stmt2->get_result();
         $row2 = $result2->fetch_assoc();
-        $product_name2 = empty($row2['product_name']) ? '...°C X ...MNT' : $row2['product_name'];
+        $suhu2 = $row2['suhu'];
+        $waktu2 = $row2['waktu'];
       ?>
 
       <tr>
-        <td colspan="2" align="center">
-          <?= $product_name1; ?>
+        <td colspan="2" align="right">
+          &nbsp;&nbsp; <?php echo $suhu1; ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $waktu1; ?> Menit
         </td>
-        <td colspan="2" align="center">
-          <?= $product_name2; ?>
+        <td colspan="2" align="right">
+          &nbsp;&nbsp; <?php echo $suhu2; ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $waktu2; ?> Menit
         </td>
       </tr>
       <tr><?php $i = 1;
@@ -419,9 +421,9 @@ $act = $_GET['g'];
       <tr>
         <?php if (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR'): ?>
           <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
-            <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
+            <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
           </td>
-          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br></td>
+          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br><br><br><br><br><br></td>
           <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <?php else: ?>
           <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
@@ -550,7 +552,7 @@ $act = $_GET['g'];
       </tr>
       <tr>
         <td align="center" colspan="2" rowspan="2">
-          <img src="<?php echo (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR') ? $fileqrB : $fileqr; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
+          <img src="<?php echo (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR') ? $fileqrB : $fileqr; ?>" alt="QR Code" class="qrcode" width="90%" height="90%" />
         </td>
         <td align="left" colspan="3" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>
@@ -571,8 +573,8 @@ $act = $_GET['g'];
       </tr>
       <tr> 
         <?php $sqlOrder = mysqli_query($con, "SELECT * FROM tbl_orderchild where id_matching = '$data[id]' AND NOT `order` = '$data[no_order]' "); ?>
-        <td rowspan="2" style="height: 98%;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
-        <td rowspan="5" colspan="3" valign="top"> 
+        <td rowspan="2" style="height: 80px;"><a class="hurufvertical"><strong>SAMPLE</strong></a></td>
+        <td rowspan="7" colspan="3" valign="top"> 
           <?php if ($data['jenis_matching'] == "L/D") : ?>
             <strong style="font-size: 21px;">R</strong>EQUEST NO :
           <?php elseif ($data['jenis_matching'] == "LD NOW") : ?>
@@ -595,17 +597,17 @@ $act = $_GET['g'];
         <td width="4%" align="center">&nbsp;</td>
         <td width="4%" rowspan="2" align="left">&nbsp;</td>
         <td width="5%" rowspan="2" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
-        <td rowspan="5" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
+        <td rowspan="7" align="center">&nbsp;</td>
       </tr>
       <!-- 
         <tr>
