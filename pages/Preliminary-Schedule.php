@@ -510,89 +510,6 @@
 <script>
     $(document).ready(function() {
 
-        function checkRepeatItems() {
-            $.ajax({
-                url: 'pages/ajax/GetRepeatItems.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(repeatData) {
-
-                    if (Array.isArray(repeatData) && repeatData.length > 0) {
-
-                        $('#scheduleWrapper')
-                            .removeClass('col-xs-12')
-                            .addClass('col-xs-8');
-
-                        $('#repeatWrapper').show();
-
-                        const $repeatBody = $('#repeatBody');
-                        $repeatBody.empty();
-
-                        repeatData.forEach((item, idx) => {
-                            const nomor = idx + 1;
-                            const rowHtml = `
-                                <tr>
-                                    <td align="center">${nomor}</td>
-                                    <td>${item.no_resep}</td>
-                                    <td>${item.product_name || '-'}</td>
-                                    <td align="center">${item.status}</td>
-                                </tr>
-                            `;
-                            $repeatBody.append(rowHtml);
-                        });
-                    } else {
-                        $('#scheduleWrapper')
-                            .removeClass('col-xs-7')
-                            .addClass('col-xs-12');
-
-                        $('#repeatWrapper').hide();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Gagal mengambil data REPEAT:', error);
-                    // Jika error, kita tetap sembunyikan repeatWrapper
-                    $('#scheduleWrapper')
-                        .removeClass('col-xs-7')
-                        .addClass('col-xs-12');
-                    $('#repeatWrapper').hide();
-                }
-            });
-        }
-
-        function loadData() {
-            fetch("pages/ajax/GetData_PreliminarySchedule.php")
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.getElementById("dataBody");
-                    const executeBtn = document.getElementById("execute_schedule");
-
-                    tbody.innerHTML = ""; // Kosongkan dulu
-
-                    if (data.length === 0) {
-                        executeBtn.disabled = true;
-                    } else {
-                        executeBtn.disabled = false;
-                    }
-
-                    data.forEach((item, index) => {
-                        const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
-
-                        const row = `<tr>
-                            <td ${isOldStyle} align="center">${index + 1}</td>
-                            <td ${isOldStyle}>${item.no_resep}</td>
-                            <td ${isOldStyle}>${item.product_name}</td>
-                            <td align="center">
-                                <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
-                            </td>
-                        </tr>`;
-                        tbody.innerHTML += row;
-                    });
-                })
-                .catch(err => {
-                    console.error("Gagal mengambil data:", err);
-                });
-        }
-
         loadData();
         checkRepeatItems();
 
@@ -654,6 +571,89 @@
     });
 </script>
 <script>
+    function checkRepeatItems() {
+        $.ajax({
+            url: 'pages/ajax/GetRepeatItems.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function(repeatData) {
+
+                if (Array.isArray(repeatData) && repeatData.length > 0) {
+
+                    $('#scheduleWrapper')
+                        .removeClass('col-xs-12')
+                        .addClass('col-xs-8');
+
+                    $('#repeatWrapper').show();
+
+                    const $repeatBody = $('#repeatBody');
+                    $repeatBody.empty();
+
+                    repeatData.forEach((item, idx) => {
+                        const nomor = idx + 1;
+                        const rowHtml = `
+                            <tr>
+                                <td align="center">${nomor}</td>
+                                <td>${item.no_resep}</td>
+                                <td>${item.product_name || '-'}</td>
+                                <td align="center">${item.status}</td>
+                            </tr>
+                        `;
+                        $repeatBody.append(rowHtml);
+                    });
+                } else {
+                    $('#scheduleWrapper')
+                        .removeClass('col-xs-7')
+                        .addClass('col-xs-12');
+
+                    $('#repeatWrapper').hide();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Gagal mengambil data REPEAT:', error);
+                // Jika error, kita tetap sembunyikan repeatWrapper
+                $('#scheduleWrapper')
+                    .removeClass('col-xs-7')
+                    .addClass('col-xs-12');
+                $('#repeatWrapper').hide();
+            }
+        });
+    }
+
+    function loadData() {
+        fetch("pages/ajax/GetData_PreliminarySchedule.php")
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById("dataBody");
+                const executeBtn = document.getElementById("execute_schedule");
+
+                tbody.innerHTML = ""; // Kosongkan dulu
+
+                if (data.length === 0) {
+                    executeBtn.disabled = true;
+                } else {
+                    executeBtn.disabled = false;
+                }
+
+                data.forEach((item, index) => {
+                    const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
+
+                    const row = `<tr>
+                        <td ${isOldStyle} align="center">${index + 1}</td>
+                        <td ${isOldStyle}>${item.no_resep}</td>
+                        <td ${isOldStyle}>${item.product_name}</td>
+                        <td align="center">
+                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                        </td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(err => {
+                console.error("Gagal mengambil data:", err);
+            });
+    }
+    
     function deleteData(id) {
         Swal.fire({
             title: 'Apakah kamu yakin?',

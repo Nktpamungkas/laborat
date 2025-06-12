@@ -257,16 +257,17 @@
                 
                 let html = `
                     <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: fixed; min-width: 2560px; width: 100%;">
+                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: auto; width: 100%;">
                             <colgroup>
-                                <col style="width: 3%;"> <!-- Kolom No -->
+                                <col style="min-width: 50px;"> <!-- Kolom No -->
                 `;
 
                 const machineCount = Object.keys(data).length;
                 const colWidth = Math.floor(97 / machineCount);
 
                 Object.keys(data).forEach(() => {
-                    html += `<col style="width: ${colWidth}%;">`;
+                    // html += `<col style="width: ${colWidth}%;">`;
+                    html += `<col style="min-width: 300px;">`;
                 });
 
                 html += `</colgroup><thead class="table-dark">`;

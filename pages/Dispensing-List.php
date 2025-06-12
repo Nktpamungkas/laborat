@@ -170,13 +170,26 @@
         });
 
         function updateStatus(noResep) {
+            const dispensingCode = getDispensingCodeFromNoResep(noResep);
+            if (dispensingCode === null) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Tidak Ditemukan',
+                    text: `No. Resep ${noResep} tidak ditemukan di list.`,
+                });
+                return;
+            }
+
             $.ajax({
                 url: 'pages/ajax/scan_dispensing_update_status.php',
                 method: 'POST',
-                data: { no_resep: noResep },
+                data: {
+                    no_resep: noResep,
+                    dispensing_code: dispensingCode
+                },
                 success: function (response) {
                     console.log("Update sukses:", response);
-                    loadData(); // Refresh data tabel
+                    loadData();
                     Swal.fire({
                         icon: 'success',
                         title: 'Status Diperbarui!',
@@ -195,14 +208,23 @@
                 }
             });
         }
+
+        function getDispensingCodeFromNoResep(noResep) {
+            const match = dispensingData.find(item => item.no_resep === noResep);
+            if (!match) return null;
+            return match.dispensing?.trim() ?? "";
+        }
     });
 </script>
 <script>
+    let dispensingData = [];
 
     function loadData() {
         fetch("pages/ajax/GetData_DispensingList.php")
             .then(response => response.json())
             .then(data => {
+                dispensingData = data;
+
                 const tbodyPoly = document.getElementById("dataBodyPoly");
                 const tbodyCotton = document.getElementById("dataBodyCotton");
                 const tbodyWhite = document.getElementById("dataBodyWhite");

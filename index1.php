@@ -225,10 +225,10 @@ $page = strtolower($page);
                                         <a href="?p=Hold-Data"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
                                             <span>Hold Data</span></a>
                                     </li>
-                                    <li class="<?php if ($_GET['p'] == "Activity-Log") echo "active"; ?>">
+                                    <!-- <li class="<?php if ($_GET['p'] == "Activity-Log") echo "active"; ?>">
                                         <a href="?p=Activity-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
                                             <span>Activity Log</span></a>
-                                    </li>
+                                    </li> -->
                                 </ul>
                             <?php endif; ?>
                             
