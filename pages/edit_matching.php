@@ -349,7 +349,7 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -495,7 +495,7 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -652,7 +652,7 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -796,7 +796,7 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
@@ -964,7 +964,7 @@
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option>Pilih...</option>
+				<option value="">Pilih...</option>
 				<?php
 				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
 				$result = mysqli_query($con, $query);
