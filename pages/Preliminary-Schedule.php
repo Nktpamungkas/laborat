@@ -764,6 +764,12 @@
 
             const code = $(this).val().trim();
 
+            // const startsWithDR = code.startsWith('DR');
+            // const endsWithSuffix = code.endsWith('-A') || code.endsWith('-B');
+
+            // Jika diawali dengan DR, tapi belum diakhiri -A atau -B, jangan kirim AJAX
+            // if (startsWithDR && !endsWithSuffix) return;
+
             tempScanTimer = setTimeout(function () {
                     $.ajax({
                     url: 'pages/ajax/get_temp_code_by_noresep.php',
@@ -771,7 +777,7 @@
                     data: { no_resep: code },
                     dataType: 'json',
                     success: function(response) {
-                        console.log(Response);
+                        console.log(response);
                         
                         if (response.success) {
                             const codes = response.codes;

@@ -27,7 +27,7 @@ if ($no_resep) {
     ";
 
     $stmt = $con->prepare($query);
-    $stmt->bind_param("ss", $no_resep, $no_resep);
+    $stmt->bind_param("ss", $no_resep, $no_resep_base);
     $stmt->execute();
     $result = $stmt->get_result();
 
