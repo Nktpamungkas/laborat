@@ -186,14 +186,37 @@ $act = $_GET['g'];
         $product_name2 = empty($row2['product_name']) ? '...°C X ...MNT' : $row2['product_name'];
       ?>
 
-      <tr>
-        <td colspan="2" align="center">
-          <?= $product_name1; ?>
-        </td>
-        <td colspan="2" align="center">
-          <?= $product_name2; ?>
-        </td>
-      </tr>
+    
+      <?php
+        $idkk_raw = strtoupper($_GET['idkk'] ?? '');
+
+        $prefix1 = substr($idkk_raw, 0, 1);
+        $prefix2 = substr($idkk_raw, 0, 2);
+
+        if ($prefix2 === 'DR') {
+            ?>
+            <tr>
+                <td colspan="2" align="center"><?= $product_name1; ?></td>
+                <td colspan="2" align="center"><?= $product_name2; ?></td>
+            </tr>
+            <?php
+        } elseif ($prefix1 === 'R' || $prefix2 === 'OB') {
+            ?>
+            <tr>
+                <td colspan="2" align="center"></td>
+                <td colspan="2" align="center"><?= $product_name1; ?></td>
+            </tr>
+            <?php
+        } elseif ($prefix1 === 'A' || $prefix1 === 'D' || $prefix2 === 'CD') {
+            ?>
+            <tr>
+                <td colspan="2" align="center"><?= $product_name1; ?></td>
+                <td colspan="2" align="center"></td>
+            </tr>
+            <?php
+        }
+      ?>
+
       <tr><?php $i = 1;
           $sqlLamp = mysqli_query($con, "SELECT * FROM vpot_lampbuy where buyer = '$data[buyer]' order by flag"); ?>
         <td rowspan="2" style="border-right:0px #000000 solid;" colspan="3"><strong>LAMPU</strong> : <?php while ($lamp = mysqli_fetch_array($sqlLamp)) {
