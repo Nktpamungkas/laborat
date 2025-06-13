@@ -43,6 +43,14 @@
                     <input name="no_resep" type="text" class="form-control style-ph" id="no_resep" placeholder="scan here..." required autocomplete="off" autofocus>
                 </div>
             </div>
+            
+            <div class="form-group" id="bottleQtyWrapper">
+                <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
+                </div>
+            </div><br>
+
             <div class="form-group" id="tempWrapper">
                 <label for="temp" class="col-sm-2 control-label">Temp</label>
                 <div class="col-sm-2">
@@ -52,12 +60,6 @@
             <div class="form-group" id="productNameWrapper" style="display:  none;">
                 <div class="col-sm-offset-2 col-sm-4">
                     <p id="productNameDisplay" style="font-weight: bold; color: #0073b7;"></p>
-                </div>
-            </div>
-            <div class="form-group" id="bottleQtyWrapper">
-                <label for="bottle_qty" class="col-sm-2 control-label">Bottle Quantity</label>
-                <div class="col-sm-2">
-                    <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
                 </div>
             </div>
 
@@ -187,7 +189,6 @@
                         success: function(response) {
                             
                             var schedules = JSON.stringify(response);
-
                             // 3. Generate schedule dengan data yang di-fetch
                             $.ajax({
                                 url: 'pages/ajax/generate_schedule.php',
