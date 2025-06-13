@@ -3,7 +3,6 @@ header('Content-Type: application/json');
 include "../../koneksi.php";
 
 try {
-    // Ambil data urutan awal berdasar suhu dan waktu
     $result = mysqli_query($con, "
         SELECT 
             tbl_preliminary_schedule.*, 
@@ -14,8 +13,16 @@ try {
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
+        LEFT JOIN tbl_matching 
+            ON tbl_preliminary_schedule.no_resep = tbl_matching.no_resep
         WHERE tbl_preliminary_schedule.status != 'ready'
         ORDER BY 
+            CASE 
+                WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
+                WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
+                ELSE 4
+            END,
             CASE 
                 WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
                 ELSE 1 

@@ -376,11 +376,30 @@
             where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 0,50");
             $iteration = 1;
             ?>
-            <td colspan="2" rowspan="5" valign="top">
-                <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
-                    <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
-                <?php } ?>
-				<div align="right"><strong style="font-size: 21px;"><?php if($data['salesman_sample']=="1"){ echo "S/S"; } ?></strong></div>
+            <td colspan="2" rowspan="5">
+                <div style="display: flex; justify-content:space-between">
+                    <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
+                        <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
+                    <?php } ?>
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                        <?php
+                        if (!empty($data['no_resep'])) {
+                            include('../../phpqrcode/qrlib.php');
+
+                            $qrcode = $data['no_resep'];
+                            $fileqr = 'qrcode.png';
+                            QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                        ?>
+                            <img src="<?= $fileqr ?>" alt="QR Code" class="qrcode" />
+                        <?php } ?>
+
+                        <?php if ($data['salesman_sample'] == "1") { ?>
+                            <strong style="font-size: 21px;">S/S</strong>
+                        <?php } ?>
+                    </div>
+                </div>
+
+                <!-- <div align="right"><strong style="font-size: 21px;"><?php if($data['salesman_sample']=="1"){ echo "S/S"; } ?></strong></div> -->
             </td>
         </tr>
         <!-- BARIS 2 -->
