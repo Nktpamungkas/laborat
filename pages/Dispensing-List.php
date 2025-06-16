@@ -31,7 +31,7 @@
         background-color: #ffeeba !important;
     }
     .sortable-selected {
-        background-color: #ffeeba !important;
+        background-color:rgb(6, 206, 6) !important;
     }
 </style>
 
