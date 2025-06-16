@@ -30,11 +30,7 @@
         opacity: 0.4;
         background-color: #ffeeba !important;
     }
-    .sortable-selected {
-        background-color: #ffeeba !important;
-    }
 </style>
-
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
@@ -270,9 +266,6 @@
 
             let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''}" 
                             data-id="${item.id}">
-                <td align="center" class="checkbox-cell" style="display: none;">
-                    <input type="checkbox" class="row-checkbox">
-                </td>
                 <td align="center" class="row-number">${rowNumber}</td>`;
 
             if (isActiveStatus) {
@@ -291,6 +284,46 @@
 
             tbodyElement.innerHTML += rowHTML;
         });
+    }
+
+    function enableSortableTables() {
+        const options = {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            handle: 'td',
+            onEnd: function (evt) {
+                const tbody = evt.from;
+                const rows = Array.from(tbody.querySelectorAll("tr"));
+
+                // ✅ Update semua order_index berdasarkan urutan sekarang
+                const newOrder = rows.map((row, index) => ({
+                    id: row.getAttribute("data-id"),
+                    order_index: index + 1
+                }));
+
+                // ✅ Update tampilan
+                updateRowStyles(tbody);
+                updateRowNumbers(tbody);
+
+                // ✅ Kirim semua ID dan order_index ke server
+                fetch("pages/ajax/UpdateOrderIndexes.php", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orders: newOrder })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error("Gagal simpan urutan:", data.message);
+                    }
+                })
+                .catch(err => console.error("AJAX error:", err));
+            }
+        };
+
+        Sortable.create(document.getElementById("dataBodyPoly"), options);
+        Sortable.create(document.getElementById("dataBodyCotton"), options);
+        Sortable.create(document.getElementById("dataBodyWhite"), options);
     }
 
     function updateRowStyles(tbody) {
@@ -335,17 +368,6 @@
                 animation: 150,
                 ghostClass: "sortable-ghost",
                 disabled: true,
-
-                multiDrag: true,
-                selectedClass: "sortable-selected",
-
-                onSelect: function (evt) {
-                    const row = evt.item;
-                },
-                onDeselect: function (evt) {
-                    const row = evt.item;
-                },
-
                 onEnd: function (evt) {
                     const tbody = evt.from;
                     const rows = Array.from(tbody.querySelectorAll("tr"));
@@ -390,27 +412,6 @@
 
         const scanInput = document.getElementById("scanInput");
         scanInput.disabled = !isLocked;
-
-        if(!isLocked) {
-            document.querySelectorAll("tbody tr").forEach(row => {
-                row.addEventListener("click", function () {
-                    const tbody = row.closest("tbody");
-                    const sortable = sortables.find(s => s.el === tbody);
-                    if (!sortable) return;
-
-                    const isSelected = row.classList.contains("sortable-selected");
-
-                    if (isSelected) {
-                        sortable.utils.deselect(row);
-                        row.classList.remove("sortable-selected");
-                    } else {
-                        sortable.utils.select(row);
-                        row.classList.add("sortable-selected");
-                    }
-                });
-            });
-        }
-
     }
 
     window.addEventListener("DOMContentLoaded", function () {

@@ -381,26 +381,39 @@
                     <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
                         <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
                     <?php } ?>
-                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
                         <?php
                         if (!empty($data['no_resep'])) {
                             include('../../phpqrcode/qrlib.php');
 
                             $qrcode = $data['no_resep'];
-                            $fileqr = 'qrcode.png';
-                            QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+
+                            if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+                                $qrcodeA = $qrcode . '-A';
+                                $fileqrA = 'qrcode_A.png';
+                                QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
+
+                                $qrcodeB = $qrcode . '-B';
+                                $fileqrB = 'qrcode_B.png';
+                                QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
+
+                                echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
+                                echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
+                            } else {
+                                $fileqr = 'qrcode.png';
+                                QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                                echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                            }
+                        }
                         ?>
-                            <img src="<?= $fileqr ?>" alt="QR Code" class="qrcode" />
-                        <?php } ?>
 
                         <?php if ($data['salesman_sample'] == "1") { ?>
                             <strong style="font-size: 21px;">S/S</strong>
                         <?php } ?>
                     </div>
                 </div>
-
-                <!-- <div align="right"><strong style="font-size: 21px;"><?php if($data['salesman_sample']=="1"){ echo "S/S"; } ?></strong></div> -->
             </td>
+
         </tr>
         <!-- BARIS 2 -->
         <?php
