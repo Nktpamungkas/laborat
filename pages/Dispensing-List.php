@@ -34,6 +34,36 @@
         background-color:rgb(6, 206, 6) !important;
     }
 </style>
+<style>
+    .table-scrollable {
+        max-height: 800px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+    }
+
+    .table-scrollable thead th {
+        position: sticky;
+        top: 0;
+        background-color: #00a65a ;
+        z-index: 1;
+    }
+    .table-scrollable::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .table-scrollable::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+        border-radius: 3px;
+    }
+
+    .table-scrollable::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .table {
+        margin-bottom: 0 !important;
+    }
+</style>
+
 
 <div class="row">
     <div class="col-xs-12">
@@ -57,97 +87,103 @@
                     <!-- Dispensing Poly Table -->
                     <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
                         <h4 id="polyHeader" class="text-center"><strong>DISPENSING POLY</strong></h4>
-                        <table id="tablePoly" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th> -->
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">Dispensing Start</div>
-                                    </th> -->
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyPoly">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
+                        <div class="table-scrollable">
+                            <table id="tablePoly" class="table table-bordered" width="100%">
+                                <thead class="bg-green">
+                                    <tr>
+                                        <th>
+                                            <div align="center">No</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">No. Resep</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">Temp</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">No. Mesin</div>
+                                        </th> -->
+                                        <th>
+                                            <div align="center">Status</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">Dispensing Start</div>
+                                        </th> -->
+                                    </tr>
+                                </thead>
+                                <tbody id="dataBodyPoly">
+                                    <!-- Data will be displayed here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Dispensing Cotton Table -->
                     <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
                         <h4 id="cottonHeader" class="text-center"><strong>DISPENSING COTTON</strong></h4>
-                        <table id="tableCotton" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th> -->
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">Dispensing Start</div>
-                                    </th> -->
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyCotton">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
+                        <div class="table-scrollable">
+                            <table id="tableCotton" class="table table-bordered" width="100%">
+                                <thead class="bg-green">
+                                    <tr>
+                                        <th>
+                                            <div align="center">No</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">No. Resep</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">Temp</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">No. Mesin</div>
+                                        </th> -->
+                                        <th>
+                                            <div align="center">Status</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">Dispensing Start</div>
+                                        </th> -->
+                                    </tr>
+                                </thead>
+                                <tbody id="dataBodyCotton">
+                                    <!-- Data will be displayed here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Dispensing White Table -->
                     <div id="whiteTableWrapper" style="flex: 1; min-width: 300px; display: block;">
                         <h4 id="whiteHeader" class="text-center"><strong>DISPENSING WHITE</strong></h4>
-                        <table id="tableWhite" class="table table-bordered" width="100%">
-                            <thead class="bg-green">
-                                <tr>
-                                    <th>
-                                        <div align="center">No</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">No. Resep</div>
-                                    </th>
-                                    <th>
-                                        <div align="center">Temp</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">No. Mesin</div>
-                                    </th> -->
-                                    <th>
-                                        <div align="center">Status</div>
-                                    </th>
-                                    <!-- <th>
-                                        <div align="center">Dispensing Start</div>
-                                    </th> -->
-                                </tr>
-                            </thead>
-                            <tbody id="dataBodyWhite">
-                                <!-- Data will be displayed here -->
-                            </tbody>
-                        </table>
+                        <div class="table-scrollable">
+                            <table id="tableWhite" class="table table-bordered" width="100%">
+                                <thead class="bg-green">
+                                    <tr>
+                                        <th>
+                                            <div align="center">No</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">No. Resep</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">Temp</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">No. Mesin</div>
+                                        </th> -->
+                                        <th>
+                                            <div align="center">Status</div>
+                                        </th>
+                                        <!-- <th>
+                                            <div align="center">Dispensing Start</div>
+                                        </th> -->
+                                    </tr>
+                                </thead>
+                                <tbody id="dataBodyWhite">
+                                    <!-- Data will be displayed here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                 </div>
