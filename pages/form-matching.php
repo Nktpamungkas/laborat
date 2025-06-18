@@ -1124,6 +1124,76 @@
 		</div>
 	</div>
 	<div class="form-group">
+		<label for="no_po" class="col-sm-2 control-label">PO Greige</label>
+		<div class="col-sm-4">
+			<?php
+			$d_pogreigenew = db2_exec($conn1, "SELECT 
+														CASE
+															WHEN LOTCODE IS NOT NULL THEN LOTCODE
+															ELSE '-'
+														END AS LOTCODE,
+														CASE
+															WHEN DEMAND_KGF IS NOT NULL THEN DEMAND_KGF
+															ELSE '-'
+														END AS DEMAND_KGF
+													FROM 
+													(SELECT 
+														i.LOTCODE AS LOTCODE,
+														i.DEMAND_KGF AS DEMAND_KGF
+													FROM 
+														ITXVIEWPOGREIGENEW i 
+													WHERE 
+														i.SALESORDERCODE = '$_GET[idk]' AND i.ORDERLINE = '$_GET[iditem]'
+													UNION ALL
+													SELECT 
+														i2.LOTCODE AS LOTCODE,
+														i2.DEMAND_KGF AS DEMAND_KGF
+													FROM 
+														ITXVIEWPOGREIGENEW2 i2 
+													WHERE 
+														i2.SALESORDERCODE = '$_GET[idk]' AND i2.ORDERLINE = '$_GET[iditem]'
+													UNION ALL
+													SELECT
+														i3.LOTCODE AS LOTCODE,
+														i3.DEMAND_KGF AS DEMAND_KGF
+													FROM
+														ITXVIEWPOGREIGENEW3 i3 
+													WHERE 
+														i3.SALESORDERCODE = '$_GET[idk]' AND i3.ORDERLINE = '$_GET[iditem]')
+													GROUP BY 
+														LOTCODE, DEMAND_KGF");
+			$d_pogreigenew4 = db2_exec($conn1, "SELECT INTERNALREFERENCE FROM PRODUCTIONDEMAND WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
+			$d_pogreigenew5 = db2_exec($conn1, "SELECT 
+														a.ORIGDLVSALORDLINESALORDERCODE,
+														a.ORIGDLVSALORDERLINEORDERLINE,
+														a.INTERNALREFERENCE,
+														b.NAMENAME,
+														b.VALUESTRING 
+													FROM 
+														PRODUCTIONDEMAND a
+													LEFT JOIN ADSTORAGE b ON b.UNIQUEID = a.ABSUNIQUEID 
+													WHERE 
+														ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'
+														AND
+														(b.NAMENAME = 'ProAllow' OR b.NAMENAME = 'ProAllow2' OR b.NAMENAME = 'ProAllo3' OR b.NAMENAME = 'ProAllow4' OR b.NAMENAME = 'ProAllow5')");
+
+			$r_pogreigenew = db2_fetch_assoc($d_pogreigenew);
+			$r_pogreigenew4 = db2_fetch_assoc($d_pogreigenew4);
+			$r_pogreigenew5 = db2_fetch_assoc($d_pogreigenew5);
+
+			if ($r_pogreigenew['LOTCODE'] && $r_pogreigenew['DEMAND_KGF']) {
+				$pogreige = 'NO KO : ' . $r_pogreigenew['LOTCODE'] . '/ DEMAND KGF :' . $r_pogreigenew['DEMAND_KGF'];
+			}
+			if ($r_pogreigenew4['INTERNALREFERENCE']) {
+				$pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
+			} else {
+				$pogreige2 = $r_pogreigenew5['VALUESTRING'];
+			}
+			?>
+			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?= $pogreige; ?>, PROJECT : <?= $pogreige2; ?>">
+		</div>
+	</div>
+	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Jenis Kain</label>
 		<div class="col-sm-6">
 			<?php
