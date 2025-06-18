@@ -732,6 +732,12 @@
         </div>
     </div>
     <div class="form-group">
+        <label for="no_po" class="col-sm-2 control-label">PO Greige</label>
+        <div class="col-sm-4">
+            <input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?php echo $data['no_po']; ?>">
+        </div>
+    </div>
+    <div class="form-group">
         <label for="warna" class="col-sm-2 control-label">Warna</label>
         <div class="col-sm-6">
             <input name="warna" type="text" class="form-control" id="warna" placeholder="Warna" value="<?php echo $data['warna'] ?>" required>
