@@ -329,6 +329,46 @@
         });
     }
 
+    function enableSortableTables() {
+        const options = {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            handle: 'td',
+            onEnd: function (evt) {
+                const tbody = evt.from;
+                const rows = Array.from(tbody.querySelectorAll("tr"));
+
+                // ✅ Update semua order_index berdasarkan urutan sekarang
+                const newOrder = rows.map((row, index) => ({
+                    id: row.getAttribute("data-id"),
+                    order_index: index + 1
+                }));
+
+                // ✅ Update tampilan
+                updateRowStyles(tbody);
+                updateRowNumbers(tbody);
+
+                // ✅ Kirim semua ID dan order_index ke server
+                fetch("pages/ajax/UpdateOrderIndexes.php", {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orders: newOrder })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error("Gagal simpan urutan:", data.message);
+                    }
+                })
+                .catch(err => console.error("AJAX error:", err));
+            }
+        };
+
+        Sortable.create(document.getElementById("dataBodyPoly"), options);
+        Sortable.create(document.getElementById("dataBodyCotton"), options);
+        Sortable.create(document.getElementById("dataBodyWhite"), options);
+    }
+
     function updateRowStyles(tbody) {
         const rows = Array.from(tbody.querySelectorAll("tr"));
         const rowsPerBlock = 16;

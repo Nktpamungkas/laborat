@@ -245,7 +245,7 @@
           <td style="border-right:0px #000000 solid;">Color Code</td>
           <td style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
           <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['color_code']; ?></strong></td>
-          <td colspan="3" style="text-align: right;" ><span style="font-size: 9px;">FW-12-LAB-04</span></td>
+          <td colspan="3" style="text-align: right;" ><span style="font-size: 9px;">FW-12-LAB-04/03</span></td>
         </tr>
         <tr>
             <td width="9%" style="border-right:0px #000000 solid;">Suffix</td>
