@@ -779,13 +779,15 @@
                     dataType: 'json',
                     success: function(response) {
                         console.log(response);
+                        console.log(response.codes.length)
                         
                         if (response.success) {
                             const codes = response.codes;
                             
                             if (codes.length === 2) {
-                                $('#temp_1').val(codes[0]).trigger('input');
-                                $('#temp_2').val(codes[1]).trigger('input');
+                                $('#temp').val(codes[0]).trigger('input');
+                                // $('#temp_1').val(codes[0]).trigger('input');
+                                // $('#temp_2').val(codes[1]).trigger('input');
                             } else if (codes.length === 1) {                           
                                 $('#temp').val(codes[0]).trigger('input');
                             }

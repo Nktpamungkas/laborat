@@ -40,7 +40,7 @@ $page = strtolower($page);
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == 'Recap-Colorist') { ?>
+    <?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == 'Recap-Colorist' or $_GET['p'] == "Status-Matching-Ganti-Kain") { ?>
 
     <?php } else { ?>
         <link href="bower_components/xeditable/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" type="text/css">
@@ -470,7 +470,19 @@ $page = strtolower($page);
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") {
                                                     echo "active";
-                                                } ?>"><a href="?p=Approval-Bon-Order"><i class="fa fa-check-square"></i> <span>Approval Bon Order</span></a>
+                                                } ?>"><a href="?p=Approval-Bon-Order"><i class="fa fa-clipboard"></i> <span>Approval Bon Order</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Status-Matching-Bon-Order"><i class="fa fa-clipboard"></i> <span>Status Matching Bon Order</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-clipboard"></i> <span>Status Matching Ganti Kain</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "Rekap-Data") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
                                     </li>
     
                                 </ul>
@@ -490,40 +502,42 @@ $page = strtolower($page);
                                 order by do_at asc");
                                 $count_login = mysqli_num_rows($sql_login);
                                 ?>
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <!-- <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-sign-in"></i>
                                     <span class="label label-success"><?php echo $count_login ?></span>
+                                </a> -->
+
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-sign-in"></i>
+                                    <span class="label label-success" id="notifTBO"><?php echo $totalTBO ?></span>
                                 </a>
-                                <ul class="dropdown-menu">
+
+
+                                <!-- <ul class="dropdown-menu">
                                     <li class="header"> <?php echo $count_login ?> Orang Telah Melakukan login hari ini </li>
                                     <li>
-                                        <!-- inner menu: contains the messages -->
                                         <?php while ($li = mysqli_fetch_array($sql_login)): ?>
                                             <ul class="menu">
                                                 <li>
-                                                    <!-- start message -->
                                                     <a href="#">
                                                         <div class="pull-left">
-                                                            <!-- User Image -->
-                                                            <!-- <img src="../../dist/img/user2-160x160.jpg" class="img-circle" alt="User Image"> -->
+                                                            <img src="../../dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
                                                             <i class="fa fa-window-maximize" aria-hidden="true"></i>
                                                         </div>
-                                                        <!-- Message title and timestamp -->
+
                                                         <h4>
                                                             <?php echo $li['do_by'] ?>
                                                             <small><i class="fa fa-clock-o"></i><?php echo substr($li['do_at'], 11, 5); ?></small>
                                                         </h4>
-                                                        <!-- The message -->
-                                                        <!-- <p>Why not buy a new awesome theme?</p> -->
+
+                                                        <p>Why not buy a new awesome theme?</p>
                                                     </a>
                                                 </li>
-                                                <!-- end message -->
                                             </ul>
                                         <?php endwhile; ?>
-                                        <!-- /.menu -->
                                     </li>
                                     <li class="footer"><a href="#">ALL LOGIN HERE</a></li>
-                                </ul>
+                                </ul> -->
                             </li>
                             <!-- /.messages-menu -->
                             <!-- User Account Menu -->
@@ -619,7 +633,7 @@ $page = strtolower($page);
 <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 <script src="bower_components/select2/js/select2.full.min.js"></script>
 <script src="bower_components/toastr/toastr.js"></script>
-<?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == "Recap-Colorist") { ?>
+<?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == "Recap-Colorist" or $_GET['p'] == "Status-Matching-Ganti-Kain") { ?>
 
 <?php } else { ?>
     <script type="text/javascript" src="bower_components/xeditable/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
@@ -642,33 +656,33 @@ $page = strtolower($page);
     });
     //Date picker
     $('#datepicker').datepicker({
-            autoclose: true,
-            format: 'yyyy-mm-dd',
-            todayHighlight: true,
-        }),
-        //Date picker
-        $('#datepicker1').datepicker({
-            autoclose: true,
-            format: 'yyyy-mm-dd',
-            todayHighlight: true,
-        }),
-        //Date picker
-        $('#datepicker2').datepicker({
-            autoclose: true,
-            todayHighlight: true,
-            format: 'yyyy-mm-dd'
-        }),
-        //Date picker
-        $('#datepicker3').datepicker({
-            autoclose: true,
-            todayHighlight: true,
-            format: 'yyyy-mm-dd'
-        })
+        autoclose: true,
+        format: 'yyyy-mm-dd',
+        todayHighlight: true,
+    });
+    //Date picker
+    $('#datepicker1').datepicker({
+        autoclose: true,
+        format: 'yyyy-mm-dd',
+        todayHighlight: true,
+    });
+    //Date picker
+    $('#datepicker2').datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd'
+    }),
+    //Date picker
+    $('#datepicker3').datepicker({
+        autoclose: true,
+        todayHighlight: true,
+        format: 'yyyy-mm-dd'
+    });
     $('.form-control.date-picker').datepicker({
         autoclose: true,
         todayHighlight: true,
         format: 'yyyy-mm-dd'
-    })
+    });
 </script>
 <script>
     $(function() {

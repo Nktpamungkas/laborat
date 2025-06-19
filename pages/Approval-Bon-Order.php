@@ -1,0 +1,274 @@
+<?php
+include "koneksi.php";
+
+$approvedCodes = [];
+$res = mysqli_query($con, "SELECT code FROM approval_bon_order");
+while ($r = mysqli_fetch_assoc($res)) {
+    $approvedCodes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
+}
+
+// Bentuk list code (untuk IN (...))
+$codeList = implode(",", $approvedCodes);
+
+// Ambil data siap approve
+$sqlTBO = "WITH APPROVED_RMP AS (
+    SELECT DISTINCT 
+        isa.CODE,
+        isa.APPROVERMP,
+        isa.APPROVEDRMP,
+        isa.TGL_APPROVEDRMP
+    FROM ITXVIEW_SALESORDER_APPROVED isa
+)
+SELECT 
+    i.SALESORDERCODE AS code,
+    i.LEGALNAME1 AS customer,
+    MAX(AR.TGL_APPROVEDRMP) AS tgl_approve_rmp
+FROM 
+    ITXVIEWBONORDER i 
+LEFT JOIN APPROVED_RMP AR ON AR.CODE = i.SALESORDERCODE 
+WHERE 
+    AR.APPROVERMP IS NOT NULL 
+    AND AR.APPROVEDRMP IS NOT NULL
+    AND CAST(i.CREATIONDATETIME_SALESORDER AS DATE) > '2025-06-01'
+";
+
+if (!empty($codeList)) {
+    $sqlTBO .= " AND i.SALESORDERCODE NOT IN ($codeList)";
+}
+
+$sqlTBO .= " GROUP BY i.SALESORDERCODE, i.LEGALNAME1";
+
+$resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
+
+// Ambil data yang sudah pernah di-approve
+$sqlApproved = "SELECT * FROM approval_bon_order ORDER BY id DESC";
+$resultApproved = mysqli_query($con, $sqlApproved);
+?>
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-body">
+                <!-- ✅ TABEL 1: Data Siap Approval -->
+                <div class="card mb-4">
+                    <div class="card-header text-white">
+                        <h3 class="card-title">Data Siap Approval</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm" id="tboTable">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Nomer Bon Order</th>
+                                    <th>Tgl Approved RMP</th>
+                                    <th>Approve / Reject</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                // $seen = [];
+                                while ($row = db2_fetch_assoc($resultTBO)) {
+                                    $code = strtoupper(trim($row['CODE']));
+                                    // if (in_array($code, $seen)) continue;
+                                    // $seen[] = $code;
+                                    $customer = trim($row['CUSTOMER']);
+                                    $tgl = trim($row['TGL_APPROVE_RMP']);
+                                ?>
+                                <tr>
+                                    <td><?= $customer ?></td>
+                                    <td><?= $code ?></td>
+                                    <td><?= $tgl ?></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <select class="form-control form-control-sm pic-select" data-code="<?= $code ?>">
+                                                <option value="">-- Pilih PIC --</option>
+                                                <option value="Cecen">Cecen</option>
+                                                <option value="Ridho">Ridho</option>
+                                                <option value="Riyan">Riyan</option>
+                                                <option value="Flavia">Flavia</option>
+                                            </select>
+                                            <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
+                                            <button class="btn btn-danger btn-sm reject-btn" data-code="<?= $code ?>">Reject</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <div class="box">
+            <div class="box-body">
+                <!-- ✅ TABEL 2: Riwayat Approval -->
+                <div class="card">
+                    <div class="card-header text-white">
+                        <h3 class="card-title">Tabel Approval Bon Order</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-sm" id="approvedTable">
+                            <thead class="bg-success text-white">
+                                <tr>
+                                    <th style="display: none;">ID</th>
+                                    <th>Customer</th>
+                                    <th>No Bon Order</th>
+                                    <th>Tgl Approved RMP</th>
+                                    <th>Tgl Approved Lab</th>
+                                    <th>Tgl Rejected Lab</th>
+                                    <th>PIC Lab</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($resultApproved)) { ?>
+                                <tr>
+                                    <td style="display: none;"><?= $row['id'] ?></td>
+                                    <td><?= $row['customer'] ?></td>
+                                    <td><?= $row['code'] ?></td>
+                                    <td><?= $row['tgl_approve_rmp'] ?></td>
+                                    <td><?= $row['tgl_approve_lab'] ?></td>
+                                    <td><?= $row['tgl_rejected_lab'] ?></td>
+                                    <td><?= $row['pic_lab'] ?></td>
+                                    <td><strong class="<?= $row['status'] == 'Approved' ? 'text-success' : 'text-danger' ?>"><?= $row['status'] ?></strong></td>
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>     
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    // Inisialisasi kedua tabel dengan DataTables
+    const tboTable = $('#tboTable').DataTable();
+    const approvedTable = $('#approvedTable').DataTable({
+                                "order": [[0, "desc"]],
+                                "columnDefs": [
+                                    { "targets": 0, "visible": false }
+                                ]
+                            });
+
+    function getPIC(code) {
+        return $("select.pic-select[data-code='" + code + "']").val();
+    }
+
+    function getCustomer(code) {
+        return $("tr:has(button[data-code='" + code + "']) td:first").text();
+    }
+
+    function getTglApproveRMP(code) {
+        return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
+    }
+
+    function submitApproval(code, action) {
+        const pic = getPIC(code);
+        const customer = getCustomer(code);
+        const tgl_approve_rmp = getTglApproveRMP(code);
+
+        if (!pic) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'PIC belum dipilih',
+                text: 'Silakan pilih PIC Lab terlebih dahulu.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: `${action} Bon Order?`,
+            text: `Kode: ${code} | PIC: ${pic}`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: action,
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Mohon tunggu sebentar.',
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                    allowOutsideClick: false
+                });
+
+                $.post("pages/ajax/approve_bon_order_lab.php", {
+                    code: code,
+                    customer: customer,
+                    tgl_approve_rmp: tgl_approve_rmp,
+                    pic_lab: pic,
+                    status: action
+                }, function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response
+                    });
+
+                    // Reload kedua tabel
+                    reloadApprovedTable();
+                    reloadTboTable();
+                    refreshTBOCount();
+                }).fail(function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan saat menyimpan data.'
+                    });
+                });
+            }
+        });
+    }
+
+    function reloadApprovedTable() {
+        $.get("pages/ajax/refresh_approved_table.php", function (data) {
+            approvedTable.clear();
+            approvedTable.rows.add($(data)).draw();
+        });
+    }
+
+    function reloadTboTable() {
+        $.get("pages/ajax/refresh_tbo_table.php", function (data) {
+            tboTable.clear();
+            tboTable.rows.add($(data)).draw();
+
+            // Re-bind tombol setelah data baru dimuat
+            bindApproveRejectButtons();
+        });
+    }
+
+    function bindApproveRejectButtons() {
+        $('.approve-btn').off().on('click', function () {
+            const code = $(this).data('code');
+            submitApproval(code, 'Approved');
+        });
+
+        $('.reject-btn').off().on('click', function () {
+            const code = $(this).data('code');
+            submitApproval(code, 'Rejected');
+        });
+    }
+
+    function refreshTBOCount() {
+        $.ajax({
+            url: 'pages/ajax/get_total_tbo.php',
+            method: 'GET',
+            success: function(data) {
+                $('#notifTBO').text(data);
+            }
+        });
+    }
+
+    // Bind tombol awal saat halaman pertama kali diload
+    bindApproveRejectButtons();
+    refreshTBOCount();
+});
+</script>
