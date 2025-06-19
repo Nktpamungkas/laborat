@@ -76,10 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                         $selected = ($status === $selectedStatus) ? 'selected' : '';
                         $html .= "<option value='$status' $selected>$status</option>";
                     }
+
+        $btnText = $existing ? 'Perbarui' : 'Simpan';
+
         $html .= "</select>
             </td>
             <td>
-                <button class='btn btn-sm btn-primary save-status-btn' data-order='$project' data-po='$po'>Simpan</button>
+                <button class='btn btn-sm btn-primary save-status-btn' data-order='$project' data-po='$po'>$btnText</button>
             </td>
         </tr>";
     }
