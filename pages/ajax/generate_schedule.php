@@ -100,6 +100,24 @@ if (isset($_POST['schedules'])) {
                                 $stmtMesin->close();
                             }
 
+                            // ✅ Ambil mesin yang sedang terjadwal/berproses agar bisa di-exclude
+                            $excludedMachines = [];
+                            $stmtExclude = $con->prepare("
+                                SELECT DISTINCT no_machine 
+                                FROM tbl_preliminary_schedule 
+                                WHERE status IN ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing')
+                            ");
+                            $stmtExclude->execute();
+                            $resultExclude = $stmtExclude->get_result();
+
+                            while ($row = $resultExclude->fetch_assoc()) {
+                                $excludedMachines[] = $row['no_machine'];
+                            }
+                            $stmtExclude->close();
+
+                            // ✅ Filter final mesin: hanya mesin yang tidak ada di $excludedMachines
+                            $machines = array_values(array_diff($machines, $excludedMachines));
+
                             // Temp Group
                             // $groupTemp = [];
                             // $stmtTemp = $con->prepare("SELECT product_name FROM master_suhu WHERE `group` = ?");

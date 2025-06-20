@@ -400,6 +400,51 @@
                 });
             });
         });
+
+        // $('#schedule_table').on('change', 'select', function () {
+        //     const allSelects = $('#schedule_table select');
+        //     const selectedValues = [];
+
+        //     // Ambil semua mesin yang sudah dipilih
+        //     allSelects.each(function () {
+        //         const val = $(this).val();
+        //         if (val) {
+        //             selectedValues.push(val);
+        //         }
+        //     });
+
+        //     // Ambil mesin yang sedang digunakan dari DB
+        //     $.get('pages/ajax/get_busy_machines.php', function (busyMachines) {
+        //         console.log(busyMachines);
+                
+        //         // Gabungkan value yang dipilih user + yang sedang digunakan di DB
+        //         const allBlockedMachines = selectedValues.concat(busyMachines);
+
+        //         allSelects.each(function () {
+        //             const currentSelect = $(this);
+        //             const currentValue = currentSelect.val();
+
+        //             currentSelect.find('option').each(function () {
+        //                 const option = $(this);
+
+        //                 if (option.val() === '') {
+        //                     option.show(); // selalu tampilkan opsi default
+        //                     return;
+        //                 }
+
+        //                 option.show();
+
+        //                 if (
+        //                     allBlockedMachines.includes(option.val()) &&
+        //                     option.val() !== currentValue
+        //                 ) {
+        //                     option.hide();
+        //                 }
+        //             });
+        //         });
+        //     }, 'json');
+        // });
+
     });
 </script>
 
