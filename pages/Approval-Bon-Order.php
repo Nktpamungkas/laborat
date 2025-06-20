@@ -62,7 +62,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                                     <th>Customer</th>
                                     <th>Nomer Bon Order</th>
                                     <th>Tgl Approved RMP</th>
-                                    <th>Approve / Reject</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
