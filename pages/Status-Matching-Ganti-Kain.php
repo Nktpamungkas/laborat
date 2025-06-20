@@ -81,7 +81,7 @@
         <?php if($_POST['awal']!="") { ?><b>Periode: <?php echo $_POST['awal']." to ".$_POST['akhir']; ?></b>
 		<?php } ?>
       <div class="box-body">
-      <table class="table table-bordered table-hover table-striped nowrap" id="example3" style="width:100%">
+      <table class="table table-bordered table-hover table-striped nowrap" id="tableSMGK" style="width:100%">
         <thead class="bg-blue">
           <tr>
             <th><div align="center">No</div></th>
@@ -346,6 +346,77 @@
                 alert('Gagal menyimpan: ' + xhr.responseText);
                 }
             });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#tableSMGK').DataTable({
+            scrollX: true,
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: ':visible',
+                          format: {
+                            body: function (data, row, column, node) {
+                                if ($(node).find('select').length > 0) {
+                                    const selected = $(node).find('select option:selected').text().trim();
+
+                                    // Kosongkan jika masih default (misal '-- Pilih --')
+                                    if (selected === '-- Pilih PIC --' || selected === '-- Pilih Status --') {
+                                        return '';
+                                    }
+
+                                    return selected;
+                                }
+
+                                if ($(node).find('button').length > 0) {
+                                    return '';
+                                }
+
+                                return $(node).text().trim();
+                            }
+                        }
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    orientation: 'landscape',
+                    pageSize: 'A3',
+                    footer: true,
+                    exportOptions: {
+                        columns: ':visible',
+                        format: {
+                          body: function (data, row, column, node) {
+                              if ($(node).find('select').length > 0) {
+                                  const selected = $(node).find('select option:selected').text().trim();
+
+                                  // Kosongkan jika masih default (misal '-- Pilih --')
+                                  if (selected === '-- Pilih PIC --' || selected === '-- Pilih Status --') {
+                                      return '';
+                                  }
+
+                                  return selected;
+                              }
+
+                              if ($(node).find('button').length > 0) {
+                                  return '';
+                              }
+
+                              return $(node).text().trim();
+                          }
+                      }
+                    },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 4; // <= kecilkan ukuran font
+                        doc.styles.tableHeader.fontSize = 3; // <= header tetap bisa dibaca
+                        doc.pageMargins = [3, 3, 3, 3]; // <= kecilkan margin halaman
+                        // doc.content[1].table.widths = '*'.repeat(doc.content[1].table.body[0].length).split('');
+                    }
+                }
+            ]
         });
     });
 </script>
