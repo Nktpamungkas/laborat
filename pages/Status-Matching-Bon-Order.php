@@ -66,6 +66,7 @@ $stmtTBO = db2_exec($conn1, $sqlTBO, array('cursor' => DB2_SCROLLABLE));
         <div class="box">
             <div class="box-body">
                 <!-- <p><strong>Total Bon Order: <?= $totalRows ?></strong></p> -->
+                <h3 class="box-title">Status Matching Bon order</h3><br>
                 <table id="tboTable" class="display table table-bordered table-striped" style="width:100%">
                     <thead class="bg-primary text-white">
                         <tr>
