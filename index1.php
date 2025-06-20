@@ -470,15 +470,15 @@ $page = strtolower($page);
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") {
                                                     echo "active";
-                                                } ?>"><a href="?p=Approval-Bon-Order"><i class="fa fa-clipboard"></i> <span>Approval Bon Order</span></a>
+                                                } ?>"><a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
                                     </li>
                                     <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order") {
                                                     echo "active";
-                                                } ?>"><a href="?p=Status-Matching-Bon-Order"><i class="fa fa-clipboard"></i> <span>Status Matching Bon Order</span></a>
+                                                } ?>"><a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon Order</span></a>
                                     </li>
                                     <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain") {
                                                     echo "active";
-                                                } ?>"><a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-clipboard"></i> <span>Status Matching Ganti Kain</span></a>
+                                                } ?>"><a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti Kain</span></a>
                                     </li>
                                     <!-- <li class="<?php if ($_GET['p'] == "Rekap-Data") {
                                                     echo "active";
