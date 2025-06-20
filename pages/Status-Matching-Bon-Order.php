@@ -51,6 +51,8 @@ WHERE
 
 if (!empty($codeList)) {
     $sqlTBO .= " AND i.SALESORDERCODE IN ($codeList)";
+} else {
+    $sqlTBO .= " AND 1 = 0";
 }
 
 $sqlTBO .= " GROUP BY i.SALESORDERCODE";
