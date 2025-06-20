@@ -7,7 +7,7 @@ $sql = "SELECT
             tps.no_resep 
         FROM
             tbl_preliminary_schedule tps
-            JOIN master_suhu ms ON tps.CODE = ms.CODE 
+            LEFT JOIN master_suhu ms ON tps.code = ms.code 
             LEFT JOIN tbl_matching ON tps.no_resep = tbl_matching.no_resep
         WHERE
             tps.STATUS = 'ready' 

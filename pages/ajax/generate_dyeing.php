@@ -65,7 +65,7 @@ include '../../koneksi.php';
 // ]]);
 
 $statuses = [
-    // 'scheduled',
+    'scheduled',
     'in_progress_dispensing',
     'in_progress_dyeing',
     // 'in_progress_darkroom',
@@ -77,9 +77,24 @@ $statusList = "'" . implode("','", $statuses) . "'";
 $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
         FROM tbl_preliminary_schedule tps
         LEFT JOIN master_suhu ms ON tps.code = ms.code
+        LEFT JOIN tbl_matching ON tps.no_resep = tbl_matching.no_resep
         WHERE tps.status IN ($statusList)
-        ORDER BY tps.no_machine ASC, tps.id ASC";
-
+        ORDER BY
+            CASE 
+                    WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
+                    WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
+                    WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
+                    ELSE 4
+            END,
+            CASE 
+                    WHEN tps.order_index > 0 THEN 0 
+                    ELSE 1 
+            END, 
+            tps.order_index ASC,
+            ms.suhu DESC, 
+            ms.waktu DESC, 
+            tps.no_resep ASC";
+        // ORDER BY tps.no_machine ASC, tps.id ASC";
 $result = mysqli_query($con, $sql);
 
 $data = [];
