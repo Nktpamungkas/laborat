@@ -241,7 +241,7 @@ $(document).ready(function () {
             tboTable.rows.add($(data)).draw();
 
             // Re-bind tombol setelah data baru dimuat
-            bindApproveRejectButtons();
+            // bindApproveRejectButtons();
         });
     }
 
@@ -267,8 +267,19 @@ $(document).ready(function () {
         });
     }
 
+    // ✅ Gunakan event delegation agar tetap berfungsi setelah redraw (pengganti bindApproveRejectButtons())
+    $('#tboTable tbody').on('click', '.approve-btn', function () {
+        const code = $(this).data('code');
+        submitApproval(code, 'Approved');
+    });
+
+    $('#tboTable tbody').on('click', '.reject-btn', function () {
+        const code = $(this).data('code');
+        submitApproval(code, 'Rejected');
+    });
+
     // Bind tombol awal saat halaman pertama kali diload
-    bindApproveRejectButtons();
+    // bindApproveRejectButtons();
     refreshTBOCount();
 });
 </script>

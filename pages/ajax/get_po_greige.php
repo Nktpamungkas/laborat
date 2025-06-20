@@ -7,26 +7,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 
     $sql = "SELECT DEMAND_KGF, SALESORDERCODE, ORDERLINE
             FROM ITXVIEWPOGREIGENEW
-            WHERE SALESORDERCODE = ? AND ORDERLINE = ? AND DEMAND_KGF IS NOT NULL
+            WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL
 
             UNION
 
             SELECT DEMAND_KGF, SALESORDERCODE, ORDERLINE
             FROM ITXVIEWPOGREIGENEW2
-            WHERE SALESORDERCODE = ? AND ORDERLINE = ? AND DEMAND_KGF IS NOT NULL
+            WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL
 
             UNION
 
             SELECT DEMAND_KGF, SALESORDERCODE, ORDERLINE
             FROM ITXVIEWPOGREIGENEW3
-            WHERE SALESORDERCODE = ? AND ORDERLINE = ? AND DEMAND_KGF IS NOT NULL";
+            WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL";
     $stmt = db2_prepare($conn1, $sql);
     db2_bind_param($stmt, 1, "orderCode", DB2_PARAM_IN);
-    db2_bind_param($stmt, 2, "orderLine", DB2_PARAM_IN);
+    db2_bind_param($stmt, 2, "orderCode", DB2_PARAM_IN);
     db2_bind_param($stmt, 3, "orderCode", DB2_PARAM_IN);
-    db2_bind_param($stmt, 4, "orderLine", DB2_PARAM_IN);
-    db2_bind_param($stmt, 5, "orderCode", DB2_PARAM_IN);
-    db2_bind_param($stmt, 6, "orderLine", DB2_PARAM_IN);
     db2_execute($stmt);
 
     $html = '<table class="table table-sm table-bordered mb-0">';
