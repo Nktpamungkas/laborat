@@ -46,7 +46,11 @@ while ($row = db2_fetch_assoc($resultTBO)) {
 
     echo "<tr>
         <td>$customer</td>
-        <td>$code</td>
+        <td>
+            <a href='#' class='btn btn-primary btn-sm open-detail' data-code='$code' data-toggle='modal' data-target='#detailModal'>
+                $code
+            </a>
+        </td>
         <td>$tgl</td>
         <td>
             <div class='d-flex align-items-center gap-2'>
