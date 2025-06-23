@@ -1833,7 +1833,43 @@
 														AND ORDERLINE = '$_GET[iditem]'");
 				$d_booking_new	= db2_fetch_assoc($q_booking_new);
 			?>
-			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang"><?php if($d_rajut['SUMMARIZEDDESCRIPTION']){ echo $d_rajut['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION']){ echo $d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; } ?><?php if($d_booking_new['SUMMARIZEDDESCRIPTION']){ echo $d_booking_new['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; } ?></textarea>
+			<textarea name="benang" rows="6" class="form-control" id="benang" required placeholder="Benang">
+				<?php 
+					if($d_rajut['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_rajut['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+					} 
+				?>
+				<?php 
+					if($d_booking_new['SUMMARIZEDDESCRIPTION']){ 
+						echo $d_booking_new['SUMMARIZEDDESCRIPTION'].'&#13;&#10;'; 
+					} 
+				?>
+			</textarea>
 		</div>
 	</div>
 	<!-- HIDDEN VALUE -->

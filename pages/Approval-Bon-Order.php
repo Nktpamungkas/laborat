@@ -11,32 +11,22 @@ while ($r = mysqli_fetch_assoc($res)) {
 $codeList = implode(",", $approvedCodes);
 
 // Ambil data siap approve
-$sqlTBO = "WITH APPROVED_RMP AS (
-    SELECT DISTINCT 
-        isa.CODE,
-        isa.APPROVERMP,
-        isa.APPROVEDRMP,
-        isa.TGL_APPROVEDRMP
-    FROM ITXVIEW_SALESORDER_APPROVED isa
-)
-SELECT 
-    i.SALESORDERCODE AS code,
-    i.LEGALNAME1 AS customer,
-    MAX(AR.TGL_APPROVEDRMP) AS tgl_approve_rmp
-FROM 
-    ITXVIEWBONORDER i 
-LEFT JOIN APPROVED_RMP AR ON AR.CODE = i.SALESORDERCODE 
-WHERE 
-    AR.APPROVERMP IS NOT NULL 
-    AND AR.APPROVEDRMP IS NOT NULL
-    AND CAST(i.CREATIONDATETIME_SALESORDER AS DATE) > '2025-06-01'
+$sqlTBO = "SELECT DISTINCT 
+            isa.CODE AS CODE,
+            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
+            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
+        FROM
+            ITXVIEW_SALESORDER_APPROVED isa 
+        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
+        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+        WHERE 
+            isa.APPROVEDRMP IS NOT NULL
+            AND CAST(s.CREATIONDATETIME AS DATE) > '2025-06-01'
 ";
 
 if (!empty($codeList)) {
-    $sqlTBO .= " AND i.SALESORDERCODE NOT IN ($codeList)";
+    $sqlTBO .= " AND isa.CODE NOT IN ($codeList)";
 }
-
-$sqlTBO .= " GROUP BY i.SALESORDERCODE, i.LEGALNAME1";
 
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
@@ -45,6 +35,12 @@ $sqlApproved = "SELECT * FROM approval_bon_order ORDER BY id DESC";
 $resultApproved = mysqli_query($con, $sqlApproved);
 ?>
 
+<style>
+    .modal-full {
+        width: 98%;
+        max-width: 98%;
+    }
+</style>
 
 <div class="row">
     <div class="col-xs-12">
@@ -126,7 +122,11 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                                 <tr>
                                     <td style="display: none;"><?= $row['id'] ?></td>
                                     <td><?= $row['customer'] ?></td>
-                                    <td><?= $row['code'] ?></td>
+                                    <td>
+                                        <a href="#" class="btn btn-primary btn-sm open-detail" data-code="<?= $row['code'] ?>" data-toggle="modal" data-target="#detailModal">
+                                            <?= $row['code'] ?>
+                                        </a>
+                                    </td>
                                     <td><?= $row['tgl_approve_rmp'] ?></td>
                                     <td><?= $row['tgl_approve_lab'] ?></td>
                                     <td><?= $row['tgl_rejected_lab'] ?></td>
@@ -142,144 +142,182 @@ $resultApproved = mysqli_query($con, $sqlApproved);
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div id="detailModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-full">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail Order</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content">
+            <p>Loading data...</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-$(document).ready(function () {
-    // Inisialisasi kedua tabel dengan DataTables
-    const tboTable = $('#tboTable').DataTable();
-    const approvedTable = $('#approvedTable').DataTable({
-                                "order": [[0, "desc"]],
-                                "columnDefs": [
-                                    { "targets": 0, "visible": false }
-                                ]
-                            });
+    $(document).on('click', '.open-detail', function() {
+        var code = $(this).data('code');
 
-    function getPIC(code) {
-        return $("select.pic-select[data-code='" + code + "']").val();
-    }
+        $('#modal-content').html('<p>Loading data...</p>');
 
-    function getCustomer(code) {
-        return $("tr:has(button[data-code='" + code + "']) td:first").text();
-    }
+        $.ajax({
+        url: 'pages/ajax/Approved_get_order_detail.php',
+        type: 'POST',
+        data: { code: code },
+        success: function(response) {
+            $('#modal-content').html(response);
+        },
+        error: function() {
+            $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+        });
+    });
 
-    function getTglApproveRMP(code) {
-        return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
-    }
+    $(document).ready(function () {
+        // Inisialisasi kedua tabel dengan DataTables
+        const tboTable = $('#tboTable').DataTable();
+        const approvedTable = $('#approvedTable').DataTable({
+                                    "order": [[0, "desc"]],
+                                    "columnDefs": [
+                                        { "targets": 0, "visible": false }
+                                    ]
+                                });
 
-    function submitApproval(code, action) {
-        const pic = getPIC(code);
-        const customer = getCustomer(code);
-        const tgl_approve_rmp = getTglApproveRMP(code);
-
-        if (!pic) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'PIC belum dipilih',
-                text: 'Silakan pilih PIC Lab terlebih dahulu.'
-            });
-            return;
+        function getPIC(code) {
+            return $("select.pic-select[data-code='" + code + "']").val();
         }
 
-        Swal.fire({
-            title: `${action} Bon Order?`,
-            text: `Kode: ${code} | PIC: ${pic}`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: action,
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        function getCustomer(code) {
+            return $("tr:has(button[data-code='" + code + "']) td:first").text();
+        }
+
+        function getTglApproveRMP(code) {
+            return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
+        }
+
+        function submitApproval(code, action) {
+            const pic = getPIC(code);
+            const customer = getCustomer(code);
+            const tgl_approve_rmp = getTglApproveRMP(code);
+
+            if (!pic) {
                 Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Mohon tunggu sebentar.',
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                    allowOutsideClick: false
+                    icon: 'warning',
+                    title: 'PIC belum dipilih',
+                    text: 'Silakan pilih PIC Lab terlebih dahulu.'
                 });
-
-                $.post("pages/ajax/approve_bon_order_lab.php", {
-                    code: code,
-                    customer: customer,
-                    tgl_approve_rmp: tgl_approve_rmp,
-                    pic_lab: pic,
-                    status: action
-                }, function (response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response
-                    });
-
-                    // Reload kedua tabel
-                    reloadApprovedTable();
-                    reloadTboTable();
-                    refreshTBOCount();
-                }).fail(function () {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menyimpan data.'
-                    });
-                });
+                return;
             }
-        });
-    }
 
-    function reloadApprovedTable() {
-        $.get("pages/ajax/refresh_approved_table.php", function (data) {
-            approvedTable.clear();
-            approvedTable.rows.add($(data)).draw();
-        });
-    }
+            Swal.fire({
+                title: `${action} Bon Order?`,
+                text: `Kode: ${code} | PIC: ${pic}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: action,
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar.',
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                        allowOutsideClick: false
+                    });
 
-    function reloadTboTable() {
-        $.get("pages/ajax/refresh_tbo_table.php", function (data) {
-            tboTable.clear();
-            tboTable.rows.add($(data)).draw();
+                    $.post("pages/ajax/approve_bon_order_lab.php", {
+                        code: code,
+                        customer: customer,
+                        tgl_approve_rmp: tgl_approve_rmp,
+                        pic_lab: pic,
+                        status: action
+                    }, function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response
+                        });
 
-            // Re-bind tombol setelah data baru dimuat
-            // bindApproveRejectButtons();
-        });
-    }
+                        // Reload kedua tabel
+                        reloadApprovedTable();
+                        reloadTboTable();
+                        refreshTBOCount();
+                    }).fail(function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan saat menyimpan data.'
+                        });
+                    });
+                }
+            });
+        }
 
-    function bindApproveRejectButtons() {
-        $('.approve-btn').off().on('click', function () {
+        function reloadApprovedTable() {
+            $.get("pages/ajax/refresh_approved_table.php", function (data) {
+                approvedTable.clear();
+                approvedTable.rows.add($(data)).draw();
+            });
+        }
+
+        function reloadTboTable() {
+            $.get("pages/ajax/refresh_tbo_table.php", function (data) {
+                tboTable.clear();
+                tboTable.rows.add($(data)).draw();
+
+                // Re-bind tombol setelah data baru dimuat
+                // bindApproveRejectButtons();
+            });
+        }
+
+        function bindApproveRejectButtons() {
+            $('.approve-btn').off().on('click', function () {
+                const code = $(this).data('code');
+                submitApproval(code, 'Approved');
+            });
+
+            $('.reject-btn').off().on('click', function () {
+                const code = $(this).data('code');
+                submitApproval(code, 'Rejected');
+            });
+        }
+
+        function refreshTBOCount() {
+            $.ajax({
+                url: 'pages/ajax/get_total_tbo.php',
+                method: 'GET',
+                success: function(data) {
+                    $('#notifTBO').text(data);
+                }
+            });
+        }
+
+        // ✅ Gunakan event delegation agar tetap berfungsi setelah redraw (pengganti bindApproveRejectButtons())
+        $('#tboTable tbody').on('click', '.approve-btn', function () {
             const code = $(this).data('code');
             submitApproval(code, 'Approved');
         });
 
-        $('.reject-btn').off().on('click', function () {
+        $('#tboTable tbody').on('click', '.reject-btn', function () {
             const code = $(this).data('code');
             submitApproval(code, 'Rejected');
         });
-    }
 
-    function refreshTBOCount() {
-        $.ajax({
-            url: 'pages/ajax/get_total_tbo.php',
-            method: 'GET',
-            success: function(data) {
-                $('#notifTBO').text(data);
-            }
-        });
-    }
-
-    // ✅ Gunakan event delegation agar tetap berfungsi setelah redraw (pengganti bindApproveRejectButtons())
-    $('#tboTable tbody').on('click', '.approve-btn', function () {
-        const code = $(this).data('code');
-        submitApproval(code, 'Approved');
+        // Bind tombol awal saat halaman pertama kali diload
+        // bindApproveRejectButtons();
+        refreshTBOCount();
     });
-
-    $('#tboTable tbody').on('click', '.reject-btn', function () {
-        const code = $(this).data('code');
-        submitApproval(code, 'Rejected');
-    });
-
-    // Bind tombol awal saat halaman pertama kali diload
-    // bindApproveRejectButtons();
-    refreshTBOCount();
-});
 </script>
