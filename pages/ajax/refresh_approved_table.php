@@ -9,12 +9,16 @@ while ($row = mysqli_fetch_assoc($resultApproved)) {
     echo "<tr>
         <td style='display: none;'>{$row['id']}</td>
         <td>{$row['customer']}</td>
-        <td>{$row['code']}</td>
+        <td>
+            <a href=\"#\" class=\"btn btn-primary btn-sm open-detail\" data-code=\"" . htmlspecialchars($row['code']) . "\" data-toggle=\"modal\" data-target=\"#detailModal\">" .
+                htmlspecialchars($row['code']) .
+            "</a>
+        </td>
         <td>{$row['tgl_approve_rmp']}</td>
         <td>{$row['tgl_approve_lab']}</td>
         <td>{$row['tgl_rejected_lab']}</td>
         <td>{$row['pic_lab']}</td>
-        <td><strong class='$statusClass'>{$row['status']}</strong></td>
+        <td><strong class=\"$statusClass\">{$row['status']}</strong></td>
     </tr>";
 }
 ?>

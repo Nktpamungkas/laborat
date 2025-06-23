@@ -480,10 +480,10 @@ $page = strtolower($page);
                                                     echo "active";
                                                 } ?>"><a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti Kain</span></a>
                                     </li>
-                                    <!-- <li class="<?php if ($_GET['p'] == "Rekap-Data") {
+                                    <li class="<?php if ($_GET['p'] == "Rekap-Data") {
                                                     echo "active";
                                                 } ?>"><a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
-                                    </li> -->
+                                    </li>
     
                                 </ul>
                             </li>
@@ -509,7 +509,7 @@ $page = strtolower($page);
 
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-sign-in"></i>
-                                    <span class="label label-success" id="notifTBO"><?php echo $totalTBO ?></span>
+                                    <span class="label label-success" id="notifTBO"></span>
                                 </a>
 
 

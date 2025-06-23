@@ -176,7 +176,20 @@ $resultApproved = mysqli_query($con, $sqlApproved);
         type: 'POST',
         data: { code: code },
         success: function(response) {
+            console.log('Response received');
             $('#modal-content').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailApprovedTable')) {
+                console.log('Destroying existing DataTable');
+                $('#detailApprovedTable').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailApprovedTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
         },
         error: function() {
             $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
