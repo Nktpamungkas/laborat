@@ -921,6 +921,18 @@ $page = strtolower($page);
 </html>
 <script>
     $(document).ready(function() {
+        function refreshTBOCount() {
+            $.ajax({
+                url: 'pages/ajax/get_total_tbo.php',
+                method: 'GET',
+                success: function(data) {
+                    $('#notifTBO').text(data);
+                    $('#notifTBOText').text(data);
+                }
+            });
+        }
+        refreshTBOCount();
+
         $("#logout").click(function() {
             Swal.fire({
                 title: 'Are you sure?',
