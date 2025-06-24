@@ -50,13 +50,55 @@
       </div>
 	  <div class="form-group">
         <div class="col-sm-3">
-            <select class="form-control" name="dept" readonly>
-                <option value="LAB" selected>LAB</option>
-                </select>
-            <input type="hidden" name="dept" value="LAB">
-        </div>
+		<?php if($_SESSION['dept10']=="RMP" or $_SESSION['dept10']=="PPC" or $_SESSION['dept10']=="DIT" or $_SESSION['dept10']=="MNF" or strtolower($_SESSION['nama10'])=="eto" or strtolower($_SESSION['nama10'])=="angela"){ ?>
+            <select class="form-control select2" name="dept">
+							<option value="" disabled selected>Pilih Departemen</option>
+							<option value="CSR" <?php if ($Dept == "CSR") {
+													echo "SELECTED";
+												} ?>>CSR</option>
+							<option value="QCF" <?php if ($Dept == "QCF") {
+													echo "SELECTED";
+												} ?>>QCF</option>
+							<option value="PPC" <?php if ($Dept == "PPC") {
+													echo "SELECTED";
+												} ?>>PPC</option>
+							<option value="FIN" <?php if ($Dept == "FIN") {
+													echo "SELECTED";
+												} ?>>FIN</option>
+							<option value="BRS" <?php if ($Dept == "BRS") {
+													echo "SELECTED";
+												} ?>>BRS</option>
+							<option value="LAB" <?php if ($Dept == "LAB") {
+													echo "SELECTED";
+												} ?>>LAB</option>	
+							<option value="DYE" <?php if ($Dept == "DYE") {
+													echo "SELECTED";
+												} ?>>DYE</option>
+							<option value="KNT" <?php if ($Dept == "KNT") {
+													echo "SELECTED";
+												} ?>>KNT</option>
+							<option value="GKG" <?php if ($Dept == "GKG") {
+													echo "SELECTED";
+												} ?>>GKG</option>
+							<option value="TAS" <?php if ($Dept == "TAS") {
+													echo "SELECTED";
+												} ?>>TAS</option>
+							<option value="RMP" <?php if ($Dept == "RMP") {
+													echo "SELECTED";
+												} ?>>RMP</option>
+						</select>	
+		<?php } else{ ?>
+			<select class="form-control select2" name="dept">
+<!--							<option value="" disabled selected>Pilih Departemen</option>-->
+							<option value="<?php echo $_SESSION['dept10'];?>" <?php if ($Dept == $_SESSION['dept10']) {
+													echo "SELECTED";
+												} ?>><?php echo $_SESSION['dept10'];?></option>
+							
+						</select>
+		<?php } ?>
+          </div>
         <!-- /.input group -->
-      </div>	
+      </div>		
 	  <div class="form-group">
         <div class="col-sm-3">
             <input name="masalah" type="text" class="form-control pull-right" id="masalah" placeholder="Masalah" value="<?php echo $Masalah;  ?>" autocomplete="off"/>

@@ -507,12 +507,6 @@ $page = strtolower($page);
                                     <span class="label label-success"><?php echo $count_login ?></span>
                                 </a> -->
 
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-sign-in"></i>
-                                    <span class="label label-success" id="notifTBO"></span>
-                                </a>
-
-
                                 <!-- <ul class="dropdown-menu">
                                     <li class="header"> <?php echo $count_login ?> Orang Telah Melakukan login hari ini </li>
                                     <li>
@@ -538,6 +532,19 @@ $page = strtolower($page);
                                     </li>
                                     <li class="footer"><a href="#">ALL LOGIN HERE</a></li>
                                 </ul> -->
+
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-sign-in"></i>
+                                    <span class="label label-success" id="notifTBO"></span>
+                                </a>
+
+                                <ul class="dropdown-menu">
+                                    <li class="header">
+                                        <a href="/laborat/index1.php?p=Approval-Bon-Order" style="display: block; color: inherit; text-decoration: none;">
+                                            <strong><span id="notifTBOText"></span></strong> bon order siap approved
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <!-- /.messages-menu -->
                             <!-- User Account Menu -->

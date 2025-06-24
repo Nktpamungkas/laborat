@@ -12,6 +12,7 @@ $res = mysqli_query($con, "
                 SELECT 1 FROM approval_bon_order abo2 
                 WHERE abo2.code = abo.code AND abo2.id > abo.id
             )
+            AND abo.status = 'Approved'
         ");
 
 while ($r = mysqli_fetch_assoc($res)) {
@@ -156,6 +157,9 @@ $(document).ready(function () {
             return;
         }
 
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+
         $.ajax({
             url: 'pages/ajax/save_status_matching_bon_order.php',
             type: 'POST',
@@ -167,19 +171,26 @@ $(document).ready(function () {
             },
             success: function(response) {
                 console.log('Server Response:', response);
-                if (response === 'saved') {
-                    toastr.success('Data berhasil disimpan.');
-                } else if (response === 'updated') {
-                    toastr.success('Data berhasil diperbarui.');
+                if (response === 'saved' || response === 'updated') {
+                    toastr.success(response === 'saved' ? 'Data berhasil disimpan.' : 'Data berhasil diperbarui.');
+                    btn.removeClass('btn-primary').addClass('btn-success');
+
+                    setTimeout(() => {
+                        btn.text('Perbarui').prop('disabled', false);
+                        btn.removeClass('btn-success').addClass('btn-primary');
+                    }, 1000);
                 } else {
                     toastr.error('Gagal menyimpan data. Respons: ' + response);
+                    btn.html('Simpan').prop('disabled', false);
                 }
             },
             error: function(xhr, status, error) {
                 console.log('AJAX Error:', status, error);
                 toastr.error('Terjadi kesalahan saat mengirim data.');
+                btn.html('Simpan').prop('disabled', false);
             }
         });
+
     });
 });
 </script>

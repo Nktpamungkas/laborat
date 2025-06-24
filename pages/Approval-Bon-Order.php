@@ -319,6 +319,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                 method: 'GET',
                 success: function(data) {
                     $('#notifTBO').text(data);
+                    $('#notifTBOText').text(data);
                 }
             });
         }
