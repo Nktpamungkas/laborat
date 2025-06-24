@@ -1,9 +1,9 @@
 <?php
+// koneksi ke DB
 include "../../koneksi.php";
 
 $code = $_POST['code'];
 
-// Query utama
 $query = "SELECT
         i.SALESORDERCODE,
         i.ORDERLINE,
@@ -16,19 +16,40 @@ $query = "SELECT
         i3.LEBAR,
         COALESCE(
             TRIM(pg.PO_GREIGE) ||
-            CASE WHEN i.ADDITIONALDATA IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA2 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA2) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA3 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA3) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA4 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA4) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA5 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA5) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA6 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA6) ELSE '' END,
-            
-            TRIM(i.ADDITIONALDATA) ||
-            CASE WHEN i.ADDITIONALDATA2 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA2) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA3 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA3) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA4 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA4) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA5 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA5) ELSE '' END ||
-            CASE WHEN i.ADDITIONALDATA6 IS NOT NULL THEN ', ' || TRIM(i.ADDITIONALDATA6) ELSE '' END
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), ''),
+
+            -- fallback kalau pg.PO_GREIGE null
+            COALESCE(TRIM(i.ADDITIONALDATA), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
+            COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
+            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '')
         ) AS PO_GREIGE,
         CASE a.VALUESTRING
             WHEN '1' THEN 'L/D'
@@ -82,83 +103,169 @@ $query = "SELECT
     WHERE i.SALESORDERCODE = '$code'";
 
 $stmt = db2_exec($conn1, $query);
-
-if (!$stmt) {
-    echo "<p class='text-danger'>Query gagal dijalankan.</p>";
-    exit;
-}
-
-$data = [];
-while ($row = db2_fetch_assoc($stmt)) {
-    $data[] = $row;
-}
-
-// Fungsi untuk prioritas baris PO_GREIGE berdasar NOTETAS tidak null
-function sortByNotetas($a, $b) {
-    $notaA = trim($a['NOTETAS'] ?? '');
-    $notaB = trim($b['NOTETAS'] ?? '');
-
-    if ($notaA === '' && $notaB !== '') {
-        return 1;
-    }
-    if ($notaA !== '' && $notaB === '') {
-        return -1;
-    }
-    return 0;
-}
-
-// Urutkan data berdasar SALESORDERCODE + ORDERLINE, lalu prioritaskan NOTETAS tidak null
-usort($data, 'sortByNotetas');
-
-// Kita ingin ambil satu record unik per SALESORDERCODE + ORDERLINE
-$finalData = [];
-foreach ($data as $row) {
-    $key = $row['SALESORDERCODE'] . '_' . $row['ORDERLINE'];
-    if (!isset($finalData[$key])) {
-        $finalData[$key] = $row;
-    }
-}
-
-// Tampilkan tabel
-echo "<table class='table table-bordered table-striped' id='detailApprovedTable'>";
-echo "<thead>
-        <tr>
-            <th>No</th>
-            <th>No PO</th>
-            <th>Nama Buyer</th>
-            <th>Jenis Kain</th>
-            <th>Itemcode</th>
-            <th>Notetas</th>
-            <th>Gramasi</th>
-            <th>Lebar</th>
-            <th>Color Standard</th>
-            <th>Warna</th>
-            <th>Kode Warna</th>
-            <th>Color Remarks</th>
-            <th>Benang</th>
-            <th>Po Greige</th>
-        </tr>
-      </thead>";
-echo "<tbody>";
 $no = 1;
-foreach ($finalData as $row) {
-    echo "<tr>";
-    echo "<td>" . $no++ . "</td>";
-    echo "<td>" . htmlspecialchars($row['NO_PO'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['LEGALNAME1'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['JENIS_KAIN'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['ITEMCODE'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['NOTETAS'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars(number_format($row['GRAMASI'] ?? 0, 2)) . "</td>";
-    echo "<td>" . htmlspecialchars(number_format($row['LEBAR'] ?? 0, 2)) . "</td>";
-    echo "<td>" . htmlspecialchars($row['COLOR_STANDARD'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['WARNA'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['KODE_WARNA'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['COLORREMARKS'] ?? '') . "</td>";
-    // Kolom Benang bisa kamu tambahkan sesuai kebutuhan, sementara kosong
-    echo "<td></td>";
-    echo "<td>" . htmlspecialchars($row['PO_GREIGE'] ?? '') . "</td>";
+if ($stmt) {
+    echo "<table class='table table-bordered table-striped' id='detailApprovedTable'>";
+    echo "<thead>
+            <tr>
+                <th>No</th>
+                <th>No PO</th>
+                <th>Nama Buyer</th>
+                <th>Jenis Kain</th>
+                <th>Itemcode</th>
+                <th>Notetas</th>
+                <th>Gramasi</th>
+                <th>Lebar</th>
+                <th>Color Standard</th>
+                <th>Warna</th>
+                <th>Kode Warna</th>
+                <th>Color Remarks</th>
+                <th>Benang</th>
+                <th>Po Greige</th>
+            </tr>
+          </thead>";
+    echo "<tbody>";
+
+    while ($row = db2_fetch_assoc($stmt)) {
+        $q_itxviewkk	= db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i WHERE SALESORDERCODE = '$row[SALESORDERCODE]' AND ORDERLINE = '$row[ORDERLINE]'");
+        $d_itxviewkk	= db2_fetch_assoc($q_itxviewkk);
+
+        if($d_itxviewkk['ITEMTYPEAFICODE'] == 'KFF'){
+            $subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
+        }elseif ($d_itxviewkk['ITEMTYPEAFICODE'] == 'FKF') {
+            $subcode04 = $d_itxviewkk['SUBCODE04'];
+        }else{
+            $subcode04 = $d_itxviewkk['SUBCODE04'];
+        }
+        
+        $q_rajut	= db2_exec($conn1, "SELECT
+                                            *
+                                        FROM
+                                            ITXVIEW_RAJUT
+                                        WHERE
+                                            SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+                                            AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+                                            AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+                                            AND SUBCODE04 = '$subcode04'
+                                            AND ORIGDLVSALORDLINESALORDERCODE = '$row[SALESORDERCODE]'
+                                            AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+        $d_rajut	= db2_fetch_assoc($q_rajut);
+        $q_booking_blm_ready_1	= db2_exec($conn1, "SELECT
+                                                        *
+                                                    FROM
+                                                        ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                    WHERE
+                                                        SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+                                                        AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+                                                        AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+                                                        AND SUBCODE04 = '$subcode04'
+                                                        AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA]'-- NGAMBIL DARI ADDITIONAL DATA 
+                                                        AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+        $d_booking_blm_ready_1	= db2_fetch_assoc($q_booking_blm_ready_1);
+
+        $q_booking_blm_ready_2	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA2]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_2	= db2_fetch_assoc($q_booking_blm_ready_2);
+				
+				$q_booking_blm_ready_3	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA3]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_3	= db2_fetch_assoc($q_booking_blm_ready_3);
+				
+				$q_booking_blm_ready_4	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA4]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_4	= db2_fetch_assoc($q_booking_blm_ready_4);
+				
+				$q_booking_blm_ready_5	= db2_exec($conn1, "SELECT
+																*
+															FROM
+																ITXVIEW_BOOKING_BLM_READY ibbr 
+															WHERE
+																SUBCODE01 = '$d_itxviewkk[SUBCODE01]'
+																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
+																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
+																AND SUBCODE04 = '$subcode04'
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA4]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+				$d_booking_blm_ready_5	= db2_fetch_assoc($q_booking_blm_ready_5);
+
+				$q_booking_new	= db2_exec($conn1, "SELECT
+														*
+													FROM
+														ITXVIEW_BOOKING_NEW ibn 
+													WHERE
+														SALESORDERCODE = '$row[SALESORDERCODE]'
+														AND ORDERLINE = '$row[ORDERLINE]'");
+				$d_booking_new	= db2_fetch_assoc($q_booking_new);
+        echo "<tr>";
+        echo "<td>" . $no++ . "</td>";
+        echo "<td>" . htmlspecialchars($row['NO_PO'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['LEGALNAME1'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['JENIS_KAIN'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['ITEMCODE'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['NOTETAS'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars(number_format($row['GRAMASI'] ?? 0, 2)) . "</td>";
+        echo "<td>" . htmlspecialchars(number_format($row['LEBAR'] ?? 0, 2)) . "</td>";
+        echo "<td>" . htmlspecialchars($row['COLOR_STANDARD'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['WARNA'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['KODE_WARNA'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['COLORREMARKS'] ?? '') . "</td>";
+        echo "<td>";
+            if (!empty($d_rajut['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_rajut['SUMMARIZEDDESCRIPTION']);
+            }
+            if(!empty($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'])){ 
+                echo $d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+            if(!empty($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'])){ 
+                echo $d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+            if(!empty($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'])){ 
+                echo $d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+            if(!empty($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'])){ 
+                echo $d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+            if(!empty($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'])){ 
+                echo $d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+            if(!empty($q_booking_new['SUMMARIZEDDESCRIPTION'])){ 
+                echo $q_booking_new['SUMMARIZEDDESCRIPTION'].' - '.$q_booking_new['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
+            } 
+        echo "</td>";
+        echo "<td>" . htmlspecialchars($row['PO_GREIGE'] ?? '') . "</td>";
     echo "</tr>";
+    }
+
+    echo "</tbody></table>";
+} else {
+    echo "<p class='text-danger'>Data tidak ditemukan.</p>";
 }
-echo "</tbody></table>";
+
 ?>

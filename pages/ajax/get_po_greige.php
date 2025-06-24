@@ -27,14 +27,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     }
 
     // Step 2: Ambil ADDITIONALDATA1–6 dari ITXVIEWBONORDER
-    $sqlAdd = "SELECT ADDITIONALDATA, ADDITIONALDATA2, ADDITIONALDATA3, ADDITIONALDATA4, ADDITIONALDATA5, ADDITIONALDATA6 
-               FROM ITXVIEWBONORDER 
-               WHERE SALESORDERCODE = ?";
+    $sqlAdd = "SELECT 
+                ADDITIONALDATA, ADDITIONALDATA2, ADDITIONALDATA3, ADDITIONALDATA4, ADDITIONALDATA5, ADDITIONALDATA6,
+                PROD_ORDER_AKJ, PROD_ORDER_AKJ2, PROD_ORDER_AKJ3, PROD_ORDER_AKJ4, PROD_ORDER_AKJ5,
+                SALESORDER_AKJ, SALESORDER_AKJ2, SALESORDER_AKJ3, SALESORDER_AKJ4, SALESORDER_AKJ5
+                FROM ITXVIEWBONORDER 
+                WHERE SALESORDERCODE = ?";
+                
     $stmtAdd = db2_prepare($conn1, $sqlAdd);
     db2_bind_param($stmtAdd, 1, "orderCode", DB2_PARAM_IN);
     db2_execute($stmtAdd);
     if ($addRow = db2_fetch_assoc($stmtAdd)) {
-        foreach (['ADDITIONALDATA', 'ADDITIONALDATA2', 'ADDITIONALDATA3', 'ADDITIONALDATA4', 'ADDITIONALDATA5', 'ADDITIONALDATA6'] as $col) {
+        $extraColumns = [
+            'ADDITIONALDATA', 'ADDITIONALDATA2', 'ADDITIONALDATA3', 'ADDITIONALDATA4', 'ADDITIONALDATA5', 'ADDITIONALDATA6',
+            'PROD_ORDER_AKJ', 'PROD_ORDER_AKJ2', 'PROD_ORDER_AKJ3', 'PROD_ORDER_AKJ4', 'PROD_ORDER_AKJ5',
+            'SALESORDER_AKJ', 'SALESORDER_AKJ2', 'SALESORDER_AKJ3', 'SALESORDER_AKJ4', 'SALESORDER_AKJ5'
+        ];
+
+        foreach ($extraColumns as $col) {
             if (!empty($addRow[$col])) {
                 $poList[] = trim($addRow[$col]);
             }
