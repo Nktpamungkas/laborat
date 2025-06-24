@@ -259,7 +259,8 @@ if ($stmt) {
                 echo $q_booking_new['SUMMARIZEDDESCRIPTION'].' - '.$q_booking_new['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
             } 
         echo "</td>";
-        echo "<td>" . htmlspecialchars($row['PO_GREIGE'] ?? '') . "</td>";
+        $po_greige = isset($row['PO_GREIGE']) ? ltrim($row['PO_GREIGE'], ', ') : '';
+        echo "<td>" . htmlspecialchars($po_greige) . "</td>";
     echo "</tr>";
     }
 
