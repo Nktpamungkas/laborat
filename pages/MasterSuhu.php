@@ -327,41 +327,75 @@ include "koneksi.php";
         }
 
         function deleteData(id) {
-            Swal.fire({
-                title: 'Yakin ingin menghapus?',
-                text: "Data yang dihapus tidak bisa dikembalikan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: 'pages/ajax/Delete_MasterSuhu.php',
-                        method: 'POST',
-                        data: { id: id },
-                        dataType: 'json',
-                        success: function(response) {
-                            Swal.fire({
-                                icon: response.status,
-                                title: response.status === 'success' ? 'Berhasil' : 'Gagal',
-                                text: response.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+            $.ajax({
+                url: 'pages/ajax/Check_CodeUsed.php',
+                method: 'POST',
+                data: { id: id },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message || 'Terjadi kesalahan saat memeriksa data.'
+                        });
+                        return;
+                    }
 
-                            if (response.status === 'success') {
-                                $('#masterSuhuTable').DataTable().ajax.reload();
-                            }
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Kesalahan Server',
-                                text: 'Gagal menghapus data.',
-                                footer: `<pre>${xhr.responseText}</pre>`
+                    if (response.used) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tidak Bisa Dihapus',
+                            text: 'Data ini sudah digunakan dan tidak bisa dihapus.'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Yakin ingin menghapus?',
+                        text: "Data yang dihapus tidak bisa dikembalikan!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: 'pages/ajax/Delete_MasterSuhu.php',
+                                method: 'POST',
+                                data: { id: id },
+                                dataType: 'json',
+                                success: function(response) {
+                                    Swal.fire({
+                                        icon: response.status,
+                                        title: response.status === 'success' ? 'Berhasil' : 'Gagal',
+                                        text: response.message,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+
+                                    if (response.status === 'success') {
+                                        $('#masterSuhuTable').DataTable().ajax.reload();
+                                    }
+                                },
+                                error: function(xhr) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Kesalahan Server',
+                                        text: 'Gagal menghapus data.',
+                                        footer: `<pre>${xhr.responseText}</pre>`
+                                    });
+                                }
                             });
                         }
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan Server',
+                        text: 'Gagal memeriksa data.',
+                        footer: `<pre>${xhr.responseText}</pre>`
                     });
                 }
             });
