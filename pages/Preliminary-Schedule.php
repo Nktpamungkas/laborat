@@ -219,11 +219,6 @@
 
 <script>
     $(document).ready(function () {
-        $('#tableSchedule').DataTable({
-            pageLength: -1,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] 
-        });
-
         // Load schedule awal
         $.ajax({
             url: 'pages/ajax/fetch_schedule.php',
@@ -666,6 +661,7 @@
         });
     }
 
+    let dataTableSchedule = null;
     function loadData() {
         fetch("pages/ajax/GetData_PreliminarySchedule.php")
             .then(response => response.json())
@@ -693,6 +689,15 @@
                         </td>
                     </tr>`;
                     tbody.innerHTML += row;
+                });
+
+                if (dataTableSchedule) {
+                    dataTableSchedule.destroy();
+                }
+
+                dataTableSchedule = $('#tableSchedule').DataTable({
+                    pageLength: -1,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
                 });
             })
             .catch(err => {
