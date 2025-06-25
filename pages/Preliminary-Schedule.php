@@ -694,7 +694,7 @@
                         <td ${isOldStyle}>${item.no_resep}</td>
                         <td ${isOldStyle}>${item.product_name}</td>
                         <td align="center">
-                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </td>
                     </tr>`;
                 });
