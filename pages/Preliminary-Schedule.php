@@ -669,36 +669,46 @@
                 const tbody = document.getElementById("dataBody");
                 const executeBtn = document.getElementById("execute_schedule");
 
-                tbody.innerHTML = ""; // Kosongkan dulu
-
-                if (data.length === 0) {
-                    executeBtn.disabled = true;
-                } else {
-                    executeBtn.disabled = false;
+                // ✅ Hancurkan DataTable sebelum ubah isi DOM
+                if (dataTableSchedule) {
+                    dataTableSchedule.destroy();
+                    $('#tableSchedule').empty(); // Kosongkan seluruh tabel (thead dan tbody)
                 }
 
+                let thead = `
+                    <thead class="bg-green">
+                        <tr>
+                            <th><div align="center">No</div></th>
+                            <th><div align="center">Suffix</div></th>
+                            <th><div align="center">Temp</div></th>
+                            <th><div align="center">Action</div></th>
+                        </tr>
+                    </thead>
+                `;
+
+                let rows = '';
                 data.forEach((item, index) => {
                     const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
-
-                    const row = `<tr>
+                    rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
                         <td ${isOldStyle}>${item.no_resep}</td>
                         <td ${isOldStyle}>${item.product_name}</td>
                         <td align="center">
-                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </td>
                     </tr>`;
-                    tbody.innerHTML += row;
                 });
 
-                if (dataTableSchedule) {
-                    dataTableSchedule.destroy();
-                }
+                $('#tableSchedule').html(thead + '<tbody id="dataBody">' + rows + '</tbody>');
 
+                // ✅ Re-init setelah table sudah dibentuk kembali
                 dataTableSchedule = $('#tableSchedule').DataTable({
                     pageLength: -1,
-                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    destroy: true // tambahan untuk pastikan override instance lama
                 });
+
+                executeBtn.disabled = data.length === 0;
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
