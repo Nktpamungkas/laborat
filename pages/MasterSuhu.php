@@ -154,9 +154,30 @@ include "koneksi.php";
                     { "data": "code" },
                     { "data": "group" },
                     { "data": "product_name" },
-                    { "data": "program" },
-                    { "data": "dyeing" },
-                    { "data": "dispensing" },
+                    // { "data": "program" },
+                    // { "data": "dyeing" },
+                    // { "data": "dispensing" },
+                    {
+                        "data": "program",
+                        "render": function(data, type, row, meta) {
+                            return data == 1 ? "KONSTAN (1)" : (data == 2 ? "RAISING (2)" : "-");
+                        }
+                    },
+                    {
+                        "data": "dyeing",
+                        "render": function(data, type, row, meta) {
+                            return data == 1 ? "POLY (1)" : (data == 2 ? "COTTON (2)" : "-");
+                        }
+                    },
+                    {
+                        "data": "dispensing",
+                        "render": function(data, type, row, meta) {
+                            if (data == 1) return "POLY (1)";
+                            if (data == 2) return "COTTON (2)";
+                            if (data == 3) return "WHITE (3)";
+                            return "-";
+                        }
+                    },
                     {
                         data: 'id',
                         "className": "text-center",
