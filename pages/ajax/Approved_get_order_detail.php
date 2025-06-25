@@ -8,6 +8,7 @@ $query = "SELECT
         i.SALESORDERCODE,
         i.ORDERLINE,
         i.LEGALNAME1,
+        i.AKJ,
         p.LONGDESCRIPTION AS JENIS_KAIN,
         i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
         i.NOTETAS,
@@ -31,7 +32,8 @@ $query = "SELECT
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), ''),
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
+            COALESCE(', ' || TRIM(ibn.PROJECTCODE), ''),
 
             -- fallback kalau pg.PO_GREIGE null
             COALESCE(TRIM(i.ADDITIONALDATA), '') ||
@@ -49,7 +51,8 @@ $query = "SELECT
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
             COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '')
+            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
+            COALESCE(', ' || TRIM(ibn.PROJECTCODE), '')
         ) AS PO_GREIGE,
         CASE a.VALUESTRING
             WHEN '1' THEN 'L/D'
@@ -91,6 +94,7 @@ $query = "SELECT
     LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
     LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
     LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+    LEFT JOIN ITXVIEW_BOOKING_NEW ibn ON ibn.SALESORDERCODE = i.SALESORDERCODE AND ibn.ORDERLINE = i.ORDERLINE
     LEFT JOIN (
         SELECT 
             SALESORDERCODE,
@@ -106,6 +110,15 @@ $query = "SELECT
         WHERE DEMAND_KGF IS NOT NULL
         GROUP BY SALESORDERCODE, ORDERLINE
     ) pg ON pg.SALESORDERCODE = i.SALESORDERCODE AND pg.ORDERLINE = i.ORDERLINE
+    -- LEFT JOIN (
+    --     SELECT 
+    --         ORIGDLVSALORDLINESALORDERCODE AS SALESORDERCODE,
+    --         ORIGDLVSALORDERLINEORDERLINE AS ORDERLINE,
+    --         LISTAGG(CODE, ', ') WITHIN GROUP (ORDER BY CODE) AS PO_GREIGE
+    --     FROM ITXVIEW_RAJUT
+    --     WHERE TGLPOGREIGE IS NOT NULL
+    --     GROUP BY ORIGDLVSALORDLINESALORDERCODE, ORIGDLVSALORDERLINEORDERLINE
+    -- ) pg ON pg.SALESORDERCODE = i.SALESORDERCODE AND pg.ORDERLINE = i.ORDERLINE
     WHERE i.SALESORDERCODE = '$code'";
 
 $stmt = db2_exec($conn1, $query);
@@ -118,6 +131,7 @@ if ($stmt) {
                 <th>No PO</th>
                 <th>Nama Buyer</th>
                 <th>Jenis Kain</th>
+                <th>AKJ</th>
                 <th>Itemcode</th>
                 <th>Notetas</th>
                 <th>Gramasi</th>
@@ -217,7 +231,7 @@ if ($stmt) {
 																AND SUBCODE02 = '$d_itxviewkk[SUBCODE02]'
 																AND SUBCODE03 = '$d_itxviewkk[SUBCODE03]'
 																AND SUBCODE04 = '$subcode04'
-																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA4]'-- NGAMBIL DARI ADDITIONAL DATA 
+																AND ORIGDLVSALORDLINESALORDERCODE = '$d_itxviewkk[ADDITIONALDATA5]'-- NGAMBIL DARI ADDITIONAL DATA 
 																AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
 				$d_booking_blm_ready_5	= db2_fetch_assoc($q_booking_blm_ready_5);
 
@@ -234,6 +248,7 @@ if ($stmt) {
         echo "<td>" . htmlspecialchars($row['NO_PO'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['LEGALNAME1'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['JENIS_KAIN'] ?? '') . "</td>";
+        echo "<td>" . htmlspecialchars($row['AKJ'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['ITEMCODE'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars($row['NOTETAS'] ?? '') . "</td>";
         echo "<td>" . htmlspecialchars(number_format($row['GRAMASI'] ?? 0, 2)) . "</td>";
@@ -244,27 +259,33 @@ if ($stmt) {
         echo "<td>" . htmlspecialchars($row['COLORREMARKS'] ?? '') . "</td>";
         echo "<td>";
             if (!empty($d_rajut['SUMMARIZEDDESCRIPTION'])) {
-                echo htmlspecialchars($d_rajut['SUMMARIZEDDESCRIPTION']);
+                echo htmlspecialchars($d_rajut['SUMMARIZEDDESCRIPTION']) . "<br>";
             }
-            if(!empty($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'])){ 
-                echo $d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-            if(!empty($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'])){ 
-                echo $d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-            if(!empty($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'])){ 
-                echo $d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-            if(!empty($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'])){ 
-                echo $d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-            if(!empty($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'])){ 
-                echo $d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'].' - '.$d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-            if(!empty($q_booking_new['SUMMARIZEDDESCRIPTION'])){ 
-                echo $q_booking_new['SUMMARIZEDDESCRIPTION'].' - '.$q_booking_new['ORIGDLVSALORDLINESALORDERCODE'].'&#13;&#10;'; 
-            } 
-        echo "</td>";
+            if (!empty($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_blm_ready_1['SUMMARIZEDDESCRIPTION']) . ' - ' . 
+                    htmlspecialchars($d_booking_blm_ready_1['ORIGDLVSALORDLINESALORDERCODE']) . '<br>';
+            }
+            if (!empty($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_blm_ready_2['SUMMARIZEDDESCRIPTION']) . ' - ' . 
+                    htmlspecialchars($d_booking_blm_ready_2['ORIGDLVSALORDLINESALORDERCODE']) . '<br>';
+            }
+            if (!empty($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_blm_ready_3['SUMMARIZEDDESCRIPTION']) . ' - ' . 
+                    htmlspecialchars($d_booking_blm_ready_3['ORIGDLVSALORDLINESALORDERCODE']) . '<br>';
+            }
+            if (!empty($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_blm_ready_4['SUMMARIZEDDESCRIPTION']) . ' - ' . 
+                    htmlspecialchars($d_booking_blm_ready_4['ORIGDLVSALORDLINESALORDERCODE']) . '<br>';
+            }
+            if (!empty($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_blm_ready_5['SUMMARIZEDDESCRIPTION']) . ' - ' . 
+                    htmlspecialchars($d_booking_blm_ready_5['ORIGDLVSALORDLINESALORDERCODE']) . '<br>';
+            }
+            if (!empty($d_booking_new['SUMMARIZEDDESCRIPTION'])) {
+                echo htmlspecialchars($d_booking_new['SUMMARIZEDDESCRIPTION']) . "<br>";
+            }
+            echo "</td>";
+
         $po_greige = isset($row['PO_GREIGE']) ? ltrim($row['PO_GREIGE'], ', ') : '';
         echo "<td>" . htmlspecialchars($po_greige) . "</td>";
     echo "</tr>";

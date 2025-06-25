@@ -23,13 +23,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $prefix = "1";
 
             // Cari apakah sudah ada suhu dengan awalan ini
-            $query = mysqli_query($con, "SELECT `group` FROM master_suhu WHERE program='KONSTAN' AND product_name LIKE '$suhu%' LIMIT 1");
+            $query = mysqli_query($con, "SELECT `group` FROM master_suhu WHERE program='1' AND product_name LIKE '$suhu%' LIMIT 1");
             if (mysqli_num_rows($query) > 0) {
                 $row = mysqli_fetch_assoc($query);
                 $group = $row['group'];
             } else {
                 // Ambil max kode belakang, generate baru
-                $last = mysqli_query($con, "SELECT MAX(SUBSTRING(`group`, 2, 2)) as max_suffix FROM master_suhu WHERE program='KONSTAN'");
+                $last = mysqli_query($con, "SELECT MAX(SUBSTRING(`group`, 2, 2)) as max_suffix FROM master_suhu WHERE program='1'");
                 $max_suffix = mysqli_fetch_assoc($last)['max_suffix'];
                 $next_suffix = str_pad(((int)$max_suffix) + 1, 2, '0', STR_PAD_LEFT);
                 $group = "1" . $next_suffix;
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif ($program == 'RAISING') {
             // Raising: group selalu naik satu angka
             $prefix = "2";
-            $last = mysqli_query($con, "SELECT MAX(`group`) as max_group FROM master_suhu WHERE program='RAISING'");
+            $last = mysqli_query($con, "SELECT MAX(`group`) as max_group FROM master_suhu WHERE program='2'");
             $last_group = mysqli_fetch_assoc($last)['max_group'];
             $group = $last_group ? $last_group + 1 : 201;
 
