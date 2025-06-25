@@ -11,6 +11,17 @@ $temp_1         = htmlspecialchars($_POST['temp_1']);
 $temp_2         = htmlspecialchars($_POST['temp_2']);
 $username       = $_SESSION['userLAB'];
 
+$checkReady = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'ready'");
+$dataReady = mysqli_fetch_assoc($checkReady);
+
+if ($dataReady['total'] > 0) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Data sudah diinput!'
+    ]);
+    exit;
+}
+
 $success = false;
 $errorMessages = [];
 $insertedCount = 0; // Menambahkan penghitung
