@@ -295,47 +295,370 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
             })
         })
 
-        $(document).on('click', '._bagikan', function() {
-            let rcode = $(this).closest('tr').find('td:eq(1)').text()
+        // with input
+        // $(document).on('click', '._bagikan', function () {
+        //     let rcode = $(this).closest('tr').find('td:eq(1)').text();
 
-            Swal.fire({
-                title: 'Apakah anda yakin ?',
-                text: `untuk membagikan resep dengan kode ${rcode}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, bagikan!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        dataType: "json",
-                        type: "POST",
-                        url: "pages/ajax/bagikan_schedule_matching.php",
-                        data: {
-                            rcode: rcode
-                        },
-                        success: function(response) {
-                            if (response.session == "LIB_SUCCSS") {
-                                Swal.fire(
-                                    'Berhasil!',
-                                    'Data resep telah siap untuk di bagikan',
-                                    'success'
-                                )
-                                setTimeout(function() {
-                                    window.location.reload(1);
-                                }, 1000);
-                            } else {
-                                toastr.error("ajax error !")
+        //     $.ajax({
+        //         dataType: "json",
+        //         type: "POST",
+        //         url: "pages/ajax/cek_temp_code.php",
+        //         data: { rcode: rcode },
+        //         success: function (response) {
+        //             if (response.needInput) {
+        //                 // CASE: rcode diawali DR → 2 input
+        //                 if (response.isDR) {
+        //                     Swal.fire({
+        //                         title: 'Masukkan Temp Code',
+        //                         html:
+        //                             `<input id="temp_code1" class="swal2-input" placeholder="Temp Code 1">` +
+        //                             `<div id="product_info" style="font-size: 0.9em; margin-top: -10px; color: #333;"></div>` +
+        //                             `<input id="temp_code2" class="swal2-input" placeholder="Temp Code 2">`,
+        //                         focusConfirm: false,
+        //                         showCancelButton: true,
+        //                         confirmButtonText: 'Simpan & Bagikan',
+        //                         didOpen: () => {
+        //                             const input1 = document.getElementById('temp_code1');
+        //                             const infoDiv = document.getElementById('product_info');
+        //                             let timeout = null;
+
+        //                             input1.addEventListener('input', () => {
+        //                                 clearTimeout(timeout);
+        //                                 const code = input1.value.trim();
+        //                                 infoDiv.innerHTML = '⏳ Memeriksa kode...';
+
+        //                                 if (code) {
+        //                                     timeout = setTimeout(() => {
+        //                                         fetch(`pages/ajax/get_program_by_code.php?code=${encodeURIComponent(code)}`)
+        //                                             .then(res => res.json())
+        //                                             .then(data => {
+        //                                                 if (data.status === 'success') {
+        //                                                     infoDiv.innerHTML = `${data.product_name}`;
+        //                                                 } else {
+        //                                                     infoDiv.innerHTML = `<span style="color: red;">❌ ${data.message || 'Kode tidak valid'}</span>`;
+        //                                                 }
+        //                                             })
+        //                                             .catch(() => {
+        //                                                 infoDiv.innerHTML = `<span style="color: red;">⚠ Gagal menghubungi server</span>`;
+        //                                             });
+        //                                     }, 500);
+        //                                 } else {
+        //                                     infoDiv.innerHTML = '';
+        //                                 }
+        //                             });
+        //                         },
+        //                         preConfirm: async () => {
+        //                             const temp1 = document.getElementById('temp_code1').value.trim();
+        //                             const temp2 = document.getElementById('temp_code2').value.trim();
+
+        //                             if (!temp1 || !temp2) {
+        //                                 Swal.showValidationMessage('Kedua temp_code harus diisi');
+        //                                 return false;
+        //                             }
+
+        //                             try {
+        //                                 const res = await fetch(`pages/ajax/get_program_by_code.php?code=${encodeURIComponent(temp1)}`);
+        //                                 const data = await res.json();
+
+        //                                 if (data.status === 'success') {
+        //                                     await Swal.fire({
+        //                                         title: 'Valid!',
+        //                                         html: `${data.product_name}`,
+        //                                         icon: 'info',
+        //                                         showCancelButton: true,
+        //                                         confirmButtonText: 'Simpan & Bagikan'
+        //                                     });
+
+        //                                     // Lanjut submit data
+        //                                     $.ajax({
+        //                                         dataType: "json",
+        //                                         type: "POST",
+        //                                         url: "pages/ajax/bagikan_schedule_matching.php",
+        //                                         data: {
+        //                                             rcode: rcode,
+        //                                             temp_code: temp1,
+        //                                             temp_code2: temp2
+        //                                         },
+        //                                         success: handleSuccess,
+        //                                         error: () => alert("Terjadi error saat kirim data.")
+        //                                     });
+
+        //                                     return false; // Jangan auto-close Swal
+        //                                 } else {
+        //                                     Swal.fire({
+        //                                         icon: 'error',
+        //                                         title: 'Kode Tidak Ditemukan',
+        //                                         text: data.message || 'Kode tidak valid'
+        //                                     });
+        //                                     return false;
+        //                                 }
+        //                             } catch (e) {
+        //                                 Swal.fire('Error', 'Gagal mengambil data program.', 'error');
+        //                                 return false;
+        //                             }
+        //                         }
+        //                     });
+
+        //                 } else {
+        //                     // CASE: rcode bukan DR → 1 input
+        //                     Swal.fire({
+        //                         title: 'Masukkan Temp Code',
+        //                         html:
+        //                             `<input id="temp_code_single" class="swal2-input" placeholder="Temp Code">` +
+        //                             `<div id="product_info_single" style="font-size: 0.9em; margin-top: -10px; color: #333;"></div>`,
+        //                         showCancelButton: true,
+        //                         confirmButtonText: 'Simpan & Bagikan',
+        //                         focusConfirm: false,
+        //                         didOpen: () => {
+        //                             const input = document.getElementById('temp_code_single');
+        //                             const infoDiv = document.getElementById('product_info_single');
+        //                             let timeout = null;
+
+        //                             input.addEventListener('input', () => {
+        //                                 clearTimeout(timeout);
+        //                                 const code = input.value.trim();
+        //                                 infoDiv.innerHTML = '⏳ Memeriksa kode...';
+
+        //                                 if (code) {
+        //                                     timeout = setTimeout(() => {
+        //                                         fetch(`pages/ajax/get_program_by_code.php?code=${encodeURIComponent(code)}`)
+        //                                             .then(res => res.json())
+        //                                             .then(data => {
+        //                                                 if (data.status === 'success') {
+        //                                                     infoDiv.innerHTML = `${data.product_name}`;
+        //                                                 } else {
+        //                                                     infoDiv.innerHTML = `<span style="color: red;">❌ ${data.message || 'Kode tidak valid'}</span>`;
+        //                                                 }
+        //                                             })
+        //                                             .catch(() => {
+        //                                                 infoDiv.innerHTML = `<span style="color: red;">⚠ Gagal menghubungi server</span>`;
+        //                                             });
+        //                                     }, 500);
+        //                                 } else {
+        //                                     infoDiv.innerHTML = '';
+        //                                 }
+        //                             });
+        //                         },
+        //                         preConfirm: async () => {
+        //                             const value = document.getElementById('temp_code_single').value.trim();
+        //                             if (!value) {
+        //                                 Swal.showValidationMessage('Temp code tidak boleh kosong');
+        //                                 return false;
+        //                             }
+
+        //                             try {
+        //                                 const res = await fetch(`pages/ajax/get_program_by_code.php?code=${encodeURIComponent(value)}`);
+        //                                 const data = await res.json();
+
+        //                                 if (data.status === 'success') {
+        //                                     const result2 = await Swal.fire({
+        //                                         title: 'Valid!',
+        //                                         html: `<b>Produk:</b> ${data.product_name}<br><b>Kode:</b> ${value}`,
+        //                                         icon: 'info',
+        //                                         showCancelButton: true,
+        //                                         confirmButtonText: 'Simpan & Bagikan'
+        //                                     });
+
+        //                                     if (result2.isConfirmed) {
+        //                                         $.ajax({
+        //                                             dataType: "json",
+        //                                             type: "POST",
+        //                                             url: "pages/ajax/bagikan_schedule_matching.php",
+        //                                             data: {
+        //                                                 rcode: rcode,
+        //                                                 temp_code: value
+        //                                             },
+        //                                             success: handleSuccess,
+        //                                             error: () => alert("Terjadi error saat kirim data.")
+        //                                         });
+        //                                     }
+        //                                 } else {
+        //                                     Swal.fire({
+        //                                         icon: 'error',
+        //                                         title: 'Kode Tidak Ditemukan',
+        //                                         text: data.message || 'Kode tidak valid'
+        //                                     });
+        //                                     return false;
+        //                                 }
+        //                             } catch {
+        //                                 Swal.fire('Error', 'Gagal menghubungi server.', 'error');
+        //                                 return false;
+        //                             }
+        //                         }
+        //                     });
+        //                 }
+
+        //             } else {
+        //                 // CASE: tidak butuh input temp_code
+        //                 Swal.fire({
+        //                     title: 'Apakah anda yakin?',
+        //                     text: `Untuk membagikan resep dengan kode ${rcode}`,
+        //                     icon: 'question',
+        //                     showCancelButton: true,
+        //                     confirmButtonText: 'Ya, Bagikan!',
+        //                     cancelButtonText: 'Batal'
+        //                 }).then((result) => {
+        //                     if (result.isConfirmed) {
+        //                         $.ajax({
+        //                             dataType: "json",
+        //                             type: "POST",
+        //                             url: "pages/ajax/bagikan_schedule_matching.php",
+        //                             data: { rcode: rcode },
+        //                             success: handleSuccess,
+        //                             error: () => alert("Terjadi error saat kirim data.")
+        //                         });
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //     });
+
+        //     function handleSuccess(response) {
+        //         if (response.session === "LIB_SUCCSS") {
+        //             Swal.fire('Berhasil!', 'Resep berhasil dibagikan.', 'success');
+        //             setTimeout(() => window.location.reload(), 1000);
+        //         } else {
+        //             toastr.error("Gagal memperbarui/bagikan resep");
+        //         }
+        //     }
+        // });
+
+        // with select
+        $(document).on('click', '._bagikan', function () {
+            let rcode = $(this).closest('tr').find('td:eq(1)').text();
+
+            $.ajax({
+                dataType: "json",
+                type: "POST",
+                url: "pages/ajax/cek_temp_code.php",
+                data: { rcode: rcode },
+                success: function (response) {
+                    if (response.needInput) {
+                        fetch("pages/ajax/get_temp_code_options.php")
+                            .then(res => res.json())
+                            .then(options => {
+
+                                const generateSelect = (id) => {
+                                    let html = `<select id="${id}" class="form-control" style="width: 100%; margin-top: 2px;">`;
+                                    html += `<option value="">Pilih...</option>`;
+                                    options.forEach(opt => {
+                                        html += `<option value="${opt.code}">${opt.label}</option>`;
+                                    });
+                                    html += `</select>`;
+                                    return html;
+                                };
+
+                                if (response.isDR) {
+                                    // CASE: DR → 2 dropdown
+                                    Swal.fire({
+                                        title: 'Apakah anda yakin?',
+                                        icon: 'question',
+                                        html: `
+                                            <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
+                                            <label>Temp:</label>
+                                            ${generateSelect('temp_code1')}
+                                            <label style="margin-top:10px;">Temp 2:</label>
+                                            ${generateSelect('temp_code2')}
+                                        `,
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Simpan & Bagikan',
+                                        focusConfirm: false,
+                                        preConfirm: () => {
+                                            const temp1 = document.getElementById('temp_code1').value;
+                                            const temp2 = document.getElementById('temp_code2').value;
+
+                                            if (!temp1 || !temp2) {
+                                                Swal.showValidationMessage('Kedua temp harus dipilih');
+                                                return false;
+                                            }
+
+                                            $.ajax({
+                                                dataType: "json",
+                                                type: "POST",
+                                                url: "pages/ajax/bagikan_schedule_matching.php",
+                                                data: {
+                                                    rcode: rcode,
+                                                    temp_code: temp1,
+                                                    temp_code2: temp2
+                                                },
+                                                success: handleSuccess,
+                                                error: () => alert("Terjadi error saat kirim data.")
+                                            });
+
+                                            return false;
+                                        }
+                                    });
+                                } else {
+                                    // CASE: Non-DR → 1 dropdown
+                                    Swal.fire({
+                                        title: 'Apakah anda yakin?',
+                                        icon: 'question',
+                                        html: `
+                                            <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
+                                            <label>Temp:</label>
+                                            ${generateSelect('temp_code_single')}
+                                        `,
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Simpan & Bagikan',
+                                        focusConfirm: false,
+                                        preConfirm: () => {
+                                            const value = document.getElementById('temp_code_single').value;
+                                            if (!value) {
+                                                Swal.showValidationMessage('Temp code harus dipilih');
+                                                return false;
+                                            }
+
+                                            $.ajax({
+                                                dataType: "json",
+                                                type: "POST",
+                                                url: "pages/ajax/bagikan_schedule_matching.php",
+                                                data: {
+                                                    rcode: rcode,
+                                                    temp_code: value
+                                                },
+                                                success: handleSuccess,
+                                                error: () => alert("Terjadi error saat kirim data.")
+                                            });
+
+                                            return false;
+                                        }
+                                    });
+                                }
+                            });
+                    } else {
+                        // CASE: Tidak butuh temp_code
+                        Swal.fire({
+                            title: 'Apakah anda yakin?',
+                            text: `Untuk membagikan resep dengan kode ${rcode}`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, Bagikan!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    dataType: "json",
+                                    type: "POST",
+                                    url: "pages/ajax/bagikan_schedule_matching.php",
+                                    data: { rcode: rcode },
+                                    success: handleSuccess,
+                                    error: () => alert("Terjadi error saat kirim data.")
+                                });
                             }
-                        },
-                        error: function() {
-                            alert("Error");
-                        }
-                    });
-                }
-            })
-        })
+                });
+            }
+        }
+    });
+
+    function handleSuccess(response) {
+        if (response.session === "LIB_SUCCSS") {
+            Swal.fire('Berhasil!', 'Resep berhasil dibagikan.', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            toastr.error("Gagal memperbarui/bagikan resep");
+        }
+    }
+});
 
         // $(document).on('click', '._tunggukan', function() {
         //     let rcode = $(this).closest('tr').find('td:eq(1)').text()

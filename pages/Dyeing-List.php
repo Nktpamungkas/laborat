@@ -33,7 +33,25 @@
             dataType: 'json',
             success: function(response) {
                 const { data, maxPerMachine, tempListMap } = response;
-                const machineKeys = Object.keys(data);
+                // const machineKeys = Object.keys(data);
+                const machineKeysRaw = Object.keys(data);
+                // Prioritas mesin yang diinginkan
+                const priorityOrder = [
+                    'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A10', 'A11',
+                    'C1', 'D1',
+                    'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'
+                ];
+
+                // Urutkan key sesuai urutan prioritas
+                const machineKeys = priorityOrder.filter(machine => machineKeysRaw.includes(machine));
+
+                // Tambahkan mesin yang tidak ada di prioritas (jika ada), tetap ditampilkan di belakang
+                machineKeysRaw.forEach(machine => {
+                    if (!machineKeys.includes(machine)) {
+                        machineKeys.push(machine);
+                    }
+                });
+
                 const machineCount = machineKeys.length;
 
                 // (1) Tidak perlu hitung min-width yg terlalu besar.
