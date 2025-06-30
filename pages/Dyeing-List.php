@@ -9,6 +9,23 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
     } */
+    .table-bordered>thead>tr>th {
+        border-bottom-width: 0 !important;
+    }
+     .table-responsive thead tr:nth-child(1) th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background-color: #f8f9fa;
+    }
+
+    .table-responsive thead tr:nth-child(2) th {
+        position: sticky;
+        top: 33px;
+        z-index: 2;
+        background-color: #f8f9fa;
+    }
+
 </style>
 
 <div class="row">
@@ -57,7 +74,7 @@
                 // (1) Tidak perlu hitung min-width yg terlalu besar.
                 //    Kita hanya membiarkan .table-responsive yang mengatur scroll.
                 let html = `
-                    <div class="table-responsive" style="overflow-x: auto;">
+                    <div class="table-responsive" style="max-height: 750px; overflow: auto;">
                         <table class="table table-bordered table-striped align-middle text-center"
                             style="table-layout: auto; width: 100%;">
                             <colgroup>
