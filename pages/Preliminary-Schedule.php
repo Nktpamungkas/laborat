@@ -202,6 +202,7 @@
                                         timer: 1500,
                                         showConfirmButton: false
                                     }).then(() => {
+                                        localStorage.setItem('hideTableSchedule', 'true');
                                         location.reload();
                                     });
                                     $('#schedule_table').html(data);
@@ -553,6 +554,11 @@
 
         loadData();
         checkRepeatItems();
+        if (localStorage.getItem('hideTableSchedule') === 'true') {
+            $('#scheduleWrapper').hide();
+            $('#repeatWrapper').hide();
+            localStorage.removeItem('hideTableSchedule');
+        }
 
         $('#exsecute').click(function(e) {
             e.preventDefault();
