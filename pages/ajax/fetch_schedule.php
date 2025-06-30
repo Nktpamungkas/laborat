@@ -8,7 +8,12 @@ $sql = "SELECT
         FROM
             tbl_preliminary_schedule tps
             LEFT JOIN master_suhu ms ON tps.code = ms.code 
-            LEFT JOIN tbl_matching ON tps.no_resep = tbl_matching.no_resep
+            -- LEFT JOIN tbl_matching ON tps.no_resep = tbl_matching.no_resep
+            LEFT JOIN tbl_matching ON 
+                CASE WHEN LEFT(tps.no_resep, 2) = 'DR' 
+                    THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
+                    ELSE tps.no_resep
+                END = tbl_matching.no_resep
         WHERE
             tps.STATUS = 'ready' 
         ORDER BY
