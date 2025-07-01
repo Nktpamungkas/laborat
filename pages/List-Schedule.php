@@ -295,184 +295,224 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
             })
         })
 
-        $(document).on('click', '._bagikan', function() {
-            let rcode = $(this).closest('tr').find('td:eq(1)').text()
+        // $(document).on('click', '._bagikan', function() {
+        //     let rcode = $(this).closest('tr').find('td:eq(1)').text()
 
-            Swal.fire({
-                title: 'Apakah anda yakin ?',
-                text: `untuk membagikan resep dengan kode ${rcode}`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, bagikan!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        dataType: "json",
-                        type: "POST",
-                        url: "pages/ajax/bagikan_schedule_matching.php",
-                        data: {
-                            rcode: rcode
-                        },
-                        success: function(response) {
-                            if (response.session == "LIB_SUCCSS") {
-                                Swal.fire(
-                                    'Berhasil!',
-                                    'Data resep telah siap untuk di bagikan',
-                                    'success'
-                                )
-                                setTimeout(function() {
-                                    window.location.reload(1);
-                                }, 1000);
-                            } else {
-                                toastr.error("ajax error !")
-                            }
-                        },
-                        error: function() {
-                            alert("Error");
-                        }
-                    });
-                }
-            })
-        })
+        //     Swal.fire({
+        //         title: 'Apakah anda yakin ?',
+        //         text: `untuk membagikan resep dengan kode ${rcode}`,
+        //         icon: 'question',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#3085d6',
+        //         cancelButtonColor: '#d33',
+        //         confirmButtonText: 'Yes, bagikan!'
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             $.ajax({
+        //                 dataType: "json",
+        //                 type: "POST",
+        //                 url: "pages/ajax/bagikan_schedule_matching.php",
+        //                 data: {
+        //                     rcode: rcode
+        //                 },
+        //                 success: function(response) {
+        //                     if (response.session == "LIB_SUCCSS") {
+        //                         Swal.fire(
+        //                             'Berhasil!',
+        //                             'Data resep telah siap untuk di bagikan',
+        //                             'success'
+        //                         )
+        //                         setTimeout(function() {
+        //                             window.location.reload(1);
+        //                         }, 1000);
+        //                     } else {
+        //                         toastr.error("ajax error !")
+        //                     }
+        //                 },
+        //                 error: function() {
+        //                     alert("Error");
+        //                 }
+        //             });
+        //         }
+        //     })
+        // })
 
         // with select
-        // $(document).on('click', '._bagikan', function () {
-        //     let rcode = $(this).closest('tr').find('td:eq(1)').text();
+        $(document).on('click', '._bagikan', function () {
+            let rcode = $(this).closest('tr').find('td:eq(1)').text();
 
-        //     $.ajax({
-        //             dataType: "json",
-        //             type: "POST",
-        //             url: "pages/ajax/cek_temp_code.php",
-        //             data: { rcode: rcode },
-        //             success: function (response) {
-        //                 if (response.needInput) {
-        //                     fetch("pages/ajax/get_temp_code_options.php")
-        //                         .then(res => res.json())
-        //                         .then(options => {
+            $.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: "pages/ajax/cek_temp_code.php",
+                    data: { rcode: rcode },
+                    success: function (response) {
+                        if (response.needInput) {
+                            fetch("pages/ajax/get_temp_code_options.php")
+                                .then(res => res.json())
+                                .then(options => {
 
-        //                             const generateSelect = (id) => {
-        //                                 let html = `<select id="${id}" class="form-control" style="width: 100%; margin-top: 2px;">`;
-        //                                 html += `<option value="">Pilih...</option>`;
-        //                                 options.forEach(opt => {
-        //                                     html += `<option value="${opt.code}">${opt.label}</option>`;
-        //                                 });
-        //                                 html += `</select>`;
-        //                                 return html;
-        //                             };
+                                    const generateSelect = (id) => {
+                                        let html = `<select id="${id}" class="form-control" style="width: 100%; margin-top: 2px;">`;
+                                        html += `<option value="">Pilih...</option>`;
+                                        options.forEach(opt => {
+                                            let program, dyeing, dispensing;
 
-        //                             if (response.isDR) {
-        //                                 // CASE: DR → 2 dropdown
-        //                                 Swal.fire({
-        //                                     title: 'Apakah anda yakin?',
-        //                                     icon: 'question',
-        //                                     html: `
-        //                                         <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
-        //                                         <label>Temp:</label>
-        //                                         ${generateSelect('temp_code1')}
-        //                                         <label style="margin-top:10px;">Temp 2:</label>
-        //                                         ${generateSelect('temp_code2')}
-        //                                     `,
-        //                                     showCancelButton: true,
-        //                                     confirmButtonText: 'Simpan & Bagikan',
-        //                                     focusConfirm: false,
-        //                                     preConfirm: () => {
-        //                                         const temp1 = document.getElementById('temp_code1').value;
-        //                                         const temp2 = document.getElementById('temp_code2').value;
+                                            // Menentukan label program
+                                            if (opt.program === '1') {
+                                                program = 'KONSTAN';
+                                            } else if (opt.program === '2') {
+                                                program = 'RAISING';
+                                            } else {
+                                                program = '-';
+                                            }
 
-        //                                         if (!temp1 || !temp2) {
-        //                                             Swal.showValidationMessage('Kedua temp harus dipilih');
-        //                                             return false;
-        //                                         }
+                                            // Menentukan label dyeing
+                                            switch (opt.dyeing) {
+                                                case '1':
+                                                    dyeing = 'POLY';
+                                                    break;
+                                                case '2':
+                                                    dyeing = 'COTTON';
+                                                    break;
+                                                default:
+                                                    dyeing = '-';
+                                            }
 
-        //                                         $.ajax({
-        //                                             dataType: "json",
-        //                                             type: "POST",
-        //                                             url: "pages/ajax/bagikan_schedule_matching.php",
-        //                                             data: {
-        //                                                 rcode: rcode,
-        //                                                 temp_code: temp1,
-        //                                                 temp_code2: temp2
-        //                                             },
-        //                                             success: handleSuccess,
-        //                                             error: () => alert("Terjadi error saat kirim data.")
-        //                                         });
+                                            // Menentukan label dispensing
+                                            switch (opt.dispensing) {
+                                                case '1':
+                                                    dispensing = 'POLY';
+                                                    break;
+                                                case '2':
+                                                    dispensing = 'COTTON';
+                                                    break;
+                                                case '3':
+                                                    dispensing = 'WHITE';
+                                                    break;
+                                                default:
+                                                    dispensing = '-';
+                                            }
 
-        //                                         return false;
-        //                                     }
-        //                                 });
-        //                             } else {
-        //                                 // CASE: Non-DR → 1 dropdown
-        //                                 Swal.fire({
-        //                                     title: 'Apakah anda yakin?',
-        //                                     icon: 'question',
-        //                                     html: `
-        //                                         <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
-        //                                         <label>Temp:</label>
-        //                                         ${generateSelect('temp_code_single')}
-        //                                     `,
-        //                                     showCancelButton: true,
-        //                                     confirmButtonText: 'Simpan & Bagikan',
-        //                                     focusConfirm: false,
-        //                                     preConfirm: () => {
-        //                                         const value = document.getElementById('temp_code_single').value;
-        //                                         if (!value) {
-        //                                             Swal.showValidationMessage('Temp code harus dipilih');
-        //                                             return false;
-        //                                         }
+                                            html += `<option value="${opt.code}">${opt.label} (${program}, ${dyeing}, ${dispensing})</option>`;
+                                        });
+                                        html += `</select>`;
 
-        //                                         $.ajax({
-        //                                             dataType: "json",
-        //                                             type: "POST",
-        //                                             url: "pages/ajax/bagikan_schedule_matching.php",
-        //                                             data: {
-        //                                                 rcode: rcode,
-        //                                                 temp_code: value
-        //                                             },
-        //                                             success: handleSuccess,
-        //                                             error: () => alert("Terjadi error saat kirim data.")
-        //                                         });
+                                        return html;
+                                    };
 
-        //                                         return false;
-        //                                     }
-        //                                 });
-        //                             }
-        //                         });
-        //                 } else {
-        //                     // CASE: Tidak butuh temp_code
-        //                     Swal.fire({
-        //                         title: 'Apakah anda yakin?',
-        //                         text: `Untuk membagikan resep dengan kode ${rcode}`,
-        //                         icon: 'question',
-        //                         showCancelButton: true,
-        //                         confirmButtonText: 'Ya, Bagikan!',
-        //                         cancelButtonText: 'Batal'
-        //                     }).then((result) => {
-        //                         if (result.isConfirmed) {
-        //                             $.ajax({
-        //                                 dataType: "json",
-        //                                 type: "POST",
-        //                                 url: "pages/ajax/bagikan_schedule_matching.php",
-        //                                 data: { rcode: rcode },
-        //                                 success: handleSuccess,
-        //                                 error: () => alert("Terjadi error saat kirim data.")
-        //                             });
-        //                         }
-        //             });
-        //             }
-        //         }
-        //     });
 
-        //     function handleSuccess(response) {
-        //         if (response.session === "LIB_SUCCSS") {
-        //             Swal.fire('Berhasil!', 'Resep berhasil dibagikan.', 'success');
-        //             setTimeout(() => window.location.reload(), 1000);
-        //         } else {
-        //             toastr.error("Gagal memperbarui/bagikan resep");
-        //         }
-        //     }
-        // });
+                                    if (response.isDR) {
+                                        // CASE: DR → 2 dropdown
+                                        Swal.fire({
+                                            title: 'Apakah anda yakin?',
+                                            icon: 'question',
+                                            html: `
+                                                <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
+                                                <label>Temp:</label>
+                                                ${generateSelect('temp_code1')}
+                                                <label style="margin-top:10px;">Temp 2:</label>
+                                                ${generateSelect('temp_code2')}
+                                            `,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Simpan & Bagikan',
+                                            focusConfirm: false,
+                                            preConfirm: () => {
+                                                const temp1 = document.getElementById('temp_code1').value;
+                                                const temp2 = document.getElementById('temp_code2').value;
+
+                                                if (!temp1 || !temp2) {
+                                                    Swal.showValidationMessage('Kedua temp harus dipilih');
+                                                    return false;
+                                                }
+
+                                                $.ajax({
+                                                    dataType: "json",
+                                                    type: "POST",
+                                                    url: "pages/ajax/bagikan_schedule_matching.php",
+                                                    data: {
+                                                        rcode: rcode,
+                                                        temp_code: temp1,
+                                                        temp_code2: temp2
+                                                    },
+                                                    success: handleSuccess,
+                                                    error: () => alert("Terjadi error saat kirim data.")
+                                                });
+
+                                                return false;
+                                            }
+                                        });
+                                    } else {
+                                        // CASE: Non-DR → 1 dropdown
+                                        Swal.fire({
+                                            title: 'Apakah anda yakin?',
+                                            icon: 'question',
+                                            html: `
+                                                <p>Untuk membagikan resep dengan kode <b>${rcode}</b></p>
+                                                <label>Temp:</label>
+                                                ${generateSelect('temp_code_single')}
+                                            `,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Simpan & Bagikan',
+                                            focusConfirm: false,
+                                            preConfirm: () => {
+                                                const value = document.getElementById('temp_code_single').value;
+                                                if (!value) {
+                                                    Swal.showValidationMessage('Temp code harus dipilih');
+                                                    return false;
+                                                }
+
+                                                $.ajax({
+                                                    dataType: "json",
+                                                    type: "POST",
+                                                    url: "pages/ajax/bagikan_schedule_matching.php",
+                                                    data: {
+                                                        rcode: rcode,
+                                                        temp_code: value
+                                                    },
+                                                    success: handleSuccess,
+                                                    error: () => alert("Terjadi error saat kirim data.")
+                                                });
+
+                                                return false;
+                                            }
+                                        });
+                                    }
+                                });
+                        } else {
+                            // CASE: Tidak butuh temp_code
+                            Swal.fire({
+                                title: 'Apakah anda yakin?',
+                                text: `Untuk membagikan resep dengan kode ${rcode}`,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: 'Ya, Bagikan!',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        dataType: "json",
+                                        type: "POST",
+                                        url: "pages/ajax/bagikan_schedule_matching.php",
+                                        data: { rcode: rcode },
+                                        success: handleSuccess,
+                                        error: () => alert("Terjadi error saat kirim data.")
+                                    });
+                                }
+                    });
+                    }
+                }
+            });
+
+            function handleSuccess(response) {
+                if (response.session === "LIB_SUCCSS") {
+                    Swal.fire('Berhasil!', 'Resep berhasil dibagikan.', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    toastr.error("Gagal memperbarui/bagikan resep");
+                }
+            }
+        });
 
         // $(document).on('click', '._tunggukan', function() {
         //     let rcode = $(this).closest('tr').find('td:eq(1)').text()
