@@ -4,122 +4,163 @@ include "../../koneksi.php";
 
 $code = $_POST['code'];
 
-$query = "SELECT
-        i.SALESORDERCODE,
-        i.ORDERLINE,
-        i.LEGALNAME1,
-        i.AKJ,
-        p.LONGDESCRIPTION AS JENIS_KAIN,
-        i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
-        i.NOTETAS,
-        i.EXTERNALREFERENCE AS NO_PO,
-        COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
-        i3.LEBAR,
-        COALESCE(
-            TRIM(pg.PO_GREIGE) ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
-            COALESCE(', ' || TRIM(ibn.PROJECTCODE), ''),
-
-            -- fallback kalau pg.PO_GREIGE null
-            COALESCE(TRIM(i.ADDITIONALDATA), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
-            COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
-            COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
-            COALESCE(', ' || TRIM(ibn.PROJECTCODE), '')
-        ) AS PO_GREIGE,
-        CASE a.VALUESTRING
-            WHEN '1' THEN 'L/D'
-            WHEN '2' THEN 'First Lot'
-            WHEN '3' THEN 'Original'
-            WHEN '4' THEN 'Previous Order'
-            WHEN '5' THEN 'Master Color'
-            WHEN '6' THEN 'Lampiran Buyer'
-            WHEN '7' THEN 'Body'
-            ELSE ''
-        END AS COLOR_STANDARD,
-        i.WARNA,
-        TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
-        a2.VALUESTRING AS COLORREMARKS,
-        TRIM(i.SUBCODE01) AS SUBCODE01,
-        TRIM(i.SUBCODE02) AS SUBCODE02,
-        TRIM(i.SUBCODE03) AS SUBCODE03,
-        TRIM(i.SUBCODE04) AS SUBCODE04,
-        TRIM(i.SUBCODE05) AS SUBCODE05,
-        TRIM(i.SUBCODE06) AS SUBCODE06,
-        TRIM(i.SUBCODE07) AS SUBCODE07,
-        TRIM(i.SUBCODE08) AS SUBCODE08,
-        TRIM(i.SUBCODE09) AS SUBCODE09,
-        TRIM(i.SUBCODE10) AS SUBCODE10
-    FROM
-        ITXVIEWBONORDER i
-    LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
-                        AND p.SUBCODE01 = i.SUBCODE01 
-                        AND p.SUBCODE02 = i.SUBCODE02 
-                        AND p.SUBCODE03 = i.SUBCODE03 
-                        AND p.SUBCODE04 = i.SUBCODE04 
-                        AND p.SUBCODE05 = i.SUBCODE05 
-                        AND p.SUBCODE06 = i.SUBCODE06 
-                        AND p.SUBCODE07 = i.SUBCODE07 
-                        AND p.SUBCODE08 = i.SUBCODE08 
-                        AND p.SUBCODE09 = i.SUBCODE09 
-                        AND p.SUBCODE10 = i.SUBCODE10
-    LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
-    LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
-    LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
-    LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
-    LEFT JOIN ITXVIEW_BOOKING_NEW ibn ON ibn.SALESORDERCODE = i.SALESORDERCODE AND ibn.ORDERLINE = i.ORDERLINE
-    LEFT JOIN (
-        SELECT 
+$query = "SELECT DISTINCT 
             SALESORDERCODE,
             ORDERLINE,
-            LISTAGG(DEMAND_KGF, ', ') WITHIN GROUP (ORDER BY DEMAND_KGF) AS PO_GREIGE
-        FROM (
-            SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW
-            UNION
-            SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW2
-            UNION
-            SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW3
-        ) all_data
-        WHERE DEMAND_KGF IS NOT NULL
-        GROUP BY SALESORDERCODE, ORDERLINE
-    ) pg ON pg.SALESORDERCODE = i.SALESORDERCODE AND pg.ORDERLINE = i.ORDERLINE
-    -- LEFT JOIN (
-    --     SELECT 
-    --         ORIGDLVSALORDLINESALORDERCODE AS SALESORDERCODE,
-    --         ORIGDLVSALORDERLINEORDERLINE AS ORDERLINE,
-    --         LISTAGG(CODE, ', ') WITHIN GROUP (ORDER BY CODE) AS PO_GREIGE
-    --     FROM ITXVIEW_RAJUT
-    --     WHERE TGLPOGREIGE IS NOT NULL
-    --     GROUP BY ORIGDLVSALORDLINESALORDERCODE, ORIGDLVSALORDERLINEORDERLINE
-    -- ) pg ON pg.SALESORDERCODE = i.SALESORDERCODE AND pg.ORDERLINE = i.ORDERLINE
-    WHERE i.SALESORDERCODE = '$code'";
+            LEGALNAME1,
+            AKJ,
+            JENIS_KAIN,
+            ITEMCODE,
+            LISTAGG(NOTETAS, ', ') AS NOTETAS,
+            NO_PO,
+            GRAMASI,
+            LEBAR,
+            LISTAGG(DISTINCT PO_GREIGE, ', ') AS PO_GREIGE,
+            COLOR_STANDARD,
+            WARNA,
+            KODE_WARNA,
+            COLORREMARKS,
+            SUBCODE01,
+            SUBCODE02,
+            SUBCODE03,
+            SUBCODE04,
+            SUBCODE05,
+            SUBCODE06,
+            SUBCODE07,
+            SUBCODE08,
+            SUBCODE09,
+            SUBCODE10
+        FROM 
+        (SELECT
+            i.SALESORDERCODE,
+            i.ORDERLINE,
+            i.LEGALNAME1,
+            i.AKJ,
+            p.LONGDESCRIPTION AS JENIS_KAIN,
+            i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
+            i.NOTETAS,
+            i.EXTERNALREFERENCE AS NO_PO,
+            COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+            i3.LEBAR,
+            COALESCE(
+                TRIM(pg.PO_GREIGE) ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
+                COALESCE(', ' || TRIM(ibn.PROJECTCODE), ''),
+                -- fallback kalau pg.PO_GREIGE null
+                COALESCE(TRIM(i.ADDITIONALDATA), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA2), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA3), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA4), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA5), '') ||
+                COALESCE(', ' || TRIM(i.ADDITIONALDATA6), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ2), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ3), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ4), '') ||
+                COALESCE(', ' || TRIM(i.PROD_ORDER_AKJ5), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ2), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ3), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ4), '') ||
+                COALESCE(', ' || TRIM(i.SALESORDER_AKJ5), '') ||
+                COALESCE(', ' || TRIM(ibn.PROJECTCODE), '')
+            ) AS PO_GREIGE,
+            CASE a.VALUESTRING
+                WHEN '1' THEN 'L/D'
+                WHEN '2' THEN 'First Lot'
+                WHEN '3' THEN 'Original'
+                WHEN '4' THEN 'Previous Order'
+                WHEN '5' THEN 'Master Color'
+                WHEN '6' THEN 'Lampiran Buyer'
+                WHEN '7' THEN 'Body'
+                ELSE ''
+            END AS COLOR_STANDARD,
+            i.WARNA,
+            TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
+            a2.VALUESTRING AS COLORREMARKS,
+            TRIM(i.SUBCODE01) AS SUBCODE01,
+            TRIM(i.SUBCODE02) AS SUBCODE02,
+            TRIM(i.SUBCODE03) AS SUBCODE03,
+            TRIM(i.SUBCODE04) AS SUBCODE04,
+            TRIM(i.SUBCODE05) AS SUBCODE05,
+            TRIM(i.SUBCODE06) AS SUBCODE06,
+            TRIM(i.SUBCODE07) AS SUBCODE07,
+            TRIM(i.SUBCODE08) AS SUBCODE08,
+            TRIM(i.SUBCODE09) AS SUBCODE09,
+            TRIM(i.SUBCODE10) AS SUBCODE10
+        FROM
+            ITXVIEWBONORDER i
+        LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
+                            AND p.SUBCODE01 = i.SUBCODE01 
+                            AND p.SUBCODE02 = i.SUBCODE02 
+                            AND p.SUBCODE03 = i.SUBCODE03 
+                            AND p.SUBCODE04 = i.SUBCODE04 
+                            AND p.SUBCODE05 = i.SUBCODE05 
+                            AND p.SUBCODE06 = i.SUBCODE06 
+                            AND p.SUBCODE07 = i.SUBCODE07 
+                            AND p.SUBCODE08 = i.SUBCODE08 
+                            AND p.SUBCODE09 = i.SUBCODE09 
+                            AND p.SUBCODE10 = i.SUBCODE10
+        LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
+        LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
+        LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
+        LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+        LEFT JOIN ITXVIEW_BOOKING_NEW ibn ON ibn.SALESORDERCODE = i.SALESORDERCODE AND ibn.ORDERLINE = i.ORDERLINE
+        LEFT JOIN (
+            SELECT 
+                SALESORDERCODE,
+                ORDERLINE,
+                LISTAGG(DEMAND_KGF, ', ') WITHIN GROUP (ORDER BY DEMAND_KGF) AS PO_GREIGE
+            FROM (
+                SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW
+                UNION
+                SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW2
+                UNION
+                SELECT SALESORDERCODE, ORDERLINE, DEMAND_KGF FROM ITXVIEWPOGREIGENEW3
+            ) all_data
+            WHERE DEMAND_KGF IS NOT NULL
+            GROUP BY SALESORDERCODE, ORDERLINE
+        ) pg ON pg.SALESORDERCODE = i.SALESORDERCODE AND pg.ORDERLINE = i.ORDERLINE
+        WHERE i.SALESORDERCODE = '$code')
+        GROUP BY
+            SALESORDERCODE,
+            ORDERLINE,
+            LEGALNAME1,
+            AKJ,
+            JENIS_KAIN,
+            ITEMCODE,
+            NO_PO,
+            GRAMASI,
+            LEBAR,
+            COLOR_STANDARD,
+            WARNA,
+            KODE_WARNA,
+            COLORREMARKS,
+            SUBCODE01,
+            SUBCODE02,
+            SUBCODE03,
+            SUBCODE04,
+            SUBCODE05,
+            SUBCODE06,
+            SUBCODE07,
+            SUBCODE08,
+            SUBCODE09,
+            SUBCODE10";
 
 $stmt = db2_exec($conn1, $query);
 $no = 1;
