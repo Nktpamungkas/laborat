@@ -671,7 +671,7 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->
+	<!-- Temp -->	
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
@@ -682,7 +682,35 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
@@ -691,7 +719,7 @@
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
 				<option value="">Pilih...</option>
@@ -700,12 +728,41 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
 		</div>
 	</div>
+
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -812,7 +869,7 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->
+	<!-- Temp -->	
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
@@ -823,7 +880,35 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
@@ -832,7 +917,7 @@
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
 				<option value="">Pilih...</option>
@@ -841,12 +926,41 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
 		</div>
 	</div>
+
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -997,7 +1111,7 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->
+	<!-- Temp -->	
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
@@ -1008,7 +1122,35 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
@@ -1017,7 +1159,7 @@
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
 				<option value="">Pilih...</option>
@@ -1026,12 +1168,41 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
 		</div>
 	</div>
+
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -1301,7 +1472,7 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->
+	<!-- Temp -->	
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
@@ -1312,7 +1483,35 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
@@ -1321,7 +1520,7 @@
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
 				<option value="">Pilih...</option>
@@ -1330,12 +1529,41 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
 		</div>
 	</div>
+
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -1953,7 +2181,7 @@
 			?>
 		</div>
 	</div>
-	<!-- Temp -->
+	<!-- Temp -->	
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
@@ -1964,7 +2192,35 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
@@ -1973,7 +2229,7 @@
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
 				<option value="">Pilih...</option>
@@ -1982,12 +2238,41 @@
 				$result = mysqli_query($con, $query);
 
 				while ($row = mysqli_fetch_assoc($result)) {
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . htmlspecialchars($row['product_name']) . '</option>';
+					$optionText = htmlspecialchars($row['product_name']);
+					$program = $row['program'];
+					$dyeing = $row['dyeing'];
+					$dispensing = $row['dispensing'];
+
+					$additionalInfo = '';
+					if ($program == 1) {
+						$additionalInfo = 'KONSTAN';
+					} elseif ($program == 2) {
+						$additionalInfo = 'RAISING';
+					} else {
+						$additionalInfo = '-';
+					}
+
+					if ($dyeing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dyeing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					}
+
+					if ($dispensing == 1 ) {
+						$additionalInfo .= ' - POLY';
+					} elseif ($dispensing == 2 ) {
+						$additionalInfo .= ' - COTTON';
+					} elseif ($dispensing == 3) {
+						$additionalInfo .= ' - WHITE';
+					}
+
+					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
 				}
 				?>
 			</select>
 		</div>
 	</div>
+
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
