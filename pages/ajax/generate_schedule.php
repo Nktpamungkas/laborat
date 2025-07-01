@@ -24,15 +24,26 @@ if (isset($_POST['schedules'])) {
             $idMap[$groupName][$chunkIndex] = [];
 
             foreach ($chunk as $no_resep) {
-                $stmt = $con->prepare("SELECT id, is_old_data FROM tbl_preliminary_schedule 
-                                       WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
-                                       ORDER BY id DESC LIMIT 1");
+                // $stmt = $con->prepare("SELECT id, is_old_data FROM tbl_preliminary_schedule 
+                //                        WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
+                //                        ORDER BY id DESC LIMIT 1");
+                $stmt = $con->prepare("SELECT ps.id, ps.is_old_data, tm.jenis_matching 
+                                        FROM tbl_preliminary_schedule ps
+                                        LEFT JOIN tbl_matching tm ON 
+                                            CASE 
+                                                WHEN LEFT(ps.no_resep, 2) = 'DR' 
+                                                    THEN LEFT(ps.no_resep, LENGTH(ps.no_resep) - 2)
+                                                ELSE ps.no_resep
+                                            END = tm.no_resep
+                                        WHERE ps.no_resep = ? AND ps.status = 'ready' AND (ps.no_machine IS NULL OR ps.no_machine = '') 
+                                        ORDER BY ps.id DESC LIMIT 1");
+
                 $stmt->bind_param("s", $no_resep);
                 $stmt->execute();
-                $stmt->bind_result($id, $is_old_data);
+                $stmt->bind_result($id, $is_old_data, $jenis_matching);
 
                 if ($stmt->fetch()) {
-                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data];
+                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data, 'matching' => $jenis_matching];
                     $stmt->close();
 
                     // Tandai ID ini agar tidak digunakan lagi sementara
@@ -187,9 +198,10 @@ if (isset($_POST['schedules'])) {
                                                 data-resep="<?= htmlspecialchars($no_resep) ?>"
                                                 data-group="<?= htmlspecialchars($groupName) ?>">
                                                 <?= htmlspecialchars($no_resep) ?>
+                                                <!-- <?= htmlspecialchars($no_resep) . ' - ' . htmlspecialchars($id_info['matching'] ?? '') ?> -->
                                             </span>
                                         <?php else: ?>
-                                            <?= htmlspecialchars($no_resep) ?>
+                                            <!-- <?= htmlspecialchars($no_resep) ?> -->
                                         <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
