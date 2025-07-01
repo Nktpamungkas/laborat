@@ -313,7 +313,7 @@
 
             if (isActiveStatus) {
                 rowHTML += `
-                    <td align="center">${item.no_resep}</td>
+                    <td align="center">${item.no_resep} - ${item.jenis_matching}</td>
                     <td align="center">${item.product_name}</td>
                     <td align="center">${item.status}</td>
                 `;

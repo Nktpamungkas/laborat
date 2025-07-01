@@ -9,7 +9,8 @@ try {
             master_suhu.product_name,
             master_suhu.suhu,
             master_suhu.waktu,
-            master_suhu.dispensing
+            master_suhu.dispensing,
+            tbl_matching.jenis_matching
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
