@@ -344,42 +344,28 @@
             </select>
         </div>
     </div>
-    <!-- Temp -->
+    <!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
-                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
-                }
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
-    <!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
+
+	<!-- Temp 2  -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
 		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result2 = mysqli_query($con, $query2);
-
-				while ($row = mysqli_fetch_assoc($result2)) {
-                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
-					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
+
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -491,40 +477,28 @@
             </select>
         </div>
     </div>
-    <div class="form-group">
+    <!-- Temp 1 -->
+	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
-                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
-                }
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
-    <div class="form-group" id="temp2-wrapper" style="display: none;">
+
+	<!-- Temp 2  -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
 		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result2 = mysqli_query($con, $query2);
-
-				while ($row = mysqli_fetch_assoc($result2)) {
-                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
-					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
+
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -648,40 +622,28 @@
             </select>
         </div>
     </div>
-    <div class="form-group">
+    <!-- Temp 1 -->
+	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
-                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
-                }
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
-    <div class="form-group" id="temp2-wrapper" style="display: none;">
+
+	<!-- Temp 2  -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
 		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result2 = mysqli_query($con, $query2);
-
-				while ($row = mysqli_fetch_assoc($result2)) {
-                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
-					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
+
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -798,40 +760,28 @@
             </select>
         </div>
     </div>
-    <div class="form-group">
+    <!-- Temp 1 -->
+	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
-                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
-                }
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
-    <div class="form-group" id="temp2-wrapper" style="display: none;">
+
+	<!-- Temp 2  -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
 		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result2 = mysqli_query($con, $query2);
-
-				while ($row = mysqli_fetch_assoc($result2)) {
-                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
-					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
+
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -966,40 +916,28 @@
             </select>
         </div>
     </div>
-    <div class="form-group">
+    <!-- Temp 1 -->
+	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-                    $selected = ($row['code'] == $data['temp_code']) ? 'selected' : '';
-                    echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected . '>' . htmlspecialchars($row['product_name']) . '</option>';
-                }
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
-    <div class="form-group" id="temp2-wrapper" style="display: none;">
+
+	<!-- Temp 2  -->
+	<div class="form-group" id="temp2-wrapper" style="display: none;">
 		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query2 = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result2 = mysqli_query($con, $query2);
-
-				while ($row = mysqli_fetch_assoc($result2)) {
-                    $selected2 = ($row['code'] == $data['temp_code2']) ? 'selected' : '';
-					echo '<option value="' . htmlspecialchars($row['code']) . '" ' . $selected2 . '>' . htmlspecialchars($row['product_name']) . '</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
+
     <div class="box-footer">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -1378,7 +1316,7 @@
     });
 </script>
 
-<script>
+<!-- <script>
 	function toggleTemp2() {
 		const noResepInput = document.getElementById('no_resep');
 		const temp2Wrapper = document.getElementById('temp2-wrapper');
@@ -1390,6 +1328,71 @@
 			} else {
 				temp2Wrapper.style.display = 'none';
 			}
+		}
+	}
+
+	document.addEventListener('DOMContentLoaded', function () {
+		const noResepInput = document.getElementById('no_resep');
+		if (noResepInput) {
+			toggleTemp2();
+			noResepInput.addEventListener('input', toggleTemp2);
+		}
+	});
+</script> -->
+<script>
+	function toggleTemp2() {
+		const noResepInput = document.getElementById('no_resep');
+		const temp2Wrapper = document.getElementById('temp2-wrapper');
+		const tempCode = document.getElementById('temp_code');
+		const tempCode2 = document.getElementById('temp_code2');
+
+		if (!noResepInput) return;
+
+		const value = noResepInput.value.trim().toUpperCase();
+		let dystf = '';
+		const prefix = value.slice(0, 2);
+
+		// Ambil prefix yang sesuai
+		if (prefix === 'DR') {
+			dystf = 'DR';
+			temp2Wrapper.style.display = 'flex';
+		} else if (prefix === 'CD') {
+			dystf = 'CD';
+			temp2Wrapper.style.display = 'none';
+		} else if (prefix === 'OB') {
+			dystf = 'OB';
+			temp2Wrapper.style.display = 'none';
+		} else {
+			const char = prefix.charAt(0);
+			if (char === 'D' || char === 'A') {
+				dystf = 'D';
+			} else if (char === 'R') {
+				dystf = 'R';
+			} else {
+				dystf = '';
+			}
+			temp2Wrapper.style.display = 'none';
+		}
+
+		// Ambil dan isi opsi suhu
+		if (dystf !== '') {
+			fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf))
+				.then(response => response.text())
+				.then(data => {
+					if (tempCode) {
+						tempCode.innerHTML = '<option value="">Pilih...</option>' + data;
+					}
+					if (tempCode2) {
+						if (dystf === 'DR') {
+							tempCode2.innerHTML = '<option value="">Pilih...</option>' + data;
+						} else {
+							tempCode2.innerHTML = '<option value="">Pilih...</option>';
+						}
+					}
+				});
+		} else {
+			if (tempCode) tempCode.innerHTML = '<option value="">Pilih...</option>';
+			if (tempCode2) tempCode2.innerHTML = '<option value="">Pilih...</option>';
 		}
 	}
 

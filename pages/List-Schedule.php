@@ -348,7 +348,7 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
                     data: { rcode: rcode },
                     success: function (response) {
                         if (response.needInput) {
-                            fetch("pages/ajax/get_temp_code_options.php")
+                            fetch(`pages/ajax/get_temp_code_options.php?rcode=${encodeURIComponent(rcode)}`)
                                 .then(res => res.json())
                                 .then(options => {
 
