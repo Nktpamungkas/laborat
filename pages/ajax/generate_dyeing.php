@@ -2,74 +2,11 @@
 session_start();
 include '../../koneksi.php';
 
-// header('Content-Type: application/json');
-
-// if (!isset($_POST['schedules'])) {
-//     echo json_encode(['status' => 'error', 'message' => 'Schedules not provided']);
-//     exit;
-// }
-
-// $schedules = json_decode($_POST['schedules'], true);
-// $maxRows = 24;
-// $scheduleChunks = [];
-
-// foreach ($schedules as $groupName => $noReseps) {
-//     $scheduleChunks[$groupName] = array_chunk($noReseps, $maxRows);
-// }
-
-// $dataTable = [];
-
-// foreach ($scheduleChunks as $groupName => $chunks) {
-//     $stmtInfo = $con->prepare("SELECT dyeing, product_name FROM master_suhu WHERE `group` = ?");
-//     $stmtInfo->bind_param("s", $groupName);
-//     $stmtInfo->execute();
-//     $resultInfo = $stmtInfo->get_result();
-
-//     $dyeingType = '';
-//     $productNames = [];
-
-//     while ($row = $resultInfo->fetch_assoc()) {
-//         $productNames[] = $row['product_name'];
-//         if ($row['dyeing'] == '1') $dyeingType = 'POLY';
-//         if ($row['dyeing'] == '2') $dyeingType = 'COTTON';
-//     }
-//     $stmtInfo->close();
-
-//     foreach ($chunks as $chunkIndex => $chunk) {
-//         foreach ($chunk as $i => $no_resep) {
-//             $stmt = $con->prepare("SELECT id, no_machine, status FROM tbl_preliminary_schedule 
-//                                    WHERE no_resep = ?
-//                                    AND status IN ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing', 'in_progress_darkroom', 'ok')
-//                                    ORDER BY id ASC LIMIT 1");
-//             $stmt->bind_param("s", $no_resep);
-//             $stmt->execute();
-//             $stmt->bind_result($id, $no_machine, $status);
-//             $stmt->fetch();
-//             $stmt->close();
-
-//             $dataTable[$i][$groupName][$chunkIndex] = [
-//                 'no_resep' => $no_resep,
-//                 'id' => $id,
-//                 'no_machine' => $no_machine ?: '-',
-//                 'status' => $status ?: '-',
-//                 'product_names' => implode('; ', $productNames),
-//                 'dyeing' => $dyeingType
-//             ];
-//         }
-//     }
-// }
-
-// echo json_encode(['status' => 'success', 'data' => $dataTable, 'meta' => [
-//     'groups' => $schedules,
-//     'maxRows' => $maxRows
-// ]]);
-
+// Ambil data utama (tidak termasuk old_data)
 $statuses = [
     'scheduled',
     'in_progress_dispensing',
-    'in_progress_dyeing',
-    // 'in_progress_darkroom',
-    // 'ok'
+    'in_progress_dyeing'
 ];
 
 $statusList = "'" . implode("','", $statuses) . "'";
@@ -77,29 +14,28 @@ $statusList = "'" . implode("','", $statuses) . "'";
 $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
         FROM tbl_preliminary_schedule tps
         LEFT JOIN master_suhu ms ON tps.code = ms.code
-        -- LEFT JOIN tbl_matching ON tps.no_resep = tbl_matching.no_resep
         LEFT JOIN tbl_matching ON 
-			CASE WHEN LEFT(tps.no_resep, 2) = 'DR' 
-				THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
-				ELSE tps.no_resep
-			END = tbl_matching.no_resep
-        WHERE tps.status IN ($statusList)
+            CASE WHEN LEFT(tps.no_resep, 2) = 'DR' 
+                THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
+                ELSE tps.no_resep
+            END = tbl_matching.no_resep
+        WHERE tps.status IN ($statusList) AND tps.is_old_data = 0
         ORDER BY
             CASE 
-                    WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                    WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
-                    WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
-                    ELSE 4
+                WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
+                WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
+                ELSE 4
             END,
             CASE 
-                    WHEN tps.order_index > 0 THEN 0 
-                    ELSE 1 
+                WHEN tps.order_index > 0 THEN 0 
+                ELSE 1 
             END, 
             tps.order_index ASC,
             ms.suhu DESC, 
             ms.waktu DESC, 
             tps.no_resep ASC";
-        // ORDER BY tps.no_machine ASC, tps.id ASC";
+
 $result = mysqli_query($con, $sql);
 
 $data = [];
@@ -123,6 +59,52 @@ while ($row = mysqli_fetch_assoc($result)) {
     }
 }
 
+// Ambil old data (is_old_data = 1)
+$oldDataList = [];
+$oldQuery = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
+             FROM tbl_preliminary_schedule tps
+             LEFT JOIN master_suhu ms ON tps.code = ms.code
+             WHERE tps.is_old_data = 1";
+$oldResult = mysqli_query($con, $oldQuery);
+
+while ($row = mysqli_fetch_assoc($oldResult)) {
+    $oldDataList[] = $row;
+}
+
+// Mesin yang punya data utama
+$machinesWithMainData = array_keys($data);
+
+// Pindahkan semua old data ke mesin yang benar-benar kosong (tidak ada data utama)
+$remainingOldData = [];
+
+foreach ($oldDataList as $old) {
+    $machine = $old['no_machine'] ?: 'UNASSIGNED';
+
+    if (!in_array($machine, $machinesWithMainData) || count($data[$machine]) === 0) {
+        if (!isset($data[$machine])) $data[$machine] = [];
+
+        $data[$machine][] = [
+            'no_resep' => $old['no_resep'],
+            'status' => $old['status'],
+            'group' => $old['group'],
+            'product_name' => $old['product_name'],
+            'dyeing_start' => $old['dyeing_start'],
+            'waktu' => $old['waktu'],
+            'justMoved' => true
+        ];
+    } else {
+        $remainingOldData[] = $old;
+    }
+}
+
+// Hitung ulang maxPerMachine setelah penambahan old data
+foreach ($data as $rows) {
+    if (count($rows) > $maxPerMachine) {
+        $maxPerMachine = count($rows);
+    }
+}
+
+// Buat tempListMap dari data utama
 $tempListMap = [];
 
 foreach ($data as $machine => $entries) {
@@ -140,7 +122,7 @@ foreach ($data as $machine => $entries) {
     if ($firstGroup) {
         $groupName = $firstGroup;
 
-        // Dapatkan nilai dyeing
+        // Ambil info dyeing
         $stmt = $con->prepare("SELECT dyeing FROM master_suhu WHERE `group` = ? LIMIT 1");
         $stmt->bind_param("s", $groupName);
         $stmt->execute();
@@ -165,10 +147,6 @@ foreach ($data as $machine => $entries) {
 
         if ($row) {
             $desc = '';
-            // if ($keterangan) {
-            //     $desc .= "[$keterangan] ";
-            // }
-
             if ($row['program'] == 1) {
                 $desc .= 'Constant ' . $row['suhu'];
             } elseif ($row['program'] == 2) {
@@ -177,7 +155,7 @@ foreach ($data as $machine => $entries) {
                 $desc .= 'Unknown';
             }
 
-            $tempListMap[$machine] = [$desc]; // masih array agar JS tetap kompatibel
+            $tempListMap[$machine] = [$desc];
         }
     }
 }
@@ -185,7 +163,8 @@ foreach ($data as $machine => $entries) {
 $response = [
     'data' => $data,
     'tempListMap' => $tempListMap,
-    'maxPerMachine' => $maxPerMachine
+    'maxPerMachine' => $maxPerMachine,
+    'oldDataList' => $remainingOldData
 ];
 
 header('Content-Type: application/json');

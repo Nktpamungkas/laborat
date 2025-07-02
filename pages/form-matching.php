@@ -339,7 +339,7 @@
 			<!-- Custom Tabs -->
 			<div class="nav-tabs-custom">
 				<ul class="nav nav-tabs">
-					<li class="active"><a href="#tab_1" data-toggle="tab">Input Order</a></li>
+					<li class="active"><a href="#tab_1" data-toggle="tab">Input Order <?php $_GET['Dystf'] ?></a></li>
 				</ul>
 				<div class="tab-content">
 					<div class="tab-pane active" id="tab_1">
@@ -671,98 +671,96 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->	
+	
+	<?php
+		$getDyestuff = $_GET['Dystf'] ?? null;
+		$where = "1"; // default: tanpa filter
+
+		// Filtering berdasarkan Dystf
+		if ($getDyestuff) {
+			if ($getDyestuff == 'DR') {
+				$where = "dispensing IN (1,2,3)";
+			} elseif ($getDyestuff == 'CD') {
+				$where = "dispensing = 1";
+			} elseif ($getDyestuff == 'OB') {
+				$where = "dispensing = 3";
+			} else {
+				$char = strtoupper(substr($getDyestuff, 0, 1));
+				switch ($char) {
+					case 'D':
+					case 'A':
+						$where = "dispensing = 1";
+						break;
+					case 'R':
+						$where = "dispensing = 2";
+						break;
+					default:
+						$where = "1";
+				}
+			}
+		}
+
+		// Fungsi untuk generate <option>
+		function generateTempOptions($con, $where) {
+			$query = "SELECT * FROM master_suhu WHERE $where ORDER BY suhu ASC, waktu ASC";
+			$result = mysqli_query($con, $query);
+
+			while ($row = mysqli_fetch_assoc($result)) {
+				$optionText = htmlspecialchars($row['product_name']);
+				$program = $row['program'];
+				$dyeing = $row['dyeing'];
+				$dispensing = $row['dispensing'];
+
+				$additionalInfo = '';
+				if ($program == 1) {
+					$additionalInfo = 'KONSTAN';
+				} elseif ($program == 2) {
+					$additionalInfo = 'RAISING';
+				} else {
+					$additionalInfo = '-';
+				}
+
+				if ($dyeing == 1) {
+					$additionalInfo .= ' - POLY';
+				} elseif ($dyeing == 2) {
+					$additionalInfo .= ' - COTTON';
+				}
+
+				if ($dispensing == 1) {
+					$additionalInfo .= ' - POLY';
+				} elseif ($dispensing == 2) {
+					$additionalInfo .= ' - COTTON';
+				} elseif ($dispensing == 3) {
+					$additionalInfo .= ' - WHITE';
+				}
+
+				echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
+			}
+		}
+	?>
+
+	<!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
-
+	
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
@@ -869,94 +867,25 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->	
+	
+	<!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
@@ -1111,94 +1040,25 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->	
+	
+	<!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
@@ -1472,94 +1332,25 @@
 			</select>
 		</div>
 	</div>
-	<!-- Temp -->	
+	
+	<!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
@@ -2181,94 +1972,25 @@
 			?>
 		</div>
 	</div>
-	<!-- Temp -->	
+
+	<!-- Temp 1 -->
 	<div class="form-group">
 		<label for="temp_code" class="col-sm-2 control-label">Temp</label>
 		<div class="col-sm-2">
 			<select name="temp_code" id="temp_code" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi akan diisi otomatis oleh JS -->
 			</select>
 		</div>
 	</div>
 
 	<!-- Temp 2 (hanya tampil jika Dyestuff == DR) -->
 	<div class="form-group" id="temp2-wrapper" style="display: none;">
-		<label for="temp_code2" class="col-sm-2 control-label">Temp</label>
+		<label for="temp_code2" class="col-sm-2 control-label">Temp 2</label>
 		<div class="col-sm-2">
 			<select name="temp_code2" id="temp_code2" class="form-control">
-				<option value="">Pilih...</option>
-				<?php
-				$query = "SELECT * FROM master_suhu ORDER BY suhu ASC, waktu ASC";
-				$result = mysqli_query($con, $query);
-
-				while ($row = mysqli_fetch_assoc($result)) {
-					$optionText = htmlspecialchars($row['product_name']);
-					$program = $row['program'];
-					$dyeing = $row['dyeing'];
-					$dispensing = $row['dispensing'];
-
-					$additionalInfo = '';
-					if ($program == 1) {
-						$additionalInfo = 'KONSTAN';
-					} elseif ($program == 2) {
-						$additionalInfo = 'RAISING';
-					} else {
-						$additionalInfo = '-';
-					}
-
-					if ($dyeing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dyeing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					}
-
-					if ($dispensing == 1 ) {
-						$additionalInfo .= ' - POLY';
-					} elseif ($dispensing == 2 ) {
-						$additionalInfo .= ' - COTTON';
-					} elseif ($dispensing == 3) {
-						$additionalInfo .= ' - WHITE';
-					}
-
-					echo '<option value="' . htmlspecialchars($row['code']) . '">' . $optionText . ' (' . $additionalInfo . ')</option>';
-				}
-				?>
+			<option value="">Pilih...</option>
+			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
 		</div>
 	</div>
@@ -2569,14 +2291,33 @@
 	function toggleTemp2() {
 		const dyestuffSelect = document.getElementById('Dyestuff');
 		const temp2Wrapper = document.getElementById('temp2-wrapper');
+		const tempCode = document.getElementById('temp_code');
+		const tempCode2 = document.getElementById('temp_code2');
 
-		if (dyestuffSelect && temp2Wrapper) {
-			if (dyestuffSelect.value === 'DR') {
-				temp2Wrapper.style.display = 'flex';
-			} else {
-				temp2Wrapper.style.display = 'none';
-			}
+		if (!dyestuffSelect) return;
+
+		const dystf = dyestuffSelect.value;
+
+		if (dystf === 'DR') {
+			temp2Wrapper.style.display = 'flex';
+		} else {
+			temp2Wrapper.style.display = 'none';
 		}
+
+		fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf))
+			.then(response => response.text())
+			.then(data => {
+				if (tempCode) {
+					tempCode.innerHTML = '<option value="">Pilih...</option>' + data;
+				}
+				if (tempCode2) {
+					if (dystf === 'DR') {
+						tempCode2.innerHTML = '<option value="">Pilih...</option>' + data;
+					} else {
+						tempCode2.innerHTML = '<option value="">Pilih...</option>';
+					}
+				}
+			});
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {

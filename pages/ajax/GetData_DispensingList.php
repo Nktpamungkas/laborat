@@ -34,7 +34,8 @@ try {
             tbl_preliminary_schedule.order_index ASC,
             master_suhu.suhu DESC, 
             master_suhu.waktu DESC, 
-            tbl_preliminary_schedule.no_resep ASC
+            tbl_preliminary_schedule.no_resep ASC,
+            tbl_preliminary_schedule.is_old_data ASC
     ");
 
     // Cek dan isi order_index jika masih nol

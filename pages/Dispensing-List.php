@@ -100,6 +100,9 @@
                                         <th>
                                             <div align="center">Temp</div>
                                         </th>
+                                        <th>
+                                            <div align="center">No. Mesin</div>
+                                        </th>
                                         <!-- <th>
                                             <div align="center">No. Mesin</div>
                                         </th> -->
@@ -134,6 +137,9 @@
                                         <th>
                                             <div align="center">Temp</div>
                                         </th>
+                                        <th>
+                                            <div align="center">No. Mesin</div>
+                                        </th>
                                         <!-- <th>
                                             <div align="center">No. Mesin</div>
                                         </th> -->
@@ -167,6 +173,9 @@
                                         </th>
                                         <th>
                                             <div align="center">Temp</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">No. Mesin</div>
                                         </th>
                                         <!-- <th>
                                             <div align="center">No. Mesin</div>
@@ -303,8 +312,9 @@
             const rowNumber = (index % rowsPerBlock) + 1;
             const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
             const isActiveStatus = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+            const isOld = item.is_old_data == "1";
 
-            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''}" 
+            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''};" 
                             data-id="${item.id}">
                 <td align="center" class="checkbox-cell" style="display: none;">
                     <input type="checkbox" class="row-checkbox">
@@ -313,8 +323,9 @@
 
             if (isActiveStatus) {
                 rowHTML += `
-                    <td align="center">${item.no_resep} - ${item.jenis_matching}</td>
+                    <td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>
                     <td align="center">${item.product_name}</td>
+                    <td align="center">${item.no_machine}</td>
                     <td align="center">${item.status}</td>
                 `;
             } else {

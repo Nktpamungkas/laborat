@@ -127,7 +127,7 @@ if (isset($_POST['schedules'])) {
                             $stmtExclude->close();
 
                             // ✅ Filter final mesin: hanya mesin yang tidak ada di $excludedMachines
-                            $machines = array_values(array_diff($machines, $excludedMachines));
+                            // $machines = array_values(array_diff($machines, $excludedMachines)); "DI UNCOMMEND karena logic berubah lagi"
 
                             // Temp Group
                             // $groupTemp = [];
