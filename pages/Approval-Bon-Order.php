@@ -84,10 +84,14 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                                         <div class="d-flex align-items-center gap-2">
                                             <select class="form-control form-control-sm pic-select" data-code="<?= $code ?>">
                                                 <option value="">-- Pilih PIC --</option>
-                                                <option value="Cecen">Cecen</option>
-                                                <option value="Ridho">Ridho</option>
-                                                <option value="Riyan">Riyan</option>
-                                                <option value="Flavia">Flavia</option>
+                                                <?php
+                                                    // Daftar PIC yang bisa dipilih
+                                                    $queryPIC = "SELECT * FROM tbl_user WHERE pic_bonorder = 1 ORDER BY id ASC";
+                                                    $resultPIC = mysqli_query($con, $queryPIC);
+                                                ?>
+                                                <?php while ($rowPIC = mysqli_fetch_assoc($resultPIC)) : ?>
+                                                    <option value="<?= $rowPIC['username'] ?>"><?= $rowPIC['username'] ?></option>
+                                                <?php endwhile; ?>
                                             </select>
                                             <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
                                             <button class="btn btn-danger btn-sm reject-btn" data-code="<?= $code ?>">Reject</button>

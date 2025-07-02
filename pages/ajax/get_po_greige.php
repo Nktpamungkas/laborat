@@ -3,120 +3,514 @@ include "../../koneksi.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     $orderCode = $_POST['order_code'];
-    $orderLine = $_POST['order_line'];
 
-    // Step 1: Ambil semua DEMAND_KGF dari 3 tabel
-    $sql = "
-        SELECT DEMAND_KGF FROM ITXVIEWPOGREIGENEW WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL
-        UNION
-        SELECT DEMAND_KGF FROM ITXVIEWPOGREIGENEW2 WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL
-        UNION
-        SELECT DEMAND_KGF FROM ITXVIEWPOGREIGENEW3 WHERE SALESORDERCODE = ? AND DEMAND_KGF IS NOT NULL
-    ";
-    $stmt = db2_prepare($conn1, $sql);
-    db2_bind_param($stmt, 1, "orderCode", DB2_PARAM_IN);
-    db2_bind_param($stmt, 2, "orderCode", DB2_PARAM_IN);
-    db2_bind_param($stmt, 3, "orderCode", DB2_PARAM_IN);
-    db2_execute($stmt);
+    $query = "SELECT DISTINCT 
+                    SALESORDERCODE,
+                    ORDERLINE,
+                    LEGALNAME1,
+                    AKJ,
+                    JENIS_KAIN,
+                    ITEMCODE,
+                    LISTAGG(NOTETAS, ', ') AS NOTETAS,
+                    NO_PO,
+                    GRAMASI,
+                    LEBAR,
+                    COLOR_STANDARD,
+                    WARNA,
+                    KODE_WARNA,
+                    COLORREMARKS,
+                    SUBCODE01,
+                    SUBCODE02,
+                    SUBCODE03,
+                    SUBCODE04,
+                    SUBCODE04_FIXED,
+                    SUBCODE05,
+                    SUBCODE06,
+                    SUBCODE07,
+                    SUBCODE08,
+                    SUBCODE09,
+                    SUBCODE10
+                FROM 
+                (SELECT
+                    i.SALESORDERCODE,
+                    i.ORDERLINE,
+                    CASE 
+                        WHEN i.ITEMTYPEAFICODE = 'KFF' THEN i.RESERVATION_SUBCODE04
+                        ELSE i.SUBCODE04
+                    END AS SUBCODE04_FIXED,
+                    i.LEGALNAME1,
+                    i.AKJ,
+                    p.LONGDESCRIPTION AS JENIS_KAIN,
+                    i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
+                    i.NOTETAS,
+                    i.EXTERNALREFERENCE AS NO_PO,
+                    COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+                    i3.LEBAR,
+                    CASE a.VALUESTRING
+                        WHEN '1' THEN 'L/D'
+                        WHEN '2' THEN 'First Lot'
+                        WHEN '3' THEN 'Original'
+                        WHEN '4' THEN 'Previous Order'
+                        WHEN '5' THEN 'Master Color'
+                        WHEN '6' THEN 'Lampiran Buyer'
+                        WHEN '7' THEN 'Body'
+                        ELSE ''
+                    END AS COLOR_STANDARD,
+                    i.WARNA,
+                    TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
+                    a2.VALUESTRING AS COLORREMARKS,
+                    TRIM(i.SUBCODE01) AS SUBCODE01,
+                    TRIM(i.SUBCODE02) AS SUBCODE02,
+                    TRIM(i.SUBCODE03) AS SUBCODE03,
+                    TRIM(i.SUBCODE04) AS SUBCODE04,
+                    TRIM(i.SUBCODE05) AS SUBCODE05,
+                    TRIM(i.SUBCODE06) AS SUBCODE06,
+                    TRIM(i.SUBCODE07) AS SUBCODE07,
+                    TRIM(i.SUBCODE08) AS SUBCODE08,
+                    TRIM(i.SUBCODE09) AS SUBCODE09,
+                    TRIM(i.SUBCODE10) AS SUBCODE10
+                FROM
+                    ITXVIEWBONORDER i
+                LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
+                                    AND p.SUBCODE01 = i.SUBCODE01 
+                                    AND p.SUBCODE02 = i.SUBCODE02 
+                                    AND p.SUBCODE03 = i.SUBCODE03 
+                                    AND p.SUBCODE04 = i.SUBCODE04 
+                                    AND p.SUBCODE05 = i.SUBCODE05 
+                                    AND p.SUBCODE06 = i.SUBCODE06 
+                                    AND p.SUBCODE07 = i.SUBCODE07 
+                                    AND p.SUBCODE08 = i.SUBCODE08 
+                                    AND p.SUBCODE09 = i.SUBCODE09 
+                                    AND p.SUBCODE10 = i.SUBCODE10
+                LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
+                LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
+                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
+                LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+                WHERE i.SALESORDERCODE = '$orderCode')
+                GROUP BY
+                    SALESORDERCODE,
+                    ORDERLINE,
+                    LEGALNAME1,
+                    AKJ,
+                    JENIS_KAIN,
+                    ITEMCODE,
+                    NO_PO,
+                    GRAMASI,
+                    LEBAR,
+                    COLOR_STANDARD,
+                    WARNA,
+                    KODE_WARNA,
+                    COLORREMARKS,
+                    SUBCODE01,
+                    SUBCODE02,
+                    SUBCODE03,
+                    SUBCODE04,
+                    SUBCODE04_FIXED,
+                    SUBCODE05,
+                    SUBCODE06,
+                    SUBCODE07,
+                    SUBCODE08,
+                    SUBCODE09,
+                    SUBCODE10
+                ORDER BY
+                    ORDERLINE 
+                ASC";
+    $stmt = db2_exec($conn1, $query);
 
-    $poList = [];
-    while ($row = db2_fetch_assoc($stmt)) {
-        if (!empty($row['DEMAND_KGF'])) {
-            $poList[] = trim($row['DEMAND_KGF']);
-        }
-    }
+    // Contoh isi dummy
+    $html = '
+    <table class="table table-sm table-bordered mb-0">
+        <thead class="bg-warning text-white">
+            <tr>
+                <th>WARNA</th>
+                <th style="width: 40%;">BENANG</th>
+                <th>PO GREIGE</th>
+                <th>PIC Check</th>
+                <th>Status Bon Order</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>';
+        while ($row = db2_fetch_assoc($stmt)) {
+            // Ambil data ITXVIEWBONORDER
+            $q_itxviewkk = db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i WHERE SALESORDERCODE = '{$row['SALESORDERCODE']}' AND ORDERLINE = '{$row['ORDERLINE']}'");
+            $d_itxviewkk = db2_fetch_assoc($q_itxviewkk);
 
-    // Step 2: Ambil ADDITIONALDATA1–6 dari ITXVIEWBONORDER
-    $sqlAdd = "SELECT 
-                ibo.ADDITIONALDATA, ibo.ADDITIONALDATA2, ibo.ADDITIONALDATA3, 
-                ibo.ADDITIONALDATA4, ibo.ADDITIONALDATA5, ibo.ADDITIONALDATA6,
-                ibo.PROD_ORDER_AKJ, ibo.PROD_ORDER_AKJ2, ibo.PROD_ORDER_AKJ3, 
-                ibo.PROD_ORDER_AKJ4, ibo.PROD_ORDER_AKJ5,
-                ibo.SALESORDER_AKJ, ibo.SALESORDER_AKJ2, ibo.SALESORDER_AKJ3, 
-                ibo.SALESORDER_AKJ4, ibo.SALESORDER_AKJ5,
-                ibn.PROJECTCODE
-            FROM ITXVIEWBONORDER ibo
-            LEFT JOIN ITXVIEW_BOOKING_NEW ibn 
-                ON ibo.SALESORDERCODE = ibn.SALESORDERCODE
-            WHERE ibo.SALESORDERCODE = ?";
+            // Tentukan $subcode04 berdasarkan ITEMTYPEAFICODE
+            if ($d_itxviewkk['ITEMTYPEAFICODE'] === 'KFF') {
+                $subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
+            } else {
+                $subcode04 = $d_itxviewkk['SUBCODE04'];
+            }
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA/LEGACYORDER (Rajut)
+                $skipRajut = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' ||
+                    !empty($d_itxviewkk['ADDITIONALDATA']) ||
+                    !empty($d_itxviewkk['LEGACYORDER'])
+                );
+
+                if ($skipRajut) {
+                    $d_rajut = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_rajut = db2_exec($conn1, "SELECT
+                                                    SUMMARIZEDDESCRIPTION AS BENANG,
+                                                    CODE AS PO_GREIGE
+                                                FROM ITXVIEW_RAJUT
+                                                WHERE
+                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                    AND SUBCODE04 = '$subcode04'
+                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$row['SALESORDERCODE']}'
+                                                    AND (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_rajut = db2_fetch_assoc($q_rajut) ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA/LEGACYORDER (Rajut)
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (Ready)
+                $skipReady = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' ||
+                    !empty($d_itxviewkk['ADDITIONALDATA'])
+                );
+
+                if ($skipReady) {
+                    $d_booking_new = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_new = db2_exec($conn1, "SELECT
+                                                            PROJECTCODE AS PO_GREIGE,
+                                                            SUMMARIZEDDESCRIPTION AS BENANG
+                                                        FROM ITXVIEW_BOOKING_NEW
+                                                        WHERE
+                                                            SALESORDERCODE = '{$row['SALESORDERCODE']}'
+                                                            AND ORDERLINE = '{$row['ORDERLINE']}'");
+                    $d_booking_new = db2_fetch_assoc($q_booking_new) ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (Ready)
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 1
+                $skipBlmReady1 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady1) {
+                    $d_booking_new = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_1	= db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_1	= db2_fetch_assoc($q_booking_blm_ready_1);
+                    $d_booking_blm_ready_1 = $d_booking_blm_ready_1 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 1
+            
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 2
+                $skipBlmReady2 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady2) {
+                    $d_booking_new = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_2	= db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA2']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_2	= db2_fetch_assoc($q_booking_blm_ready_2);
+                    $d_booking_blm_ready_2 = $d_booking_blm_ready_2 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 2
+            
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 3
+                $skipBlmReady3 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady3) {
+                    $d_booking_blm_ready_3 = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_3 = db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA3']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_3 = db2_fetch_assoc($q_booking_blm_ready_3);
+                    $d_booking_blm_ready_3 = $d_booking_blm_ready_3 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 3
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 4
+                $skipBlmReady4 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady4) {
+                    $d_booking_blm_ready_4 = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_4 = db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA4']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_4 = db2_fetch_assoc($q_booking_blm_ready_4);
+                    $d_booking_blm_ready_4 = $d_booking_blm_ready_4 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 4
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 5
+                $skipBlmReady5 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady5) {
+                    $d_booking_blm_ready_5 = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_5 = db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA5']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_5 = db2_fetch_assoc($q_booking_blm_ready_5);
+                    $d_booking_blm_ready_5 = $d_booking_blm_ready_5 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 5
+
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
+                $skipBlmReady6 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady6) {
+                    $d_booking_blm_ready_6 = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_6 = db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA6']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_6 = db2_fetch_assoc($q_booking_blm_ready_6);
+                    $d_booking_blm_ready_6 = $d_booking_blm_ready_6 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
+
+            // Gabungkan BENANG
+                $benangList = array_values(array_filter([
+                    htmlspecialchars($d_rajut['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_new['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_1['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_2['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_3['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_4['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_5['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_6['BENANG'] ?? '')
+                ]));
+            // Gabungkan BENANG
+
+            // Gabungkan PO_GREIGE
+                $po_greige_List = array_values(array_filter([
+                    htmlspecialchars($d_rajut['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_new['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_1['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_2['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_3['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_4['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_5['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_6['PO_GREIGE'] ?? '')
+                ]));
+            // Gabungkan PO_GREIGE
+
+            // Hitung max — biar tidak error kalau jumlahnya beda
+                $max = max(count($benangList), count($po_greige_List));
+            // Hitung max — biar tidak error kalau jumlahnya beda
+
+            for ($i = 0; $i < $max; $i++) {
+                $benang = $benangList[$i] ?? '';
+                $po     = $po_greige_List[$i] ?? '';
+
+                // Cek data yang sudah pernah disimpan untuk kombinasi ini
+                $selectedPIC = '';
+                $selectedStatus = '';
+
+                $queryCheck = "SELECT * FROM status_matching_bon_order 
+                                    WHERE 
+                                        salesorder = '{$row['SALESORDERCODE']}' 
+                                        AND orderline = '{$row['ORDERLINE']}'
+                                        AND warna = '{$row['WARNA']}'
+                                        AND po_greige = '$po'
+                                    LIMIT 1";
+                $resultCheck = mysqli_query($con, $queryCheck);
+                if ($resultCheck && mysqli_num_rows($resultCheck) > 0) {
+                    $dataCheck = mysqli_fetch_assoc($resultCheck);
+                    $selectedPIC = htmlspecialchars($dataCheck['pic_check']);
+                    $selectedStatus = htmlspecialchars($dataCheck['status_bonorder']);
+                    $btnLabelSimpanEdit = 'Edit';
+                }else{
+                    $btnLabelSimpanEdit = 'Simpan';
+                }
                 
-    $extraColumns = [
-        'ADDITIONALDATA', 'ADDITIONALDATA2', 'ADDITIONALDATA3', 'ADDITIONALDATA4', 'ADDITIONALDATA5', 'ADDITIONALDATA6',
-        'PROD_ORDER_AKJ', 'PROD_ORDER_AKJ2', 'PROD_ORDER_AKJ3', 'PROD_ORDER_AKJ4', 'PROD_ORDER_AKJ5',
-        'SALESORDER_AKJ', 'SALESORDER_AKJ2', 'SALESORDER_AKJ3', 'SALESORDER_AKJ4', 'SALESORDER_AKJ5', 'PROJECTCODE'
-    ];
+                // PIC SELECT
+                    $queryPIC = "SELECT * FROM tbl_user WHERE pic_bonorder = 1 ORDER BY id ASC";
+                    $resultPIC = mysqli_query($con, $queryPIC);
 
-    $stmtAdd = db2_prepare($conn1, $sqlAdd);
-    db2_bind_param($stmtAdd, 1, "orderCode", DB2_PARAM_IN);
-    db2_execute($stmtAdd);
+                    $optionPIC = '<option value="">-- Pilih PIC --</option>';
+                    while ($rowPIC = mysqli_fetch_assoc($resultPIC)) {
+                        $picValue = htmlspecialchars($rowPIC['username']);
+                        $selected = ($picValue === $selectedPIC) ? 'selected' : '';
+                        $optionPIC .= "<option value=\"$picValue\" $selected>$picValue</option>";
+                    }
+                // PIC SELECT
 
-    while ($addRow = db2_fetch_assoc($stmtAdd)) {
-        foreach ($extraColumns as $col) {
-            if (!empty($addRow[$col])) {
-                $poList[] = trim($addRow[$col]);
+                // Status Select
+                    $statuses = ['OK', 'Matching Ulang'];
+                    $optionStatus = "<option value=''>--Pilih--</option>";
+
+                    foreach ($statuses as $status) {
+                        $selected = ($status === $selectedStatus) ? 'selected' : '';
+                        $optionStatus .= "<option value=\"$status\" $selected>$status</option>";
+                    }
+                // Status Select
+
+                $html .= "
+                    <tr class=\"row-item\">
+                        <td hidden class=\"td-salesorder\">{$row['SALESORDERCODE']}</td>
+                        <td hidden class=\"td-orderline\">{$row['ORDERLINE']}</td>
+                        <td class=\"td-warna\">{$row['WARNA']}</td>
+                        <td class=\"td-benang\">$benang</td>
+                        <td class=\"td-po\">$po</td>
+                        <td>
+                            <select class=\"form-control form-control-sm pic-check\">
+                                $optionPIC
+                            </select>
+                        </td>
+                        <td>
+                            <select class=\"form-control form-control-sm status-bonorder\">
+                                $optionStatus
+                            </select>
+                        </td>
+                        <td>
+                            <button type=\"button\" class=\"btn btn-primary btn-sm btn-simpan-row\">$btnLabelSimpanEdit</button>
+                        </td>
+                    </tr>
+                ";
             }
         }
-    }
 
-    // Buang duplikat PO dan sort
-    $poList = array_unique($poList);
-    sort($poList);
+        $html .= '</tbody></table>';
 
-    // Step 3: Buat HTML tabel
-    $html = '<table class="table table-sm table-bordered mb-0">';
-    $html .= '<thead class="bg-warning text-white">
-        <tr>
-            <th>PO GREIGE</th>
-            <th>PROJECT</th>
-            <th>PIC Check</th>
-            <th>Status Bon Order</th>
-            <th>Aksi</th>
-        </tr>
-    </thead><tbody>';
-
-    if (empty($poList)) {
-        $html .= "<tr><td colspan='5' class='text-center text-muted'>No data</td></tr>";
-    } else {
-        foreach ($poList as $po) {
-            $poSafe = mysqli_real_escape_string($con, $po);
-            $projectSafe = mysqli_real_escape_string($con, $orderCode);
-
-            // Cek apakah data sudah ada di MySQL
-            $check = mysqli_query($con, "SELECT * FROM status_matching_bon_order WHERE sales_order_code = '$projectSafe' AND po_greige = '$poSafe'");
-            $existing = mysqli_fetch_assoc($check);
-
-            $selectedPIC = $existing['pic_check'] ?? '';
-            $selectedStatus = $existing['status_bon_order'] ?? '';
-            $btnText = $existing ? 'Perbarui' : 'Simpan';
-
-            $html .= "<tr>
-                <td>$po</td>
-                <td>$orderCode</td>
-                <td>
-                    <select class='form-control form-control-sm pic-select'>
-                        <option value=''>--Pilih--</option>";
-                        foreach (['Cecen', 'Ridho', 'Riyan', 'Flavia'] as $pic) {
-                            $selected = ($pic === $selectedPIC) ? 'selected' : '';
-                            $html .= "<option value='$pic' $selected>$pic</option>";
-                        }
-            $html .= "</select>
-                </td>
-                <td>
-                    <select class='form-control form-control-sm status-select'>
-                        <option value=''>--Pilih--</option>";
-                        foreach (['OK', 'Matching Ulang'] as $status) {
-                            $selected = ($status === $selectedStatus) ? 'selected' : '';
-                            $html .= "<option value='$status' $selected>$status</option>";
-                        }
-            $html .= "</select>
-                </td>
-                <td>
-                    <button class='btn btn-sm btn-primary save-status-btn' data-order='$orderCode' data-po='$po'>$btnText</button>
-                </td>
-            </tr>";
-        }
-    }
-
-    $html .= '</tbody></table>';
     echo $html;
 }
+?>
+<script>
+    $(document).ready(function(){
+        $('.btn-simpan-row').click(function(){
+            const row           = $(this).closest('.row-item');
+            const salesorder    = row.find('.td-salesorder').text().trim();
+            const orderline     = row.find('.td-orderline').text().trim();
+            const warna         = row.find('.td-warna').text().trim();
+            const benang        = row.find('.td-benang').text().trim();
+            const po            = row.find('.td-po').text().trim();
+            const pic           = row.find('.pic-check').val();
+            const status        = row.find('.status-bonorder').val();
+
+            $.ajax({
+                url: 'pages/ajax/simpan_status_matching_bonorder.php',
+                type: 'POST',
+                data: {
+                    salesorder: salesorder,
+                    orderline: orderline,
+                    warna: warna,
+                    benang: benang,
+                    po_greige: po,
+                    pic_check: pic,
+                    status_bonorder: status
+                },
+                success: function(response) {
+                    alert(response); // Bisa ganti toastr/swal
+                },
+                error: function(xhr, status, error) {
+                    console.log('XHR:', xhr);
+                    console.log('Status:', status);
+                    console.log('Error:', error);
+                    alert('Gagal simpan!');
+                }
+            });
+        });
+    });
+</script>

@@ -1,65 +1,7 @@
 <?php
-ini_set("error_reporting", 1);
-session_start();
-include "koneksi.php";   
-
-$approvedCodes = [];
-// $res = mysqli_query($con, "SELECT code FROM approval_bon_order");
-$res = mysqli_query($con, "
-            SELECT code 
-            FROM approval_bon_order abo
-            WHERE NOT EXISTS (
-                SELECT 1 FROM approval_bon_order abo2 
-                WHERE abo2.code = abo.code AND abo2.id > abo.id
-            )
-            AND abo.status = 'Approved'
-        ");
-
-while ($r = mysqli_fetch_assoc($res)) {
-    $approvedCodes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
-}
-$codeList = implode(",", $approvedCodes);
-
-// Query utama dengan join untuk ColorRemarks
-$sqlTBO = "
-WITH APPROVED_RMP AS (
-    SELECT DISTINCT 
-        isa.CODE,
-        isa.APPROVERMP,
-        isa.APPROVEDRMP,
-        isa.TGL_APPROVEDRMP
-    FROM ITXVIEW_SALESORDER_APPROVED isa
-)
-SELECT 
-    i.SALESORDERCODE,
-    MAX(i.ORDERLINE) AS ORDERLINE,
-    MAX(i.LEGALNAME1) AS LEGALNAME1,
-    MAX(REPLACE(i.SUBCODE02, ' ', '')) AS SUBCODE02,
-    MAX(REPLACE(i.SUBCODE03, ' ', '')) AS SUBCODE03,
-    MAX(i.WARNA) AS WARNA,
-    MAX(i.SUBCODE05) AS SUBCODE05,
-    MAX(i.COLORGROUP) AS COLORGROUP,
-    MAX(i.ABSUNIQUEID_SALESORDERLINE) AS ABSUNIQUEID_SALESORDERLINE,
-    MAX(a2.VALUESTRING) AS COLORREMARKS
-FROM ITXVIEWBONORDER i
-LEFT JOIN APPROVED_RMP AR ON AR.CODE = i.SALESORDERCODE
-LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
-WHERE 
-    AR.APPROVERMP IS NOT NULL 
-    AND AR.APPROVEDRMP IS NOT NULL
-    AND CAST(i.CREATIONDATETIME_SALESORDER AS DATE) > '2025-06-01'
-";
-
-if (!empty($codeList)) {
-    $sqlTBO .= " AND i.SALESORDERCODE IN ($codeList)";
-} else {
-    $sqlTBO .= " AND 1 = 0";
-}
-
-$sqlTBO .= " GROUP BY i.SALESORDERCODE";
-
-$stmtTBO = db2_exec($conn1, $sqlTBO, array('cursor' => DB2_SCROLLABLE));
-// $totalRows = db2_num_rows($stmtTBO);
+    ini_set("error_reporting", 1);
+    session_start();
+    include "koneksi.php";   
 ?>
 
 <div class="row">
@@ -71,32 +13,25 @@ $stmtTBO = db2_exec($conn1, $sqlTBO, array('cursor' => DB2_SCROLLABLE));
                 <table id="tboTable" class="display table table-bordered table-striped" style="width:100%">
                     <thead class="bg-primary text-white">
                         <tr>
-                            <th>Customer</th>
                             <th>Nomer Bon Order</th>
-                            <th>No. Item</th>
-                            <th>Warna</th>
-                            <th>No. Warna</th>
-                            <th>Color Remarks</th>
+                            <th>Customer</th>
+                            <th>Tgl Approved RMP</th>
+                            <th>Tgl Approved LAB</th>
+                            <th>PIC</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($rowTBO = db2_fetch_assoc($stmtTBO)): ?>
-                            <?php 
-                                $orderCode = htmlspecialchars($rowTBO['SALESORDERCODE']);
-                                $customer = htmlspecialchars($rowTBO['LEGALNAME1']);
-                                $noItem = htmlspecialchars(trim($rowTBO['SUBCODE02'] . $rowTBO['SUBCODE03']));
-                                $warna = htmlspecialchars($rowTBO['WARNA']);
-                                $NoWarna = htmlspecialchars(trim($rowTBO['SUBCODE05'] . ' (' . $rowTBO['COLORGROUP'] . ')'));
-                                $colorRemarks = htmlspecialchars($rowTBO['COLORREMARKS'] ?? '');
-                                $orderLine = htmlspecialchars($rowTBO['ORDERLINE'] ?? '');
-                            ?>
-                            <tr data-orderline="<?= $orderLine ?>">
-                                <td><?= $customer ?></td>
-                                <td><?= $orderCode  ?></td>
-                                <td><?= $noItem ?></td>
-                                <td><?= $warna ?></td>
-                                <td><?= $NoWarna ?></td>
-                                <td><?= $colorRemarks ?></td>
+                        <?php
+                            $sqlTBO = "SELECT * FROM approval_bon_order";
+                            $stmtTBO = mysqli_query($con, $sqlTBO);
+                        ?>
+                        <?php while ($rowTBO = mysqli_fetch_array($stmtTBO)): ?>
+                            <tr data-order="<?= $rowTBO['code'] ?>">
+                                <td><?= $rowTBO['code'] ?></td>
+                                <td><?= $rowTBO['customer'] ?></td>
+                                <td><?= $rowTBO['tgl_approve_rmp'] ?></td>
+                                <td><?= $rowTBO['tgl_approve_lab'] ?></td>
+                                <td><?= $rowTBO['pic_lab'] ?></td>
                             </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -106,7 +41,6 @@ $stmtTBO = db2_exec($conn1, $sqlTBO, array('cursor' => DB2_SCROLLABLE));
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {
     $('#tboTable').DataTable();
@@ -117,8 +51,7 @@ $(document).ready(function () {
         }
 
         const tr = $(this);
-        const orderCode = tr.find('td:eq(1)').text().trim();
-        const orderLine = tr.data('orderline');
+        const orderCode = tr.data('order');
 
         const nextRow = tr.next('.greige-row');
         if (nextRow.length) {
@@ -135,7 +68,7 @@ $(document).ready(function () {
         $.ajax({
             url: 'pages/ajax/get_po_greige.php',
             type: 'POST',
-            data: { order_code: orderCode, order_line: orderLine },
+            data: { order_code: orderCode },
             success: function (html) {
                 loadingRow.html('<td colspan="' + colspan + '">' + html + '</td>');
             },

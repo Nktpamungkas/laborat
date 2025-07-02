@@ -115,7 +115,6 @@ $query = "SELECT DISTINCT
             ORDER BY
                 ORDERLINE 
             ASC";
-
 $stmt = db2_exec($conn1, $query);
 $no = 1;
 if ($stmt) {
