@@ -5,11 +5,11 @@
     SELECT 
         DATE_FORMAT(ab.tgl_approve_lab, '%Y-%m') AS bulan,
         COUNT(DISTINCT ab.id) AS jumlah_bon,
-        SUM(CASE WHEN smbo.status_bon_order = 'OK' THEN 1 ELSE 0 END) AS status_ok,
-        SUM(CASE WHEN smbo.status_bon_order = 'Matching Ulang' THEN 1 ELSE 0 END) AS status_matching
+        SUM(CASE WHEN smbo.status_bonorder = 'OK' THEN 1 ELSE 0 END) AS status_ok,
+        SUM(CASE WHEN smbo.status_bonorder = 'Matching Ulang' THEN 1 ELSE 0 END) AS status_matching
     FROM approval_bon_order ab
     LEFT JOIN status_matching_bon_order smbo
-        ON ab.code = smbo.sales_order_code
+        ON ab.code = smbo.salesorder
     WHERE ab.tgl_approve_lab IS NOT NULL
     GROUP BY bulan
     ORDER BY bulan ASC;

@@ -4,6 +4,25 @@
     include "koneksi.php";   
 ?>
 
+<style>
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn-loading .spinner-border {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1rem;
+        height: 1rem;
+        margin-top: -0.5rem;
+        margin-left: -0.5rem;
+        border-width: 0.15em;
+    }
+</style>
+
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
@@ -45,21 +64,27 @@
 $(document).ready(function () {
     $('#tboTable').DataTable();
 
-        $('#tboTable tbody').on('click', 'tr', function (e) {
-            if (!$(e.target).closest('td').length || $(e.target).is('select, option, button, input')) {
+    $('#tboTable tbody').on('click', 'tr', function (e) {
+        if ($(this).hasClass('greige-row') || $(e.target).closest('.greige-row').length) {
+            return;
+        }
+        if (!$(e.target).closest('td').length || $(e.target).is('select, option, button, input')) {
             return;
         }
 
         const tr = $(this);
         const orderCode = tr.data('order');
 
+        // Jika sudah terbuka, klik lagi untuk menutup
         const nextRow = tr.next('.greige-row');
         if (nextRow.length) {
-            nextRow.remove(); 
+            tr.removeClass('expanded');
+            nextRow.remove();
             return;
         }
 
-        $('.greige-row').remove();
+        // Tandai baris ini sebagai sedang terbuka
+        tr.addClass('expanded');
 
         const colspan = tr.children('td').length;
         const loadingRow = $('<tr class="greige-row"><td colspan="' + colspan + '">Loading PO Greige...</td></tr>');
@@ -69,14 +94,34 @@ $(document).ready(function () {
             url: 'pages/ajax/get_po_greige.php',
             type: 'POST',
             data: { order_code: orderCode },
+            // success: function (html) {
+            //     loadingRow.html('<td colspan="' + colspan + '">' + html + '</td>');
+            // },
             success: function (html) {
-                loadingRow.html('<td colspan="' + colspan + '">' + html + '</td>');
+                loadingRow.html(`
+                    <td colspan="${colspan}">
+                        <div style="position: relative;">
+                            <button class="close-greige-row btn btn-sm btn-danger" style="position: absolute; top: 5px; right: 5px;">&times;</button>
+                            ${html}
+                        </div>
+                    </td>
+                `);
             },
             error: function () {
                 loadingRow.html('<td colspan="' + colspan + '">Gagal mengambil data PO Greige.</td>');
             }
         });
     });
+
+    $(document).on('click', '.close-greige-row', function (e) {
+        e.stopPropagation();
+        const greigeRow = $(this).closest('tr.greige-row');
+        const mainRow = greigeRow.prev('tr');
+
+        greigeRow.remove();
+        mainRow.removeClass('expanded');
+    });
+
 
     $(document).on('click', '.save-status-btn', function () {
         const row = $(this).closest('tr');
