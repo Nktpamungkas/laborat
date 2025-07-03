@@ -1352,15 +1352,11 @@
 		let dystf = '';
 		const prefix = value.slice(0, 2);
 
-		// Ambil prefix yang sesuai
 		if (prefix === 'DR') {
 			dystf = 'DR';
 			temp2Wrapper.style.display = 'flex';
-		} else if (prefix === 'CD') {
-			dystf = 'CD';
-			temp2Wrapper.style.display = 'none';
-		} else if (prefix === 'OB') {
-			dystf = 'OB';
+		} else if (prefix === 'CD' || prefix === 'OB') {
+			dystf = prefix;
 			temp2Wrapper.style.display = 'none';
 		} else {
 			const char = prefix.charAt(0);
@@ -1368,32 +1364,45 @@
 				dystf = 'D';
 			} else if (char === 'R') {
 				dystf = 'R';
-			} else {
-				dystf = '';
 			}
 			temp2Wrapper.style.display = 'none';
 		}
 
-		// Ambil dan isi opsi suhu
-		if (dystf !== '') {
-			fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf))
-				.then(response => response.text())
-				.then(data => {
-					if (tempCode) {
-						tempCode.innerHTML = '<option value="">Pilih...</option>' + data;
-					}
-					if (tempCode2) {
-						if (dystf === 'DR') {
-							tempCode2.innerHTML = '<option value="">Pilih...</option>' + data;
-						} else {
-							tempCode2.innerHTML = '<option value="">Pilih...</option>';
-						}
-					}
-				});
-		} else {
-			if (tempCode) tempCode.innerHTML = '<option value="">Pilih...</option>';
-			if (tempCode2) tempCode2.innerHTML = '<option value="">Pilih...</option>';
-		}
+		let existingTemp = { temp_code: '', temp_code2: '' };
+
+		// Ambil data existing dari tbl_matching
+		fetch('pages/ajax/get_existing_temp.php?no_resep=' + encodeURIComponent(value))
+			.then(response => response.json())
+			.then(data => {
+				existingTemp = data;
+
+				// Load suhu options sesuai Dystf
+				if (dystf !== '') {
+					fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf))
+						.then(response => response.text())
+						.then(optionsHTML => {
+							if (tempCode) {
+								tempCode.innerHTML = '<option value="">Pilih...</option>' + optionsHTML;
+								if (existingTemp.temp_code) {
+									tempCode.value = existingTemp.temp_code;
+								}
+							}
+							if (tempCode2) {
+								if (dystf === 'DR') {
+									tempCode2.innerHTML = '<option value="">Pilih...</option>' + optionsHTML;
+									if (existingTemp.temp_code2) {
+										tempCode2.value = existingTemp.temp_code2;
+									}
+								} else {
+									tempCode2.innerHTML = '<option value="">Pilih...</option>';
+								}
+							}
+						});
+				} else {
+					if (tempCode) tempCode.innerHTML = '<option value="">Pilih...</option>';
+					if (tempCode2) tempCode2.innerHTML = '<option value="">Pilih...</option>';
+				}
+			});
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
