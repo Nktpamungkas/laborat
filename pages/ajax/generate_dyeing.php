@@ -23,9 +23,8 @@ $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`g
         ORDER BY
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
-                WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
-                ELSE 4
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan' , 'Perbaikan NOW') THEN 2
+                ELSE 3
             END,
             CASE 
                 WHEN tps.order_index > 0 THEN 0 

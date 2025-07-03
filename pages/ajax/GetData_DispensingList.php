@@ -24,7 +24,7 @@ try {
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
                 WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan' , 'Perbaikan NOW') THEN 2
-                ELSE 4
+                ELSE 3
             END,
             CASE 
                 WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
