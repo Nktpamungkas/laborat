@@ -493,9 +493,9 @@
 																									echo "checked";
 																								} ?>> SUHU 30'C &amp; 40'C
 			</label> <br>
-			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="TEST APPEARANCE AFTER WASH" <?php if (in_array("TEST APPEARANCE AFTER WASH", $detail2)) {
+			<label><input type="checkbox" class="minimal" name="colorfastness[]" value="APPEARANCE AFTER WASH" <?php if (in_array("APPEARANCE AFTER WASH", $detail2)) {
 																									echo "checked";
-																								} ?>> Tes Appearance After Wash
+																								} ?>> Appearance After Wash
 			</label> <br>
 		</div>
 	</div>
