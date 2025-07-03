@@ -23,8 +23,7 @@ try {
         ORDER BY 
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
-                WHEN tbl_matching.jenis_matching = 'Perbaikan' THEN 3
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan' , 'Perbaikan NOW') THEN 2
                 ELSE 4
             END,
             CASE 
