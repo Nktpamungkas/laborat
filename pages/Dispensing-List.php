@@ -314,7 +314,7 @@
             const isActiveStatus = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
             const isOld = item.is_old_data == "1";
 
-            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''};" 
+            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''}; ${!isActiveStatus ? 'display: none;' : ''};" 
                             data-id="${item.id}">
                 <td align="center" class="checkbox-cell" style="display: none;">
                     <input type="checkbox" class="row-checkbox">
@@ -330,7 +330,7 @@
                 `;
             } else {
                 rowHTML += `
-                    <td colspan="3" align="center"></td>
+                    <td colspan="4" align="center"></td>
                 `;
             }
 
