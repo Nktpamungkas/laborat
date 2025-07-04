@@ -95,6 +95,9 @@
                                             <div align="center">No</div>
                                         </th>
                                         <th>
+                                            <div align="center">Cycle</div>
+                                        </th>
+                                        <th>
                                             <div align="center">No. Resep</div>
                                         </th>
                                         <th>
@@ -132,6 +135,9 @@
                                             <div align="center">No</div>
                                         </th>
                                         <th>
+                                            <div align="center">Cycle</div>
+                                        </th>
+                                        <th>
                                             <div align="center">No. Resep</div>
                                         </th>
                                         <th>
@@ -167,6 +173,9 @@
                                     <tr>
                                         <th>
                                             <div align="center">No</div>
+                                        </th>
+                                        <th>
+                                            <div align="center">Cycle</div>
                                         </th>
                                         <th>
                                             <div align="center">No. Resep</div>
@@ -302,42 +311,60 @@
 
     function renderTable(dataArray, tbodyElement, dispensingCode) {
         const rowsPerBlock = 16;
+
+        // Filter berdasarkan kode dispensing
         const filtered = dataArray.filter(item => {
             const code = item.dispensing?.trim() ?? "";
             return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
         });
 
-        filtered.forEach((item, index) => {
-            const groupIndex = Math.floor(index / rowsPerBlock);
-            const rowNumber = (index % rowsPerBlock) + 1;
-            const bgColor = groupIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-            const isActiveStatus = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
-            const isOld = item.is_old_data == "1";
+        const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
+        tbodyElement.innerHTML = ""; // Kosongkan dulu
 
-            let rowHTML = `<tr style="background-color: ${bgColor}; ${!isActiveStatus ? 'color: #ccc;' : ''}; ${!isActiveStatus ? 'display: none;' : ''};" 
-                            data-id="${item.id}">
-                <td align="center" class="checkbox-cell" style="display: none;">
-                    <input type="checkbox" class="row-checkbox">
-                </td>
-                <td align="center" class="row-number">${rowNumber}</td>`;
+        for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
+            const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
+            const cycleNumber = blockIndex + 1;
 
-            if (isActiveStatus) {
-                rowHTML += `
+            // Pilih baris aktif saja (scheduled/in_progress_dispensing)
+            const activeRows = blockRows.filter(item => 
+                item.status === 'scheduled' || item.status === 'in_progress_dispensing'
+            );
+
+            activeRows.forEach((item, activeIndex) => {
+                // Cari index asli di blockRows supaya no urut sesuai posisi asli
+                const indexInBlock = blockRows.findIndex(row => row.id === item.id);
+                const rowNumber = indexInBlock + 1;
+
+                const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+                const isOld = item.is_old_data == "1";
+
+                const tr = document.createElement("tr");
+                tr.style.backgroundColor = bgColor;
+                tr.dataset.id = item.id;
+
+                // Kolom No (nomor asli di block)
+                tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
+
+                // Kolom Cycle (hanya di baris pertama aktif)
+                if (activeIndex === 0) {
+                    tr.innerHTML += `
+                        <td align="center" rowspan="${activeRows.length}" 
+                            style="vertical-align: middle; font-weight: bold;">
+                            ${cycleNumber}
+                        </td>`;
+                }
+
+                // Kolom data lainnya
+                tr.innerHTML += `
                     <td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>
                     <td align="center">${item.product_name}</td>
                     <td align="center">${item.no_machine}</td>
                     <td align="center">${item.status}</td>
                 `;
-            } else {
-                rowHTML += `
-                    <td colspan="4" align="center"></td>
-                `;
-            }
 
-            rowHTML += `</tr>`;
-
-            tbodyElement.innerHTML += rowHTML;
-        });
+                tbodyElement.appendChild(tr);
+            });
+        }
     }
 
     function enableSortableTables() {
@@ -510,6 +537,12 @@
         const btn = document.getElementById("toggleLockBtn");
         btn.innerHTML = "🔓 Unlock Drag";
         btn.className = "btn btn-success";
+
+        setInterval(() => {
+            if (isLocked) {
+                loadData();
+            }
+        }, 5000);
     });
 
     document.getElementById("toggleLockBtn").addEventListener("click", toggleLock);

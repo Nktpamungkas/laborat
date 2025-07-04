@@ -492,7 +492,7 @@ $page = strtolower($page);
                                     </li>
                                 </ul>
                             </li>
-                            <!-- <li class="dropdown">
+                            <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bon Order<span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") {
@@ -513,7 +513,7 @@ $page = strtolower($page);
                                     </li>
     
                                 </ul>
-                            </li> -->
+                            </li>
                         </ul>
                     </div>
                     <!-- /.navbar-collapse -->
