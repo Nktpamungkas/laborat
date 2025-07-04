@@ -535,7 +535,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     STOCKTRANSACTION s
                                                 WHERE
                                                     s.ITEMTYPECODE = 'DYC'
-                                                    AND s.TRANSACTIONDATE BETWEEN '2025-05-01' AND '2025-06-24'
+                                                    AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                                     AND s.TEMPLATECODE IN ('QC1','QCT','304','OPN','204')
                                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                                 GROUP BY
@@ -698,20 +698,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $row_stock_minimum = db2_fetch_assoc($stock_minimum);
 
                                     $buka_po = db2_exec($conn1, "SELECT 
-                                                        p2.CONFIRMEDDUEDATE AS due_date,
-                                                        CEIL(SUM(p.USERPRIMARYQUANTITY)) AS QTY
-                                                    FROM PURCHASEORDERLINE p
-                                                    LEFT JOIN PURCHASEORDER p2 ON p2.CODE = p.PURCHASEORDERCODE
-                                                    WHERE
-                                                       p.SUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                                       p.SUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                                       p.SUBCODE03 = '$row[DECOSUBCODE03]' AND
-                                                       p.SUBCODE04 = '$row[DECOSUBCODE04]' AND
-                                                       p.SUBCODE05 = '$row[DECOSUBCODE05]' AND
-                                                       p.SUBCODE06 = '$row[DECOSUBCODE06]' AND
-                                                       p.SUBCODE07 = '$row[DECOSUBCODE07]' AND
-                                                        p2.CONFIRMEDDUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                    GROUP BY p2.CONFIRMEDDUEDATE");
+                                            LOGICALWAREHOUSECODE,
+                                            COUNTERCODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            DECOSUBCODE04,
+                                            DECOSUBCODE05,
+                                            DECOSUBCODE06,
+                                            DECOSUBCODE07,
+                                            CASE 
+                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
+                                                WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
+                                                else sum(BASEPRIMARYQUANTITY)
+                                            END AS QTY,
+                                            CASE 
+                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                                WHEN BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                                else BASEPRIMARYUNITCODE
+                                            END AS BASEPRIMARYUNITCODE 
+                                            FROM 
+                                            VIEWAVANALYSISPART1 v 
+                                            WHERE ISTANCETYPE = '6'
+                                            AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND DUEDATE > '2025-06-30'
+                                            and DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
+                                            DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
+                                            DECOSUBCODE03 = '$row[DECOSUBCODE03]' AND
+                                            DECOSUBCODE04 = '$row[DECOSUBCODE04]' AND
+                                            DECOSUBCODE05 = '$row[DECOSUBCODE05]' AND
+                                            DECOSUBCODE06 = '$row[DECOSUBCODE06]' AND
+                                            DECOSUBCODE07 = '$row[DECOSUBCODE07]' 
+                                            GROUP BY 
+                                            LOGICALWAREHOUSECODE,
+                                            COUNTERCODE,
+                            --                ISTANCECODE AS NO_PO,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            DECOSUBCODE04,
+                                            DECOSUBCODE05,
+                                            DECOSUBCODE06,
+                                            DECOSUBCODE07,
+                                            BASEPRIMARYUNITCODE");
                             $row_buka_po = db2_fetch_assoc($buka_po);
 
 
@@ -721,6 +750,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     WHERE kode_obat = '$row[KODE_OBAT]'
                                     ORDER BY kode_obat ASC");
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);
+
+                                    $sisa_stock = ($row_qty_awal['qty_awal'] + $row['QTY_MASUK'])- $row['AKTUAL_QTY_KELUAR'];
+                                    
+                                    $catatan = ($sisa_stock * 0.2)+ $row_stock_minimum['SAFETYSTOCK']
 
                                     ?>                               
                                     <tr>
