@@ -31,18 +31,16 @@ $query = "SELECT DISTINCT
                 SUBCODE09,
                 SUBCODE10
             FROM 
-            (SELECT
+            (
+            SELECT
                 i.SALESORDERCODE,
                 i.ORDERLINE,
-                CASE 
-                    WHEN i.ITEMTYPEAFICODE = 'KFF' THEN i.RESERVATION_SUBCODE04
-                    ELSE i.SUBCODE04
-                END AS SUBCODE04_FIXED,
+                LEFT(LISTAGG(TRIM(i.RESERVATION_SUBCODE04), ''), 3) AS SUBCODE04_FIXED,
                 i.LEGALNAME1,
                 i.AKJ,
                 p.LONGDESCRIPTION AS JENIS_KAIN,
                 i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
-                i.NOTETAS,
+                LISTAGG(NOTETAS, ', ') AS NOTETAS,
                 i.EXTERNALREFERENCE AS NO_PO,
                 COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
                 i3.LEBAR,
@@ -86,7 +84,35 @@ $query = "SELECT DISTINCT
             LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
             LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
             LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
-            WHERE i.SALESORDERCODE = '$code')
+            WHERE 
+                i.SALESORDERCODE = '$code' 
+            GROUP BY
+                i.SALESORDERCODE,
+                i.ORDERLINE,
+                i.ITEMTYPEAFICODE,
+                i.LEGALNAME1,
+                i.AKJ,
+                p.LONGDESCRIPTION,
+                i.NOTETAS_KGF,
+                i.EXTERNALREFERENCE,
+                i2.GRAMASI_KFF, 
+                i2.GRAMASI_FKF,
+                i3.LEBAR,
+                a.VALUESTRING,
+                i.WARNA,
+                i.COLORGROUP,
+                a2.VALUESTRING,
+                i.SUBCODE01,
+                i.SUBCODE02,
+                i.SUBCODE03,
+                i.SUBCODE04,
+                i.SUBCODE05,
+                i.SUBCODE06,
+                i.SUBCODE07,
+                i.SUBCODE08,
+                i.SUBCODE09,
+                i.SUBCODE10
+            )
             GROUP BY
                 SALESORDERCODE,
                 ORDERLINE,
