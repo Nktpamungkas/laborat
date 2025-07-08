@@ -457,17 +457,17 @@ $page = strtolower($page);
                                         </span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li class="<?php if ($_GET['p'] == "pemakaian_obat" or $_GET['p'] == "Summary_pemakaian_obat") {
+                                        <li class="<?php if ($_GET['p'] == "pemakaian_obat" or $_GET['p'] == "tutup_harian_GK") {
                                             echo "active";
                                         } ?>"><a href="?p=pemakaian_obat"><i
                                                     class="fa fa-fw fa-list text-success" aria-hidden="true"></i>
                                                 <span>Laporan Harian Penggunaan Obat</span></a>
                                         </li>                                        
-                                        <li class="<?php if ($_GET['p'] == "Summary_pemakaian_obat") {
+                                        <li class="<?php if ($_GET['p'] == "tutup_harian_GK") {
                                             echo "active";
                                         } ?>"><a href="?p=Summary_pemakaian_obat"><i
                                                     class="fa fa-fw fa-file-text-o text-success" aria-hidden="true"></i>
-                                                <span>Laporan Summary penggunaan Obat</span></a>
+                                                <span>Laporan Tutup Harian GK</span></a>
                                         </li>
                                     </ul>
                                 </li>

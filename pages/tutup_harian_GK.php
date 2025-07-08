@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>LAB - laporan Pemakaian Obat Gd. Kimia</title>
+    <title>LAB - Tutup Harian Gd. Kimia</title>
 </head>
 <style>
     td.details-control {
@@ -573,7 +573,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND NOT s.TEMPLATECODE IN ('313','QCR','QCT','OPN','125')
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
+                                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                 ORDER BY
                                     s.PRODUCTIONORDERCODE ASC
                                     )
@@ -674,8 +674,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 WHEN a.VALUESTRING = 1 THEN 'BV'
                                                 WHEN a.VALUESTRING = 2 THEN 'NON BV'
                                                 ELSE ''
-                                            END CERTIFICATION,
-                                            a2.VALUESTRING AS NOTELAB
+                                            END CERTIFICATION
                                             FROM 
                                             ITEMWAREHOUSELINK i 
                                             LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPECODE 
@@ -690,7 +689,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND p.SUBCODE09 = i.SUBCODE09 
                                             AND p.SUBCODE10 = i.SUBCODE10 
                                             LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
-                                            LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
                                             WHERE  
                                             i.ITEMTYPECODE ='DYC'
                                             AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
@@ -743,99 +741,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             DECOSUBCODE06,
                                             DECOSUBCODE07,
                                             BASEPRIMARYUNITCODE");
-                                    $row_buka_po = db2_fetch_assoc($buka_po);
+                            $row_buka_po = db2_fetch_assoc($buka_po);
 
-                                    $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                            PROGRESSSTATUS,
-                                            SUBCODE01,
-                                            SUBCODE02,
-                                            SUBCODE03,
-                                            SUBCODE04, 
-                                            SUBCODE05,
-                                            SUBCODE06,
-                                            SUBCODE07,
-                                            SUBCODE08, 
-                                            SUBCODE09,
-                                            SUBCODE10,
-                                            CASE 
-                                                WHEN USERPRIMARYUOMCODE = 'kg' THEN sum(USERPRIMARYQUANTITY)* 1000
-                                                WHEN USERPRIMARYUOMCODE = 't' THEN sum(USERPRIMARYQUANTITY)* 1000000
-                                                ELSE sum(USERPRIMARYQUANTITY)
-                                            END AS USERPRIMARYQUANTITY,
-                                            CASE 
-                                                WHEN USERPRIMARYUOMCODE = 'kg' THEN  'g'
-                                                WHEN USERPRIMARYUOMCODE = 't' THEN  'g'
-                                                ELSE USERPRIMARYUOMCODE
-                                            END AS USERPRIMARYUOMCODE
-                                            FROM
-                                            (SELECT 
-                                            p.USERPRIMARYQUANTITY,
-                                            p.USERPRIMARYUOMCODE,
-                                            p.PROGRESSSTATUS,
-                                            p.SUBCODE01,
-                                            p.SUBCODE02,
-                                            p.SUBCODE03,
-                                            p.SUBCODE04, 
-                                            p.SUBCODE05,
-                                            p.SUBCODE06,
-                                            p.SUBCODE07,
-                                            p.SUBCODE08, 
-                                            p.SUBCODE09,
-                                            p.SUBCODE10,
-                                            COALESCE(p.SCHEDULEDISSUEDATE, p.PLANSCHEDULEDISSUEDATE, p.ISSUEDATE) AS ISSUEDATE
-                                            FROM 
-                                            PRODUCTIONRESERVATION p 
-                                            WHERE 
-                                            p.ITEMTYPEAFICODE ='DYC'
-                                            AND p.PROGRESSSTATUS = 0 
-                                            AND p.WAREHOUSECODE = '$_POST[warehouse]'
-                                            and p.SUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            p.SUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            p.SUBCODE03 = '$row[DECOSUBCODE03]' AND
-                                            p.SUBCODE04 = '$row[DECOSUBCODE04]' AND
-                                            p.SUBCODE05 = '$row[DECOSUBCODE05]' AND
-                                            p.SUBCODE06 = '$row[DECOSUBCODE06]' AND
-                                            p.SUBCODE07 = '$row[DECOSUBCODE07]' 
-                                            )
-                                            WHERE 
-                                            ISSUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            GROUP BY 
-                                            PROGRESSSTATUS,
-                                            SUBCODE01,
-                                            SUBCODE02,
-                                            SUBCODE03,
-                                            SUBCODE04, 
-                                            SUBCODE05,
-                                            SUBCODE06,
-                                            SUBCODE07,
-                                            SUBCODE08, 
-                                            SUBCODE09,
-                                            SUBCODE10,
-                                            USERPRIMARYUOMCODE");
-                                    $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);
 
 
                                     $q_qty_awal = mysqli_query($con, "SELECT * 
-                                    FROM stock_awal_obat_gdkimia_1
+                                    FROM stock_awal_obat_gdKimia 
                                     WHERE kode_obat = '$row[KODE_OBAT]'
-                                    AND logicalwarehouse = '$_POST[warehouse]'
                                     ORDER BY kode_obat ASC");
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);
 
                                     $sisa_stock = ($row_qty_awal['qty_awal'] + $row['QTY_MASUK'])- $row['AKTUAL_QTY_KELUAR'];
                                     
-                                    $stock_notif = ($row_stock_minimum['SAFETYSTOCK'] * 0.2)+ $row_stock_minimum['SAFETYSTOCK'];
+                                    $catatan = ($sisa_stock * 0.2)+ $row_stock_minimum['SAFETYSTOCK']
 
-                                    $sisa_stock_balance_future = $row_balance['STOCK_BALANCE'] + $row_buka_po['QTY'] - $row_pakai_belum_timbang['USERPRIMARYQUANTITY'];
-                                    
-                                    $keterangan = '';
-                                    if ($row_balance['STOCK_BALANCE'] > $stock_notif) {
-                                        $keterangan = '';
-                                    } elseif ($row_balance['STOCK_BALANCE'] == $stock_notif) {
-                                        $keterangan = 'HITUNG KEBUTUHAN ORDER';
-                                    } elseif ($row_balance['STOCK_BALANCE'] < $row_stock_minimum['SAFETYSTOCK']) {
-                                        $keterangan = 'SEGERA ORDER';
-                                    }
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['KODE_OBAT'] ?></td>
@@ -879,21 +798,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <?php else: ?>
                                             <?= number_format($row_buka_po['QTY'], 2); ?>
                                         <?php endif; ?></td>
-                                        <td><?php if (substr(number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 2), -3) == '.00'): ?>
-                                            <?= number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 0); ?>
-                                        <?php else: ?>
-                                            <?= number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 2); ?>
-                                        <?php endif; ?></td>
-                                        <td><?php if (fmod($sisa_stock_balance_future, 1) == 0): ?>
-                                            <?= number_format($sisa_stock_balance_future, 0); ?>
-                                        <?php else: ?>
-                                            <?= number_format($sisa_stock_balance_future, 2); ?>
-                                        <?php endif; ?></td>
-                                        <td><?php                                           
-                                            echo $keterangan;
-                                            ?></td>
-                                        <td><?php echo  $row_stock_minimum['NOTELAB']?></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
                                         <td><?php echo  $row_stock_minimum['CERTIFICATION']?></td>
+                                    </tr>
                                    
                                     <?php $no++; } ?>
                             </tbody>
