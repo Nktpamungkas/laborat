@@ -21,10 +21,12 @@ $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`g
             END = tbl_matching.no_resep
         WHERE tps.status IN ($statusList) AND tps.is_old_data = 0
         ORDER BY
+            tps.no_resep,
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan' , 'Perbaikan NOW') THEN 2
-                ELSE 3
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
+                WHEN tbl_matching.jenis_matching IN ('Perbaikan' , 'Perbaikan NOW') THEN 3
+                ELSE 4
             END,
             CASE 
                 WHEN tps.order_index > 0 THEN 0 

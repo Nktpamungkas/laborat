@@ -20,11 +20,12 @@ try {
 				ELSE tbl_preliminary_schedule.no_resep
 			END = tbl_matching.no_resep
         WHERE tbl_preliminary_schedule.status NOT IN ('ready', 'repeat')
-        ORDER BY 
+        ORDER BY
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan' , 'Perbaikan NOW') THEN 2
-                ELSE 3
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
+                WHEN tbl_matching.jenis_matching IN ('Perbaikan' , 'Perbaikan NOW') THEN 3
+                ELSE 4
             END,
             CASE 
                 WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
@@ -34,20 +35,49 @@ try {
             master_suhu.suhu DESC, 
             master_suhu.waktu DESC, 
             tbl_preliminary_schedule.no_machine ASC,
+            tbl_preliminary_schedule.no_resep,
             tbl_preliminary_schedule.is_old_data ASC
     ");
 
-    // Cek dan isi order_index jika masih nol
-    $counter = 1;
+    // $counter = 1;
+    // while ($row = mysqli_fetch_assoc($result)) {
+    //     if ($row['order_index'] == 0) {
+    //         $id = $row['id'];
+    //         mysqli_query($con, "UPDATE tbl_preliminary_schedule SET order_index = $counter WHERE id = $id");
+    //         $row['order_index'] = $counter;
+    //     }
+    //     $data[] = $row;
+    //     $counter++;
+    // }
+
+    $data = [];
+    $usedIndexes = [];
+
+    // Step 1: Simpan semua data & kumpulkan order_index yang sudah terpakai
     while ($row = mysqli_fetch_assoc($result)) {
-        if ($row['order_index'] == 0) {
-            $id = $row['id'];
-            mysqli_query($con, "UPDATE tbl_preliminary_schedule SET order_index = $counter WHERE id = $id");
-            $row['order_index'] = $counter;
+        if ((int)$row['order_index'] > 0) {
+            $usedIndexes[] = (int)$row['order_index'];
         }
         $data[] = $row;
-        $counter++;
     }
+
+    // Step 2: Isi order_index yang masih 0 dengan nilai unik berikutnya
+    $nextIndex = 1;
+    foreach ($data as &$row) {
+        if ((int)$row['order_index'] === 0) {
+            // Cari index terkecil yang belum dipakai
+            while (in_array($nextIndex, $usedIndexes)) {
+                $nextIndex++;
+            }
+
+            $id = (int)$row['id'];
+            mysqli_query($con, "UPDATE tbl_preliminary_schedule SET order_index = $nextIndex WHERE id = $id");
+            $row['order_index'] = $nextIndex;
+            $usedIndexes[] = $nextIndex;
+            $nextIndex++;
+        }
+    }
+    unset($row);
 
     // Urutkan ulang array berdasarkan order_index agar sesuai drag
     usort($data, function($a, $b) {
