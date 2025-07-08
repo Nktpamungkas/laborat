@@ -122,7 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     <table class="table table-sm table-bordered mb-0">
         <thead class="bg-warning text-white">
             <tr>
-                <th>WARNA</th>
+                <th>WARNA</th>          
+                <th>Kode Warna</th>          
+                <th>Color Remarks</th>          
+                <th>Kode Item</th>          
                 <th style="width: 40%;">BENANG</th>
                 <th>PO GREIGE</th>
                 <th>PIC Check</th>
@@ -452,6 +455,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                         <td hidden class=\"td-salesorder\">{$row['SALESORDERCODE']}</td>
                         <td hidden class=\"td-orderline\">{$row['ORDERLINE']}</td>
                         <td class=\"td-warna\">{$row['WARNA']}</td>
+                        <td class=\"td-kode-warna\">{$row['KODE_WARNA']}</td>
+                        <td class=\"td-color-remarks\">{$row['COLORREMARKS']}</td>
+                        <td class=\"td-item-code\">{$row['ITEMCODE']}</td>
                         <td class=\"td-benang\">$benang</td>
                         <td class=\"td-po\">$po</td>
                         <td>

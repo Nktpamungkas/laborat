@@ -41,7 +41,7 @@
                     </thead>
                     <tbody>
                         <?php
-                            $sqlTBO = "SELECT * FROM approval_bon_order";
+                            $sqlTBO = "SELECT * FROM approval_bon_order where status = 'Approved'";
                             $stmtTBO = mysqli_query($con, $sqlTBO);
                         ?>
                         <?php while ($rowTBO = mysqli_fetch_array($stmtTBO)): ?>
