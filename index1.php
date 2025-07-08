@@ -87,6 +87,23 @@ $page = strtolower($page);
             font-style: normal;
         }
     </style>
+    <style>
+        /* Bon Order */
+        .dropdown-submenu {
+            position: relative;
+        }
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -1px;
+            display: none;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+    </style>
 
     <link rel="icon" type="image/png" href="dist/img/ITTI_Logo index.ico">
 </head>
@@ -443,6 +460,35 @@ $page = strtolower($page);
                                                         } ?>"><a href="?p=Laporan-Kartu-Stock"><i class="fa fa-list-alt text-primary"></i> <span>Laporan & Kartu Stock</span></a>
                                             </li>
                                         <?php endif; ?>
+                                        
+                                        <!-- Bon Order Submenu -->
+                                        <li class="dropdown-submenu <?php if (
+                                            $_GET['p'] == "Approval-Bon-Order" ||
+                                            $_GET['p'] == "Status-Matching-Bon-Order" ||
+                                            $_GET['p'] == "Status-Matching-Ganti-kain" ||
+                                            $_GET['p'] == "Rekap-Data"
+                                        ) echo "active"; ?>">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="fa fa-credit-card text-danger"></i> <span>Bon Order</span>
+                                                <span class="pull-right-container">
+                                                    <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
+                                                </span>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") echo "active"; ?>">
+                                                    <a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order") echo "active"; ?>">
+                                                    <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon Order</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain") echo "active"; ?>">
+                                                    <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti Kain</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "Rekap-Data") echo "active"; ?>">
+                                                    <a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
+                                                </li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </li>
                             <?php endif; ?>
@@ -492,7 +538,7 @@ $page = strtolower($page);
                                     </li>
                                 </ul>
                             </li>
-                            <li class="dropdown">
+                            <!-- <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bon Order<span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") {
@@ -513,7 +559,7 @@ $page = strtolower($page);
                                     </li>
     
                                 </ul>
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
                     <!-- /.navbar-collapse -->
