@@ -21,7 +21,7 @@ try {
                 (? = '' AND (COALESCE(ms.dispensing, '') NOT IN ('1', '2')))
                 OR ms.dispensing = ?
               )
-        AND ps.status NOT IN ('ready', 'repeat')
+        AND ps.status NOT IN ('ready')
         ORDER BY ps.order_index ASC
     ";
 

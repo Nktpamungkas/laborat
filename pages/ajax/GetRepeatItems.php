@@ -20,7 +20,7 @@ try {
         INNER JOIN (
             SELECT MIN(id) AS id
             FROM tbl_preliminary_schedule
-            WHERE status IN ($statusList)
+            WHERE status IN ($statusList) AND is_old_cycle = 0
             GROUP BY no_resep
         ) AS sub ON tps.id = sub.id
         LEFT JOIN master_suhu ms ON tps.code = ms.code

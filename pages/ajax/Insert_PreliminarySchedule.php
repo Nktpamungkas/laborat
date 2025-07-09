@@ -29,19 +29,25 @@ $insertedCount = 0; // Menambahkan penghitung
 $con->begin_transaction();
 
 try {
-    $checkQuery = $con->prepare("SELECT COUNT(*) FROM tbl_preliminary_schedule WHERE no_resep = ?");
+    $checkQuery = $con->prepare("SELECT COUNT(*) FROM tbl_preliminary_schedule WHERE no_resep = ? AND status = 'repeat'");
     $checkQuery->bind_param("s", $no_resep);
     $checkQuery->execute();
-    $checkQuery->bind_result($countOldData);
+    $checkQuery->bind_result($countOldDataRepeat);
     $checkQuery->fetch();
     $checkQuery->close();
 
-    if ($countOldData > 0) {
-        $deleteQuery = $con->prepare("DELETE FROM tbl_preliminary_schedule WHERE no_resep = ?");
-        $deleteQuery->bind_param("s", $no_resep);
-        $deleteQuery->execute();
+    if ($countOldDataRepeat > 0) {
+        // $deleteQuery = $con->prepare("DELETE FROM tbl_preliminary_schedule WHERE no_resep = ?");
+        // $deleteQuery->bind_param("s", $no_resep);
+        // $deleteQuery->execute();
 
-        $deleteQuery->close();
+        // $deleteQuery->close();
+
+        $updateQuery = $con->prepare("UPDATE tbl_preliminary_schedule SET is_old_cycle = 1 WHERE no_resep = ? AND status = 'repeat'");
+        $updateQuery->bind_param("s", $no_resep);
+        $updateQuery->execute();
+
+        $updateQuery->close();
     }
 
     // Insert data untuk bottle_qty_1
