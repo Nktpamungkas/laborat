@@ -65,7 +65,7 @@ $oldDataList = [];
 $oldQuery = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
              FROM tbl_preliminary_schedule tps
              LEFT JOIN master_suhu ms ON tps.code = ms.code
-             WHERE tps.is_old_data = 1";
+             WHERE tps.is_old_data = 1 AND tps.status IN ($statusList) AND is_old_cycle = 0";
 $oldResult = mysqli_query($con, $oldQuery);
 
 while ($row = mysqli_fetch_assoc($oldResult)) {
