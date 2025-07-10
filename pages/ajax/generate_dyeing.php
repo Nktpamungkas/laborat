@@ -19,7 +19,7 @@ $sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`g
                 THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
                 ELSE tps.no_resep
             END = tbl_matching.no_resep
-        WHERE tps.status IN ($statusList) AND tps.is_old_data = 0
+        WHERE tps.status IN ($statusList) AND tps.is_old_data = 0 AND is_old_cycle = 0
         ORDER BY
             tps.no_resep,
             CASE 

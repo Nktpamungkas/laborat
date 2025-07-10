@@ -5,7 +5,7 @@ include '../../koneksi.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $no_resep = $_POST['no_resep'];
 
-    $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ?");
+    $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         }
 
         $stmt->close();
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dyeing_start = now() WHERE no_resep = ?");
+        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dyeing_start = now() WHERE no_resep = ? AND is_old_cycle = 0");
         $update->bind_param("ss", $next_status, $no_resep);
 
         if ($update->execute()) {
