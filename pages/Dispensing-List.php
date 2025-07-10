@@ -542,7 +542,7 @@
             if (isLocked) {
                 loadData();
             }
-        }, 5000);
+        }, 15000);
     });
 
     document.getElementById("toggleLockBtn").addEventListener("click", toggleLock);

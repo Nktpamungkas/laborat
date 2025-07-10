@@ -344,7 +344,7 @@
     $(document).ready(function () {
         loadScheduleTable(); // 🚀 Load awal
 
-        setInterval(loadScheduleTable, 5000);
+        setInterval(loadScheduleTable, 15000);
 
         $('#scanInput').on('keypress', function (e) {
             if (e.which === 13) { // Enter key
