@@ -493,7 +493,7 @@ $page = strtolower($page);
                                 </li>
                             <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
+                            <!-- <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
                                 <li class="dropdown<?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
                                                         echo "active";
                                                     } ?>">
@@ -517,7 +517,7 @@ $page = strtolower($page);
                                         </li>
                                     </ul>
                                 </li>
-                            <?php endif; ?>
+                            <?php endif; ?> -->
 
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting<span class="caret"></span></a>
