@@ -493,32 +493,6 @@ $page = strtolower($page);
                                 </li>
                             <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
-                                <li class="dropdown<?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
-                                                        echo "active";
-                                                    } ?>">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-empire text-green"></i> <span>Penggunaan Obat</span>
-                                        <span class="pull-right-container">
-                                            <i class="fa fa-fw fa-angle-down pull-right"></i>
-                                        </span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="<?php if ($_GET['p'] == "pemakaian_obat" or $_GET['p'] == "tutup_harian_GK") {
-                                            echo "active";
-                                        } ?>"><a href="?p=pemakaian_obat"><i
-                                                    class="fa fa-fw fa-list text-success" aria-hidden="true"></i>
-                                                <span>Laporan Harian Penggunaan Obat</span></a>
-                                        </li>                                        
-                                        <li class="<?php if ($_GET['p'] == "tutup_harian_GK") {
-                                            echo "active";
-                                        } ?>"><a href="?p=Summary_pemakaian_obat"><i
-                                                    class="fa fa-fw fa-file-text-o text-success" aria-hidden="true"></i>
-                                                <span>Laporan Tutup Harian GK</span></a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            <?php endif; ?>
-
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting<span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
