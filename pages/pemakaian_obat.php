@@ -109,6 +109,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     background-color: #f2f9ff; /* biru muda */
     cursor: pointer;
 }
+#Table-obat.table-bordered th,
+#Table-obat.table-bordered td {
+    border: 1px solid #6c757d; /* abu tua, bisa diganti hitam (#000) */
+}
+
+.modal-dialog.modal-custom {
+    max-width: 95%;  /* bisa kamu ubah ke 90%, 98%, dll */
+    width: 95%;
+    margin: 30px auto;
+}
 </style>
 <body>
     <div class="row">
@@ -547,36 +557,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         AND p.SUBCODE01 = s.DECOSUBCODE01
                                         AND p.SUBCODE02 = s.DECOSUBCODE02
                                         AND p.SUBCODE03 = s.DECOSUBCODE03
-                                    LEFT JOIN STOCKTRANSACTION s2 ON s2.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s2.DETAILTYPE = 2                                    
-                                    LEFT JOIN ( SELECT DISTINCT 
-                                                p.PRODUCTIONORDERCODE,
-                                                p.GROUPLINE,
-                                                CASE
-                                                    WHEN p2.CODE LIKE '%T1%' OR p2.CODE LIKE '%T2%' OR p2.CODE LIKE '%T3%' OR p2.CODE LIKE '%T4%' OR p2.CODE LIKE '%T5%' OR p2.CODE LIKE '%T6%' OR p2.CODE LIKE '%T7%' THEN 'Tambah Obat'
-                                                    WHEN p2.CODE LIKE '%R1%' OR p2.CODE LIKE '%R2%' OR p2.CODE LIKE '%R3%' OR p2.CODE LIKE '%R4%' OR p2.CODE LIKE '%R5%' OR p2.CODE LIKE '%R6%' OR p2.CODE LIKE '%R7%' THEN 'Perbaikan'
-                                                    -- ELSE 'Normal'
-                                                    -- ELSE p.PRODRESERVATIONLINKGROUPCODE
-                                                    ELSE 
-                                                        CASE
-                                                            WHEN p.PRODRESERVATIONLINKGROUPCODE IS NULL THEN COALESCE(p3.OPERATIONCODE, p.PRODRESERVATIONLINKGROUPCODE)
-                                                            ELSE p.PRODRESERVATIONLINKGROUPCODE
-                                                        END
-                                                END AS KETERANGAN
-                                            FROM
-                                                PRODUCTIONRESERVATION p
-                                            LEFT JOIN PRODRESERVATIONLINKGROUP p2 ON p2.CODE = p.PRODRESERVATIONLINKGROUPCODE 
-                                            LEFT JOIN PRODUCTIONDEMANDSTEP p3 ON p3.STEPNUMBER = p.GROUPSTEPNUMBER AND p3.PRODUCTIONORDERCODE = p.PRODUCTIONORDERCODE
-                                                    ) n2 ON n2.PRODUCTIONORDERCODE = s.PRODUCTIONORDERCODE
-                                                    AND n2.GROUPLINE = s.ORDERLINE
+                                    LEFT JOIN STOCKTRANSACTION s2 ON s2.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s2.DETAILTYPE = 2                                 
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND s.TEMPLATECODE IN ('120')
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    AND s.DECOSUBCODE01 = 'E'
-                                    AND s.DECOSUBCODE02 ='4'
-                                    AND s.DECOSUBCODE03  ='014'
+                                    -- AND s.DECOSUBCODE01 = 'E'
+                                    -- AND s.DECOSUBCODE02 IN ('4','8')
+                                    -- AND s.DECOSUBCODE03  IN('014','011')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                 ORDER BY
                                     s.PRODUCTIONORDERCODE ASC
@@ -601,7 +591,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Kode Obat</th>
                                         <th>Dyestuff/Chemical</th>
                                         <th>Stock Awal (gr)</th>
-                                        <th>Masuk</th>
+                                        <th colspan = "2">Masuk</th>
                                         <th colspan = "2">Pemakaian (gr)</th>
                                         <th colspan = "2">Tranasfer ke Gd. Lain</th>
                                         <th>Stock Balance</th>
@@ -883,8 +873,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
                                             BASEPRIMARYUNITCODE");
-                                    $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);
-
+                                    $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
 
                                     $q_qty_awal = mysqli_query($con, "SELECT * 
                                     FROM stock_awal_obat_gdkimia_1
@@ -908,6 +897,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     } elseif ($row_balance['STOCK_BALANCE'] < $row_stock_minimum['SAFETYSTOCK']) {
                                         $keterangan = 'SEGERA ORDER';
                                     }
+
+                                    $code = $row['KODE_OBAT'];
+                                    $tgl1 = $_POST['tgl'];
+                                    $tgl2 = $_POST['tgl2'];
+                                    $warehouse = $_POST['warehouse'];
+                                    $code1 = $row['DECOSUBCODE01'];
+                                    $code2 = $row['DECOSUBCODE02'];
+                                    $code3 = $row['DECOSUBCODE03'];
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['KODE_OBAT'] ?></td>
@@ -926,6 +923,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                             <?= number_format($row_stock_masuk['QTY_MASUK'], 2); ?>
                                                                         <?php endif; ?>
                                         </td>
+                                        <td width ="5px">
+                                            <a href="#" class="btn btn-primary btn-sm open-detail2" 
+                                            data-code1="<?= $code1 ?>" 
+                                            data-code2="<?= $code2 ?>"                                                
+                                            data-code3="<?= $code3 ?>" 
+                                            data-tgl1="<?= $tgl1 ?>" 
+                                            data-tgl2="<?= $tgl2 ?>" 
+                                            data-warehouse="<?= $warehouse ?>"
+                                                data-toggle="modal" data-target="#detailModal_masuk">
+                                                ...
+                                            </a>
+                                        </td>
                                         <td>
                                         <?php if (substr(number_format($row['AKTUAL_QTY_KELUAR'], 2), -3) == '.00'): ?>
                                                                                 <?= number_format($row['AKTUAL_QTY_KELUAR'], 0); ?>
@@ -933,17 +942,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                 <?= number_format($row['AKTUAL_QTY_KELUAR'], 2); ?>
                                                                         <?php endif; ?>
                                         </td>
-                                        <td width="5px">
-                                            <button name="btn_detail_pakai" class="btn btn-primary btn-sm">...</button>
+                                        <td width ="5px">
+                                            <a href="#" class="btn btn-primary btn-sm open-detail" 
+                                            data-code1="<?= $code1 ?>" 
+                                            data-code2="<?= $code2 ?>" 
+                                            data-code3="<?= $code3 ?>" 
+                                            data-tgl1="<?= $tgl1 ?>"
+                                            data-tgl2="<?= $tgl2 ?>" 
+                                            data-warehouse="<?= $warehouse ?>" 
+                                            data-toggle="modal" data-target="#detailModal_pakai">
+                                                ...
+                                            </a>
                                         </td>
                                         <td>  <?php if (substr(number_format($row_stock_transfer['QTY_TRANSFER'], 2), -3) == '.00'): ?>
                                                 <?= number_format($row_stock_transfer['QTY_TRANSFER'], 0); ?>
                                             <?php else: ?>
                                                 <?= number_format($row_stock_transfer['QTY_TRANSFER'], 2); ?>
                                                                         <?php endif; ?>                                                                    
-                                        </td>
-                                        <td width="5px">
-                                            <button name="btn_detail_tf" class="btn btn-primary btn-sm">...</button>
+                                        </td>                                       
+                                        <td width ="5px">
+                                        <a href="#" class="btn btn-primary btn-sm open-detail1" 
+                                            data-code="<?= $code ?>" 
+                                            data-tgl1="<?= $tgl1 ?>" 
+                                            data-tgl2="<?= $tgl2 ?>"
+                                            data-warehouse = "<?= $warehouse ?>"
+                                            data-toggle="modal"
+                                            data-target="#detailModal_transfer">
+                                                ...
+                                            </a>
                                         </td>
                                         <td> <?php if (substr(number_format($row_balance['STOCK_BALANCE'], 2), -3) == '.00'): ?>
                                                                                 <?= number_format($row_balance['STOCK_BALANCE'], 0); ?>
@@ -987,95 +1013,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </body>
-<!-- Modal -->
-<div class="modal fade" id="modal_transfer" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Notes</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body text-center">
-        <h2 class="mt-3">C-4-005 - TAIACRYL BLUE CD-RBLT</h2>
-        <table class="table table-bordered mt-3 text-center">
-          <thead>
-            <tr>
-              <th>NO</th>
-              <th>TANGGAL</th>
-              <th>NORMAL (GR)</th>
-              <th>TAMBAH OBAT (GR)</th>
-              <th>PERBAIKAN (GR)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>1</td><td>13-Jun</td><td>9000</td><td>0</td><td>30</td></tr>
-            <tr><td>2</td><td>15-Jun</td><td>0</td><td>800</td><td>0</td></tr>
-            <tr><td>3</td><td>20-Jun</td><td>0</td><td>0</td><td>50</td></tr>
-            <tr><td>4</td><td>20-Jun</td><td>1000</td><td>0</td><td>0</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Confirm</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-      </div>
+
+<!-- Modal qty transfer -->
+<div id="detailModal_transfer" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Transfer</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailTransferTable">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
     </div>
-  </div>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="modal_pakai" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Notes</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body text-center">
-        <h2 class="mt-3">C-4-005 - TAIACRYL BLUE CD-RBLT</h2>
-        <table class="table table-bordered mt-3 text-center">
-          <thead>
-            <tr>
-              <th>NO</th>
-              <th>TANGGAL</th>
-              <th>NORMAL (GR)</th>
-              <th>TAMBAH OBAT (GR)</th>
-              <th>PERBAIKAN (GR)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>1</td><td>13-Jun</td><td>9000</td><td>0</td><td>30</td></tr>
-            <tr><td>2</td><td>15-Jun</td><td>0</td><td>800</td><td>0</td></tr>
-            <tr><td>3</td><td>20-Jun</td><td>0</td><td>0</td><td>50</td></tr>
-            <tr><td>4</td><td>20-Jun</td><td>1000</td><td>0</td><td>0</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-      </div>
-    </div>
-  </div>
 </div>
 
+<!-- Modal qty pakai-->
+<div id="detailModal_pakai" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Pemakaian</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content_pakai">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailPakaiTabel">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
+
+<!-- Modal qty masuk-->
+<div id="detailModal_masuk" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Masuk</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content_masuk">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailmasukTable">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
 
 </html>
-<!-- <script>
-    $(document).ready(function() {
-        const myTable = $('#Table-obat').DataTable({
-            "ordering": false,
-            "pageLength": 25,
-            responsive: true,
-            language: {
-                searchPlaceholder: "Search..."
-            },
-        })        
-    })
-</script> -->
-
 <script>
   $(document).ready(function () {
     $('#Table-obat').DataTable({
@@ -1087,19 +1104,111 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
     });
   });
-</script>
 
-<script>
-  $(document).ready(function () {
-    $('[name="btn_detail_tf"]').click(function () {
-      $('#modal_transfer').modal('show');
+  $(document).on('click', '.open-detail', function() {
+        var code1 = $(this).data('code1');
+        var code2 = $(this).data('code2');
+        var code3 = $(this).data('code3');
+        var tgl1 = $(this).data('tgl1');
+        var tgl2 = $(this).data('tgl2');
+        var warehouse = $(this).data('warehouse');
+
+        $('#modal-content_pakai').html('<p>Loading data...</p>');
+
+        $.ajax({
+        url: 'pages/ajax/Pemakaian_obat_detail.php',
+        type: 'POST',
+        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        success: function(response) {
+            console.log('Response received');
+            $('#modal-content_pakai').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailPakaiTabel')) {
+                console.log('Destroying existing DataTable');
+                $('#detailPakaiTabel').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailPakaiTabel').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
+        },
+        error: function() {
+            $('#modal-content_pakai').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+        });
     });
-  });
 
-  $(document).ready(function () {
-    $('[name="btn_detail_pakai"]').click(function () {
-      $('#modal_pakai').modal('show');
+  $(document).on('click', '.open-detail1', function() {
+        var code = $(this).data('code');
+        var tgl1 = $(this).data('tgl1');
+        var tgl2 = $(this).data('tgl2');
+        var warehouse = $(this).data('warehouse');
+
+        $('#modal-content').html('<p>Loading data...</p>');
+
+        $.ajax({
+        url: 'pages/ajax/transfer_obat_detail.php',
+        type: 'POST',
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        success: function(response) {
+            console.log('Response received');
+            $('#modal-content').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailTransferTable')) {
+                console.log('Destroying existing DataTable');
+                $('#detailTransferTable').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailTransferTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
+        },
+        error: function() {
+            $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+        });
     });
-  });
-</script>
 
+    $(document).on('click', '.open-detail2', function() {
+        var code1 = $(this).data('code1');
+        var code2 = $(this).data('code2');
+        var code3 = $(this).data('code3');
+        var tgl1 = $(this).data('tgl1');
+        var tgl2 = $(this).data('tgl2');
+        var warehouse = $(this).data('warehouse');
+
+        $('#modal-content_masuk').html('<p>Loading data...</p>');
+
+        $.ajax({
+        url: 'pages/ajax/Masuk_obat_detail.php',
+        type: 'POST',
+        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        success: function(response) {
+            console.log('Response received');
+            $('#modal-content_masuk').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailmasukTable')) {
+                console.log('Destroying existing DataTable');
+                $('#detailmasukTable').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailmasukTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
+        },
+        error: function() {
+            $('#modal-content_masuk').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+        });
+    });
+
+</script>
