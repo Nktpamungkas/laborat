@@ -81,7 +81,7 @@ echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialch
             echo "<tr>";
             echo "<td>" . $no++ . "</td>";
             echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['QTY_MASUK'] ?? '') . "</td>";
+            echo "<td>" . number_format((float) ($row['QTY_MASUK'] ?? 0), 2) . "</td>";
             echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
             echo "<td>" . htmlspecialchars($row['LONGDESCRIPTION'] ?? '') . "</td>";
             echo "</tr>";

@@ -99,7 +99,7 @@ foreach ($rows2 as $row) {
     echo "<tr>";
     echo "<td>" . $no++ . "</td>";
     echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
-    echo "<td>" . htmlspecialchars($row['QTY_TRANSFER'] ?? '') . "</td>";
+    echo "<td>" . number_format((float) ($row['QTY_TRANSFER'] ?? 0), 2) . "</td>";
     echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
     echo "<td>" . htmlspecialchars($row['LONGDESCRIPTION'] ?? '') . "</td>";
     echo "</tr>";

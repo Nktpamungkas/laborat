@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>LAB - laporan Pemakaian Obat Gd. Kimia</title>
+    <title>LAB - laporan Pemakaian Obat Gd. Kimia per Kategori</title>
 </head>
 <style>
     .modal-backdrop {
@@ -161,19 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     value="<?php if (isset($_POST['submit'])) {
                                         echo $_POST['tgl'];
                                     } ?>"
-                                    required>
-                                <!-- <input name="time" type="text" class="form-control" id="time"
-                                    placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
-                                    title=" e.g 14:25" onkeyup="
-                                                        var time = this.value;
-                                                        if (time.match(/^\d{2}$/) !== null) {
-                                                            this.value = time + ':';
-                                                        } else if (time.match(/^\d{2}\:\d{2}$/) !== null) {
-                                                            this.value = time + '';
-                                                        }" value="<?php if (isset($_POST['submit'])) {
-                                                            echo $_POST['time'];
-                                                        } ?>" size="5" maxlength="5"
-                                    required> -->
+                                    required>                            
                             </div>
                             <div class="col-sm-2" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" required
@@ -182,18 +170,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         echo $_POST['tgl2'];
                                     } ?>"
                                     required>
-                                <!-- <input name="time2" type="text" class="form-control" id="time2"
-                                    placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
-                                    title=" e.g 14:25" onkeyup="
-                                                        var time = this.value;
-                                                        if (time.match(/^\d{2}$/) !== null) {
-                                                            this.value = time + ':';
-                                                        } else if (time.match(/^\d{2}\:\d{2}$/) !== null) {
-                                                            this.value = time + '';
-                                                        }" value="<?php if (isset($_POST['submit'])) {
-                                                            echo $_POST['time2'];
-                                                        } ?>" size="5" maxlength="5"
-                                    required> -->
                             </div>
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
@@ -271,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="box">                
                 <div class="box-header with-border">
                 <div class="card-header table-card-header">
-                    <h5>LAPORAN BULANAN PEMAKAIAN OBAT GUDANG KIMIA</h5>
+                    <h5>LAPORAN PEMAKAIAN OBAT GUDANG KIMIA PERKATEGORI</h5>
                 </div>
                     <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">  
                         <div class="card-header mb-3 d-flex justify-content-end">
