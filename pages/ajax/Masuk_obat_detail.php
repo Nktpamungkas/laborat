@@ -13,7 +13,20 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
+if ($warehouse == 'M101') {
+    $templateCodes = "'QCT','OPN','204'";
+} else {
+    $templateCodes = "'QCT','304','OPN','204'";
+}
+
+if ($warehouse == 'M101') {
+    $detailtype = "1";
+} else {
+    $detailtype = "2";
+}
+
 $query = "SELECT    s.TRANSACTIONDATE,
+s.TRANSACTIONNUMBER,
                     s.TEMPLATECODE,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
@@ -25,13 +38,22 @@ $query = "SELECT    s.TRANSACTIONDATE,
                     CASE 
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
                         WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                        when s.CREATIONUSER = 'MT_STI' and s.TRANSACTIONDATE ='2025-07-13' then 0
                         ELSE s.USERPRIMARYQUANTITY
                     END AS QTY_MASUK,
                     CASE 
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
                         WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
                         ELSE s.USERPRIMARYUOMCODE
-                    END AS SATUAN_MASUK
+                    END AS SATUAN_MASUK,
+                    CASE 
+	                    WHEN  s.TEMPLATECODE = 'OPN' THEN s2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = 'QCT' THEN s.ORDERCODE 
+                    	WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    END AS KETERANGAN                    
                 FROM
                     STOCKTRANSACTION s
                     LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
@@ -39,21 +61,27 @@ $query = "SELECT    s.TRANSACTIONDATE,
                                         AND p.SUBCODE02 = s.DECOSUBCODE02
                                         AND p.SUBCODE03 = s.DECOSUBCODE03
                 LEFT JOIN STOCKTRANSACTIONTEMPLATE s2 ON s2.CODE = s.TEMPLATECODE 
+                LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
+                LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
+                LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE = '$detailtype'
+                LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1 ' AND '$tgl2 '
-                    AND s.TEMPLATECODE IN ('QCT','304','OPN','204')
-                    AND s.LOGICALWAREHOUSECODE = '$warehouse'
+                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl1'
+                    AND s.TEMPLATECODE IN ($templateCodes)
+                   AND s.LOGICALWAREHOUSECODE = '$warehouse'
+                    and s.CREATIONUSER != 'MT_STI'
                     and s.DECOSUBCODE01 = '$code1' 
                     AND s.DECOSUBCODE02 = '$code2' 
                     AND s.DECOSUBCODE03 = '$code3'";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);
-// if (!$stmt) {
-//     echo "<p class='text-danger'>Query gagal: " . db2_stmt_errormsg() . "</p>";
-//     exit;
-// }
+if (!$stmt) {
+    echo "<p class='text-danger'>Query gagal: " . db2_stmt_errormsg() . "</p>";
+    exit;
+}
 $no = 1;
 $kode_obat_label = '';
 $nama_obat_label = '';
@@ -83,7 +111,7 @@ echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialch
             echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
             echo "<td>" . number_format((float) ($row['QTY_MASUK'] ?? 0), 2) . "</td>";
             echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['LONGDESCRIPTION'] ?? '') . "</td>";
+            echo "<td>" . htmlspecialchars($row['KETERANGAN'] ?? '') . "</td>";
             echo "</tr>";
         }
 

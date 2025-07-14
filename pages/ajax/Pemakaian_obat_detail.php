@@ -149,11 +149,11 @@ echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialch
 echo "<table class='table table-bordered table-striped' id='detailPakaiTabel'>";
 echo "<thead>
              <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Normal (gr)</th>
-                <th>Tambah Obat (gr)</th>
-                <th>perbaikan (gr)</th>                
+                <th class='text-center'>No</th>
+                <th class='text-center'>Tanggal</th>
+                <th class='text-center'>Normal (gr)</th>
+                <th class='text-center'>Tambah Obat (gr)</th>
+                <th class='text-center'>perbaikan (gr)</th>                
             </tr>
     </thead>";
 echo "<tbody>";
