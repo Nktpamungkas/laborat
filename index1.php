@@ -467,7 +467,8 @@ $page = strtolower($page);
                                             $_GET['p'] == "Status-Matching-Bon-Order" ||
                                             $_GET['p'] == "Status-Matching-Ganti-kain" ||
                                             $_GET['p'] == "Rekap-Data"
-                                        ) echo "active"; ?>">
+                                        )
+                                            echo "active"; ?>">
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                                 <i class="fa fa-credit-card text-danger"></i> <span>Bon Order</span>
                                                 <span class="pull-right-container">
@@ -475,46 +476,58 @@ $page = strtolower($page);
                                                 </span>
                                             </a>
                                             <ul class="dropdown-menu">
-                                                <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") echo "active"; ?>">
+                                                <li class="<?php if ($_GET['p'] == "Approval-Bon-Order")
+                                                    echo "active"; ?>">
                                                     <a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
                                                 </li>
-                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order") echo "active"; ?>">
-                                                    <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon Order</span></a>
+                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon
+                                                            Order</span></a>
                                                 </li>
-                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain") echo "active"; ?>">
-                                                    <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti Kain</span></a>
+                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti
+                                                            Kain</span></a>
                                                 </li>
-                                                <li class="<?php if ($_GET['p'] == "Rekap-Data") echo "active"; ?>">
+                                                <li class="<?php if ($_GET['p'] == "Rekap-Data")
+                                                    echo "active"; ?>">
                                                     <a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
                                                 </li>
                                             </ul>
                                         </li>
-                                    </ul>
-                                </li>
-                            <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
-                                <li class="dropdown<?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
-                                                        echo "active";
-                                                    } ?>">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-empire text-green"></i> <span>Penggunaan Obat</span>
-                                        <span class="pull-right-container">
-                                            <i class="fa fa-fw fa-angle-down pull-right"></i>
-                                        </span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="<?php if ($_GET['p'] == "pemakaian_obat" or $_GET['p'] == "tutup_harian_GK") {
-                                            echo "active";
-                                        } ?>"><a href="?p=pemakaian_obat"><i
-                                                    class="fa fa-fw fa-list text-success" aria-hidden="true"></i>
-                                                <span>Laporan Harian Penggunaan Obat</span></a>
+                                        <!-- Penggunaan Obat Menu -->
+
+                                        <li class="dropdown-submenu <?php if (
+                                            $_GET['p'] == "pemakaian_obat" ||
+                                            $_GET['p'] == "pemakaian_obat_category" ||
+                                            $_GET['p'] == "tutup_harian_GK"
+                                        )
+                                            echo "active"; ?>">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-credit-card text-danger"></i> <span>Laporan Penggunaan Obat</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat")
+                                                echo "active"; ?>">
+                                                <a href="?p=pemakaian_obat"><i class="fa fa-list text-success"></i> <span>Laporan Summary Penggunaan
+                                                        Obat</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat_category")
+                                                echo "active"; ?>">
+                                                <a href="?p=pemakaian_obat_category"><i class="fa fa-file-text"></i> <span>Laporan Penggunaan Obat
+                                                        Kategori</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
+                                                echo "active"; ?>">
+                                                <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Harian</span></a>
+                                            </li>
+                                        </ul>
                                         </li>                                        
-                                        <li class="<?php if ($_GET['p'] == "tutup_harian_GK") {
-                                            echo "active";
-                                        } ?>"><a href="?p=Summary_pemakaian_obat"><i
-                                                    class="fa fa-fw fa-file-text-o text-success" aria-hidden="true"></i>
-                                                <span>Laporan Tutup Harian GK</span></a>
-                                        </li>
                                     </ul>
                                 </li>
                             <?php endif; ?>

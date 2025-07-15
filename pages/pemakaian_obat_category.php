@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>LAB - laporan Pemakaian Obat Gd. Kimia</title>
+    <title>LAB - laporan Pemakaian Obat Gd. Kimia per Kategori</title>
 </head>
 <style>
     .modal-backdrop {
@@ -161,19 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     value="<?php if (isset($_POST['submit'])) {
                                         echo $_POST['tgl'];
                                     } ?>"
-                                    required>
-                                <!-- <input name="time" type="text" class="form-control" id="time"
-                                    placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
-                                    title=" e.g 14:25" onkeyup="
-                                                        var time = this.value;
-                                                        if (time.match(/^\d{2}$/) !== null) {
-                                                            this.value = time + ':';
-                                                        } else if (time.match(/^\d{2}\:\d{2}$/) !== null) {
-                                                            this.value = time + '';
-                                                        }" value="<?php if (isset($_POST['submit'])) {
-                                                            echo $_POST['time'];
-                                                        } ?>" size="5" maxlength="5"
-                                    required> -->
+                                    required>                            
                             </div>
                             <div class="col-sm-2" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" required
@@ -182,18 +170,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         echo $_POST['tgl2'];
                                     } ?>"
                                     required>
-                                <!-- <input name="time2" type="text" class="form-control" id="time2"
-                                    placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
-                                    title=" e.g 14:25" onkeyup="
-                                                        var time = this.value;
-                                                        if (time.match(/^\d{2}$/) !== null) {
-                                                            this.value = time + ':';
-                                                        } else if (time.match(/^\d{2}\:\d{2}$/) !== null) {
-                                                            this.value = time + '';
-                                                        }" value="<?php if (isset($_POST['submit'])) {
-                                                            echo $_POST['time2'];
-                                                        } ?>" size="5" maxlength="5"
-                                    required> -->
                             </div>
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
@@ -236,7 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if (filter_var($ipaddress, FILTER_VALIDATE_IP)) {
 
                         // Siapkan statement prepared
-                        $sql2 = "DELETE FROM tb_stock_gd_kimia WHERE IP_ADDRESS = ?";
+                        $sql2 = "DELETE FROM tb_stock_gd_kimia_kategori WHERE IP_ADDRESS = ?";
                         $stmt2 = mysqli_prepare($con, $sql2);
 
                         if ($stmt2) {
@@ -271,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="box">                
                 <div class="box-header with-border">
                 <div class="card-header table-card-header">
-                    <h5>LAPORAN BULANAN PEMAKAIAN OBAT GUDANG KIMIA</h5>
+                    <h5>LAPORAN PEMAKAIAN OBAT GUDANG KIMIA PERKATEGORI</h5>
                 </div>
                     <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">  
                         <div class="card-header mb-3 d-flex justify-content-end">
@@ -286,6 +262,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         KODE_OBAT,
+                                        sum(AKTUAL_QTY) AS AKTUAL_QTY_KELUAR,
+                                        SATUAN,
                                         LONGDESCRIPTION
                                     FROM 
                                     (
@@ -293,7 +271,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         s.DECOSUBCODE01,
                                         s.DECOSUBCODE02,
                                         s.DECOSUBCODE03,
-                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,                                        
+                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
+                                        CASE 
+                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                            ELSE s.USERPRIMARYQUANTITY
+                                        END AS AKTUAL_QTY,
+                                        CASE 
+                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN 'kg' 
+                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                            ELSE s.USERPRIMARYUOMCODE 
+                                        END AS SATUAN,
                                         p.LONGDESCRIPTION,
                                         s.TEMPLATECODE
                                     FROM
@@ -301,15 +289,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
                                         AND p.SUBCODE01 = s.DECOSUBCODE01
                                         AND p.SUBCODE02 = s.DECOSUBCODE02
-                                        AND p.SUBCODE03 = s.DECOSUBCODE03  
+                                        AND p.SUBCODE03 = s.DECOSUBCODE03                                
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                    AND s.TEMPLATECODE IN ('120','201','203')
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    AND s.DECOSUBCODE01 = 'E'
-                                    AND s.DECOSUBCODE02 IN ('6')
-                                    AND s.DECOSUBCODE03  IN('043')
+                                    -- AND s.DECOSUBCODE01 = 'E'
+                                    -- AND s.DECOSUBCODE02 IN ('4','8')
+                                    -- AND s.DECOSUBCODE03  IN('014','011')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 
@@ -317,6 +306,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     DECOSUBCODE02,
                                     DECOSUBCODE03,
                                     KODE_OBAT,
+                                    SATUAN,
                                     LONGDESCRIPTION
                                     ORDER BY KODE_OBAT ASC ");                           
                                         
@@ -329,15 +319,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Stock Awal (gr)</th>
                                         <th>Masuk</th>
                                         <th>Pemakaian (gr)</th>
-                                        <th>Tranasfer ke Gd. Lain</th>
-                                        <th>Stock Balance</th>
-                                        <th>Stock Minimum</th>
-                                        <th>Buka PO</th>
-                                        <th>Pemakaian(belum timbang)</th>
-                                        <th>Stock Balance(future)</th>
-                                        <th>Status</th>
-                                        <th>Note</th>
-                                        <th>Certification</th>
+                                        <th>Stock Balance</th>                                       
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -345,108 +327,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($db_stocktransaction)) {                                    
 
-                                $stock_transfer = db2_exec($conn1, "SELECT 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
-                                        SATUAN_TRANSFER
-                                        FROM 
-                                        (SELECT
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
-                                            END AS QTY_TRANSFER,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                ELSE s.USERPRIMARYUOMCODE
-                                            END AS SATUAN_TRANSFER
-                                        FROM
-                                            STOCKTRANSACTION s
-                                        WHERE
-                                            s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE IN ('201','203','303')
-                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
-                                            s.USERPRIMARYUOMCODE)
-                                        GROUP BY 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        SATUAN_TRANSFER");
-                                    $row_stock_transfer = db2_fetch_assoc($stock_transfer);
-
-                                    $qty_pakai = db2_exec($conn1, "SELECT 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        sum(AKTUAL_QTY_KELUAR) AS AKTUAL_QTY_KELUAR,
-                                        SATUAN
-                                        FROM 
-                                        (SELECT
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
-                                            END AS AKTUAL_QTY_KELUAR,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                ELSE s.USERPRIMARYUOMCODE
-                                            END AS SATUAN
-                                        FROM
-                                            STOCKTRANSACTION s
-                                        WHERE
-                                            s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE IN ('120')
-                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
-                                            s.USERPRIMARYUOMCODE)
-                                        GROUP BY 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        SATUAN");
-                                    $row_qty_pakai = db2_fetch_assoc($qty_pakai);
-
-                                    $warehouse = $_POST['warehouse'] ?? '';
-
-                                    if ($warehouse == 'M101') {
-                                        $templateCodes = "'QCT','OPN','204'";
-                                    } else {
-                                        $templateCodes = "'QCT','304','OPN','204'";
-                                    }
-
+                                // $stock_transfer = db2_exec($conn1, "SELECT 
+                                //         ITEMTYPECODE,
+                                //         DECOSUBCODE01,
+                                //         DECOSUBCODE02,
+                                //         DECOSUBCODE03,
+                                //         sum(QTY_TRANSFER) AS QTY_TRANSFER,
+                                //         SATUAN_TRANSFER
+                                //         FROM 
+                                //         (SELECT
+                                //             s.ITEMTYPECODE,
+                                //             s.DECOSUBCODE01,
+                                //             s.DECOSUBCODE02,
+                                //             s.DECOSUBCODE03,
+                                //             CASE 
+                                //                 WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
+                                //                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
+                                //                 ELSE SUM(s.USERPRIMARYQUANTITY)
+                                //             END AS QTY_TRANSFER,
+                                //             CASE 
+                                //                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                //                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                //                 ELSE s.USERPRIMARYUOMCODE
+                                //             END AS SATUAN_TRANSFER
+                                //         FROM
+                                //             STOCKTRANSACTION s
+                                //         WHERE
+                                //             s.ITEMTYPECODE = 'DYC'
+                                //             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                //             AND s.TEMPLATECODE IN ('201','203')
+                                //             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                //             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
+                                //             s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
+                                //             s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
+                                //         GROUP BY
+                                //             s.ITEMTYPECODE,
+                                //             s.DECOSUBCODE01,
+                                //             s.DECOSUBCODE02,
+                                //             s.DECOSUBCODE03,    
+                                //             s.USERPRIMARYUOMCODE)
+                                //         GROUP BY 
+                                //         ITEMTYPECODE,
+                                //         DECOSUBCODE01,
+                                //         DECOSUBCODE02,
+                                //         DECOSUBCODE03,
+                                //         SATUAN_TRANSFER");
+                                //     $row_stock_transfer = db2_fetch_assoc($stock_transfer);
 
                                     $stock_masuk = db2_exec($conn1, "SELECT 
                                     ITEMTYPECODE,
@@ -476,8 +402,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND s.TEMPLATECODE IN ($templateCodes)
-                                        and s.CREATIONUSER != 'MT_STI'
+                                        AND s.TEMPLATECODE IN ('QC1','QCT','304','OPN','204')
                                         AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
                                         s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
@@ -528,150 +453,145 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.BASEPRIMARYUNITCODE");
                                     $row_balance = db2_fetch_assoc($Balance_stock);
 
-                                    $stock_minimum = db2_exec($conn1, " SELECT 
-                                            i.ITEMTYPECODE,
-                                            i.SUBCODE01,
-                                            i.SUBCODE02, 
-                                            i.SUBCODE03,
-                                            i.SUBCODE04,
-                                            i.SUBCODE05,
-                                            i.SUBCODE06,
-                                            i.SUBCODE07,
-                                            i.SUBCODE08,
-                                            i.SUBCODE09,
-                                            i.SUBCODE10,
-                                            CASE 
-                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN i.SAFETYSTOCK *1000000
-                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN i.SAFETYSTOCK *1000
-                                                ELSE i.SAFETYSTOCK
-                                            END AS SAFETYSTOCK,
-                                            CASE 
-                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                ELSE p.BASEPRIMARYUNITCODE
-                                            END AS BASEPRIMARYUNITCODE,
-                                            CASE 
-                                                WHEN a.VALUESTRING = 1 THEN 'BV'
-                                                WHEN a.VALUESTRING = 2 THEN 'NON BV'
-                                                ELSE ''
-                                            END CERTIFICATION,
-                                            a2.VALUESTRING AS NOTELAB
-                                            FROM 
-                                            ITEMWAREHOUSELINK i 
-                                            LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPECODE 
-                                            AND p.SUBCODE01 = i.SUBCODE01
-                                            AND p.SUBCODE02 = i.SUBCODE02 
-                                            AND p.SUBCODE03 = i.SUBCODE03 
-                                            AND p.SUBCODE04 = i.SUBCODE04 
-                                            AND p.SUBCODE05 = i.SUBCODE05 
-                                            AND p.SUBCODE06 = i.SUBCODE06 
-                                            AND p.SUBCODE07 = i.SUBCODE07 
-                                            AND p.SUBCODE08 = i.SUBCODE08 
-                                            AND p.SUBCODE09 = i.SUBCODE09 
-                                            AND p.SUBCODE10 = i.SUBCODE10 
-                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
-                                            LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
-                                            WHERE  
-                                            i.ITEMTYPECODE ='DYC'
-                                            AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND i.SUBCODE01 = '$row[DECOSUBCODE01]'
-                                            AND i.SUBCODE02 = '$row[DECOSUBCODE02]' 
-                                            AND i.SUBCODE03 = '$row[DECOSUBCODE03]' ");
-                                    $row_stock_minimum = db2_fetch_assoc($stock_minimum);
+                                    // $stock_minimum = db2_exec($conn1, " SELECT 
+                                    //         i.ITEMTYPECODE,
+                                    //         i.SUBCODE01,
+                                    //         i.SUBCODE02, 
+                                    //         i.SUBCODE03,
+                                    //         i.SUBCODE04,
+                                    //         i.SUBCODE05,
+                                    //         i.SUBCODE06,
+                                    //         i.SUBCODE07,
+                                    //         i.SUBCODE08,
+                                    //         i.SUBCODE09,
+                                    //         i.SUBCODE10,
+                                    //         CASE 
+                                    //             WHEN p.BASEPRIMARYUNITCODE = 't' THEN i.SAFETYSTOCK *1000000
+                                    //             WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN i.SAFETYSTOCK *1000
+                                    //             ELSE i.SAFETYSTOCK
+                                    //         END AS SAFETYSTOCK,
+                                    //         CASE 
+                                    //             WHEN p.BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                    //             WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                    //             ELSE p.BASEPRIMARYUNITCODE
+                                    //         END AS BASEPRIMARYUNITCODE,
+                                    //         CASE 
+                                    //             WHEN a.VALUESTRING = 1 THEN 'BV'
+                                    //             WHEN a.VALUESTRING = 2 THEN 'NON BV'
+                                    //             ELSE ''
+                                    //         END CERTIFICATION,
+                                    //         a2.VALUESTRING AS NOTELAB
+                                    //         FROM 
+                                    //         ITEMWAREHOUSELINK i 
+                                    //         LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPECODE 
+                                    //         AND p.SUBCODE01 = i.SUBCODE01
+                                    //         AND p.SUBCODE02 = i.SUBCODE02 
+                                    //         AND p.SUBCODE03 = i.SUBCODE03 
+                                    //         AND p.SUBCODE04 = i.SUBCODE04 
+                                    //         AND p.SUBCODE05 = i.SUBCODE05 
+                                    //         AND p.SUBCODE06 = i.SUBCODE06 
+                                    //         AND p.SUBCODE07 = i.SUBCODE07 
+                                    //         AND p.SUBCODE08 = i.SUBCODE08 
+                                    //         AND p.SUBCODE09 = i.SUBCODE09 
+                                    //         AND p.SUBCODE10 = i.SUBCODE10 
+                                    //         LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
+                                    //         LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
+                                    //         WHERE  
+                                    //         i.ITEMTYPECODE ='DYC'
+                                    //         AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                    //         AND i.SUBCODE01 = '$row[DECOSUBCODE01]'
+                                    //         AND i.SUBCODE02 = '$row[DECOSUBCODE02]' 
+                                    //         AND i.SUBCODE03 = '$row[DECOSUBCODE03]' ");
+                                    // $row_stock_minimum = db2_fetch_assoc($stock_minimum);
 
-                                    $buka_po = db2_exec($conn1, "SELECT 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            DECOSUBCODE04,
-                                            DECOSUBCODE05,
-                                            DECOSUBCODE06,
-                                            DECOSUBCODE07,
-                                            CASE 
-                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
-                                                WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
-                                                else sum(BASEPRIMARYQUANTITY)
-                                            END AS QTY,
-                                            CASE 
-                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                WHEN BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                else BASEPRIMARYUNITCODE
-                                            END AS BASEPRIMARYUNITCODE 
-                                            FROM 
-                                            VIEWAVANALYSISPART1 v 
-                                            WHERE ISTANCETYPE = '6'
-                                            AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            and DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                            GROUP BY 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            DECOSUBCODE04,
-                                            DECOSUBCODE05,
-                                            DECOSUBCODE06,
-                                            DECOSUBCODE07,
-                                            BASEPRIMARYUNITCODE");
-                                    $row_buka_po = db2_fetch_assoc($buka_po);
+                                    // $buka_po = db2_exec($conn1, "SELECT 
+                                    //         LOGICALWAREHOUSECODE,
+                                    //         COUNTERCODE,
+                                    //         DECOSUBCODE01,
+                                    //         DECOSUBCODE02,
+                                    //         DECOSUBCODE03,
+                                    //         DECOSUBCODE04,
+                                    //         DECOSUBCODE05,
+                                    //         DECOSUBCODE06,
+                                    //         DECOSUBCODE07,
+                                    //         CASE 
+                                    //             WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
+                                    //             WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
+                                    //             else sum(BASEPRIMARYQUANTITY)
+                                    //         END AS QTY,
+                                    //         CASE 
+                                    //             WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                    //             WHEN BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                    //             else BASEPRIMARYUNITCODE
+                                    //         END AS BASEPRIMARYUNITCODE 
+                                    //         FROM 
+                                    //         VIEWAVANALYSISPART1 v 
+                                    //         WHERE ISTANCETYPE = '6'
+                                    //         AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                    //         AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                    //         and DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
+                                    //         DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
+                                    //         DECOSUBCODE03 = '$row[DECOSUBCODE03]'
+                                    //         GROUP BY 
+                                    //         LOGICALWAREHOUSECODE,
+                                    //         COUNTERCODE,
+                                    //         DECOSUBCODE01,
+                                    //         DECOSUBCODE02,
+                                    //         DECOSUBCODE03,
+                                    //         DECOSUBCODE04,
+                                    //         DECOSUBCODE05,
+                                    //         DECOSUBCODE06,
+                                    //         DECOSUBCODE07,
+                                    //         BASEPRIMARYUNITCODE");
+                                    // $row_buka_po = db2_fetch_assoc($buka_po);
 
-                                    $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            STATUS,
-                                            sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
-                                            BASEPRIMARYUNITCODE
-                                            FROM 
-                                            (
-                                            SELECT 
-                                            v.LOGICALWAREHOUSECODE,
-                                            v.COUNTERCODE,
-                                            v.ISTANCECODE,
-                                            v.ITEMTYPECODE,
-                                            v.DUEDATE,
-                                            v.DECOSUBCODE01,
-                                            v.DECOSUBCODE02,
-                                            v.DECOSUBCODE03,
-                                            v.STATUS,
-                                            p.STATUS  AS PRODUCTIONORDER_STATUS,
-                                            CASE 
-                                                WHEN v.BASEPRIMARYUNITCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
-                                                WHEN v.BASEPRIMARYUNITCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
-                                                ELSE BASEPRIMARYQUANTITY
-                                            END AS BASEPRIMARYQUANTITY,
-                                            v.BASEPRIMARYUNITCODE  
-                                            FROM 
-                                            VIEWAVANALYSISPART2 v 
-                                            LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.ISTANCECODE 
-                                            WHERE 
-                                            v.ITEMTYPECODE ='DYC'
-                                            AND v.STATUS = 0
-                                            AND p.STATUS = 0
-                                            AND v.COUNTERCODE = '640'
-                                            AND v.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND v.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                            AND v.DECOSUBCODE02 = '$row[DECOSUBCODE02]'
-                                            AND v.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                            AND v.DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
-                                            GROUP BY 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            STATUS,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            BASEPRIMARYUNITCODE");
-                                    $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
+                                    // $pakai_belum_timbang = db2_exec($conn1, "SELECT 
+                                    //         LOGICALWAREHOUSECODE,
+                                    //         COUNTERCODE,
+                                    //         ITEMTYPECODE,
+                                    //         DECOSUBCODE01,
+                                    //         DECOSUBCODE02,
+                                    //         DECOSUBCODE03,
+                                    //         STATUS,
+                                    //         sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
+                                    //         BASEPRIMARYUNITCODE
+                                    //         FROM 
+                                    //         (SELECT 
+                                    //         LOGICALWAREHOUSECODE,
+                                    //         COUNTERCODE,
+                                    //         ISTANCECODE,
+                                    //         ITEMTYPECODE,
+                                    //         DUEDATE,
+                                    //         DECOSUBCODE01,
+                                    //         DECOSUBCODE02,
+                                    //         DECOSUBCODE03,
+                                    //         STATUS,
+                                    //         CASE 
+                                    //             WHEN BASEPRIMARYUNITCODE ='kg' THEN BASEPRIMARYQUANTITY * 1000
+                                    //             WHEN BASEPRIMARYUNITCODE ='t' THEN BASEPRIMARYQUANTITY * 1000000
+                                    //             ELSE BASEPRIMARYQUANTITY
+                                    //         END BASEPRIMARYQUANTITY,
+                                    //         BASEPRIMARYUNITCODE  
+                                    //         FROM 
+                                    //         VIEWAVANALYSISPART2 v 
+                                    //         WHERE 
+                                    //         ITEMTYPECODE ='DYC'
+                                    //         AND STATUS = 0
+                                    //         AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                    //         AND DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                    //         AND DECOSUBCODE02 = '$row[DECOSUBCODE02]'
+                                    //         AND DECOSUBCODE03 = '$row[DECOSUBCODE03]'
+                                    //         AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
+                                    //         GROUP BY 
+                                    //         LOGICALWAREHOUSECODE,
+                                    //         COUNTERCODE,
+                                    //         STATUS,
+                                    //         ITEMTYPECODE,
+                                    //         DECOSUBCODE01,
+                                    //         DECOSUBCODE02,
+                                    //         DECOSUBCODE03,
+                                    //         BASEPRIMARYUNITCODE");
+                                    // $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
 
                                     $q_qty_awal = mysqli_query($con, "SELECT * 
                                     FROM stock_awal_obat_gdkimia_1
@@ -693,13 +613,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($row_stock_masuk['QTY_MASUK'], 0)
                                         : number_format($row_stock_masuk['QTY_MASUK'], 2);
 
-                                    $qty_Keluar = (substr(number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2), -3) == '.00')
-                                        ? number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 0)
-                                        : number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2);
-
-                                    $qty_Transfer = (substr(number_format($row_stock_transfer['QTY_TRANSFER'], 2), -3) == '.00')
-                                        ? number_format($row_stock_transfer['QTY_TRANSFER'], 0)
-                                        : number_format($row_stock_transfer['QTY_TRANSFER'], 2);
+                                    $qty_Keluar = (substr(number_format($row['AKTUAL_QTY_KELUAR'], 2), -3) == '.00')
+                                        ? number_format($row['AKTUAL_QTY_KELUAR'], 0)
+                                        : number_format($row['AKTUAL_QTY_KELUAR'], 2);                                    
 
                                     $qty_awal = (substr(number_format($row_qty_awal['qty_awal'], 2), -3) == '.00')
                                         ? number_format($row_qty_awal['qty_awal'], 0)
@@ -708,40 +624,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $qty_stock_balance = (substr(number_format($row_balance['STOCK_BALANCE'], 2), -3) == '.00')
                                         ? number_format($row_balance['STOCK_BALANCE'], 0)
                                         : number_format($row_balance['STOCK_BALANCE'], 2);
-
-                                    $qty_stock_minimum = (substr(number_format($row_stock_minimum['SAFETYSTOCK'], 2), -3) == '.00')
-                                        ? number_format($row_stock_minimum['SAFETYSTOCK'], 0)
-                                        : number_format($row_stock_minimum['SAFETYSTOCK'], 2);
-
-                                    $qty_stock_buka_PO = (substr(number_format($row_buka_po['QTY'], 2), -3) == '.00')
-                                        ? number_format($row_buka_po['QTY'], 0)
-                                        : number_format($row_buka_po['QTY'], 2);
-
-                                    $qty_stock_pakai_belum_timbang = (substr(number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 2), -3) == '.00')
-                                        ? number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 0)
-                                        : number_format($row_pakai_belum_timbang['USERPRIMARYQUANTITY'], 2);
-                                        
-                                    $sisa_stock = ($row_qty_awal['qty_awal'] + $row['QTY_MASUK']) - $row['AKTUAL_QTY_KELUAR'];
-
-                                    $stock_notif = ($row_stock_minimum['SAFETYSTOCK'] * 0.2) + $row_stock_minimum['SAFETYSTOCK'];
-
-                                    $keterangan = '';
-                                    if ($row_balance['STOCK_BALANCE'] > $stock_notif) {
-                                        $keterangan = 'HITUNG KEBUTUHAN ORDER';
-                                    } elseif ($row_balance['STOCK_BALANCE'] == $stock_notif) {
-                                        $keterangan = 'SEGERA ORDER';
-                                    } elseif ($row_balance['STOCK_BALANCE'] < $row_stock_minimum['SAFETYSTOCK']) {
-                                        $keterangan = 'SEGERA ORDER';
-                                    }
-
-                                    $stock_balance_future = $row_balance['STOCK_BALANCE'] + $row_buka_po['QTY'] - $row_pakai_belum_timbang['USERPRIMARYQUANTITY'];
-
-                                    $sisa_stock_balance_future = (substr(number_format($stock_balance_future, 2), -3) == '.00')
-                                        ? number_format($stock_balance_future, 0)
-                                        : number_format($stock_balance_future, 2);
-
-
-
 
                                     ?>                               
                                     <tr>
@@ -771,28 +653,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             data-toggle="modal" data-target="#detailModal_pakai">
                                             <?= $qty_Keluar ?>
                                             </a>
-                                        </td>                                                                             
-                                        <td>
-                                        <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail1" 
-                                           data-code1="<?= $code1 ?>" 
-                                            data-code2="<?= $code2 ?>"                                                
-                                            data-code3="<?= $code3 ?>"  
-                                            data-tgl1="<?= $tgl1 ?>" 
-                                            data-tgl2="<?= $tgl2 ?>"
-                                            data-warehouse = "<?= $warehouse ?>"
-                                            data-toggle="modal"
-                                            data-target="#detailModal_transfer">
-                                            <?= $qty_Transfer ?>
-                                            </a>
-                                        </td>
+                                        </td>                                                                          
                                         <td><?php echo $qty_stock_balance ?></td>
-                                        <td><?php echo $qty_stock_minimum ?></td>
-                                        <td><?php echo $qty_stock_buka_PO ?></td>
-                                        <td><?php echo $qty_stock_pakai_belum_timbang ?></td>
-                                        <td><?php echo $sisa_stock_balance_future ?></td>
-                                        <td><?php echo $keterangan;?></td>
-                                        <td><?php echo  $row_stock_minimum['NOTELAB']?></td>
-                                        <td><?php echo  $row_stock_minimum['CERTIFICATION']?></td>
                                 </tr>                                   
                                 <?php
                                     $no++;
@@ -808,33 +670,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $qty_awal = floatval(str_replace(',', '', $qty_awal));
                                     $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
                                     $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
-                                    $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
                                     $stock_balance = floatval(str_replace(',', '', $qty_stock_balance));
-                                    $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
-                                    $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
-                                    $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
-                                    $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
-                                    $status_ = mysqli_real_escape_string($con, $keterangan);
-                                    $note = mysqli_real_escape_string($con, $row_stock_minimum['NOTELAB']);
-                                    $sertifikat = mysqli_real_escape_string($con, $row_stock_minimum['CERTIFICATION']);
                                     $ip = mysqli_real_escape_string($con, $ipaddress);
                                     $warehouse = mysqli_real_escape_string($con, $_POST['warehouse']);
 
-                                    $sql = "INSERT INTO tb_stock_gd_kimia (
+                                    $sql = "INSERT INTO tb_stock_gd_kimia_kategori (
                                                 kode_obat,
                                                 nama_obat,
                                                 qty_awal,
                                                 stock_masuk,
                                                 stock_keluar,
-                                                stock_transfer,
-                                                stock_balance,
-                                                stock_minimum,
-                                                buka_po,
-                                                stock_pakai_blum_timbang,
-                                                stock_balance_future,
-                                                status_,
-                                                note,
-                                                ket_sertifikat,
+                                                stock_balance,                                               
                                                 tgl_tarik_data,
                                                 ip_address,
                                                 logicalwarehouse
@@ -844,15 +690,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 $qty_awal,
                                                 $stock_masuk,
                                                 $stock_keluar,
-                                                $stock_transfer,
-                                                $stock_balance,
-                                                $stock_minimum,
-                                                $buka_po,
-                                                $pakai_belum_timbang,
-                                                $balance_future,
-                                                '$status_',
-                                                '$note',
-                                                '$sertifikat',
+                                                $stock_balance,                                                
                                                 '$today',
                                                 '$ip',
                                                 '$warehouse'
@@ -900,7 +738,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <!-- Modal qty pakai-->
-<div id="detailModal_pakai" class="modal fade" tabindex="-1" role="dialog">
+<div id="detailModal_pakai" class="modal fade" tsabindex="-1" role="dialog">
     <div class="modal-dialog modal-custom">
         <div class="modal-content">
         
@@ -1001,9 +839,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
 
   $(document).on('click', '.open-detail1', function() {
-        var code1 = $(this).data('code1');
-        var code2 = $(this).data('code2');
-        var code3 = $(this).data('code3');
+        var code = $(this).data('code');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
         var warehouse = $(this).data('warehouse');
@@ -1011,19 +847,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $('#modal-content').html('<p>Loading data...</p>');
 
         $.ajax({
-        url: 'pages/ajax/transfer_obat_detail.php',
+        url: 'pages/ajax/Balance_stock_obat_detail.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content').html(response);
 
-            if ($.fn.DataTable.isDataTable('#detailTransferTable')) {
+            if ($.fn.DataTable.isDataTable('#detailbalanceTable')) {
                 console.log('Destroying existing DataTable');
-                $('#detailTransferTable').DataTable().destroy();
+                $('#detailbalanceTable').DataTable().destroy();
             }
             console.log('Initializing DataTable');
-            $('#detailTransferTable').DataTable({
+            $('#detailbalanceTable').DataTable({
                 paging: true,
                 searching: true,
                 ordering: true,
@@ -1047,7 +883,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $('#modal-content_masuk').html('<p>Loading data...</p>');
 
         $.ajax({
-        url: 'pages/ajax/Masuk_obat_detail.php',
+        url: 'pages/ajax/masuk_obat_detail_kategori.php',
         type: 'POST',
         data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
         success: function(response) {
