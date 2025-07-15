@@ -62,6 +62,11 @@
     .table {
         margin-bottom: 0 !important;
     }
+    td.cycle-cell {
+        width: 40px;
+        text-align: center;
+        font-weight: bold;
+    }
 </style>
 
 
@@ -309,32 +314,88 @@
             });
     }
 
+    // function renderTable(dataArray, tbodyElement, dispensingCode) {
+    //     const rowsPerBlock = 16;
+
+    //     // Filter berdasarkan kode dispensing
+    //     const filtered = dataArray.filter(item => {
+    //         const code = item.dispensing?.trim() ?? "";
+    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+    //     });
+
+    //     const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
+    //     tbodyElement.innerHTML = ""; // Kosongkan dulu
+
+    //     for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
+    //         const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
+    //         const cycleNumber = blockIndex + 1;
+
+    //         // Pilih baris aktif saja (scheduled/in_progress_dispensing)
+    //         const activeRows = blockRows.filter(item => 
+    //             item.status === 'scheduled' || item.status === 'in_progress_dispensing'
+    //         );
+
+    //         activeRows.forEach((item, activeIndex) => {
+    //             // Cari index asli di blockRows supaya no urut sesuai posisi asli
+    //             const indexInBlock = blockRows.findIndex(row => row.id === item.id);
+    //             const rowNumber = item.rowNumber;
+
+    //             const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
+    //             const isOld = item.is_old_data == "1";
+
+    //             const tr = document.createElement("tr");
+    //             tr.style.backgroundColor = bgColor;
+    //             tr.dataset.id = item.id;
+
+    //             // Kolom No (nomor asli di block)
+    //             tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
+
+    //             // Kolom Cycle (hanya di baris pertama aktif)
+    //             if (activeIndex === 0) {
+    //                 tr.innerHTML += `
+    //                     <td align="center" rowspan="${activeRows.length}" 
+    //                         style="vertical-align: middle; font-weight: bold;">
+    //                         ${item.cycleNumber}
+    //                     </td>`;
+    //             }
+
+    //             // Kolom data lainnya
+    //             tr.innerHTML += `
+    //                 <td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>
+    //                 <td align="center">${item.product_name}</td>
+    //                 <td align="center">${item.no_machine}</td>
+    //                 <td align="center">${item.status}</td>
+    //             `;
+
+    //             tbodyElement.appendChild(tr);
+    //         });
+    //     }
+    // }
+
     function renderTable(dataArray, tbodyElement, dispensingCode) {
         const rowsPerBlock = 16;
 
-        // Filter berdasarkan kode dispensing
         const filtered = dataArray.filter(item => {
             const code = item.dispensing?.trim() ?? "";
             return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
         });
 
         const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
-        tbodyElement.innerHTML = ""; // Kosongkan dulu
+        tbodyElement.innerHTML = "";
 
         for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
             const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
             const cycleNumber = blockIndex + 1;
 
-            // Pilih baris aktif saja (scheduled/in_progress_dispensing)
-            const activeRows = blockRows.filter(item => 
+            const activeRows = blockRows.filter(item =>
                 item.status === 'scheduled' || item.status === 'in_progress_dispensing'
             );
 
+            const middleIndex = Math.floor((activeRows.length - 1) / 2); // posisi tengah
+
             activeRows.forEach((item, activeIndex) => {
-                // Cari index asli di blockRows supaya no urut sesuai posisi asli
                 const indexInBlock = blockRows.findIndex(row => row.id === item.id);
                 const rowNumber = item.rowNumber;
-
                 const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
                 const isOld = item.is_old_data == "1";
 
@@ -342,25 +403,19 @@
                 tr.style.backgroundColor = bgColor;
                 tr.dataset.id = item.id;
 
-                // Kolom No (nomor asli di block)
                 tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-
-                // Kolom Cycle (hanya di baris pertama aktif)
-                if (activeIndex === 0) {
-                    tr.innerHTML += `
-                        <td align="center" rowspan="${activeRows.length}" 
-                            style="vertical-align: middle; font-weight: bold;">
-                            ${item.cycleNumber}
-                        </td>`;
+                
+                // Cycle number: hanya di baris tengah blok
+                if (activeIndex === middleIndex) {
+                    tr.innerHTML += `<td class="cycle-cell">${cycleNumber}</td>`;
+                } else {
+                    tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
                 }
 
-                // Kolom data lainnya
-                tr.innerHTML += `
-                    <td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>
-                    <td align="center">${item.product_name}</td>
-                    <td align="center">${item.no_machine}</td>
-                    <td align="center">${item.status}</td>
-                `;
+                tr.innerHTML += `<td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
+                tr.innerHTML += `<td align="center">${item.product_name}</td>`;
+                tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
+                tr.innerHTML += `<td align="center">${item.status}</td>`;
 
                 tbodyElement.appendChild(tr);
             });
@@ -385,6 +440,7 @@
                 // ✅ Update tampilan
                 updateRowStyles(tbody);
                 updateRowNumbers(tbody);
+                updateCycleCells(tbody);
 
                 // ✅ Kirim semua ID dan order_index ke server
                 fetch("pages/ajax/UpdateOrderIndexes.php", {
@@ -433,6 +489,33 @@
             }
         });
     }
+
+    function updateCycleCells(tbody) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const rowsPerBlock = 16;
+
+        for (let i = 0; i < rows.length; i += rowsPerBlock) {
+            const blockRows = rows.slice(i, i + rowsPerBlock);
+            const activeRows = blockRows.filter(row => row.querySelector(".row-number"));
+
+            const middleIndex = Math.floor((activeRows.length - 1) / 2);
+
+            activeRows.forEach((row, index) => {
+                const cell = row.querySelector(".cycle-cell");
+                if (cell) {
+                    if (index === middleIndex) {
+                        cell.textContent = Math.floor(i / rowsPerBlock) + 1;
+                        cell.style.opacity = "1";
+                        cell.style.pointerEvents = "auto";
+                    } else {
+                        cell.textContent = "";
+                        cell.style.opacity = "0";
+                        cell.style.pointerEvents = "none";
+                    }
+                }
+            });
+        }
+    }
 </script>
 
 <script>
@@ -471,6 +554,7 @@
 
                     updateRowStyles(tbody);
                     updateRowNumbers(tbody);
+                    updateCycleCells(tbody);
 
                     fetch("pages/ajax/UpdateOrderIndexes.php", {
                         method: "POST",
