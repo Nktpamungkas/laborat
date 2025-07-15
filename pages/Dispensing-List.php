@@ -385,7 +385,7 @@
 
         for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
             const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-            const cycleNumber = blockIndex + 1;
+            // const cycleNumber = blockIndex + 1;
 
             const activeRows = blockRows.filter(item =>
                 item.status === 'scheduled' || item.status === 'in_progress_dispensing'
@@ -405,9 +405,8 @@
 
                 tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
                 
-                // Cycle number: hanya di baris tengah blok
                 if (activeIndex === middleIndex) {
-                    tr.innerHTML += `<td class="cycle-cell">${cycleNumber}</td>`;
+                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
                 } else {
                     tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
                 }
