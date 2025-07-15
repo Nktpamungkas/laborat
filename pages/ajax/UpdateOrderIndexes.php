@@ -12,6 +12,9 @@ try {
         mysqli_query($con, "UPDATE tbl_preliminary_schedule SET order_index = $orderIndex WHERE id = $id");
     }
 
+    // ✅ Panggil auto-reset row_number dan cycle_number
+    include 'UpdateRowCycleAndNumber.php';
+
     echo json_encode(["success" => true]);
 } catch (Exception $e) {
     http_response_code(500);

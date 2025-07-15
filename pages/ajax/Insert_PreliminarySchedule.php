@@ -4,11 +4,11 @@ include "../../koneksi.php";
 include "../../includes/log_helper.php";
 session_start();
 
-$no_resep       = htmlspecialchars($_POST['no_resep']);
+$no_resep       = trim(htmlspecialchars($_POST['no_resep']));
 $bottle_qty_1   = (int) $_POST['bottle_qty_1'];
 $bottle_qty_2   = (int) $_POST['bottle_qty_2'];
-$temp_1         = htmlspecialchars($_POST['temp_1']); 
-$temp_2         = htmlspecialchars($_POST['temp_2']);
+$temp_1         = trim(htmlspecialchars($_POST['temp_1'])); 
+$temp_2         = trim(htmlspecialchars($_POST['temp_2']));
 $username       = $_SESSION['userLAB'];
 
 $checkReady = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'ready'");

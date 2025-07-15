@@ -333,7 +333,7 @@
             activeRows.forEach((item, activeIndex) => {
                 // Cari index asli di blockRows supaya no urut sesuai posisi asli
                 const indexInBlock = blockRows.findIndex(row => row.id === item.id);
-                const rowNumber = indexInBlock + 1;
+                const rowNumber = item.rowNumber;
 
                 const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
                 const isOld = item.is_old_data == "1";
@@ -350,7 +350,7 @@
                     tr.innerHTML += `
                         <td align="center" rowspan="${activeRows.length}" 
                             style="vertical-align: middle; font-weight: bold;">
-                            ${cycleNumber}
+                            ${item.cycleNumber}
                         </td>`;
                 }
 

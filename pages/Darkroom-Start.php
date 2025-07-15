@@ -320,7 +320,7 @@
 
             if (type === "repeat") repeatList.splice(index, 1);
             else if (type === "end") endList.splice(index, 1);
-            else if (type === "hold") progressList.splice(index, 1);
+            else if (type === "progress") progressList.splice(index, 1);
 
             renderSelectedList();
         });

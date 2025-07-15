@@ -203,6 +203,7 @@
                                         showConfirmButton: false
                                     }).then(() => {
                                         localStorage.setItem('hideTableSchedule', 'true');
+                                        localStorage.setItem('skipRepeatCheck', 'true');
                                         location.reload();
                                     });
                                     $('#schedule_table').html(data);
@@ -552,13 +553,22 @@
 <script>
     $(document).ready(function() {
 
-        loadData();
-        checkRepeatItems();
-        if (localStorage.getItem('hideTableSchedule') === 'true') {
+        const hideTable = localStorage.getItem('hideTableSchedule');
+        const skipRepeat = localStorage.getItem('skipRepeatCheck');
+
+        if (hideTable === 'true') {
             $('#scheduleWrapper').hide();
             $('#repeatWrapper').hide();
             localStorage.removeItem('hideTableSchedule');
         }
+
+        if (skipRepeat === 'true') {
+            localStorage.removeItem('skipRepeatCheck'); // ✅ Hapus supaya tidak permanen
+            window.skipRepeatCheck = true;
+        }
+        
+        loadData();
+        checkRepeatItems();
 
         $('#exsecute').click(function(e) {
             e.preventDefault();
@@ -618,13 +628,20 @@
     });
 </script>
 <script>
+    let dataTableRepeat = null;
     function checkRepeatItems() {
+        if (window.skipRepeatCheck) {
+            $('#repeatWrapper').hide();
+            $('#scheduleWrapper')
+                .removeClass('col-xs-8')
+                .addClass('col-xs-12');
+            return;
+        }
         $.ajax({
             url: 'pages/ajax/GetRepeatItems.php',
             type: 'GET',
             dataType: 'json',
             success: function(repeatData) {
-
                 if (Array.isArray(repeatData) && repeatData.length > 0) {
 
                     $('#scheduleWrapper')
@@ -633,9 +650,23 @@
 
                     $('#repeatWrapper').show();
 
-                    const $repeatBody = $('#repeatBody');
-                    $repeatBody.empty();
+                    if (dataTableRepeat) {
+                        dataTableRepeat.destroy();
+                    }
 
+                    $('#tableRepeat').html(`
+                        <thead class="bg-red">
+                            <tr>
+                                <th><div align="center">No</div></th>
+                                <th><div align="center">No. Resep</div></th>
+                                <th><div align="center">Temp</div></th>
+                                <th><div align="center">Status</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="repeatBody"></tbody>
+                    `);
+
+                    const $repeatBody = $('#repeatBody');
                     repeatData.forEach((item, idx) => {
                         const nomor = idx + 1;
                         const rowHtml = `
@@ -648,9 +679,20 @@
                         `;
                         $repeatBody.append(rowHtml);
                     });
+
+                    requestAnimationFrame(() => {
+                        Promise.resolve().then(() => {
+                            dataTableRepeat = $('#tableRepeat').DataTable({
+                                pageLength: 5,
+                                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                                destroy: true
+                            });
+                        });
+                    });
                 } else {
+                    // Tidak ada data repeat
                     $('#scheduleWrapper')
-                        .removeClass('col-xs-7')
+                        .removeClass('col-xs-8')
                         .addClass('col-xs-12');
 
                     $('#repeatWrapper').hide();
@@ -658,10 +700,11 @@
             },
             error: function(xhr, status, error) {
                 console.error('Gagal mengambil data REPEAT:', error);
-                // Jika error, kita tetap sembunyikan repeatWrapper
+
                 $('#scheduleWrapper')
-                    .removeClass('col-xs-7')
+                    .removeClass('col-xs-8')
                     .addClass('col-xs-12');
+
                 $('#repeatWrapper').hide();
             }
         });
