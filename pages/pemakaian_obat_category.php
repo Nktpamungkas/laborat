@@ -251,7 +251,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                     <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">  
                         <div class="card-header mb-3 d-flex justify-content-end">
-                            <a href="pages/cetak/cetak_lap_sumarry_pemakaian_obat.php?" 
+                            <a href="pages/cetak/cetak_lap_sumarry_pemakaian_obat_kategori.php?" 
                             class="btn btn-primary" 
                             target="_blank">Cetak Excel</a><br><br>
                         </div>                        
@@ -262,8 +262,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         KODE_OBAT,
-                                        sum(AKTUAL_QTY) AS AKTUAL_QTY_KELUAR,
-                                        SATUAN,
                                         LONGDESCRIPTION
                                     FROM 
                                     (
@@ -271,17 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         s.DECOSUBCODE01,
                                         s.DECOSUBCODE02,
                                         s.DECOSUBCODE03,
-                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
-                                        CASE 
-                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
-                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
-                                            ELSE s.USERPRIMARYQUANTITY
-                                        END AS AKTUAL_QTY,
-                                        CASE 
-                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN 'kg' 
-                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                            ELSE s.USERPRIMARYUOMCODE 
-                                        END AS SATUAN,
+                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,                                        
                                         p.LONGDESCRIPTION,
                                         s.TEMPLATECODE
                                     FROM
@@ -289,11 +277,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
                                         AND p.SUBCODE01 = s.DECOSUBCODE01
                                         AND p.SUBCODE02 = s.DECOSUBCODE02
-                                        AND p.SUBCODE03 = s.DECOSUBCODE03                                
+                                        AND p.SUBCODE03 = s.DECOSUBCODE03  
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                    AND s.TEMPLATECODE IN ('120','201','203')
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                     -- AND s.DECOSUBCODE01 = 'E'
@@ -306,9 +293,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     DECOSUBCODE02,
                                     DECOSUBCODE03,
                                     KODE_OBAT,
-                                    SATUAN,
                                     LONGDESCRIPTION
-                                    ORDER BY KODE_OBAT ASC ");                           
+                                    ORDER BY KODE_OBAT ASC");                           
                                         
                                 ?>
                                 
@@ -374,6 +360,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 //         SATUAN_TRANSFER");
                                 //     $row_stock_transfer = db2_fetch_assoc($stock_transfer);
 
+                                    $warehouse = $_POST['warehouse'] ?? '';
+
+                                    if ($warehouse == 'M101') {
+                                        $templateCodes = "'QCT','OPN','204'";
+                                    } else {
+                                        $templateCodes = "'QCT','304','OPN','204'";
+                                    }
+
                                     $stock_masuk = db2_exec($conn1, "SELECT 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
@@ -402,7 +396,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND s.TEMPLATECODE IN ('QC1','QCT','304','OPN','204')
+                                        AND s.TEMPLATECODE IN ($templateCodes)
+                                        and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
                                         s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
@@ -420,6 +415,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     DECOSUBCODE03,
                                     SATUAN_MASUK");
                                     $row_stock_masuk = db2_fetch_assoc($stock_masuk);
+
+                                    $qty_pakai = db2_exec($conn1, "SELECT 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        sum(AKTUAL_QTY_KELUAR) AS AKTUAL_QTY_KELUAR,
+                                        SATUAN
+                                        FROM 
+                                        (SELECT
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,
+                                            CASE 
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
+                                                ELSE SUM(s.USERPRIMARYQUANTITY)
+                                            END AS AKTUAL_QTY_KELUAR,
+                                            CASE 
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                                ELSE s.USERPRIMARYUOMCODE
+                                            END AS SATUAN
+                                        FROM
+                                            STOCKTRANSACTION s
+                                        WHERE
+                                            s.ITEMTYPECODE = 'DYC'
+                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            AND s.TEMPLATECODE  IN ('120','201','203')
+                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
+                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
+                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
+                                        GROUP BY
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,    
+                                            s.USERPRIMARYUOMCODE)
+                                        GROUP BY 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        SATUAN");
+                                    $row_qty_pakai = db2_fetch_assoc($qty_pakai);
 
                                     $Balance_stock = db2_exec($conn1, "SELECT 
                                             b.ITEMTYPECODE,
@@ -613,9 +655,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($row_stock_masuk['QTY_MASUK'], 0)
                                         : number_format($row_stock_masuk['QTY_MASUK'], 2);
 
-                                    $qty_Keluar = (substr(number_format($row['AKTUAL_QTY_KELUAR'], 2), -3) == '.00')
-                                        ? number_format($row['AKTUAL_QTY_KELUAR'], 0)
-                                        : number_format($row['AKTUAL_QTY_KELUAR'], 2);                                    
+                                    $qty_Keluar = (substr(number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2), -3) == '.00')
+                                        ? number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 0)
+                                        : number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2);                                    
 
                                     $qty_awal = (substr(number_format($row_qty_awal['qty_awal'], 2), -3) == '.00')
                                         ? number_format($row_qty_awal['qty_awal'], 0)
@@ -628,7 +670,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['KODE_OBAT'] ?></td>
-                                        <td><?php echo $row['LONGDESCRIPTION'] ?></td>
+                                        <td align="left"><?php echo $row['LONGDESCRIPTION'] ?></td>
                                         <td><?php echo $qty_awal ?></td>
                                         <td>
                                             <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail2" 
@@ -711,31 +753,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </body>
 
-<!-- Modal qty transfer -->
-<div id="detailModal_transfer" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-custom">
-        <div class="modal-content">
-        
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Detail QTY Transfer</h4>
-        </div>
-        
-        <div class="modal-body" id="modal-content">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="detailTransferTable">
-                <p>Loading data...</p>
-                </table>
-            </div>            
-        </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
-        </div>
-        
-        </div>
-    </div>
-</div>
 
 <!-- Modal qty pakai-->
 <div id="detailModal_pakai" class="modal fade" tsabindex="-1" role="dialog">
@@ -813,7 +830,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $('#modal-content_pakai').html('<p>Loading data...</p>');
 
         $.ajax({
-        url: 'pages/ajax/Pemakaian_obat_detail.php',
+        url: 'pages/ajax/Pemakaian_obat_detail_kategori.php',
         type: 'POST',
         data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
         success: function(response) {

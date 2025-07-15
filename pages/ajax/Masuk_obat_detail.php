@@ -20,14 +20,14 @@ if ($warehouse == 'M101') {
 }
 
 if ($warehouse == 'M101') {
-    $detailtype = "1";
+    $detailtype = '2';
 } else {
-    $detailtype = "2";
+    $detailtype = '1';
 }
 
 $query = "SELECT    s.TRANSACTIONDATE,
 s.TRANSACTIONNUMBER,
-                    s.TEMPLATECODE,
+                    s3.TEMPLATECODE,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
                     s.DECOSUBCODE02,
@@ -64,11 +64,11 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
                 LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
                 LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE = '$detailtype'
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE = $detailtype
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl1'
+                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
                     AND s.TEMPLATECODE IN ($templateCodes)
                    AND s.LOGICALWAREHOUSECODE = '$warehouse'
                     and s.CREATIONUSER != 'MT_STI'
