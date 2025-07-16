@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
 
             if ($update->execute()) {
                 echo json_encode(["success" => true, "new_status" => $next_status]);
+
+                 resetOrderIndexIfDone($con);
             } else {
                 http_response_code(500);
                 echo json_encode(["success" => false, "error" => $update->error]);
@@ -40,5 +42,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
 
     $stmt->close();
     $con->close();
+}
+
+function resetOrderIndexIfDone($con): void {
+    $codes = ['1', '2', '3'];
+
+    foreach ($codes as $code) {
+        $stmt = $con->prepare("
+            SELECT COUNT(*) FROM tbl_preliminary_schedule ps
+            LEFT JOIN master_suhu ms ON ps.code = ms.code
+            WHERE ms.dispensing = ? AND ps.status IN ('scheduled', 'in_progress_dispensing')
+        ");
+        if (!$stmt) continue;
+
+        $stmt->bind_param("s", $code);
+        $stmt->execute();
+        $count = 0;
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        if ((int)$count === 0) {
+            $update = $con->prepare("
+                UPDATE tbl_preliminary_schedule ps
+                LEFT JOIN master_suhu ms ON ps.code = ms.code
+                SET ps.order_index = NULL, ps.pass_dispensing = 1
+                WHERE ms.dispensing = ?
+            ");
+            if ($update) {
+                $update->bind_param("s", $code);
+                $update->execute();
+                $update->close();
+            }
+        }
+    }
 }
 ?>
