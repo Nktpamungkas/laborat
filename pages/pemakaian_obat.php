@@ -307,9 +307,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    AND s.DECOSUBCODE01 = 'E'
-                                    AND s.DECOSUBCODE02 IN ('6')
-                                    AND s.DECOSUBCODE03  IN('043')
+                                    --AND s.DECOSUBCODE01 = 'E'
+                                    --AND s.DECOSUBCODE02 IN ('6')
+                                    --AND s.DECOSUBCODE03  IN('043')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 
@@ -727,9 +727,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                     $keterangan = '';
                                     if ($row_balance['STOCK_BALANCE'] > $stock_notif) {
-                                        $keterangan = 'HITUNG KEBUTUHAN ORDER';
+                                        $keterangan = '';
                                     } elseif ($row_balance['STOCK_BALANCE'] == $stock_notif) {
-                                        $keterangan = 'SEGERA ORDER';
+                                        $keterangan = 'HITUNG KEBUTUHAN ORDER';
                                     } elseif ($row_balance['STOCK_BALANCE'] < $row_stock_minimum['SAFETYSTOCK']) {
                                         $keterangan = 'SEGERA ORDER';
                                     }

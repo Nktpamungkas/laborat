@@ -13,13 +13,26 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-$query = "SELECT*FROM(SELECT 
+$query = "SELECT 
+    TRANSACTIONDATE,
+    DECOSUBCODE01,
+    DECOSUBCODE02,
+    DECOSUBCODE03,
+    KODE_OBAT,
+    NAMA_OBAT,
+    DESC_USERGENERIC,
+    SUM(CASE WHEN KET_STEPTYPE = 'Normal' THEN NORMAL_QTY ELSE 0 END) AS NORMAL_QTY,
+    SUM(CASE WHEN KET_STEPTYPE = 'Additional' THEN ADITIONAL_QTY ELSE 0 END) AS ADITIONAL_QTY,
+    SUM(CASE WHEN KET_STEPTYPE = 'Tambah Obat' THEN TAMBAH_OBAT_QTY ELSE 0 END) AS TAMBAH_OBAT_QTY
+FROM (
+  SELECT 
                 TRANSACTIONDATE,
                 DECOSUBCODE01,
                 DECOSUBCODE02,
                 DECOSUBCODE03,
                 KODE_OBAT,
                 LONGDESCRIPTION As NAMA_OBAT,
+                DESC_USERGENERIC,
                 sum(NORMAL_QTY) AS NORMAL_QTY,
                 sum(ADITIONAL_QTY) AS ADITIONAL_QTY,
                 sum(TAMBAH_OBAT_QTY) AS TAMBAH_OBAT_QTY,
@@ -58,6 +71,7 @@ $query = "SELECT*FROM(SELECT
                     WHEN  s.USERPRIMARYUOMCODE = 'kg'THEN 'g  '
                     ELSE  s.USERPRIMARYUOMCODE
                 END AS SATUAN,
+                 u.LONGDESCRIPTION AS DESC_USERGENERIC,
                 s.LOGICALWAREHOUSECODE,
                 p.LONGDESCRIPTION,
                 s.TEMPLATECODE,
@@ -80,6 +94,7 @@ $query = "SELECT*FROM(SELECT
             LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
             LEFT JOIN STOCKTRANSACTION s2 ON s2.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s2.DETAILTYPE = 2
             LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s2.LOGICALWAREHOUSECODE
+            LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
             LEFT JOIN ( SELECT DISTINCT 
                         p.PRODUCTIONORDERCODE,
                         p.GROUPLINE,
@@ -118,6 +133,7 @@ $query = "SELECT*FROM(SELECT
                 DECOSUBCODE02,
                 DECOSUBCODE03,
                 LONGDESCRIPTION,
+                DESC_USERGENERIC,
                 KODE_OBAT,
                 TEMPLATECODE,
                 KETERANGAN,
@@ -125,8 +141,17 @@ $query = "SELECT*FROM(SELECT
             HAVING 
             COALESCE(SUM(NORMAL_QTY), 0) > 0 
             OR COALESCE(SUM(ADITIONAL_QTY), 0) > 0 
-            OR COALESCE(SUM(TAMBAH_OBAT_QTY), 0) > 0)
-        ORDER BY TRANSACTIONDATE ASC";
+            OR COALESCE(SUM(TAMBAH_OBAT_QTY), 0) > 0
+) AS sub
+GROUP BY 
+    TRANSACTIONDATE,
+    DECOSUBCODE01,
+    DECOSUBCODE02,
+    DECOSUBCODE03,
+    KODE_OBAT,
+    NAMA_OBAT,
+    DESC_USERGENERIC
+ORDER BY TRANSACTIONDATE ASC";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);
@@ -141,19 +166,19 @@ $rows2 = [];
 while ($row2 = db2_fetch_assoc($stmt)) {
     $rows2[] = $row2;
 }
-$kode_obat_label = $rows2[0]['KODE_OBAT'] ?? '';
-$nama_obat_label = $rows2[0]['NAMA_OBAT'] ?? '';
+$kode_obat_label = $rows2[0]['DECOSUBCODE01'] ?? '';
+$nama_obat_label = $rows2[0]['DESC_USERGENERIC'] ?? '';
 
 echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialchars($nama_obat_label) . "</strong></h4>";
 // if ($stmt) { 
 echo "<table class='table table-bordered table-striped' id='detailPakaiTabel'>";
 echo "<thead>
              <tr>
-                <th>No</th>
-                <th>Tanggal</th>
-                <th>Normal (gr)</th>
-                <th>Tambah Obat (gr)</th>
-                <th>perbaikan (gr)</th>                
+                <th class='text-center'>No</th>
+                <th class='text-center'>Tanggal</th>
+                <th class='text-center'>Normal (gr)</th>
+                <th class='text-center'>Tambah Obat (gr)</th>
+                <th class='text-center's>perbaikan (gr)</th>                
             </tr>
     </thead>";
 echo "<tbody>";
