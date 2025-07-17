@@ -126,6 +126,18 @@
                                 waktu: null,
                                 justMoved: true
                             });
+
+                            $.ajax({
+                                url: 'pages/ajax/update_is_old_data.php',
+                                method: 'POST',
+                                data: { no_resep: entry.no_resep },
+                                success: function (res) {
+                                    console.log(`Updated is_old_data for ${entry.no_resep}`);
+                                },
+                                error: function (xhr, status, err) {
+                                    console.error(`Failed to update is_old_data for ${entry.no_resep}`, err);
+                                }
+                            });
                         });
 
                         if (data[machine].length > maxPerMachine) {
