@@ -2,9 +2,7 @@
 // koneksi ke DB
 include "../../koneksi.php";
 
-$code1 = $_POST['code1'];
-$code2 = $_POST['code2'];
-$code3 = $_POST['code3'];
+$code = $_POST['code'];
 $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
 $warehouse = $_POST['warehouse'];
@@ -14,18 +12,6 @@ $warehouse = $_POST['warehouse'];
 // echo "</pre>";
 
 $query = "SELECT 
-    TRANSACTIONDATE,
-    DECOSUBCODE01,
-    DECOSUBCODE02,
-    DECOSUBCODE03,
-    KODE_OBAT,
-    NAMA_OBAT,
-    DESC_USERGENERIC,
-    SUM(CASE WHEN KET_STEPTYPE = 'Normal' THEN NORMAL_QTY ELSE 0 END) AS NORMAL_QTY,
-    SUM(CASE WHEN KET_STEPTYPE = 'Additional' THEN ADITIONAL_QTY ELSE 0 END) AS ADITIONAL_QTY,
-    SUM(CASE WHEN KET_STEPTYPE = 'Tambah Obat' THEN TAMBAH_OBAT_QTY ELSE 0 END) AS TAMBAH_OBAT_QTY
-FROM (
-  SELECT 
                 TRANSACTIONDATE,
                 DECOSUBCODE01,
                 DECOSUBCODE02,
@@ -33,39 +19,23 @@ FROM (
                 KODE_OBAT,
                 LONGDESCRIPTION As NAMA_OBAT,
                 DESC_USERGENERIC,
-                sum(NORMAL_QTY) AS NORMAL_QTY,
-                sum(ADITIONAL_QTY) AS ADITIONAL_QTY,
-                sum(TAMBAH_OBAT_QTY) AS TAMBAH_OBAT_QTY,
+                sum(USED_QTY) AS USED_QTY,
                 TEMPLATECODE,
-                KETERANGAN,
-                KET_STEPTYPE
+                KET
             FROM 
-            (SELECT
+            (
+            SELECT
+            s.TRANSACTIONNUMBER ,
                 s.TRANSACTIONDATE,
                 s.DECOSUBCODE01,
                 s.DECOSUBCODE02,
                 s.DECOSUBCODE03,
-                CASE
-                    WHEN s.TEMPLATECODE = '120' THEN TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03)                   
-                END AS KODE_OBAT,
+				TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
                 CASE 
                     WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 0  THEN s.USERPRIMARYQUANTITY * 1000000
                     WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 0 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN n2.STEPTYPE = 0 THEN s.USERPRIMARYQUANTITY
-                    ELSE  0
-                END AS NORMAL_QTY,
-                CASE 
-                    WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 1  THEN s.USERPRIMARYQUANTITY * 1000000
-                    WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 1 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN n2.STEPTYPE = 1 THEN s.USERPRIMARYQUANTITY 
-                    ELSE  0
-                END AS ADITIONAL_QTY,
-                CASE 
-                    WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 3  THEN s.USERPRIMARYQUANTITY * 1000000
-                    WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 3 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN  n2.STEPTYPE = 3  THEN s.USERPRIMARYQUANTITY
-                    ELSE 0
-                END AS TAMBAH_OBAT_QTY,
+                    ELSE s.USERPRIMARYQUANTITY
+                END AS USED_QTY,                
                 CASE 
                     WHEN  s.USERPRIMARYUOMCODE = 't'THEN 'g  '
                     WHEN  s.USERPRIMARYUOMCODE = 'kg'THEN 'g  '
@@ -75,14 +45,13 @@ FROM (
                 s.LOGICALWAREHOUSECODE,
                 p.LONGDESCRIPTION,
                 s.TEMPLATECODE,
-                n2.KETERANGAN,
-                n2.STEPTYPE,
                 CASE 
-                	WHEN n2.STEPTYPE = 0 THEN 'Normal'
-                	WHEN n2.STEPTYPE = 1 THEN 'Additional'
---                	WHEN n2.STEPTYPE = 2 THEN 'Normal'/
-                	WHEN n2.STEPTYPE = 3 THEN 'Tambah Obat'
-                END AS KET_STEPTYPE
+                	WHEN s.TEMPLATECODE = 120 THEN s.ORDERCODE
+                	WHEN s.TEMPLATECODE = 201 THEN s.ORDERCODE 
+                	WHEN s.TEMPLATECODE = 203 THEN s.ORDERCODE 
+                	WHEN s.TEMPLATECODE = 303 THEN CONCAT('Transfer ke - ', l2.CODE)
+                END AS KET,                
+                n2.KETERANGAN
             FROM
                 STOCKTRANSACTION s
             LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
@@ -119,14 +88,13 @@ FROM (
             WHERE
                 s.ITEMTYPECODE = 'DYC'
                 AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
-                AND s.TEMPLATECODE IN ('120','201','203')
+                AND s.TEMPLATECODE IN ('120','201','203','303')
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE = '$warehouse'
-                and s.DECOSUBCODE01 = '$code1' AND
-            s.DECOSUBCODE02 = '$code2' AND
-            s.DECOSUBCODE03 = '$code3'
+                and s.DECOSUBCODE01 = '$code' 
             ORDER BY
-                s.PRODUCTIONORDERCODE ASC)                
+                s.PRODUCTIONORDERCODE ASC
+                )                
                 GROUP BY 
                 TRANSACTIONDATE,
                 DECOSUBCODE01,               
@@ -136,22 +104,8 @@ FROM (
                 DESC_USERGENERIC,
                 KODE_OBAT,
                 TEMPLATECODE,
-                KETERANGAN,
-                KET_STEPTYPE
-            HAVING 
-            COALESCE(SUM(NORMAL_QTY), 0) > 0 
-            OR COALESCE(SUM(ADITIONAL_QTY), 0) > 0 
-            OR COALESCE(SUM(TAMBAH_OBAT_QTY), 0) > 0
-) AS sub
-GROUP BY 
-    TRANSACTIONDATE,
-    DECOSUBCODE01,
-    DECOSUBCODE02,
-    DECOSUBCODE03,
-    KODE_OBAT,
-    NAMA_OBAT,
-    DESC_USERGENERIC
-ORDER BY TRANSACTIONDATE ASC";
+                KET     
+                ORDER BY TRANSACTIONDATE ASC";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);
@@ -176,9 +130,10 @@ echo "<thead>
              <tr>
                 <th class='text-center'>No</th>
                 <th class='text-center'>Tanggal</th>
-                <th class='text-center'>Normal (gr)</th>
-                <th class='text-center'>Tambah Obat (gr)</th>
-                <th class='text-center's>perbaikan (gr)</th>                
+                <th class='text-center'>Kode Obat </th>
+                <th class='text-center'>Nama Obat </th>
+                <th class='text-center'>QTY (gr)</th> 
+                <th class='text-center'>Keterangan</th>                
             </tr>
     </thead>";
 echo "<tbody>";
@@ -186,9 +141,10 @@ foreach ($rows2 as $row) {
     echo "<tr>";
     echo "<td>" . $no++ . "</td>";
     echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
-    echo "<td>" . number_format((float) ($row['NORMAL_QTY'] ?? 0), 2) . "</td>";
-    echo "<td>" . number_format((float) ($row['TAMBAH_OBAT_QTY'] ?? 0), 2) . "</td>";
-    echo "<td>" . number_format((float) ($row['ADITIONAL_QTY'] ?? 0), 2) . "</td>";
+    echo "<td>" . htmlspecialchars($row['KODE_OBAT'] ?? '') . "</td>";
+    echo "<td>" . htmlspecialchars($row['NAMA_OBAT'] ?? '') . "</td>";
+    echo "<td>" . number_format((float) ($row['USED_QTY'] ?? 0), 2) . "</td>";
+    echo "<td>" . htmlspecialchars($row['KET'] ?? '') . "</td>";
     echo "</tr>";
 }
 
