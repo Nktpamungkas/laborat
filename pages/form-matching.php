@@ -2289,7 +2289,8 @@
 </script>
 <script>
 	function toggleTemp2() {
-		const dyestuffSelect = document.getElementById('Dyestuff');
+		const dyestuffSelect = document.getElementById('Dyestuff');  
+		const jnsMachingSelect = document.getElementById('jen_matching');  
 		const temp2Wrapper = document.getElementById('temp2-wrapper');
 		const tempCode = document.getElementById('temp_code');
 		const tempCode2 = document.getElementById('temp_code2');
@@ -2297,6 +2298,7 @@
 		if (!dyestuffSelect) return;
 
 		const dystf = dyestuffSelect.value;
+		const jnsMtcg = jnsMachingSelect.value;
 
 		if (dystf === 'DR') {
 			temp2Wrapper.style.display = 'flex';
@@ -2304,7 +2306,7 @@
 			temp2Wrapper.style.display = 'none';
 		}
 
-		fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf))
+		fetch('pages/ajax/get_suhu_options.php?Dystf=' + encodeURIComponent(dystf) + '&jnsMtcg=' + encodeURIComponent(jnsMtcg))
 			.then(response => response.text())
 			.then(data => {
 				if (tempCode) {

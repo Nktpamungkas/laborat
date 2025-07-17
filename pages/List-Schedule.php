@@ -340,6 +340,7 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
         // with select
         $(document).on('click', '._bagikan', function () {
             let rcode = $(this).closest('tr').find('td:eq(1)').text();
+            let jnsMtcg = $(this).closest('tr').find('td:eq(2)').text();
 
             $.ajax({
                     dataType: "json",
@@ -355,6 +356,10 @@ $Order	    = isset($_POST['order']) ? $_POST['order'] : '';
                                     const generateSelect = (id) => {
                                         let html = `<select id="${id}" class="form-control" style="width: 100%; margin-top: 2px;">`;
                                         html += `<option value="">Pilih...</option>`;
+                                        
+                                        if (response.isDR && ['L/D', 'LD NOW'].includes(jnsMtcg)) {
+                                            html += `<option value="-">-</option>`;
+                                        }
                                         options.forEach(opt => {
                                             let program, dyeing, dispensing;
 

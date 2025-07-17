@@ -20,10 +20,10 @@ if ($no_resep) {
 
     $query = "
         SELECT DISTINCT code AS code FROM tbl_preliminary_schedule 
-        WHERE no_resep = ? AND status = 'repeat' AND code IS NOT NULL
+        WHERE no_resep = ? AND status = 'repeat' AND code IS NOT NULL AND code <> '-'
         UNION
         SELECT DISTINCT $matching_column AS code FROM tbl_matching 
-        WHERE no_resep = ? AND $matching_column IS NOT NULL
+        WHERE no_resep = ? AND $matching_column IS NOT NULL AND $matching_column <> '-'
     ";
 
     $stmt = $con->prepare($query);

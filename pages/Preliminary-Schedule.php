@@ -643,7 +643,6 @@
             dataType: 'json',
             success: function(repeatData) {
                 if (Array.isArray(repeatData) && repeatData.length > 0) {
-
                     $('#scheduleWrapper')
                         .removeClass('col-xs-12')
                         .addClass('col-xs-8');

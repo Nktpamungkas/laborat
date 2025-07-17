@@ -27,7 +27,20 @@
         z-index: 2;
         background-color: #f8f9fa;
     }
-
+    .table>tbody>tr>td {
+        padding: 5px;
+    }
+    th.sticky-col,
+    td.sticky-col {
+        position: sticky;
+        left: -1px;
+        background-color: white;
+        z-index: 2;
+        box-shadow: inset -1px 0 #ccc;
+    }
+    thead tr:nth-child(2) th.sticky-col {
+        z-index: 4;
+    }
 </style>
 <style>
     @keyframes slideUp {
@@ -46,11 +59,9 @@
     }
 </style>
 
-
-
 <div class="row">
     <div class="col-xs-12">
-        <h4 id="cottonHeader" class="text-center"><strong>DYEING</strong></h4>
+        <h4 id="cottonHeader" class="text-center" style="margin: -20px 0;"><strong>DYEING</strong></h4>
         <div style="margin-bottom: 10px;">
             <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
         </div>
@@ -63,123 +74,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    // function loadScheduleTable() {
-    //     $.ajax({
-    //         url: 'pages/ajax/generate_dyeing.php',
-    //         type: 'GET',
-    //         dataType: 'json',
-    //         success: function(response) {
-    //             const { data, maxPerMachine, tempListMap } = response;
-    //             // const machineKeys = Object.keys(data);
-    //             const machineKeysRaw = Object.keys(data);
-    //             // Prioritas mesin yang diinginkan
-    //             const priorityOrder = [
-    //                 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A10', 'A11',
-    //                 'C1', 'D1',
-    //                 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'
-    //             ];
-
-    //             // Urutkan key sesuai urutan prioritas
-    //             const machineKeys = priorityOrder.filter(machine => machineKeysRaw.includes(machine));
-
-    //             // Tambahkan mesin yang tidak ada di prioritas (jika ada), tetap ditampilkan di belakang
-    //             machineKeysRaw.forEach(machine => {
-    //                 if (!machineKeys.includes(machine)) {
-    //                     machineKeys.push(machine);
-    //                 }
-    //             });
-
-    //             const machineCount = machineKeys.length;
-
-    //             // (1) Tidak perlu hitung min-width yg terlalu besar.
-    //             //    Kita hanya membiarkan .table-responsive yang mengatur scroll.
-    //             let html = `
-    //                 <div class="table-responsive" style="max-height: 750px; overflow: auto;">
-    //                     <table class="table table-bordered table-striped align-middle text-center"
-    //                         style="table-layout: auto; width: 100%;">
-    //                         <colgroup>
-    //                             <col style="min-width: 50px;"> <!-- Kolom “No.” cukup kecil saja -->
-    //             `;
-
-    //             machineKeys.forEach(() => {
-    //                 html += `<col style="min-width: 300px;">`;
-    //             });
-
-    //             html += `
-    //                         </colgroup>
-    //                         <thead class="table-dark">
-    //                             <tr>
-    //                                 <th rowspan="2">No.</th>
-    //             `;
-
-    //             // Judul Mesin
-    //             machineKeys.forEach(machine => {
-    //                 html += `<th>Mesin ${machine}</th>`;
-    //             });
-    //             html += `</tr><tr>`;
-
-    //             // Baris Temp List
-    //             machineKeys.forEach(machine => {
-    //                 const tempList = Array.isArray(tempListMap[machine]) && tempListMap[machine].length
-    //                             ? tempListMap[machine].join(' ; ')
-    //                             : '-';
-    //                 html += `<th><small class="text-danger">${tempList}</small></th>`;
-    //             });
-    //             html += `</tr>
-    //                         </thead>
-    //                         <tbody>
-    //             `;
-
-    //             // Baris Data (maxPerMachine baris)
-    //             for (let i = 0; i < maxPerMachine; i++) {
-    //                 html += `<tr><td>${i + 1}</td>`;
-    //                 machineKeys.forEach(machine => {
-    //                     const rowsForMachine = data[machine];
-    //                     const cell = rowsForMachine[i];
-
-    //                     if (cell) {
-    //                         const now = new Date();
-    //                         let warningClass = '';
-    //                         if (cell.dyeing_start) {
-    //                             const startTime = new Date(cell.dyeing_start);
-    //                             const diffMs = now - startTime;
-    //                             const diffMins = diffMs / 1000 / 60;
-    //                             const processTime = parseFloat(cell.waktu) || 0;
-
-    //                             if (diffMins > (120 + processTime)) {
-    //                                 warningClass = 'blink-warning';
-    //                             }
-    //                         }
-
-    //                         html += `
-    //                             <td class="${warningClass}">
-    //                                 <div style="display: flex; justify-content: space-around; white-space: nowrap;">
-    //                                     <span>${cell.no_resep}</span>
-    //                                     <span class="text-muted">${cell.status}</span>
-    //                                 </div>
-    //                             </td>
-    //                         `;
-    //                     } else {
-    //                         html += `<td></td>`;
-    //                     }
-    //                 });
-    //                 html += `</tr>`;
-    //             }
-
-    //             html += `
-    //                         </tbody>
-    //                     </table>
-    //                 </div>
-    //             `;
-
-    //             $('#schedule_table').html(html);
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error("Failed to fetch data:", error);
-    //             $('#schedule_table').html('<div class="alert alert-danger">Gagal memuat data schedule.</div>');
-    //         }
-    //     });
-    // }
+    let blockedResepMap = {};
 
     function loadScheduleTable() {
         $.ajax({
@@ -241,6 +136,14 @@
                     }
                 }
 
+                // 🛡️ Refresh blockedResepMap setiap load
+                blockedResepMap = {};
+                for (const [machine, list] of Object.entries(oldMachineMap)) {
+                    list.forEach(item => {
+                        blockedResepMap[item.no_resep] = true;
+                    });
+                }
+
                 // Mulai render tabel utama
                 let html = `
                     <div class="table-responsive" style="max-height: 750px; overflow: auto;">
@@ -249,9 +152,9 @@
                 machineKeys.forEach(() => html += `<col style="min-width: 300px;">`);
                 html += `</colgroup>
                             <thead class="table-dark">
-                                <tr><th rowspan="2">No.</th>`;
+                                <tr><th class="sticky-col"></th>`;
                 machineKeys.forEach(m => html += `<th>Mesin ${m}</th>`);
-                html += `</tr><tr>`;
+                html += `</tr><tr><th class="sticky-col">No.</th>`;
                 machineKeys.forEach(m => {
                     const tempList = Array.isArray(tempListMap[m]) && tempListMap[m].length ? tempListMap[m].join(' ; ') : '-';
                     html += `<th><small class="text-danger">${tempList}</small></th>`;
@@ -259,7 +162,7 @@
                 html += `</tr></thead><tbody>`;
 
                 for (let i = 0; i < maxPerMachine; i++) {
-                    html += `<tr><td>${i + 1}</td>`;
+                    html += `<tr><td class="sticky-col">${i + 1}</td>`;
                     machineKeys.forEach(machine => {
                         const cell = data[machine]?.[i];
                         if (cell) {
@@ -287,6 +190,13 @@
 
                 html += `</tbody></table></div>`;
                 $('#schedule_table').html(html);
+
+                // Setelah render utama
+                for (const machine in data) {
+                    data[machine].forEach(item => {
+                        if (item?.justMoved) delete item.justMoved;
+                    });
+                }
 
                 // Render tabel old data yang belum pindah
                 const remainingOldMachines = Object.keys(oldMachineMap).filter(m => oldMachineMap[m].length > 0);
@@ -344,15 +254,31 @@
     $(document).ready(function () {
         loadScheduleTable(); // 🚀 Load awal
 
-        setInterval(loadScheduleTable, 15000);
+        // setInterval(loadScheduleTable, 15000);
 
         $('#scanInput').on('keypress', function (e) {
             if (e.which === 13) { // Enter key
                 const noResep = $(this).val().trim();
-                if (noResep !== "") {
-                    updateStatus(noResep);
+                // if (noResep !== "") {
+                //     updateStatus(noResep);
+                //     $(this).val("");
+                // }
+                if (noResep === "") return;
+
+                if (blockedResepMap[noResep]) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Tidak Bisa Diproses',
+                        text: `No. Resep ${noResep} masih dalam Next Cycle dan belum boleh discan.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     $(this).val("");
+                    return;
                 }
+
+                updateStatus(noResep);
+                $(this).val("");
             }
         });
     });

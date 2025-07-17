@@ -2,11 +2,17 @@
 include '../../koneksi.php';
 
 $getDyestuff = $_GET['Dystf'] ?? null;
+$getJnsMtcg = $_GET['jnsMtcg'] ?? null;
+
 $where = "1";
 
 if ($getDyestuff) {
 	if ($getDyestuff === 'DR') {
 		$where = "dispensing IN (1,2,3)";
+
+		if (in_array($getJnsMtcg, ['L/D', 'LD NOW'])) {
+            echo '<option value="-">-</option>';
+        }
 	} elseif ($getDyestuff === 'CD') {
 		$where = "dispensing = 1";
 	} elseif ($getDyestuff === 'OB') {
