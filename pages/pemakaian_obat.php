@@ -307,9 +307,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    -- AND s.DECOSUBCODE01 = 'D'
-                                    -- AND s.DECOSUBCODE02 IN ('1')
-                                    -- AND s.DECOSUBCODE03  IN('019')
+                                    AND s.DECOSUBCODE01 = 'D'
+                                    AND s.DECOSUBCODE02 IN ('7')
+                                    AND s.DECOSUBCODE03  IN('003')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 
