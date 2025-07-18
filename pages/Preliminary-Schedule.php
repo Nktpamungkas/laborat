@@ -739,7 +739,7 @@
                     const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
                     rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
-                        <td ${isOldStyle}>${item.no_resep}</td>
+                        <td ${isOldStyle}>${item.no_resep} - ${item.jenis_matching}</td>
                         <td ${isOldStyle}>${item.product_name}</td>
                         <td align="center">
                             <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
