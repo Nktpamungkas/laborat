@@ -103,6 +103,16 @@ $page = strtolower($page);
         .dropdown-submenu:hover > .dropdown-menu {
             display: block;
         }
+        
+        @media (max-width: 1400px) {
+        .dropdown-submenu > .dropdown-menu {
+            left: auto !important;
+            right: 100% !important;
+            margin-left: 0;
+            margin-right: -1px;
+            border-radius: 4px 0 0 4px;
+        }
+        }
     </style>
 
     <link rel="icon" type="image/png" href="dist/img/ITTI_Logo index.ico">
@@ -498,36 +508,36 @@ $page = strtolower($page);
                                         </li>
 
                                         <!-- Penggunaan Obat Menu -->
-
                                         <li class="dropdown-submenu <?php if (
                                             $_GET['p'] == "pemakaian_obat" ||
                                             $_GET['p'] == "pemakaian_obat_category" ||
                                             $_GET['p'] == "tutup_harian_GK"
                                         )
                                             echo "active"; ?>">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                            <i class="fa fa-credit-card text-danger"></i> <span>Laporan Penggunaan Obat</span>
-                                            <span class="pull-right-container">
-                                                <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
-                                            </span>
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat")
-                                                echo "active"; ?>">
-                                                <a href="?p=pemakaian_obat"><i class="fa fa-list text-success"></i> <span>Laporan Summary Penggunaan
-                                                        Obat</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat_category")
-                                                echo "active"; ?>">
-                                                <a href="?p=pemakaian_obat_category"><i class="fa fa-file-text"></i> <span>Laporan Penggunaan Obat
-                                                        Kategori</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
-                                                echo "active"; ?>">
-                                                <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Harian</span></a>
-                                            </li>
-                                        </ul>
-                                        </li>                                        
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="fa fa-credit-card text-danger"></i> <span>Gudang Kimia</span>
+                                                <span class="pull-right-container">
+                                                    <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
+                                                </span>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li class="<?php if ($_GET['p'] == "pemakaian_obat")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=pemakaian_obat"><i class="fa fa-file-text"></i> <span>Laporan Summary Penggunaan
+                                                            Obat</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "pemakaian_obat_category")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=pemakaian_obat_category"><i class="fa fa-list text-success"></i> <span>Laporan Penggunaan Obat
+                                                            Kategori</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Harian</span></a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    
                                     </ul>
                                 </li>
                             <?php endif; ?>

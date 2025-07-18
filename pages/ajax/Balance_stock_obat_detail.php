@@ -7,9 +7,9 @@ $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
 $warehouse = $_POST['warehouse'];
 
-echo "<pre>";
-print_r($_POST); // Debug POST value
-echo "</pre>";
+// echo "<pre>";
+// print_r($_POST); // Debug POST value
+// echo "</pre>";
 
 if ($warehouse == 'M101') {
     $templateCodes = "'QCT','OPN','204'";

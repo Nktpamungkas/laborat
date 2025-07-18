@@ -281,6 +281,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Nama</th>
                                         <th>Stock Awal (gr)</th>
                                         <th>Masuk (gr)</th>
+                                        <th>Transfer (gr)</th>
                                         <th>Pemakaian (gr)</th>
                                         <th>Stock Balance (gr)</th>                                       
                                     </tr>
@@ -290,60 +291,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($db_stocktransaction)) {                                    
 
-                                // $stock_transfer = db2_exec($conn1, "SELECT 
-                                //         ITEMTYPECODE,
-                                //         DECOSUBCODE01,
-                                //         DECOSUBCODE02,
-                                //         DECOSUBCODE03,
-                                //         sum(QTY_TRANSFER) AS QTY_TRANSFER,
-                                //         SATUAN_TRANSFER
-                                //         FROM 
-                                //         (SELECT
-                                //             s.ITEMTYPECODE,
-                                //             s.DECOSUBCODE01,
-                                //             s.DECOSUBCODE02,
-                                //             s.DECOSUBCODE03,
-                                //             CASE 
-                                //                 WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                //                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                //                 ELSE SUM(s.USERPRIMARYQUANTITY)
-                                //             END AS QTY_TRANSFER,
-                                //             CASE 
-                                //                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                //                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                //                 ELSE s.USERPRIMARYUOMCODE
-                                //             END AS SATUAN_TRANSFER
-                                //         FROM
-                                //             STOCKTRANSACTION s
-                                //         WHERE
-                                //             s.ITEMTYPECODE = 'DYC'
-                                //             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                //             AND s.TEMPLATECODE IN ('201','203')
-                                //             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                //             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                //             s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                //             s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                //         GROUP BY
-                                //             s.ITEMTYPECODE,
-                                //             s.DECOSUBCODE01,
-                                //             s.DECOSUBCODE02,
-                                //             s.DECOSUBCODE03,    
-                                //             s.USERPRIMARYUOMCODE)
-                                //         GROUP BY 
-                                //         ITEMTYPECODE,
-                                //         DECOSUBCODE01,
-                                //         DECOSUBCODE02,
-                                //         DECOSUBCODE03,
-                                //         SATUAN_TRANSFER");
-                                //     $row_stock_transfer = db2_fetch_assoc($stock_transfer);
-
-                                    $warehouse = $_POST['warehouse'] ?? '';
-
-                                    if ($warehouse == 'M101') {
-                                        $templateCodes = "'QCT','OPN','204'";
-                                    } else {
-                                        $templateCodes = "'QCT','304','OPN','204'";
-                                    }
+                                $stock_transfer = db2_exec($conn1, "SELECT 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
+                                        SATUAN_TRANSFER
+                                        FROM 
+                                        (SELECT
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,
+                                            CASE 
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
+                                                ELSE SUM(s.USERPRIMARYQUANTITY)
+                                            END AS QTY_TRANSFER,
+                                            CASE 
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                                ELSE s.USERPRIMARYUOMCODE
+                                            END AS SATUAN_TRANSFER
+                                        FROM
+                                            STOCKTRANSACTION s
+                                        WHERE
+                                            s.ITEMTYPECODE = 'DYC'
+                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            AND s.TEMPLATECODE IN ('201','203','303')
+                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                        GROUP BY
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,    
+                                            s.USERPRIMARYUOMCODE)
+                                        GROUP BY 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        SATUAN_TRANSFER");
+                                    $row_stock_transfer = db2_fetch_assoc($stock_transfer);
 
                                     $stock_masuk = db2_exec($conn1, "SELECT 
                                     ITEMTYPECODE,
@@ -369,7 +356,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND s.TEMPLATECODE IN ($templateCodes)
+                                        AND s.TEMPLATECODE IN ('QCT','304','OPN','204')
                                         and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
@@ -407,7 +394,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE  IN ('120','201','203','303')
+                                            AND s.TEMPLATECODE  IN ('120')
                                             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                         GROUP BY
@@ -544,7 +531,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                     $qty_Keluar = (substr(number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2), -3) == '.00')
                                         ? number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 0)
-                                        : number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2);                                    
+                                        : number_format($row_qty_pakai['AKTUAL_QTY_KELUAR'], 2);
+
+                                    $QTY_TRANSFER = (substr(number_format($row_stock_transfer['QTY_TRANSFER'], 2), -3) == '.00')
+                                        ? number_format($row_stock_transfer['QTY_TRANSFER'], 0)
+                                        : number_format($row_stock_transfer['QTY_TRANSFER'], 2);
 
                                     $qty_awal = (substr(number_format($row_qty_awal['qty_awal'], 2), -3) == '.00')
                                         ? number_format($row_qty_awal['qty_awal'], 0)
@@ -564,10 +555,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                     ?>                               
                                     <tr>
-                                        <td><?php echo $row['LONGDESCRIPTION'] ?></td>
+                                        <td><?php echo $row['DECOSUBCODE01'].' - '. $row['LONGDESCRIPTION'] ?></td>
                                         <td><?php echo $qty_awal ?></td>
                                         <td>
-                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail2" 
+                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail1" 
                                             data-code="<?= $code ?>"  
                                             data-tgl1="<?= $tgl1 ?>" 
                                             data-tgl2="<?= $tgl2 ?>" 
@@ -575,7 +566,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 data-toggle="modal" data-target="#detailModal_masuk">
                                                 <?= $qty_masuk ?>
                                             </a>
-                                        </td>                                       
+                                        </td>
+                                        <td>
+                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail2" 
+                                            data-code="<?= $code ?>"
+                                                data-tgl1="<?= $tgl1 ?>" 
+                                                data-tgl2="<?= $tgl2 ?>" 
+                                                data-warehouse="<?= $warehouse ?>" 
+                                                data-toggle="modal"
+                                                data-target="#detailModal_transfer">
+                                                <?= $QTY_TRANSFER ?>
+                                            </a>
+                                        </td>
                                         <td>
                                             <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail" 
                                             data-code="<?= $code ?>" 
@@ -589,8 +591,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <td><a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail3" 
                                             data-code="<?= $code ?>"
                                             data-tgl1="<?= $tgl1 ?>" 
-                                            data-tgl2="<?= $tgl2 ?>" d
-                                            ata-warehouse="<?= $warehouse ?>" data-toggle="modal"
+                                            data-tgl2="<?= $tgl2 ?>" 
+                                            data-warehouse="<?= $warehouse ?>" data-toggle="modal"
                                             data-target="#detailModal_balance">
                                             <?= $qty_stock_balance ?>
                                         </a>
@@ -605,10 +607,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     include_once("koneksi.php");
                                                                 
                                     // Escape semua input untuk mencegah SQL Injection
-                                    $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
+                                    $kode_obat = mysqli_real_escape_string($con, $row['DECOSUBCODE01']);
                                     $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
                                     $qty_awal = floatval(str_replace(',', '', $qty_awal));
                                     $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
+                                    $stock_transfer = floatval(str_replace(',', '', $QTY_TRANSFER));
                                     $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
                                     $stock_balance = floatval(str_replace(',', '', $qty_stock_balance));
                                     $ip = mysqli_real_escape_string($con, $ipaddress);
@@ -620,6 +623,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 nama_obat,
                                                 qty_awal,
                                                 stock_masuk,
+                                                stock_transfer,
                                                 stock_keluar,
                                                 stock_balance,                                               
                                                 tgl_awal,
@@ -633,6 +637,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 '$nama_obat',
                                                 '$qty_awal',
                                                 '$stock_masuk',
+                                                '$stock_transfer',
                                                 '$stock_keluar',
                                                 '$stock_balance',                                                
                                                 '$tgl1',
@@ -699,6 +704,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="modal-body" id="modal-content_masuk">
             <div class="table-responsive">
                 <table class="table table-bordered" id="detailmasukTable">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
+
+<!-- Modal qty tf -->
+<div id="detailModal_transfer" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Transfer</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content_transfer">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailtransferTable">
                 <p>Loading data...</p>
                 </table>
             </div>            
@@ -784,41 +815,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     });
 
-  $(document).on('click', '.open-detail3', function() {
-        var code = $(this).data('code');
-        var tgl1 = $(this).data('tgl1');
-        var tgl2 = $(this).data('tgl2');
-        var warehouse = $(this).data('warehouse');
-
-        $('#modal-content').html('<p>Loading data...</p>');
-
-        $.ajax({
-        url: 'pages/ajax/Balance_stock_obat_detail.php',
-        type: 'POST',
-        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
-        success: function(response) {
-            console.log('Response received');
-            $('#modal-content').html(response);
-
-            if ($.fn.DataTable.isDataTable('#detailbalanceTable')) {
-                console.log('Destroying existing DataTable');
-                $('#detailbalanceTable').DataTable().destroy();
-            }
-            console.log('Initializing DataTable');
-            $('#detailbalanceTable').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                order: [[0, 'asc']]
-            });
-        },
-        error: function() {
-            $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
-        }
-        });
-    });
-
-    $(document).on('click', '.open-detail2', function() {
+    $(document).on('click', '.open-detail1', function() {
         var code = $(this).data('code');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
@@ -851,5 +848,73 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         });
     });
+
+ $(document).on('click', '.open-detail2', function() {
+        var code = $(this).data('code');
+        var tgl1 = $(this).data('tgl1');
+        var tgl2 = $(this).data('tgl2');
+        var warehouse = $(this).data('warehouse');
+
+        $('#modal-content_transfer').html('<p>Loading data...</p>');
+
+        $.ajax({
+        url: 'pages/ajax/transfer_obat_detail_kategori.php',
+        type: 'POST',
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        success: function(response) {
+            console.log('Response received');
+            $('#modal-content_transfer').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailtransferTable')) {
+                console.log('Destroying existing DataTable');
+                $('#detailtransferTable').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailtransferTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
+        },
+        error: function() {
+            $('#modal-content_transfer').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+        });
+    });
+
+$(document).on('click', '.open-detail3', function() {
+    var code = $(this).data('code');
+    var tgl1 = $(this).data('tgl1');
+    var tgl2 = $(this).data('tgl2');
+    var warehouse = $(this).data('warehouse');
+
+    $('#modal-content_balance').html('<p>Loading data...</p>');
+
+    $.ajax({
+        url: 'pages/ajax/Balance_stock_obat_detail.php',
+        type: 'POST',
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        success: function(response) {
+            console.log('Response received');
+            $('#modal-content_balance').html(response);
+
+            if ($.fn.DataTable.isDataTable('#detailbalanceTable')) {
+                console.log('Destroying existing DataTable');
+                $('#detailbalanceTable').DataTable().destroy();
+            }
+            console.log('Initializing DataTable');
+            $('#detailbalanceTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                order: [[0, 'asc']]
+            });
+        },
+        error: function() {
+            $('#modal-content_balance').html('<p class="text-danger">Gagal memuat data.</p>');
+        }
+    });
+});
 
 </script>

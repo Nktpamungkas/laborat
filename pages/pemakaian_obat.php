@@ -307,9 +307,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    --AND s.DECOSUBCODE01 = 'E'
-                                    --AND s.DECOSUBCODE02 IN ('6')
-                                    --AND s.DECOSUBCODE03  IN('043')
+                                    -- AND s.DECOSUBCODE01 = 'D'
+                                    -- AND s.DECOSUBCODE02 IN ('1')
+                                    -- AND s.DECOSUBCODE03  IN('019')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 
@@ -335,7 +335,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Buka PO</th>
                                         <th>Pemakaian(belum timbang)</th>
                                         <th>Stock Balance(future)</th>
-                                        <th>Status</th>
+                                        <?php if ($_POST['warehouse'] == 'M101'): ?>
+                                            <th>Status</th>
+                                        <?php endif; ?>
                                         <th>Note</th>
                                         <th>Certification</th>
                                     </tr>
@@ -790,7 +792,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <td><?php echo $qty_stock_buka_PO ?></td>
                                         <td><?php echo $qty_stock_pakai_belum_timbang ?></td>
                                         <td><?php echo $sisa_stock_balance_future ?></td>
+                                        <?php if ($_POST['warehouse'] == 'M101'): ?>
                                         <td><?php echo $keterangan;?></td>
+                                        <?php endif; ?>
                                         <td><?php echo  $row_stock_minimum['NOTELAB']?></td>
                                         <td><?php echo  $row_stock_minimum['CERTIFICATION']?></td>
                                 </tr>                                   

@@ -47,9 +47,6 @@ $query = "SELECT
                 s.TEMPLATECODE,
                 CASE 
                 	WHEN s.TEMPLATECODE = 120 THEN s.ORDERCODE
-                	WHEN s.TEMPLATECODE = 201 THEN s.ORDERCODE 
-                	WHEN s.TEMPLATECODE = 203 THEN s.ORDERCODE 
-                	WHEN s.TEMPLATECODE = 303 THEN CONCAT('Transfer ke - ', l2.CODE)
                 END AS KET,                
                 n2.KETERANGAN
             FROM
@@ -88,7 +85,7 @@ $query = "SELECT
             WHERE
                 s.ITEMTYPECODE = 'DYC'
                 AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
-                AND s.TEMPLATECODE IN ('120','201','203','303')
+                AND s.TEMPLATECODE IN ('120')
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE = '$warehouse'
                 and s.DECOSUBCODE01 = '$code' 

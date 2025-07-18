@@ -60,7 +60,9 @@ date_default_timezone_set('Asia/Jakarta');
             <th>Buka PO</th>
             <th>Pemakaian (belum timbang)</th>
             <th>Stock Balance (future)</th>
+            <?php if ($_POST['warehouse'] == 'M101'): ?>
             <th>Status</th>
+            <?php endif; ?>
             <th>Note</th>
             <th>Certification</th>
         </tr>
@@ -82,7 +84,9 @@ date_default_timezone_set('Asia/Jakarta');
             echo "<td class='number'>{$r['buka_po']}</td>";
             echo "<td class='number'>{$r['stock_pakai_blum_timbang']}</td>";
             echo "<td class='number'>{$r['stock_balance_future']}</td>";
-            echo "<td>{$r['status_']}</td>";
+            if ($_POST['warehouse'] == 'M101') {
+                echo "<td>{$r['status_']}</td>";
+            }
             echo "<td>{$r['note']}</td>";
             echo "<td>{$r['ket_sertifikat']}</td>";
             echo "</tr>";

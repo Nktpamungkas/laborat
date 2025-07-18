@@ -7,16 +7,18 @@ include "../../koneksi.php"; // pastikan file ini hanya koneksi
 
 try {
     // $result = mysqli_query($con, "SELECT * FROM tbl_preliminary_schedule ORDER BY id DESC");
-    $result = mysqli_query($con, "
-        SELECT 
-            tbl_preliminary_schedule.*, 
-            master_suhu.product_name 
-        FROM tbl_preliminary_schedule
-        LEFT JOIN master_suhu 
-            ON tbl_preliminary_schedule.code = master_suhu.code
-        WHERE tbl_preliminary_schedule.status = 'ready'
-        ORDER BY tbl_preliminary_schedule.id DESC
-    ");
+    $result = mysqli_query($con, "SELECT
+                                        tbl_preliminary_schedule.*,
+                                        master_suhu.product_name,
+                                        tbl_matching.jenis_matching
+                                    FROM
+                                        tbl_preliminary_schedule
+                                        LEFT JOIN master_suhu ON tbl_preliminary_schedule.CODE = master_suhu.CODE 
+                                        LEFT JOIN tbl_matching ON tbl_matching.no_resep = tbl_preliminary_schedule.no_resep
+                                    WHERE
+                                        tbl_preliminary_schedule.STATUS = 'ready' 
+                                    ORDER BY
+                                        tbl_preliminary_schedule.id DESC");
 
 
     $data = [];
