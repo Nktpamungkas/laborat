@@ -277,7 +277,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="card-header mb-3 d-flex justify-content-end">
                             <a href="pages/cetak/cetak_lap_sumarry_pemakaian_obat.php?" 
                             class="btn btn-primary" 
-                            target="_blank">Cetak Excel</a><br><br>
+                            target="_blank"  data-warehouse="<?= $warehouse ?>">Cetak Excel</a><br><br>
                         </div>                        
                             <table id="Table-obat" class="table table-bordered table-hover" style="width: 100%;">
                             <?php
@@ -307,9 +307,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    AND s.DECOSUBCODE01 = 'D'
-                                    AND s.DECOSUBCODE02 IN ('7')
-                                    AND s.DECOSUBCODE03  IN('003')
+                                    -- AND s.DECOSUBCODE01 = 'D'
+                                    -- AND s.DECOSUBCODE02 IN ('7')
+                                    -- AND s.DECOSUBCODE03  IN('003')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 

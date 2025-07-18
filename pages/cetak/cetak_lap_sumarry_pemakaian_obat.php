@@ -11,7 +11,7 @@ include "./../../koneksi.php";
 
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $os = $_SERVER['HTTP_USER_AGENT'];
-
+$warehouse = $_POST['warehouse'];
 // optional: atur timezone untuk tgl_tarik_data jika diperlukan
 date_default_timezone_set('Asia/Jakarta');
 ?>
@@ -60,7 +60,7 @@ date_default_timezone_set('Asia/Jakarta');
             <th>Buka PO</th>
             <th>Pemakaian (belum timbang)</th>
             <th>Stock Balance (future)</th>
-            <?php if ($_POST['warehouse'] == 'M101'): ?>
+            <?php if ($warehouse == 'M101'): ?>
             <th>Status</th>
             <?php endif; ?>
             <th>Note</th>
@@ -84,7 +84,7 @@ date_default_timezone_set('Asia/Jakarta');
             echo "<td class='number'>{$r['buka_po']}</td>";
             echo "<td class='number'>{$r['stock_pakai_blum_timbang']}</td>";
             echo "<td class='number'>{$r['stock_balance_future']}</td>";
-            if ($_POST['warehouse'] == 'M101') {
+            if ($warehouse == 'M101') {
                 echo "<td>{$r['status_']}</td>";
             }
             echo "<td>{$r['note']}</td>";
