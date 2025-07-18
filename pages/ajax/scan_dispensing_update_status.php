@@ -12,16 +12,18 @@ $no_resep = $_POST['no_resep'];
 $dispensing_code = $_POST['dispensing_code'] ?? '';
 
 try {
-    // Ambil data sesuai kode dispensing, dengan join master_suhu
+    // Ambil semua data yang masih belum selesai berdasarkan dispensing_code
     $query = "
         SELECT ps.id, ps.no_resep, ps.order_index, ps.status
         FROM tbl_preliminary_schedule ps
         LEFT JOIN master_suhu ms ON ps.code = ms.code
-        WHERE (
-                (? = '' AND (COALESCE(ms.dispensing, '') NOT IN ('1', '2')))
+        WHERE 
+            ps.status NOT IN ('ready')
+            AND (
+                (? = '' AND (COALESCE(ms.dispensing, '') NOT IN ('1', '2', '3')))
                 OR ms.dispensing = ?
-              )
-        AND ps.status NOT IN ('ready')
+            )
+        AND ps.pass_dispensing = 0
         ORDER BY ps.order_index ASC
     ";
 
@@ -39,69 +41,53 @@ try {
         exit;
     }
 
-    // Bagi ke blok-blok isi 16 baris
+    // Bagi data ke blok-blok isi 16 baris
     $rowsPerBlock = 16;
     $blocks = array_chunk($rows, $rowsPerBlock);
 
-    // Cari blok pertama yang masih ada status 'scheduled'
+    // Cari blok aktif pertama yang masih ada status 'scheduled'
     $firstScheduledBlockIndex = null;
     foreach ($blocks as $index => $block) {
         foreach ($block as $row) {
             if ($row['status'] === 'scheduled') {
                 $firstScheduledBlockIndex = $index;
-                break 2; // keluar dua loop sekaligus
+                break 2;
             }
         }
     }
 
-    // Kalau ada blok yang harus diselesaikan dulu
     if ($firstScheduledBlockIndex !== null) {
-        $allowedBlock = $blocks[$firstScheduledBlockIndex];
-        $allowedNoResepList = array_column($allowedBlock, 'no_resep');
+        $activeBlock = $blocks[$firstScheduledBlockIndex];
+        $allowedNoResepList = array_column($activeBlock, 'no_resep');
 
-        // Kalau no_resep yang discan tidak ada di blok ini → tolak
         if (!in_array($no_resep, $allowedNoResepList)) {
             http_response_code(400);
             echo json_encode([
                 "success" => false,
-                "error" => "Silakan selesaikan scan di blok sebelumnya terlebih dahulu (blok #" . ($firstScheduledBlockIndex + 1) . ")."
+                "error" => "Silakan selesaikan blok sebelumnya terlebih dahulu (blok #" . ($firstScheduledBlockIndex + 1) . ")."
             ]);
             exit;
         }
-    }
-    // Jika tidak ada blok scheduled, artinya semua selesai → boleh proses bebas
 
-    // Cari blok yang mengandung no_resep dengan status 'scheduled' lalu update
-    foreach ($blocks as $blockIndex => $blockRows) {
-        $adaNoResep = false;
-        $adaScheduled = false;
+        // Update semua baris dalam blok ini yang punya no_resep sama dan masih scheduled
+        $updateIds = array_column(array_filter($activeBlock, function ($row) use ($no_resep) {
+            return $row['no_resep'] === $no_resep && $row['status'] === 'scheduled';
+        }), 'id');
 
-        foreach ($blockRows as $row) {
-            if ($row['no_resep'] === $no_resep) {
-                $adaNoResep = true;
-                if ($row['status'] === 'scheduled') {
-                    $adaScheduled = true;
-                }
-            }
-        }
-
-        if ($adaNoResep && $adaScheduled) {
-            $filteredRows = array_filter($blockRows, fn($r) => $r['no_resep'] === $no_resep && $r['status'] === 'scheduled');
-            $ids = array_column($filteredRows, 'id');
-
-            updateRows($con, $ids);
+        if (!empty($updateIds)) {
+            updateRows($con, $updateIds);
 
             echo json_encode([
                 "success" => true,
-                "updated_ids" => $ids,
-                "block_index" => $blockIndex,
-                "updated_count" => count($ids)
+                "updated_ids" => $updateIds,
+                "block_index" => $firstScheduledBlockIndex,
+                "updated_count" => count($updateIds)
             ]);
             exit;
         }
     }
 
-    // Kalau sampai sini, berarti semua blok untuk no_resep tsb sudah diproses
+    // Jika semua blok untuk no_resep ini sudah selesai → tolak
     http_response_code(400);
     echo json_encode(["success" => false, "error" => "Semua blok untuk No. Resep ini sudah diproses."]);
 
@@ -112,7 +98,7 @@ try {
     $con->close();
 }
 
-// Fungsi update status baris berdasarkan ID
+// Fungsi untuk update status baris berdasarkan ID
 function updateRows($con, array $ids): void {
     if (empty($ids)) return;
 
