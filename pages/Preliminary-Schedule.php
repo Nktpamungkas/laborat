@@ -27,7 +27,20 @@
     .form-group.has-error .form-control, .form-group.has-error .input-group-addon {
         background-color: #ff6347;
     }
-
+    .table#schedule-mesin>tbody>tr>td {
+        padding: 5px;
+    }
+    th.sticky-col,
+    td.sticky-col {
+        position: sticky;
+        left: -1px;
+        background-color: white;
+        z-index: 2;
+        box-shadow: inset -1px 0 #ccc;
+    }
+    thead tr:nth-child(2) th.sticky-col {
+        z-index: 4;
+    }
 </style>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">

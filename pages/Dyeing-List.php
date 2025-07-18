@@ -338,7 +338,7 @@
                     });
                 }
 
-                let html = `<div class="table-responsive" style="max-height: 750px; overflow: auto;">
+                let html = `<div class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
                         <table class="table table-bordered table-striped align-middle text-center">
                         <colgroup><col style="min-width: 50px;">`;
                 machineKeys.forEach(() => html += `<col style="min-width: 300px;">`);
@@ -411,11 +411,11 @@
                     const oldMax = Math.max(...remainingOldMachines.map(m => oldMachineMap[m].length));
                     let htmlOld = `<div class="card mt-4"><div class="card-body">
                         <h5 class="text-center text-muted">Next Cycle</h5>
-                        <div class="table-responsive" style="max-height: 500px; overflow: auto;">
+                        <div class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
                         <table class="table table-bordered table-striped align-middle text-center">
                             <colgroup><col style="min-width: 50px;">`;
                     remainingOldMachines.forEach(() => htmlOld += `<col style="min-width: 300px;">`);
-                    htmlOld += `</colgroup><thead class="table-dark"><tr><th rowspan="2">No.</th>`;
+                    htmlOld += `</colgroup><thead class="table-dark"><tr><th rowspan="2" class="sticky-col">No.</th>`;
                     remainingOldMachines.forEach(m => htmlOld += `<th>Mesin ${m}</th>`);
                     htmlOld += `</tr><tr>`;
                     remainingOldMachines.forEach(m => {
@@ -425,7 +425,7 @@
                     htmlOld += `</tr></thead><tbody>`;
 
                     for (let i = 0; i < oldMax; i++) {
-                        htmlOld += `<tr><td>${i + 1}</td>`;
+                        htmlOld += `<tr><td class="sticky-col">${i + 1}</td>`;
                         remainingOldMachines.forEach(m => {
                             const item = oldMachineMap[m][i];
                             if (item) {

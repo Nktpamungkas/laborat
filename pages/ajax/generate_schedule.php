@@ -64,10 +64,10 @@ if (isset($_POST['schedules'])) {
         <button id="undo" class="btn btn-primary" title="undo" style="border-radius: 50%;"><i class="fa fa-undo" aria-hidden="true"></i></button>
     </div>
     <div class="table-responsive" style="overflow-x: auto;">
-        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: auto; width: 100%;">
+        <table class="table table-bordered table-striped align-middle text-center" id="schedule-mesin" style="table-layout: auto; width: 100%;">
             <thead class="table-dark">
                 <tr>
-                    <th rowspan="2" style="min-width: 50px;">No</th>
+                    <th rowspan="2" style="min-width: 50px;" class="sticky-col">No</th>
                     <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
                         <?php
                             // Ambil keterangan dari master_suhu berdasarkan group
@@ -178,7 +178,7 @@ if (isset($_POST['schedules'])) {
             <tbody>
                 <?php for ($i = 0; $i < $maxRows; $i++): ?>
                     <tr>
-                        <td><?= $i + 1 ?></td>
+                        <td class="sticky-col"><?= $i + 1 ?></td>
                         <?php foreach ($scheduleChunks as $groupName => $chunks): ?>
                             <?php foreach ($chunks as $chunkIndex => $chunk): ?>
                                 <?php
