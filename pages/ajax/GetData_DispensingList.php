@@ -69,7 +69,7 @@ try {
     }
     unset($row);
 
-    // Step 3: Group data berdasarkan dispensing (1,2,3) dan beri rowNumber & cycleNumber
+    // Step 3: Group data berdasarkan dispensing (1,2,3)
     $grouped = ['1' => [], '2' => [], '3' => []];
 
     foreach ($data as $row) {
@@ -82,7 +82,10 @@ try {
     $finalData = [];
     $rowsPerCycle = 16;
 
+    // Step 4: Di setiap group, urutkan berdasarkan order_index lalu beri rowNumber & cycleNumber
     foreach ($grouped as $dispCode => $items) {
+        usort($items, fn($a, $b) => $a['order_index'] - $b['order_index']);
+
         $rowCounter = 0;
         $cycleCounter = 1;
 
@@ -99,9 +102,6 @@ try {
             $finalData[] = $item;
         }
     }
-
-    // Step 4: Urutkan hasil final berdasarkan order_index agar stabil
-    usort($finalData, fn($a, $b) => $a['order_index'] - $b['order_index']);
 
     echo json_encode($finalData);
 } catch (Exception $e) {

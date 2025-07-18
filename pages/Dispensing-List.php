@@ -385,7 +385,7 @@
 
         for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
             const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-            // const cycleNumber = blockIndex + 1;
+            const cycleNumber = blockIndex + 1;
 
             const activeRows = blockRows.filter(item =>
                 item.status === 'scheduled' || item.status === 'in_progress_dispensing'
@@ -396,6 +396,7 @@
             activeRows.forEach((item, activeIndex) => {
                 const indexInBlock = blockRows.findIndex(row => row.id === item.id);
                 const rowNumber = item.rowNumber;
+                // const rowNumber = indexInBlock + 1;
                 const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
                 const isOld = item.is_old_data == "1";
 

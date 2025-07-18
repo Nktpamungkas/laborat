@@ -73,7 +73,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
+<!-- <script>
     let blockedResepMap = {};
 
     function loadScheduleTable() {
@@ -116,29 +116,37 @@
                     if (!hasDataInMain) {
                         if (!data[machine]) data[machine] = [];
 
-                        oldItems.forEach(entry => {
-                            data[machine].push({
-                                no_resep: entry.no_resep,
-                                status: entry.status,
-                                group: null,
-                                product_name: null,
-                                dyeing_start: null,
-                                waktu: null,
-                                justMoved: true
-                            });
+                        const updatePromises = [];
 
-                            $.ajax({
-                                url: 'pages/ajax/update_is_old_data.php',
-                                method: 'POST',
-                                data: { no_resep: entry.no_resep },
-                                success: function (res) {
-                                    console.log(`Updated is_old_data for ${entry.no_resep}`);
-                                },
-                                error: function (xhr, status, err) {
-                                    console.error(`Failed to update is_old_data for ${entry.no_resep}`, err);
-                                }
-                            });
+                        oldItems.forEach(entry => {
+                            const alreadyExists = data[machine].some(item => item.no_resep === entry.no_resep);
+                            if (!alreadyExists) {
+                                data[machine].push({
+                                    no_resep: entry.no_resep,
+                                    status: entry.status,
+                                    group: null,
+                                    product_name: null,
+                                    dyeing_start: null,
+                                    waktu: null,
+                                    justMoved: true
+                                });
+
+                                const promise = $.ajax({
+                                    url: 'pages/ajax/update_is_old_data.php',
+                                    method: 'POST',
+                                    data: { no_resep: entry.no_resep }
+                                });
+
+                                updatePromises.push(promise);
+                            }
                         });
+
+                        // ⏳ Tunggu semua update selesai sebelum lanjut
+                        $.when(...updatePromises).done(function () {
+                            console.log("✅ Semua update is_old_data selesai");
+                            renderTables();
+                        });
+
 
                         if (data[machine].length > maxPerMachine) {
                             maxPerMachine = data[machine].length;
@@ -260,21 +268,196 @@
         });
     }
 
-</script>
+</script> -->
 
 <script>
-    $(document).ready(function () {
-        loadScheduleTable(); // 🚀 Load awal
+    let blockedResepMap = {};
 
-        // setInterval(loadScheduleTable, 15000);
+    function loadScheduleTable() {
+        $.ajax({
+            url: 'pages/ajax/generate_dyeing.php',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                const { data, maxPerMachine: initialMax, tempListMap, oldDataList } = response;
+                const priorityOrder = [
+                    'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A10', 'A11',
+                    'C1', 'D1',
+                    'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'
+                ];
+
+                const machineKeysRaw = Object.keys(data);
+                const machineKeys = priorityOrder.filter(m => machineKeysRaw.includes(m));
+                machineKeysRaw.forEach(m => { if (!machineKeys.includes(m)) machineKeys.push(m); });
+
+                let maxPerMachine = initialMax;
+
+                const oldMachineMap = {};
+                oldDataList.forEach(item => {
+                    const machine = item.no_machine;
+                    if (!oldMachineMap[machine]) oldMachineMap[machine] = [];
+                    oldMachineMap[machine].push(item);
+                });
+
+                console.log('Data utama (per mesin):', data);
+                console.log('Old data per mesin:', oldMachineMap);
+
+                for (const [machine, oldItems] of Object.entries(oldMachineMap)) {
+                    const hasDataInMain = data[machine] && data[machine].length > 0;
+
+                    if (!hasDataInMain) {
+                        if (!data[machine]) data[machine] = [];
+
+                        oldItems.forEach(entry => {
+                            const alreadyExists = data[machine].some(item => item.no_resep === entry.no_resep);
+                            if (!alreadyExists) {
+                                data[machine].push({
+                                    no_resep: entry.no_resep,
+                                    status: entry.status,
+                                    group: null,
+                                    product_name: null,
+                                    dyeing_start: null,
+                                    waktu: null,
+                                    justMoved: true
+                                });
+                            }
+                        });
+
+                        if (data[machine].length > maxPerMachine) {
+                            maxPerMachine = data[machine].length;
+                        }
+
+                        delete oldMachineMap[machine];
+                    }
+                }
+
+                blockedResepMap = {};
+                for (const [machine, list] of Object.entries(oldMachineMap)) {
+                    list.forEach(item => {
+                        blockedResepMap[item.no_resep] = true;
+                    });
+                }
+
+                let html = `<div class="table-responsive" style="max-height: 750px; overflow: auto;">
+                        <table class="table table-bordered table-striped align-middle text-center">
+                        <colgroup><col style="min-width: 50px;">`;
+                machineKeys.forEach(() => html += `<col style="min-width: 300px;">`);
+                html += `</colgroup><thead class="table-dark"><tr><th class="sticky-col"></th>`;
+                machineKeys.forEach(m => html += `<th>Mesin ${m}</th>`);
+                html += `</tr><tr><th class="sticky-col">No.</th>`;
+                machineKeys.forEach(m => {
+                    const tempList = Array.isArray(tempListMap[m]) && tempListMap[m].length ? tempListMap[m].join(' ; ') : '-';
+                    html += `<th><small class="text-danger">${tempList}</small></th>`;
+                });
+                html += `</tr></thead><tbody>`;
+
+                for (let i = 0; i < maxPerMachine; i++) {
+                    html += `<tr><td class="sticky-col">${i + 1}</td>`;
+                    machineKeys.forEach(machine => {
+                        const cell = data[machine]?.[i];
+                        if (cell) {
+                            const now = new Date();
+                            let warningClass = '';
+                            if (cell.dyeing_start) {
+                                const start = new Date(cell.dyeing_start);
+                                const diffMin = (now - start) / 60000;
+                                const proc = parseFloat(cell.waktu) || 0;
+                                if (diffMin > (120 + proc)) warningClass = 'blink-warning';
+                            }
+                            const moveClass = cell.justMoved ? 'slide-up' : '';
+                            html += `<td class="${warningClass} ${moveClass}">
+                                        <div style="display: flex; justify-content: space-around; white-space: nowrap;">
+                                            <span>${cell.no_resep}</span>
+                                            <span class="text-muted">${cell.status}</span>
+                                        </div>
+                                    </td>`;
+                        } else {
+                            html += `<td></td>`;
+                        }
+                    });
+                    html += `</tr>`;
+                }
+
+                html += `</tbody></table></div>`;
+                $('#schedule_table').html(html);
+
+                // ✅ Gabungkan semua justMoved jadi satu array dan kirim sekaligus
+                const movedReseps = [];
+                for (const machine in data) {
+                    data[machine].forEach(item => {
+                        if (item?.justMoved) {
+                            movedReseps.push(item.no_resep);
+                            delete item.justMoved;
+                        }
+                    });
+                }
+
+                if (movedReseps.length > 0) {
+                    $.ajax({
+                        url: 'pages/ajax/update_is_old_data.php',
+                        method: 'POST',
+                        data: { resepList: JSON.stringify(movedReseps) },
+                        success: function (res) {
+                            console.log("✅ Bulk is_old_data updated:", res);
+                        },
+                        error: function (xhr) {
+                            console.error("❌ Failed bulk update:", xhr.responseText);
+                        }
+                    });
+                }
+
+                const remainingOldMachines = Object.keys(oldMachineMap).filter(m => oldMachineMap[m].length > 0);
+                if (remainingOldMachines.length > 0) {
+                    const oldMax = Math.max(...remainingOldMachines.map(m => oldMachineMap[m].length));
+                    let htmlOld = `<div class="card mt-4"><div class="card-body">
+                        <h5 class="text-center text-muted">Next Cycle</h5>
+                        <div class="table-responsive" style="max-height: 500px; overflow: auto;">
+                        <table class="table table-bordered table-striped align-middle text-center">
+                            <colgroup><col style="min-width: 50px;">`;
+                    remainingOldMachines.forEach(() => htmlOld += `<col style="min-width: 300px;">`);
+                    htmlOld += `</colgroup><thead class="table-dark"><tr><th rowspan="2">No.</th>`;
+                    remainingOldMachines.forEach(m => htmlOld += `<th>Mesin ${m}</th>`);
+                    htmlOld += `</tr><tr>`;
+                    remainingOldMachines.forEach(m => {
+                        const tempList = Array.isArray(tempListMap[m]) && tempListMap[m].length ? tempListMap[m].join(' ; ') : '-';
+                        htmlOld += `<th><small class="text-danger">${tempList}</small></th>`;
+                    });
+                    htmlOld += `</tr></thead><tbody>`;
+
+                    for (let i = 0; i < oldMax; i++) {
+                        htmlOld += `<tr><td>${i + 1}</td>`;
+                        remainingOldMachines.forEach(m => {
+                            const item = oldMachineMap[m][i];
+                            if (item) {
+                                htmlOld += `<td><div style="display: flex; justify-content: space-around; white-space: nowrap;">
+                                                <span>${item.no_resep}</span>
+                                                <span class="text-muted">${item.status}</span>
+                                            </div></td>`;
+                            } else {
+                                htmlOld += `<td></td>`;
+                            }
+                        });
+                        htmlOld += `</tr>`;
+                    }
+
+                    htmlOld += `</tbody></table></div></div></div>`;
+                    $('#schedule_table').append(htmlOld);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to fetch data:", error);
+                $('#schedule_table').html('<div class="alert alert-danger">Gagal memuat data schedule.</div>');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadScheduleTable();
+        setInterval(loadScheduleTable, 15000);
 
         $('#scanInput').on('keypress', function (e) {
-            if (e.which === 13) { // Enter key
+            if (e.which === 13) {
                 const noResep = $(this).val().trim();
-                // if (noResep !== "") {
-                //     updateStatus(noResep);
-                //     $(this).val("");
-                // }
                 if (noResep === "") return;
 
                 if (blockedResepMap[noResep]) {
@@ -295,7 +478,6 @@
         });
     });
 
-
     function updateStatus(noResep) {
         $.ajax({
             url: 'pages/ajax/scan_dyeing_update_status.php',
@@ -303,9 +485,7 @@
             data: { no_resep: noResep },
             success: function (response) {
                 console.log("Update sukses:", response);
-
                 loadScheduleTable();
-
                 Swal.fire({
                     icon: 'success',
                     title: 'Status Diperbarui!',
