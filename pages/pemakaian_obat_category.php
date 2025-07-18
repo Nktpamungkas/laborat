@@ -257,55 +257,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>                        
                             <table id="Table-obat" class="table table-bordered table-hover" style="width: 100%;">
                             <?php
-                            $db_stocktransaction = db2_exec($conn1," SELECT 
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        KODE_OBAT,
-                                        LONGDESCRIPTION
-                                    FROM 
-                                    (
-                                    SELECT           
-                                        s.DECOSUBCODE01,
-                                        s.DECOSUBCODE02,
-                                        s.DECOSUBCODE03,
-                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,                                        
-                                        p.LONGDESCRIPTION,
-                                        s.TEMPLATECODE
+                            $db_stocktransaction = db2_exec($conn1,"SELECT DISTINCT        
+                                        s.DECOSUBCODE01, 
+                                        u.LONGDESCRIPTION 
                                     FROM
                                         STOCKTRANSACTION s
-                                    LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
-                                        AND p.SUBCODE01 = s.DECOSUBCODE01
-                                        AND p.SUBCODE02 = s.DECOSUBCODE02
-                                        AND p.SUBCODE03 = s.DECOSUBCODE03  
+                       				LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'		
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                     -- AND s.DECOSUBCODE01 = 'E'
-                                    -- AND s.DECOSUBCODE02 IN ('4','8')
-                                    -- AND s.DECOSUBCODE03  IN('014','011')
+                                    -- AND s.DECOSUBCODE02 IN ('2')
+                                    -- AND s.DECOSUBCODE03  IN('030')
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
-                                    )
-                                    GROUP BY 
-                                    DECOSUBCODE01,
-                                    DECOSUBCODE02,
-                                    DECOSUBCODE03,
-                                    KODE_OBAT,
-                                    LONGDESCRIPTION
-                                    ORDER BY KODE_OBAT ASC");                           
+                                    ");                           
                                         
                                 ?>
                                 
                                 <thead>
                                     <tr>
-                                        <th>Kode Obat</th>
-                                        <th>Dyestuff/Chemical</th>
+                                        <th>Nama</th>
                                         <th>Stock Awal (gr)</th>
-                                        <th>Masuk</th>
+                                        <th>Masuk (gr)</th>
                                         <th>Pemakaian (gr)</th>
-                                        <th>Stock Balance</th>                                       
+                                        <th>Stock Balance (gr)</th>                                       
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -371,16 +348,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $stock_masuk = db2_exec($conn1, "SELECT 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
-                                    DECOSUBCODE02,
-                                    DECOSUBCODE03,
                                     sum(QTY_MASUK) AS QTY_MASUK,
                                     SATUAN_MASUK
                                     FROM 
                                     (SELECT
                                         s.ITEMTYPECODE,
                                         s.DECOSUBCODE01,
-                                        s.DECOSUBCODE02,
-                                        s.DECOSUBCODE03,
                                         CASE 
                                             WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
                                             WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
@@ -399,36 +372,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         AND s.TEMPLATECODE IN ($templateCodes)
                                         and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                        and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                        s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                        s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
+                                        and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                     GROUP BY
                                         s.ITEMTYPECODE,
-                                        s.DECOSUBCODE01,
-                                        s.DECOSUBCODE02,
-                                        s.DECOSUBCODE03,    
+                                        s.DECOSUBCODE01,  
                                         s.USERPRIMARYUOMCODE)
                                     GROUP BY 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
-                                    DECOSUBCODE02,
-                                    DECOSUBCODE03,
                                     SATUAN_MASUK");
                                     $row_stock_masuk = db2_fetch_assoc($stock_masuk);
 
                                     $qty_pakai = db2_exec($conn1, "SELECT 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
                                         sum(AKTUAL_QTY_KELUAR) AS AKTUAL_QTY_KELUAR,
                                         SATUAN
                                         FROM 
                                         (SELECT
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,
                                             CASE 
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
                                                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
@@ -444,30 +407,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE  IN ('120','201','203')
+                                            AND s.TEMPLATECODE  IN ('120','201','203','303')
                                             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
+                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                         GROUP BY
                                             s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
+                                            s.DECOSUBCODE01, 
                                             s.USERPRIMARYUOMCODE)
                                         GROUP BY 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
                                         SATUAN");
                                     $row_qty_pakai = db2_fetch_assoc($qty_pakai);
 
                                     $Balance_stock = db2_exec($conn1, "SELECT 
                                             b.ITEMTYPECODE,
                                             b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
                                             CASE 
                                                 WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000
                                                 WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000000
@@ -485,171 +440,103 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                             AND DETAILTYPE = 1
                                             AND DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                            AND DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
-                                            AND DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
                                             GROUP BY 
                                             ITEMTYPECODE,
                                             b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
                                             b.BASEPRIMARYUNITCODE");
                                     $row_balance = db2_fetch_assoc($Balance_stock);
 
-                                    // $stock_minimum = db2_exec($conn1, " SELECT 
-                                    //         i.ITEMTYPECODE,
-                                    //         i.SUBCODE01,
-                                    //         i.SUBCODE02, 
-                                    //         i.SUBCODE03,
-                                    //         i.SUBCODE04,
-                                    //         i.SUBCODE05,
-                                    //         i.SUBCODE06,
-                                    //         i.SUBCODE07,
-                                    //         i.SUBCODE08,
-                                    //         i.SUBCODE09,
-                                    //         i.SUBCODE10,
-                                    //         CASE 
-                                    //             WHEN p.BASEPRIMARYUNITCODE = 't' THEN i.SAFETYSTOCK *1000000
-                                    //             WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN i.SAFETYSTOCK *1000
-                                    //             ELSE i.SAFETYSTOCK
-                                    //         END AS SAFETYSTOCK,
-                                    //         CASE 
-                                    //             WHEN p.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                    //             WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                    //             ELSE p.BASEPRIMARYUNITCODE
-                                    //         END AS BASEPRIMARYUNITCODE,
-                                    //         CASE 
-                                    //             WHEN a.VALUESTRING = 1 THEN 'BV'
-                                    //             WHEN a.VALUESTRING = 2 THEN 'NON BV'
-                                    //             ELSE ''
-                                    //         END CERTIFICATION,
-                                    //         a2.VALUESTRING AS NOTELAB
-                                    //         FROM 
-                                    //         ITEMWAREHOUSELINK i 
-                                    //         LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPECODE 
-                                    //         AND p.SUBCODE01 = i.SUBCODE01
-                                    //         AND p.SUBCODE02 = i.SUBCODE02 
-                                    //         AND p.SUBCODE03 = i.SUBCODE03 
-                                    //         AND p.SUBCODE04 = i.SUBCODE04 
-                                    //         AND p.SUBCODE05 = i.SUBCODE05 
-                                    //         AND p.SUBCODE06 = i.SUBCODE06 
-                                    //         AND p.SUBCODE07 = i.SUBCODE07 
-                                    //         AND p.SUBCODE08 = i.SUBCODE08 
-                                    //         AND p.SUBCODE09 = i.SUBCODE09 
-                                    //         AND p.SUBCODE10 = i.SUBCODE10 
-                                    //         LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
-                                    //         LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
-                                    //         WHERE  
-                                    //         i.ITEMTYPECODE ='DYC'
-                                    //         AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                    //         AND i.SUBCODE01 = '$row[DECOSUBCODE01]'
-                                    //         AND i.SUBCODE02 = '$row[DECOSUBCODE02]' 
-                                    //         AND i.SUBCODE03 = '$row[DECOSUBCODE03]' ");
-                                    // $row_stock_minimum = db2_fetch_assoc($stock_minimum);
+                                    $stock_minimum = db2_exec($conn1, " SELECT 
+                                            i.ITEMTYPECODE,
+                                            i.SUBCODE01,
+                                            i.SUBCODE02, 
+                                            i.SUBCODE03,
+                                            i.SUBCODE04,
+                                            i.SUBCODE05,
+                                            i.SUBCODE06,
+                                            i.SUBCODE07,
+                                            i.SUBCODE08,
+                                            i.SUBCODE09,
+                                            i.SUBCODE10,
+                                            CASE 
+                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN i.SAFETYSTOCK *1000000
+                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN i.SAFETYSTOCK *1000
+                                                ELSE i.SAFETYSTOCK
+                                            END AS SAFETYSTOCK,
+                                            CASE 
+                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                                ELSE p.BASEPRIMARYUNITCODE
+                                            END AS BASEPRIMARYUNITCODE,
+                                            CASE 
+                                                WHEN a.VALUESTRING = 1 THEN 'BV'
+                                                WHEN a.VALUESTRING = 2 THEN 'NON BV'
+                                                ELSE ''
+                                            END CERTIFICATION,
+                                            a2.VALUESTRING AS NOTELAB
+                                            FROM 
+                                            ITEMWAREHOUSELINK i 
+                                            LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPECODE 
+                                            AND p.SUBCODE01 = i.SUBCODE01
+                                            AND p.SUBCODE02 = i.SUBCODE02 
+                                            AND p.SUBCODE03 = i.SUBCODE03 
+                                            AND p.SUBCODE04 = i.SUBCODE04 
+                                            AND p.SUBCODE05 = i.SUBCODE05 
+                                            AND p.SUBCODE06 = i.SUBCODE06 
+                                            AND p.SUBCODE07 = i.SUBCODE07 
+                                            AND p.SUBCODE08 = i.SUBCODE08 
+                                            AND p.SUBCODE09 = i.SUBCODE09 
+                                            AND p.SUBCODE10 = i.SUBCODE10 
+                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
+                                            LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
+                                            WHERE  
+                                            i.ITEMTYPECODE ='DYC'
+                                            AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND i.SUBCODE01 = '$row[DECOSUBCODE01]' ");
+                                    $row_stock_minimum = db2_fetch_assoc($stock_minimum);
 
-                                    // $buka_po = db2_exec($conn1, "SELECT 
-                                    //         LOGICALWAREHOUSECODE,
-                                    //         COUNTERCODE,
-                                    //         DECOSUBCODE01,
-                                    //         DECOSUBCODE02,
-                                    //         DECOSUBCODE03,
-                                    //         DECOSUBCODE04,
-                                    //         DECOSUBCODE05,
-                                    //         DECOSUBCODE06,
-                                    //         DECOSUBCODE07,
-                                    //         CASE 
-                                    //             WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
-                                    //             WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
-                                    //             else sum(BASEPRIMARYQUANTITY)
-                                    //         END AS QTY,
-                                    //         CASE 
-                                    //             WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                    //             WHEN BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                    //             else BASEPRIMARYUNITCODE
-                                    //         END AS BASEPRIMARYUNITCODE 
-                                    //         FROM 
-                                    //         VIEWAVANALYSISPART1 v 
-                                    //         WHERE ISTANCETYPE = '6'
-                                    //         AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                    //         AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                    //         and DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                    //         DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                    //         DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                    //         GROUP BY 
-                                    //         LOGICALWAREHOUSECODE,
-                                    //         COUNTERCODE,
-                                    //         DECOSUBCODE01,
-                                    //         DECOSUBCODE02,
-                                    //         DECOSUBCODE03,
-                                    //         DECOSUBCODE04,
-                                    //         DECOSUBCODE05,
-                                    //         DECOSUBCODE06,
-                                    //         DECOSUBCODE07,
-                                    //         BASEPRIMARYUNITCODE");
-                                    // $row_buka_po = db2_fetch_assoc($buka_po);
-
-                                    // $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                    //         LOGICALWAREHOUSECODE,
-                                    //         COUNTERCODE,
-                                    //         ITEMTYPECODE,
-                                    //         DECOSUBCODE01,
-                                    //         DECOSUBCODE02,
-                                    //         DECOSUBCODE03,
-                                    //         STATUS,
-                                    //         sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
-                                    //         BASEPRIMARYUNITCODE
-                                    //         FROM 
-                                    //         (SELECT 
-                                    //         LOGICALWAREHOUSECODE,
-                                    //         COUNTERCODE,
-                                    //         ISTANCECODE,
-                                    //         ITEMTYPECODE,
-                                    //         DUEDATE,
-                                    //         DECOSUBCODE01,
-                                    //         DECOSUBCODE02,
-                                    //         DECOSUBCODE03,
-                                    //         STATUS,
-                                    //         CASE 
-                                    //             WHEN BASEPRIMARYUNITCODE ='kg' THEN BASEPRIMARYQUANTITY * 1000
-                                    //             WHEN BASEPRIMARYUNITCODE ='t' THEN BASEPRIMARYQUANTITY * 1000000
-                                    //             ELSE BASEPRIMARYQUANTITY
-                                    //         END BASEPRIMARYQUANTITY,
-                                    //         BASEPRIMARYUNITCODE  
-                                    //         FROM 
-                                    //         VIEWAVANALYSISPART2 v 
-                                    //         WHERE 
-                                    //         ITEMTYPECODE ='DYC'
-                                    //         AND STATUS = 0
-                                    //         AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                    //         AND DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                    //         AND DECOSUBCODE02 = '$row[DECOSUBCODE02]'
-                                    //         AND DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                    //         AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
-                                    //         GROUP BY 
-                                    //         LOGICALWAREHOUSECODE,
-                                    //         COUNTERCODE,
-                                    //         STATUS,
-                                    //         ITEMTYPECODE,
-                                    //         DECOSUBCODE01,
-                                    //         DECOSUBCODE02,
-                                    //         DECOSUBCODE03,
-                                    //         BASEPRIMARYUNITCODE");
-                                    // $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
+                                    $buka_po = db2_exec($conn1, "SELECT 
+                                            LOGICALWAREHOUSECODE,
+                                            COUNTERCODE,
+                                            DECOSUBCODE01,
+                                            CASE 
+                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
+                                                WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
+                                                else sum(BASEPRIMARYQUANTITY)
+                                            END AS QTY,
+                                            CASE 
+                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                                WHEN BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                                else BASEPRIMARYUNITCODE
+                                            END AS BASEPRIMARYUNITCODE 
+                                            FROM 
+                                            VIEWAVANALYSISPART1 v 
+                                            WHERE ISTANCETYPE = '6'
+                                            AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            and DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                            GROUP BY 
+                                            LOGICALWAREHOUSECODE,
+                                            COUNTERCODE,
+                                            DECOSUBCODE01,
+                                            BASEPRIMARYUNITCODE");
+                                    $row_buka_po = db2_fetch_assoc($buka_po);                                                                   
 
                                     $q_qty_awal = mysqli_query($con, "SELECT * 
                                     FROM stock_awal_obat_gdkimia_1
-                                    WHERE kode_obat = '$row[KODE_OBAT]'
+                                    WHERE SUBCODE01 = '$row[DECOSUBCODE01]'
                                     AND logicalwarehouse = '$_POST[warehouse]'
-                                    ORDER BY kode_obat ASC");
+                                    ORDER BY SUBCODE01 ASC");
 
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);                                
 
-                                    $code = $row['KODE_OBAT'];
+                                    $code = $row['DECOSUBCODE01'];
                                     $tgl1 = $_POST['tgl'];
                                     $tgl2 = $_POST['tgl2'];
                                     $warehouse = $_POST['warehouse'];
-                                    $code1 = $row['DECOSUBCODE01'];
-                                    $code2 = $row['DECOSUBCODE02'];
-                                    $code3 = $row['DECOSUBCODE03'];
+                                    // $code1 = $row['DECOSUBCODE01'];
+                                    // $code2 = $row['DECOSUBCODE02'];
+                                    // $code3 = $row['DECOSUBCODE03'];
 
                                     $qty_masuk = (substr(number_format($row_stock_masuk['QTY_MASUK'], 2), -3) == '.00')
                                         ? number_format($row_stock_masuk['QTY_MASUK'], 0)
@@ -667,16 +554,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($row_balance['STOCK_BALANCE'], 0)
                                         : number_format($row_balance['STOCK_BALANCE'], 2);
 
+                                    $qty_stock_minimum = (substr(number_format($row_stock_minimum['SAFETYSTOCK'], 2), -3) == '.00')
+                                        ? number_format($row_stock_minimum['SAFETYSTOCK'], 0)
+                                        : number_format($row_stock_minimum['SAFETYSTOCK'], 2);
+
+                                    $qty_stock_buka_PO = (substr(number_format($row_buka_po['QTY'], 2), -3) == '.00')
+                                        ? number_format($row_buka_po['QTY'], 0)
+                                        : number_format($row_buka_po['QTY'], 2);
+
                                     ?>                               
                                     <tr>
-                                        <td><?php echo $row['KODE_OBAT'] ?></td>
-                                        <td align="left"><?php echo $row['LONGDESCRIPTION'] ?></td>
+                                        <td><?php echo $row['LONGDESCRIPTION'] ?></td>
                                         <td><?php echo $qty_awal ?></td>
                                         <td>
                                             <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail2" 
-                                            data-code1="<?= $code1 ?>" 
-                                            data-code2="<?= $code2 ?>"                                                
-                                            data-code3="<?= $code3 ?>" 
+                                            data-code="<?= $code ?>"  
                                             data-tgl1="<?= $tgl1 ?>" 
                                             data-tgl2="<?= $tgl2 ?>" 
                                             data-warehouse="<?= $warehouse ?>"
@@ -686,9 +578,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </td>                                       
                                         <td>
                                             <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail" 
-                                            data-code1="<?= $code1 ?>" 
-                                            data-code2="<?= $code2 ?>" 
-                                            data-code3="<?= $code3 ?>" 
+                                            data-code="<?= $code ?>" 
                                             data-tgl1="<?= $tgl1 ?>"
                                             data-tgl2="<?= $tgl2 ?>" 
                                             data-warehouse="<?= $warehouse ?>" 
@@ -696,7 +586,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <?= $qty_Keluar ?>
                                             </a>
                                         </td>                                                                          
-                                        <td><?php echo $qty_stock_balance ?></td>
+                                        <td><a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail3" 
+                                            data-code="<?= $code ?>"
+                                            data-tgl1="<?= $tgl1 ?>" 
+                                            data-tgl2="<?= $tgl2 ?>" d
+                                            ata-warehouse="<?= $warehouse ?>" data-toggle="modal"
+                                            data-target="#detailModal_balance">
+                                            <?= $qty_stock_balance ?>
+                                        </a>
+                                    </td>
                                 </tr>                                   
                                 <?php
                                     $no++;
@@ -715,7 +613,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $stock_balance = floatval(str_replace(',', '', $qty_stock_balance));
                                     $ip = mysqli_real_escape_string($con, $ipaddress);
                                     $warehouse = mysqli_real_escape_string($con, $_POST['warehouse']);
-
+                                    $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
+                                    $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
                                     $sql = "INSERT INTO tb_stock_gd_kimia_kategori (
                                                 kode_obat,
                                                 nama_obat,
@@ -723,19 +622,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 stock_masuk,
                                                 stock_keluar,
                                                 stock_balance,                                               
-                                                tgl_tarik_data,
+                                                tgl_awal,
+                                                tgl_akhir,
                                                 ip_address,
-                                                logicalwarehouse
+                                                logicalwarehouse,
+                                                Stock_minimum,
+                                                sisa_po
                                             ) VALUES (
                                                 '$kode_obat',
                                                 '$nama_obat',
-                                                $qty_awal,
-                                                $stock_masuk,
-                                                $stock_keluar,
-                                                $stock_balance,                                                
-                                                '$today',
+                                                '$qty_awal',
+                                                '$stock_masuk',
+                                                '$stock_keluar',
+                                                '$stock_balance',                                                
+                                                '$tgl1',
+                                                '$tgl2',
                                                 '$ip',
-                                                '$warehouse'
+                                                '$warehouse',
+                                                '$stock_minimum',
+                                                '$buka_po'
+
                                             )";
 
                                     $result = mysqli_query($con, $sql);
@@ -806,6 +712,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
+<!-- Modal qty stock balance-->
+<div id="detailModal_balance" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Stock Balance</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content_balance">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailbalanceTable">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
 </html>
 <script>
   $(document).ready(function () {
@@ -820,9 +751,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   });
 
   $(document).on('click', '.open-detail', function() {
-        var code1 = $(this).data('code1');
-        var code2 = $(this).data('code2');
-        var code3 = $(this).data('code3');
+        var code = $(this).data('code');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
         var warehouse = $(this).data('warehouse');
@@ -832,7 +761,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
         url: 'pages/ajax/Pemakaian_obat_detail_kategori.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content_pakai').html(response);
@@ -855,7 +784,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     });
 
-  $(document).on('click', '.open-detail1', function() {
+  $(document).on('click', '.open-detail3', function() {
         var code = $(this).data('code');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
@@ -890,9 +819,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
 
     $(document).on('click', '.open-detail2', function() {
-        var code1 = $(this).data('code1');
-        var code2 = $(this).data('code2');
-        var code3 = $(this).data('code3');
+        var code = $(this).data('code');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
         var warehouse = $(this).data('warehouse');
@@ -902,7 +829,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
         url: 'pages/ajax/masuk_obat_detail_kategori.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code: code, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content_masuk').html(response);
