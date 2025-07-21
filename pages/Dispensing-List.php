@@ -487,6 +487,17 @@
 
             if (response.success) {
                 select.replaceWith(newSpan);
+
+                // ✅ Tampilkan SweetAlert kalau berhasil
+                Swal.fire({
+                    toast: true,
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Nomor mesin berhasil diperbarui',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
             } else {
                 alert("Gagal menyimpan perubahan");
                 select.replaceWith(originalSpan);
