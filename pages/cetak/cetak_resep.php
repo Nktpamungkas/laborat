@@ -228,12 +228,59 @@
 
 <body>
     <?php
-        $qry = mysqli_query($con,"SELECT * , a.id as id_status, b.id as id_matching
+        $qry = mysqli_query($con,"SELECT * , a.id as id_status, b.id as id_matching, 
+                                    SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 1), ' ', -1) as recipe_code_1, 
+	                                SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 2), ' ', -1) as recipe_code_2
                                 from db_laborat.tbl_status_matching a 
                                 join db_laborat.tbl_matching b on a.idm = b.no_resep 
                                 where a.id = '$ids'
                                 ORDER BY a.id desc limit 1");
         $data = mysqli_fetch_array($qry);
+    ?>
+    <?php
+        if (substr(strtoupper($data['no_resep']), 0, 2) == 'R2' or substr(strtoupper($data['no_resep']), 0, 2) == 'A2' or substr(strtoupper($data['no_resep']), 0, 2) == 'D2' or substr(strtoupper($data['no_resep']), 0, 2) == 'C2') {
+            $suffixcode = substr($data['no_resep'], 1);
+        } elseif (substr(strtoupper($data['no_resep']), 0, 2) == 'DR' or substr(strtoupper($data['no_resep']), 0, 2) == 'OB' or substr(strtoupper($data['no_resep']), 0, 2) == 'CD') {
+            $suffixcode = substr($data['no_resep'], 2);
+        }
+
+        if($_GET['frm'] == 'bresep'){
+            // ADJUSTMENT 1
+            function getRecipeAdj1($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode, $recipeCode) {
+                $sql = "SELECT
+                            r.RECIPESUBCODE01,
+                            RECIPESUFFIXCODE,
+                            TRIM(SUBCODE01) || '-' || TRIM(SUBCODE02) || '-' || TRIM(SUBCODE03) AS RECIPE,
+                            CONSUMPTION 
+                        FROM
+                            RECIPECOMPONENT r
+                        WHERE
+                            (r.RECIPESUBCODE01 = '{$recipesubcode01}' OR r.RECIPESUBCODE01 = '{$recipesubcode02}')
+                            AND r.RECIPESUFFIXCODE = '{$recipesuffixcode}'
+                            AND TRIM(SUBCODE01) || '-' || TRIM(SUBCODE02) || '-' || TRIM(SUBCODE03) = '{$recipeCode}'
+                            AND r.ITEMTYPEAFICODE = 'DYC'
+                        ORDER BY 
+                            GROUPNUMBER ASC,
+                            GROUPTYPECODE ASC,
+                            \"SEQUENCE\" ASC
+                        FETCH FIRST 1 ROW ONLY";
+
+                $stmt = db2_exec($conn1, $sql);
+                $row = db2_fetch_assoc($stmt);
+
+                if ($row) {
+                    $raw = $row['CONSUMPTION'];
+                    $clean = rtrim(rtrim($raw, '0'), '.');
+                    return $clean;
+                } else {
+                    return null;
+                }
+            }
+        }else{
+            function getRecipeAdj1(){
+                return null;
+            }
+        }
     ?>
     <br>
     <!--<div align="right" style="font-size: 12px;">FW-12-LAB-04</div>-->
@@ -364,7 +411,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama); ?></span></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc3']) != 0) echo floatval($rsp1['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc4']) != 0) echo floatval($rsp1['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc5']) != 0) echo floatval($rsp1['conc5']) ?></td>
@@ -457,7 +504,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp2['conc1']) != 0) echo floatval($rsp2['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc2']) != 0) echo floatval($rsp2['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc2']) != 0) echo floatval($rsp2['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama2); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp2['conc3']) != 0) echo floatval($rsp2['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp2['conc4']) != 0) echo floatval($rsp2['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp2['conc5']) != 0) echo floatval($rsp2['conc5']) ?></td>
@@ -506,7 +553,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp3['conc1']) != 0) echo floatval($rsp3['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc2']) != 0) echo floatval($rsp3['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc2']) != 0) echo floatval($rsp3['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama3); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp3['conc3']) != 0) echo floatval($rsp3['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp3['conc4']) != 0) echo floatval($rsp3['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp3['conc5']) != 0) echo floatval($rsp3['conc5']) ?></td>
@@ -555,7 +602,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp4['conc1']) != 0) echo floatval($rsp4['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc2']) != 0) echo floatval($rsp4['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc2']) != 0) echo floatval($rsp4['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama4); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp4['conc3']) != 0) echo floatval($rsp4['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp4['conc4']) != 0) echo floatval($rsp4['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp4['conc5']) != 0) echo floatval($rsp4['conc5']) ?></td>
@@ -604,7 +651,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp5['conc1']) != 0) echo floatval($rsp5['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc2']) != 0) echo floatval($rsp5['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc2']) != 0) echo floatval($rsp5['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama5); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp5['conc3']) != 0) echo floatval($rsp5['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp5['conc4']) != 0) echo floatval($rsp5['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp5['conc5']) != 0) echo floatval($rsp5['conc5']) ?></td>
@@ -653,7 +700,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp6['conc1']) != 0) echo floatval($rsp6['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc2']) != 0) echo floatval($rsp6['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc2']) != 0) echo floatval($rsp6['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama6); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp6['conc3']) != 0) echo floatval($rsp6['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp6['conc4']) != 0) echo floatval($rsp6['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp6['conc5']) != 0) echo floatval($rsp6['conc5']) ?></td>
@@ -704,7 +751,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp7['conc1']) != 0) echo floatval($rsp7['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc2']) != 0) echo floatval($rsp7['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc2']) != 0) echo floatval($rsp7['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama7); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp7['conc3']) != 0) echo floatval($rsp7['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp7['conc4']) != 0) echo floatval($rsp7['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp7['conc5']) != 0) echo floatval($rsp7['conc5']) ?></td>
@@ -755,7 +802,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp8['conc1']) != 0) echo floatval($rsp8['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc2']) != 0) echo floatval($rsp8['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc2']) != 0) echo floatval($rsp8['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama8); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp8['conc3']) != 0) echo floatval($rsp8['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp8['conc4']) != 0) echo floatval($rsp8['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp8['conc5']) != 0) echo floatval($rsp8['conc5']) ?></td>
@@ -806,7 +853,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp9['conc1']) != 0) echo floatval($rsp9['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc2']) != 0) echo floatval($rsp9['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc2']) != 0) echo floatval($rsp9['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama9); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp9['conc3']) != 0) echo floatval($rsp9['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp9['conc4']) != 0) echo floatval($rsp9['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp9['conc5']) != 0) echo floatval($rsp9['conc5']) ?></td>
@@ -856,7 +903,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp10['conc1']) != 0) echo floatval($rsp10['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc2']) != 0) echo floatval($rsp10['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc2']) != 0) echo floatval($rsp10['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama10); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp10['conc3']) != 0) echo floatval($rsp10['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp10['conc4']) != 0) echo floatval($rsp10['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp10['conc5']) != 0) echo floatval($rsp10['conc5']) ?></td>
@@ -905,7 +952,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp11['conc1']) != 0) echo floatval($rsp11['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc2']) != 0) echo floatval($rsp11['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc2']) != 0) echo floatval($rsp11['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama11); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp11['conc3']) != 0) echo floatval($rsp11['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp11['conc4']) != 0) echo floatval($rsp11['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp11['conc5']) != 0) echo floatval($rsp11['conc5']) ?></td>
@@ -964,7 +1011,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp12['conc1']) != 0) echo floatval($rsp12['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc2']) != 0) echo floatval($rsp12['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc2']) != 0) echo floatval($rsp12['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama12); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp12['conc3']) != 0) echo floatval($rsp12['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp12['conc4']) != 0) echo floatval($rsp12['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp12['conc5']) != 0) echo floatval($rsp12['conc5']) ?></td>
@@ -1013,7 +1060,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp13['conc1']) != 0) echo floatval($rsp13['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc2']) != 0) echo floatval($rsp13['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc2']) != 0) echo floatval($rsp13['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama13); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp13['conc3']) != 0) echo floatval($rsp13['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp13['conc4']) != 0) echo floatval($rsp13['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp13['conc5']) != 0) echo floatval($rsp13['conc5']) ?></td>
@@ -1062,7 +1109,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp14['conc1']) != 0) echo floatval($rsp14['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc2']) != 0) echo floatval($rsp14['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc2']) != 0) echo floatval($rsp14['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama14); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp14['conc3']) != 0) echo floatval($rsp14['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp14['conc4']) != 0) echo floatval($rsp14['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp14['conc5']) != 0) echo floatval($rsp14['conc5']) ?></td>
@@ -1111,7 +1158,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp15['conc1']) != 0) echo floatval($rsp15['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc2']) != 0) echo floatval($rsp15['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc2']) != 0) echo floatval($rsp15['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama15); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp15['conc3']) != 0) echo floatval($rsp15['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp15['conc4']) != 0) echo floatval($rsp15['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp15['conc5']) != 0) echo floatval($rsp15['conc5']) ?></td>
@@ -1160,7 +1207,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp16['conc1']) != 0) echo floatval($rsp16['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc2']) != 0) echo floatval($rsp16['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc2']) != 0) echo floatval($rsp16['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama16); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp16['conc3']) != 0) echo floatval($rsp16['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp16['conc4']) != 0) echo floatval($rsp16['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp16['conc5']) != 0) echo floatval($rsp16['conc5']) ?></td>
@@ -1209,7 +1256,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp17['conc1']) != 0) echo floatval($rsp17['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc2']) != 0) echo floatval($rsp17['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc2']) != 0) echo floatval($rsp17['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama17); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp17['conc3']) != 0) echo floatval($rsp17['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp17['conc4']) != 0) echo floatval($rsp17['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp17['conc5']) != 0) echo floatval($rsp17['conc5']) ?></td>
@@ -1258,7 +1305,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp18['conc1']) != 0) echo floatval($rsp18['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc2']) != 0) echo floatval($rsp18['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc2']) != 0) echo floatval($rsp18['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama18); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp18['conc3']) != 0) echo floatval($rsp18['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp18['conc4']) != 0) echo floatval($rsp18['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp18['conc5']) != 0) echo floatval($rsp18['conc5']) ?></td>
@@ -1307,7 +1354,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp19['conc1']) != 0) echo floatval($rsp19['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc2']) != 0) echo floatval($rsp19['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc2']) != 0) echo floatval($rsp19['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama19); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp19['conc3']) != 0) echo floatval($rsp19['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp19['conc4']) != 0) echo floatval($rsp19['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp19['conc5']) != 0) echo floatval($rsp19['conc5']) ?></td>
@@ -1356,7 +1403,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp20['conc1']) != 0) echo floatval($rsp20['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc2']) != 0) echo floatval($rsp20['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc2']) != 0) echo floatval($rsp20['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama20); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp20['conc3']) != 0) echo floatval($rsp20['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp20['conc4']) != 0) echo floatval($rsp20['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp20['conc5']) != 0) echo floatval($rsp20['conc5']) ?></td>
@@ -1405,7 +1452,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp21['conc1']) != 0) echo floatval($rsp21['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc2']) != 0) echo floatval($rsp21['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc2']) != 0) echo floatval($rsp21['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama21); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp21['conc3']) != 0) echo floatval($rsp21['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp21['conc4']) != 0) echo floatval($rsp21['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp21['conc5']) != 0) echo floatval($rsp21['conc5']) ?></td>
@@ -1456,7 +1503,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp22['conc1']) != 0) echo floatval($rsp22['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc2']) != 0) echo floatval($rsp22['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc2']) != 0) echo floatval($rsp22['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama22); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp22['conc3']) != 0) echo floatval($rsp22['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp22['conc4']) != 0) echo floatval($rsp22['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp22['conc5']) != 0) echo floatval($rsp22['conc5']) ?></td>
@@ -1505,7 +1552,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp23['conc1']) != 0) echo floatval($rsp23['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc2']) != 0) echo floatval($rsp23['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc2']) != 0) echo floatval($rsp23['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama23); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp23['conc3']) != 0) echo floatval($rsp23['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp23['conc4']) != 0) echo floatval($rsp23['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp23['conc5']) != 0) echo floatval($rsp23['conc5']) ?></td>
@@ -1556,7 +1603,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp24['conc1']) != 0) echo floatval($rsp24['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc2']) != 0) echo floatval($rsp24['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc2']) != 0) echo floatval($rsp24['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama24); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp24['conc3']) != 0) echo floatval($rsp24['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp24['conc4']) != 0) echo floatval($rsp24['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp24['conc5']) != 0) echo floatval($rsp24['conc5']) ?></td>
@@ -1605,7 +1652,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp25['conc1']) != 0) echo floatval($rsp25['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc2']) != 0) echo floatval($rsp25['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc2']) != 0) echo floatval($rsp25['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama25); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp25['conc3']) != 0) echo floatval($rsp25['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp25['conc4']) != 0) echo floatval($rsp25['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp25['conc5']) != 0) echo floatval($rsp25['conc5']) ?></td>
@@ -1654,7 +1701,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp26['conc1']) != 0) echo floatval($rsp26['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc2']) != 0) echo floatval($rsp26['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc2']) != 0) echo floatval($rsp26['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama26); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp26['conc3']) != 0) echo floatval($rsp26['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp26['conc4']) != 0) echo floatval($rsp26['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp26['conc5']) != 0) echo floatval($rsp26['conc5']) ?></td>
@@ -1703,7 +1750,7 @@
                 ?>
             </td>
             <td style="font-weight: bold;"><?php if (floatval($rsp27['conc1']) != 0) echo floatval($rsp27['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc2']) != 0) echo floatval($rsp27['conc2']) ?></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc2']) != 0) echo floatval($rsp27['conc2']) ?><span style="color: red;"><?= getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode.'D-S1', $kode_lama27); ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp27['conc3']) != 0) echo floatval($rsp27['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp27['conc4']) != 0) echo floatval($rsp27['conc4']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp27['conc5']) != 0) echo floatval($rsp27['conc5']) ?></td>
