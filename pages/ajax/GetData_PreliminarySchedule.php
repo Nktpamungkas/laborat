@@ -14,7 +14,11 @@ try {
                                     FROM
                                         tbl_preliminary_schedule
                                         LEFT JOIN master_suhu ON tbl_preliminary_schedule.CODE = master_suhu.CODE 
-                                        LEFT JOIN tbl_matching ON tbl_matching.no_resep = tbl_preliminary_schedule.no_resep
+                                        LEFT JOIN tbl_matching ON 
+                                                                CASE WHEN LEFT(tbl_preliminary_schedule.no_resep, 2) = 'DR' 
+                                                                    THEN LEFT(tbl_preliminary_schedule.no_resep, LENGTH(tbl_preliminary_schedule.no_resep) - 2)
+                                                                    ELSE tbl_preliminary_schedule.no_resep
+                                                                END = tbl_matching.no_resep
                                     WHERE
                                         tbl_preliminary_schedule.STATUS = 'ready' 
                                     ORDER BY
