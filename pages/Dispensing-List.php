@@ -414,12 +414,88 @@
 
                 tr.innerHTML += `<td align="center">${item.no_resep} - ${item.jenis_matching} <!--${isOld ? '🕑' : ''}--></td>`;
                 tr.innerHTML += `<td align="center">${item.product_name}</td>`;
-                tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
+                // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
+                tr.innerHTML += `
+                                <td align="center">
+                                    <span 
+                                        class="editable-machine" 
+                                        data-id="${item.id}" 
+                                        data-group="${item.id_group}" 
+                                        data-current="${item.no_machine}"
+                                    >
+                                        ${item.no_machine}
+                                    </span>
+                                </td>`;
                 tr.innerHTML += `<td align="center">${item.status}</td>`;
 
                 tbodyElement.appendChild(tr);
             });
         }
+    }
+
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("editable-machine")) {
+            const span = e.target;
+            const currentValue = span.dataset.current;
+            const id = span.dataset.id;
+            const group = span.dataset.group;
+
+            fetch(`pages/ajax/get_mesin_options_dispensing.php?group=${encodeURIComponent(group)}`)
+                .then(res => res.json())
+                .then(options => {
+                    const select = document.createElement("select");
+                    select.style.width = "100px";
+                    select.dataset.editingId = id;
+
+                    options.forEach(opt => {
+                        const option = document.createElement("option");
+                        option.value = opt;
+                        option.textContent = opt;
+                        if (opt === currentValue) option.selected = true;
+                        select.appendChild(option);
+                    });
+
+                    span.replaceWith(select);
+                    select.focus();
+
+                    select.addEventListener("blur", () => saveChange(id, select.value, span));
+                    select.addEventListener("change", () => saveChange(id, select.value, span));
+                    select.addEventListener("keydown", e => {
+                        if (e.key === "Escape") {
+                            select.replaceWith(span);
+                        }
+                    });
+                });
+        }
+    });
+
+    function saveChange(id, newValue, originalSpan) {
+        const select = document.querySelector(`select[data-editing-id="${id}"]`);
+        fetch("pages/ajax/update_machine_number.php", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, no_machine: newValue })
+        })
+        .then(res => res.json())
+        .then(response => {
+            const newSpan = document.createElement("span");
+            newSpan.className = "editable-machine";
+            newSpan.dataset.id = id;
+            newSpan.dataset.group = originalSpan.dataset.group;
+            newSpan.dataset.current = newValue;
+            newSpan.textContent = newValue;
+
+            if (response.success) {
+                select.replaceWith(newSpan);
+            } else {
+                alert("Gagal menyimpan perubahan");
+                select.replaceWith(originalSpan);
+            }
+        })
+        .catch(() => {
+            alert("Terjadi kesalahan");
+            select.replaceWith(originalSpan);
+        });
     }
 
     function enableSortableTables() {
