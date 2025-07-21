@@ -116,7 +116,7 @@ if (isset($_POST['schedules'])) {
                             $stmtExclude = $con->prepare("
                                 SELECT DISTINCT no_machine 
                                 FROM tbl_preliminary_schedule 
-                                WHERE status IN ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing')
+                                WHERE is_old_data = 1
                             ");
                             $stmtExclude->execute();
                             $resultExclude = $stmtExclude->get_result();
@@ -127,7 +127,7 @@ if (isset($_POST['schedules'])) {
                             $stmtExclude->close();
 
                             // ✅ Filter final mesin: hanya mesin yang tidak ada di $excludedMachines
-                            // $machines = array_values(array_diff($machines, $excludedMachines)); "DI UNCOMMEND karena logic berubah lagi"
+                            $machines = array_values(array_diff($machines, $excludedMachines));
 
                             // Temp Group
                             // $groupTemp = [];
