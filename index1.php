@@ -25,6 +25,7 @@ $act  = isset($_GET['act']) ? $_GET['act'] : '';
 $id   = isset($_GET['id']) ? $_GET['id'] : '';
 $page = strtolower($page);
 ?>
+
 <!DOCTYPE html>
 <html>
 
@@ -256,10 +257,10 @@ $page = strtolower($page);
                                         <a href="?p=End-Data"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
                                             <span>End Data</span></a>
                                     </li>
-                                    <!-- <li class="<?php if ($_GET['p'] == "Activity-Log") echo "active"; ?>">
-                                        <a href="?p=Activity-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
-                                            <span>Activity Log</span></a>
-                                    </li> -->
+                                    <li class="<?php if ($_GET['p'] == "Cycle-Time-Log") echo "active"; ?>">
+                                        <a href="?p=Cycle-Time-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
+                                            <span>Cycle Time Log</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             
