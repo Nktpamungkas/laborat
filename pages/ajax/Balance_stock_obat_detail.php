@@ -18,6 +18,9 @@ if ($warehouse == 'M101') {
 }
 
 $query = "SELECT 
+			*
+			FROM 
+			(SELECT 
                 b.ITEMTYPECODE,
                 b.DECOSUBCODE01,
                 b.DECOSUBCODE02,
@@ -46,9 +49,7 @@ $query = "SELECT
                     LEFT JOIN USERGENERICGROUP u ON u.CODE = b.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
                 WHERE 
                 b.ITEMTYPECODE ='DYC'
-                AND b.LOGICALWAREHOUSECODE = '$warehouse'
                 AND b.DETAILTYPE = 1
-                AND b.DECOSUBCODE01 = '$code' 
                 GROUP BY 
                 b.ITEMTYPECODE,
                 b.DECOSUBCODE01,
@@ -59,7 +60,11 @@ $query = "SELECT
                 b.WHSLOCATIONWAREHOUSEZONECODE,
                 b.WAREHOUSELOCATIONCODE,
                 p.LONGDESCRIPTION,
-                u.LONGDESCRIPTION";
+                u.LONGDESCRIPTION)
+                WHERE 
+                LOGICALWAREHOUSECODE = '$warehouse'
+                AND NOT KODE_OBAT = 'E-1-000'
+                AND DECOSUBCODE01 = '$code'";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);

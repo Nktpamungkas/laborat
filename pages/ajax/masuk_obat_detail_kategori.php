@@ -34,7 +34,7 @@ s.TRANSACTIONNUMBER,
                     CASE 
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
                         WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
-                        when s.CREATIONUSER = 'MT_STI' and s.TRANSACTIONDATE ='2025-07-13' then 0
+                        when s.TEMPLATECODE = 'OPN' AND s.CREATIONUSER = 'MT_STI' and s.TRANSACTIONDATE ='2025-07-13' then 0
                         ELSE s.USERPRIMARYQUANTITY
                     END AS QTY_MASUK,
                     CASE 
@@ -45,8 +45,8 @@ s.TRANSACTIONNUMBER,
                     CASE 
 	                    WHEN  s.TEMPLATECODE = 'OPN' THEN a.VALUESTRING  
                     	WHEN  s.TEMPLATECODE = 'QCT' THEN s.ORDERCODE 
-                    	WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
-                    	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                    	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
                     END AS KETERANGAN                   
                 FROM
                     STOCKTRANSACTION s
