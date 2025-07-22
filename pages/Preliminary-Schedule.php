@@ -697,7 +697,14 @@
                             dataTableRepeat = $('#tableRepeat').DataTable({
                                 pageLength: 5,
                                 lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                                destroy: true
+                                destroy: true,
+                                pagingType: "simple_numbers",
+                                language: {
+                                paginate: {
+                                    previous: '<i class="fa fa-angle-left"></i>',
+                                    next: '<i class="fa fa-angle-right"></i>'
+                                }
+                                }
                             });
                         });
                     });

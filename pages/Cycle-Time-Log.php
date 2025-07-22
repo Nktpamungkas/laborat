@@ -79,7 +79,14 @@
 <script>
 $(document).ready(function () {
   $('#resepTable').DataTable({
-    pageLength: 25
+    pageLength: 25,
+    pagingType: "simple_numbers",
+    language: {
+      paginate: {
+        previous: '<i class="fa fa-angle-left"></i>',
+        next: '<i class="fa fa-angle-right"></i>'
+      }
+    }
   });
 
   $(document).on('click', '.resep-item', function () {

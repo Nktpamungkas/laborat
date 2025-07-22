@@ -17,7 +17,7 @@ $query = mysqli_query($con, "
     FROM tbl_preliminary_schedule
     WHERE no_resep = '$no_resep'
     GROUP BY no_resep, creationdatetime
-    ORDER BY creationdatetime DESC
+    ORDER BY creationdatetime ASC
 ");
 ?>
 
@@ -59,7 +59,14 @@ $query = mysqli_query($con, "
 <script>
 $(document).ready(function () {
   $('#detailTable').DataTable({
-    pageLength: 25
+    pageLength: 25,
+    pagingType: "simple_numbers",
+    language: {
+      paginate: {
+        previous: '<i class="fa fa-angle-left"></i>',
+        next: '<i class="fa fa-angle-right"></i>'
+      }
+    }
   });
 });
 </script>
