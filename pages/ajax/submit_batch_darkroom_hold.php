@@ -53,6 +53,8 @@ try {
 $con->close();
 
 function processUpdate($con, $no_resep, $expected_status, $new_status, $update_end_time = false) {
+    $userDarkroomEnd = $_SESSION['userLAB'] ?? '';
+
     // Cek status sekarang
     $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);
@@ -70,15 +72,25 @@ function processUpdate($con, $no_resep, $expected_status, $new_status, $update_e
     $stmt->close();
 
     if ($update_end_time) {
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, darkroom_end = NOW() WHERE no_resep = ? AND is_old_cycle = 0");
+        $update = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = ?, darkroom_end = NOW(), user_darkroom_end = ?
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
+        $update->bind_param("sss", $new_status, $userDarkroomEnd, $no_resep);
     } else {
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ? WHERE no_resep = ? AND is_old_cycle = 0");
+        $update = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = ?, user_darkroom_end = ?
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
+        $update->bind_param("sss", $new_status, $userDarkroomEnd, $no_resep);
     }
 
-    $update->bind_param("ss", $new_status, $no_resep);
     if (!$update->execute()) {
         throw new Exception("Update gagal untuk $no_resep: " . $update->error);
     }
 
     $update->close();
 }
+?>

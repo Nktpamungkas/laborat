@@ -4,6 +4,8 @@ include '../../koneksi.php';
 
 header('Content-Type: application/json');
 
+$userDarkroomStart = $_SESSION['userLAB'] ?? '';
+
 $rawData = file_get_contents("php://input");
 $data = json_decode($rawData, true);
 
@@ -29,15 +31,15 @@ $con->begin_transaction();
 
 try {
     foreach ($data['repeat'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'repeat');
+        processUpdate($con, $no_resep, 'in_progress_dyeing', 'repeat', $userDarkroomStart);
     }
 
     foreach ($data['end'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'end', true);
+        processUpdate($con, $no_resep, 'in_progress_dyeing', 'end', $userDarkroomStart, true);
     }
 
     foreach ($data['progress'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'in_progress_darkroom');
+        processUpdate($con, $no_resep, 'in_progress_dyeing', 'in_progress_darkroom', $userDarkroomStart);
     }
 
     $con->commit();
@@ -57,8 +59,7 @@ try {
 
 $con->close();
 
-function processUpdate($con, $no_resep, $expected_status, $new_status, $update_end_time = false) {
-    // Cek status sekarang
+function processUpdate($con, $no_resep, $expected_status, $new_status, $userDarkroomStart, $update_end_time = false) {
     $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);
     $stmt->execute();
@@ -75,14 +76,27 @@ function processUpdate($con, $no_resep, $expected_status, $new_status, $update_e
     $stmt->close();
 
     if ($update_end_time) {
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, sekali_celup = NOW() WHERE no_resep = ? AND is_old_cycle = 0");
+        $update = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = ?, sekali_celup = NOW(), user_darkroom_end = ?
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
     } elseif ($new_status === 'in_progress_darkroom') {
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, darkroom_start = NOW() WHERE no_resep = ? AND is_old_cycle = 0");
+        $update = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = ?, darkroom_start = NOW(), user_darkroom_start = ?
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
     } else {
-        $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ? WHERE no_resep = ? AND is_old_cycle = 0");
+        $update = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = ?, user_darkroom_start = ?
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
     }
 
-    $update->bind_param("ss", $new_status, $no_resep);
+    $update->bind_param("sss", $new_status, $userDarkroomStart, $no_resep);
+
     if (!$update->execute()) {
         throw new Exception("Update gagal untuk $no_resep: " . $update->error);
     }

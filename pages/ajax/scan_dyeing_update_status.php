@@ -4,6 +4,7 @@ include '../../koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $no_resep = $_POST['no_resep'];
+    $userDyeing = $_SESSION['userLAB'] ?? '';
 
     $stmt = $con->prepare("SELECT COUNT(*) AS total, SUM(status = 'in_progress_dispensing') AS matching FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);
@@ -18,13 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
             $stmt->close();
             $next_status = 'in_progress_dyeing';
 
-            $update = $con->prepare("UPDATE tbl_preliminary_schedule SET status = ?, dyeing_start = now() WHERE no_resep = ? AND is_old_cycle = 0");
-            $update->bind_param("ss", $next_status, $no_resep);
+            $update = $con->prepare("
+                UPDATE tbl_preliminary_schedule 
+                SET status = ?, dyeing_start = NOW(), user_dyeing = ?
+                WHERE no_resep = ? AND is_old_cycle = 0
+            ");
+            $update->bind_param("sss", $next_status, $userDyeing, $no_resep);
 
             if ($update->execute()) {
                 echo json_encode(["success" => true, "new_status" => $next_status]);
-
-                 resetOrderIndexIfDone($con);
+                resetOrderIndexIfDone($con);
             } else {
                 http_response_code(500);
                 echo json_encode(["success" => false, "error" => $update->error]);
