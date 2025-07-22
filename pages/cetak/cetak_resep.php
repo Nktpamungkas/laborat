@@ -413,7 +413,7 @@
             <?php 
                 $adj1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama);
             ?>
-            <td style="font-weight: bold; <?= $adj1 ? 'text-decoration: line-through; color: red;' : '' ?>"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?><span style="color: red;"><?= $adj1; ?></span></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc3']) != 0) echo floatval($rsp1['conc3']) ?></td>
             <td style="font-weight: bold;"><?php if (floatval($rsp1['conc4']) != 0) echo floatval($rsp1['conc4']) ?></td>
