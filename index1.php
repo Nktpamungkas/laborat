@@ -26,19 +26,6 @@ $id   = isset($_GET['id']) ? $_GET['id'] : '';
 $page = strtolower($page);
 ?>
 
-<?php
-    function logResepHistory($no_resep, $stage, $status, $remarks = '', $qty = null) {
-        global $con;
-        $stmt = $con->prepare("INSERT INTO tbl_ct_history (no_resep, qty, stage, status, remarks) VALUES (?, ?, ?, ?)");
-        if ($stmt) {
-            $stmt->bind_param("siiss", $no_resep, $qty, $stage, $status, $remarks);
-            $stmt->execute();
-            $stmt->close();
-        } else {
-            error_log("Prepare failed: " . $con->error);
-        }
-    }
-?>
 <!DOCTYPE html>
 <html>
 
