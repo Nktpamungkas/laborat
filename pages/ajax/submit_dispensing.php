@@ -11,6 +11,7 @@ mysqli_query($con, $isScheduling);
 
 // Ambil data dari request
 $data = json_decode(file_get_contents('php://input'), true);
+$userScheduled = $_SESSION['userLAB'] ?? '';
 
 if (isset($data['assignments']) && is_array($data['assignments'])) {
     $submitted_ids = [];
@@ -58,12 +59,11 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
         if ($id && $machine) {
             // Update status jadi scheduled
             $stmt = $con->prepare("UPDATE tbl_preliminary_schedule 
-                                SET no_machine = ?, id_group = ?, status = 'scheduled' 
-                                WHERE id = ?");
-            $stmt->bind_param("ssi", $machine, $group, $id);
+                                   SET no_machine = ?, id_group = ?, status = 'scheduled', user_scheduled = ?
+                                   WHERE id = ?");
+            $stmt->bind_param("sssi", $machine, $group, $userScheduled, $id);
             $stmt->execute();
             $stmt->close();
-
             $submitted_ids[] = $id;
 
             // ❗ Cek apakah mesin sudah sibuk SEBELUMNYA

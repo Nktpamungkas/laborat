@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['no_resep'])) {
 
 $no_resep = $_POST['no_resep'];
 $dispensing_code = $_POST['dispensing_code'] ?? '';
+$userDispensing = $_SESSION['userLAB'] ?? '';
 
 try {
     // Ambil semua data yang masih belum selesai berdasarkan dispensing_code
@@ -75,7 +76,7 @@ try {
         }), 'id');
 
         if (!empty($updateIds)) {
-            updateRows($con, $updateIds);
+            updateRows($con, $updateIds, $userDispensing);
 
             echo json_encode([
                 "success" => true,
@@ -99,26 +100,29 @@ try {
 }
 
 // Fungsi untuk update status baris berdasarkan ID
-function updateRows($con, array $ids): void {
+function updateRows($con, array $ids, string $userDispensing): void {
     if (empty($ids)) return;
 
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $types = str_repeat('i', count($ids));
+    $types = 's' . str_repeat('i', count($ids));
 
     $sql = "
         UPDATE tbl_preliminary_schedule 
         SET status = 'in_progress_dispensing',
-            dispensing_start = NOW()
+            dispensing_start = NOW(),
+            user_dispensing = ?
         WHERE id IN ($placeholders)
     ";
 
     $stmt = $con->prepare($sql);
     if (!$stmt) throw new Exception("Prepare update failed: " . $con->error);
 
-    $stmt->bind_param($types, ...$ids);
+    $stmt->bind_param($types, $userDispensing, ...$ids);
+
     if (!$stmt->execute()) {
         throw new Exception("Execute update failed: " . $stmt->error);
     }
 
     $stmt->close();
 }
+
