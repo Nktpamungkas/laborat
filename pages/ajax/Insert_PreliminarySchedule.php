@@ -88,7 +88,7 @@ try {
     if ($insertedCount > 0) {
         $con->commit();
 
-        // insertCycleLog($con, $no_resep, 1, 'scheduled', 'Preliminary scheduled');
+        // logResepHistory($no_resep, 1, 'ready', 'Preliminary scheduled', $insertedCount);
 
         $success = true;
         echo json_encode([

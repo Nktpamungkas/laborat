@@ -25,6 +25,20 @@ $act  = isset($_GET['act']) ? $_GET['act'] : '';
 $id   = isset($_GET['id']) ? $_GET['id'] : '';
 $page = strtolower($page);
 ?>
+
+<?php
+    function logResepHistory($no_resep, $stage, $status, $remarks = '', $qty = null) {
+        global $con;
+        $stmt = $con->prepare("INSERT INTO tbl_ct_history (no_resep, qty, stage, status, remarks) VALUES (?, ?, ?, ?)");
+        if ($stmt) {
+            $stmt->bind_param("siiss", $no_resep, $qty, $stage, $status, $remarks);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            error_log("Prepare failed: " . $con->error);
+        }
+    }
+?>
 <!DOCTYPE html>
 <html>
 
@@ -256,10 +270,10 @@ $page = strtolower($page);
                                         <a href="?p=End-Data"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
                                             <span>End Data</span></a>
                                     </li>
-                                    <!-- <li class="<?php if ($_GET['p'] == "Activity-Log") echo "active"; ?>">
-                                        <a href="?p=Activity-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
-                                            <span>Activity Log</span></a>
-                                    </li> -->
+                                    <li class="<?php if ($_GET['p'] == "Cycle-Time-Log") echo "active"; ?>">
+                                        <a href="?p=Cycle-Time-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
+                                            <span>Cycle Time Log</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             
