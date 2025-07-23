@@ -211,11 +211,25 @@
                     return;
                 }
 
-                if (currentAction === "repeat") repeatList.push(scanned);
-                else if (currentAction === "end") endList.push(scanned);
+                // Validasi
+                $.get(`pages/ajax/validate_scan_hold.php?no_resep=${scanned}`, function(response) {
+                    if (!response.valid) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Data Tidak Ditemukan',
+                            text: `No. Resep "${scanned}" tidak tersedia di list.`
+                        });
+                        $('#scanInput').val('').focus();
+                        return;
+                    }
 
-                $(this).val("").focus();
-                renderSelectedList();
+                    // Jika valid, baru masukkan ke list
+                    if (currentAction === "repeat") repeatList.push(scanned);
+                    else if (currentAction === "end") endList.push(scanned);
+
+                    $('#scanInput').val("").focus();
+                    renderSelectedList();
+                });
             }
         });
 

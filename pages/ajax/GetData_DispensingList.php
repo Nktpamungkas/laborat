@@ -23,9 +23,8 @@ try {
         ORDER BY
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development') THEN 2
-                WHEN tbl_matching.jenis_matching IN ('Perbaikan' , 'Perbaikan NOW') THEN 3
-                ELSE 4
+                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan', 'Perbaikan NOW') THEN 2
+                ELSE 3
             END,
             CASE 
                 WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
@@ -34,8 +33,8 @@ try {
             tbl_preliminary_schedule.order_index ASC,
             master_suhu.suhu DESC, 
             master_suhu.waktu DESC, 
-            tbl_preliminary_schedule.no_machine ASC,
             tbl_preliminary_schedule.no_resep,
+            tbl_preliminary_schedule.no_machine ASC,
             tbl_preliminary_schedule.is_old_data ASC
     ");
 
