@@ -411,16 +411,22 @@
                 ?>
             </td>
             <?php 
-                $adj1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama);
+                $adj1_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama);
+                $adj2_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama);
+                $adj3_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama);
+                $adj4_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama);
+                $adj5_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama);
+                $adj6_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama);
+                $adj7_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama);
             ?>
-            <td style="font-weight: bold; <?= $adj1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?><span style="color: red;"><?= $adj1; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc3']) != 0) echo floatval($rsp1['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc4']) != 0) echo floatval($rsp1['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc5']) != 0) echo floatval($rsp1['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc6']) != 0) echo floatval($rsp1['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc7']) != 0) echo floatval($rsp1['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc8']) != 0) echo floatval($rsp1['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?><span style="color: red;"><?= $adj1_1; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc3']) != 0) echo floatval($rsp1['conc3']) ?><span style="color: red;"><?= $adj2_1; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc4']) != 0) echo floatval($rsp1['conc4']) ?><span style="color: red;"><?= $adj3_1; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc5']) != 0) echo floatval($rsp1['conc5']) ?><span style="color: red;"><?= $adj4_1; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc6']) != 0) echo floatval($rsp1['conc6']) ?><span style="color: red;"><?= $adj5_1; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc7']) != 0) echo floatval($rsp1['conc7']) ?><span style="color: red;"><?= $adj6_1; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp1['conc8']) != 0) echo floatval($rsp1['conc8']) ?><span style="color: red;"><?= $adj7_1; ?></span></td>
             <?php
             $sql_Norder1 = mysqli_query($con,"SELECT `order` from tbl_orderchild 
             where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 0,50");
@@ -507,16 +513,22 @@
                 ?>
             </td>
             <?php 
-                $adj2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama2);
+                $adj1_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama2);
+                $adj2_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama2);
+                $adj3_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama2);
+                $adj4_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama2);
+                $adj5_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama2);
+                $adj6_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama2);
+                $adj7_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama2);
             ?>
-            <td style="font-weight: bold; <?= $adj2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc1']) != 0) echo floatval($rsp2['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc2']) != 0) echo floatval($rsp2['conc2']) ?><span style="color: red;"><?= $adj2; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc3']) != 0) echo floatval($rsp2['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc4']) != 0) echo floatval($rsp2['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc5']) != 0) echo floatval($rsp2['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc6']) != 0) echo floatval($rsp2['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc7']) != 0) echo floatval($rsp2['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc8']) != 0) echo floatval($rsp2['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc1']) != 0) echo floatval($rsp2['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc2']) != 0) echo floatval($rsp2['conc2']) ?><span style="color: red;"><?= $adj1_2; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc3']) != 0) echo floatval($rsp2['conc3']) ?><span style="color: red;"><?= $adj2_2; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc4']) != 0) echo floatval($rsp2['conc4']) ?><span style="color: red;"><?= $adj3_2; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc5']) != 0) echo floatval($rsp2['conc5']) ?><span style="color: red;"><?= $adj4_2; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc6']) != 0) echo floatval($rsp2['conc6']) ?><span style="color: red;"><?= $adj5_2; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc7']) != 0) echo floatval($rsp2['conc7']) ?><span style="color: red;"><?= $adj6_2; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp2['conc8']) != 0) echo floatval($rsp2['conc8']) ?><span style="color: red;"><?= $adj7_2; ?></span></td>
         </tr>
         <!-- BARIS 3 -->
         <?php
@@ -559,16 +571,22 @@
                 ?>
             </td>
             <?php 
-                $adj3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama3);
+                $adj1_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama3);
+                $adj2_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama3);
+                $adj3_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama3);
+                $adj4_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama3);
+                $adj5_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama3);
+                $adj6_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama3);
+                $adj7_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama3);
             ?>
-            <td style="font-weight: bold; <?= $adj3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc1']) != 0) echo floatval($rsp3['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc2']) != 0) echo floatval($rsp3['conc2']) ?><span style="color: red;"><?= $adj3; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc3']) != 0) echo floatval($rsp3['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc4']) != 0) echo floatval($rsp3['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc5']) != 0) echo floatval($rsp3['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc6']) != 0) echo floatval($rsp3['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc7']) != 0) echo floatval($rsp3['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc8']) != 0) echo floatval($rsp3['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc1']) != 0) echo floatval($rsp3['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc2']) != 0) echo floatval($rsp3['conc2']) ?><span style="color: red;"><?= $adj1_3; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc3']) != 0) echo floatval($rsp3['conc3']) ?><span style="color: red;"><?= $adj2_3; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc4']) != 0) echo floatval($rsp3['conc4']) ?><span style="color: red;"><?= $adj3_3; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc5']) != 0) echo floatval($rsp3['conc5']) ?><span style="color: red;"><?= $adj4_3; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc6']) != 0) echo floatval($rsp3['conc6']) ?><span style="color: red;"><?= $adj5_3; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc7']) != 0) echo floatval($rsp3['conc7']) ?><span style="color: red;"><?= $adj6_3; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp3['conc8']) != 0) echo floatval($rsp3['conc8']) ?><span style="color: red;"><?= $adj7_3; ?></span></td>
         </tr>
         <!-- BARIS 4 -->
         <?php
@@ -611,16 +629,22 @@
                 ?>
             </td>
             <?php 
-                $adj4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama4);
+                $adj1_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama4);
+                $adj2_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama4);
+                $adj3_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama4);
+                $adj4_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama4);
+                $adj5_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama4);
+                $adj6_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama4);
+                $adj7_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama4);
             ?>
-            <td style="font-weight: bold; <?= $adj4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc1']) != 0) echo floatval($rsp4['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc2']) != 0) echo floatval($rsp4['conc2']) ?><span style="color: red;"><?= $adj4; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc3']) != 0) echo floatval($rsp4['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc4']) != 0) echo floatval($rsp4['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc5']) != 0) echo floatval($rsp4['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc6']) != 0) echo floatval($rsp4['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc7']) != 0) echo floatval($rsp4['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc8']) != 0) echo floatval($rsp4['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc1']) != 0) echo floatval($rsp4['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc2']) != 0) echo floatval($rsp4['conc2']) ?><span style="color: red;"><?= $adj1_4; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc3']) != 0) echo floatval($rsp4['conc3']) ?><span style="color: red;"><?= $adj2_4; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc4']) != 0) echo floatval($rsp4['conc4']) ?><span style="color: red;"><?= $adj3_4; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc5']) != 0) echo floatval($rsp4['conc5']) ?><span style="color: red;"><?= $adj4_4; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc6']) != 0) echo floatval($rsp4['conc6']) ?><span style="color: red;"><?= $adj5_4; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc7']) != 0) echo floatval($rsp4['conc7']) ?><span style="color: red;"><?= $adj6_4; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp4['conc8']) != 0) echo floatval($rsp4['conc8']) ?><span style="color: red;"><?= $adj7_4; ?></span></td>
         </tr>
         <!-- BARIS 5 -->
         <?php
@@ -663,16 +687,22 @@
                 ?>
             </td>
             <?php 
-                $adj5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama5);
+                $adj1_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama5);
+                $adj2_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama5);
+                $adj3_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama5);
+                $adj4_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama5);
+                $adj5_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama5);
+                $adj6_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama5);
+                $adj7_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama5);
             ?>
-            <td style="font-weight: bold; <?= $adj5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc1']) != 0) echo floatval($rsp5['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc2']) != 0) echo floatval($rsp5['conc2']) ?><span style="color: red;"><?= $adj5; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc3']) != 0) echo floatval($rsp5['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc4']) != 0) echo floatval($rsp5['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc5']) != 0) echo floatval($rsp5['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc6']) != 0) echo floatval($rsp5['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc7']) != 0) echo floatval($rsp5['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc8']) != 0) echo floatval($rsp5['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc1']) != 0) echo floatval($rsp5['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc2']) != 0) echo floatval($rsp5['conc2']) ?><span style="color: red;"><?= $adj1_5; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc3']) != 0) echo floatval($rsp5['conc3']) ?><span style="color: red;"><?= $adj2_5; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc4']) != 0) echo floatval($rsp5['conc4']) ?><span style="color: red;"><?= $adj3_5; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc5']) != 0) echo floatval($rsp5['conc5']) ?><span style="color: red;"><?= $adj4_5; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc6']) != 0) echo floatval($rsp5['conc6']) ?><span style="color: red;"><?= $adj5_5; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc7']) != 0) echo floatval($rsp5['conc7']) ?><span style="color: red;"><?= $adj6_5; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp5['conc8']) != 0) echo floatval($rsp5['conc8']) ?><span style="color: red;"><?= $adj7_5; ?></span></td>
         </tr>
         <!-- BARIS 6 -->
         <?php
@@ -715,16 +745,22 @@
                 ?>
             </td>
             <?php 
-                $adj6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama6);
+                $adj1_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama6);
+                $adj2_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama6);
+                $adj3_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama6);
+                $adj4_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama6);
+                $adj5_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama6);
+                $adj6_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama6);
+                $adj7_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama6);
             ?>
-            <td style="font-weight: bold; <?= $adj6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc1']) != 0) echo floatval($rsp6['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc2']) != 0) echo floatval($rsp6['conc2']) ?><span style="color: red;"><?= $adj6; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc3']) != 0) echo floatval($rsp6['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc4']) != 0) echo floatval($rsp6['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc5']) != 0) echo floatval($rsp6['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc6']) != 0) echo floatval($rsp6['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc7']) != 0) echo floatval($rsp6['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc8']) != 0) echo floatval($rsp6['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc1']) != 0) echo floatval($rsp6['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc2']) != 0) echo floatval($rsp6['conc2']) ?><span style="color: red;"><?= $adj1_6; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc3']) != 0) echo floatval($rsp6['conc3']) ?><span style="color: red;"><?= $adj2_6; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc4']) != 0) echo floatval($rsp6['conc4']) ?><span style="color: red;"><?= $adj3_6; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc5']) != 0) echo floatval($rsp6['conc5']) ?><span style="color: red;"><?= $adj4_6; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc6']) != 0) echo floatval($rsp6['conc6']) ?><span style="color: red;"><?= $adj5_6; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc7']) != 0) echo floatval($rsp6['conc7']) ?><span style="color: red;"><?= $adj6_6; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp6['conc8']) != 0) echo floatval($rsp6['conc8']) ?><span style="color: red;"><?= $adj7_6; ?></span></td>
             <td style="font-weight: bold;">Create Resep : <?php echo $data['create_resep'] ?></td>
             <td style="font-weight: bold;">Acc Tes Ulang OK : <?php echo $data['acc_ulang_ok'] ?></td>
         </tr>
@@ -769,17 +805,23 @@
                 ?>
             </td>
             <?php 
-                $adj7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama7);
+                $adj1_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama7);
+                $adj2_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama7);
+                $adj3_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama7);
+                $adj4_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama7);
+                $adj5_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama7);
+                $adj6_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama7);
+                $adj7_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama7);
             ?>
-            <td style="font-weight: bold; <?= $adj7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc1']) != 0) echo floatval($rsp7['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc2']) != 0) echo floatval($rsp7['conc2']) ?><span style="color: red;"><?= $adj7; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc3']) != 0) echo floatval($rsp7['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc4']) != 0) echo floatval($rsp7['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc5']) != 0) echo floatval($rsp7['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc6']) != 0) echo floatval($rsp7['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc7']) != 0) echo floatval($rsp7['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc8']) != 0) echo floatval($rsp7['conc8']) ?></td>
-          <td style="font-weight: bold;">Acc Resep Pertama 1 : <?php echo $data['acc_resep1'] ?></td>
+            <td style="font-weight: bold; <?= $adj1_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc1']) != 0) echo floatval($rsp7['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc2']) != 0) echo floatval($rsp7['conc2']) ?><span style="color: red;"><?= $adj1_7; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc3']) != 0) echo floatval($rsp7['conc3']) ?><span style="color: red;"><?= $adj2_7; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc4']) != 0) echo floatval($rsp7['conc4']) ?><span style="color: red;"><?= $adj3_7; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc5']) != 0) echo floatval($rsp7['conc5']) ?><span style="color: red;"><?= $adj4_7; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc6']) != 0) echo floatval($rsp7['conc6']) ?><span style="color: red;"><?= $adj5_7; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc7']) != 0) echo floatval($rsp7['conc7']) ?><span style="color: red;"><?= $adj6_7; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp7['conc8']) != 0) echo floatval($rsp7['conc8']) ?><span style="color: red;"><?= $adj7_7; ?></span></td>
+            <td style="font-weight: bold;">Acc Resep Pertama 1 : <?php echo $data['acc_resep1'] ?></td>
             <td valign="top"><span style="font-weight: bold;">Acc Resep Pertama 2 : <?php echo $data['acc_resep1'] ?></span></td>
         </tr>
         <!-- BARIS 8 -->
@@ -823,16 +865,22 @@
                 ?>
             </td>
             <?php 
-                $adj8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama8);
+                $adj1_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama8);
+                $adj2_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama8);
+                $adj3_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama8);
+                $adj4_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama8);
+                $adj5_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama8);
+                $adj6_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama8);
+                $adj7_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama8);
             ?>
-            <td style="font-weight: bold; <?= $adj8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc1']) != 0) echo floatval($rsp8['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc2']) != 0) echo floatval($rsp8['conc2']) ?><span style="color: red;"><?= $adj8; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc3']) != 0) echo floatval($rsp8['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc4']) != 0) echo floatval($rsp8['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc5']) != 0) echo floatval($rsp8['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc6']) != 0) echo floatval($rsp8['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc7']) != 0) echo floatval($rsp8['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc8']) != 0) echo floatval($rsp8['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc1']) != 0) echo floatval($rsp8['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc2']) != 0) echo floatval($rsp8['conc2']) ?><span style="color: red;"><?= $adj1_8; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc3']) != 0) echo floatval($rsp8['conc3']) ?><span style="color: red;"><?= $adj2_8; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc4']) != 0) echo floatval($rsp8['conc4']) ?><span style="color: red;"><?= $adj3_8; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc5']) != 0) echo floatval($rsp8['conc5']) ?><span style="color: red;"><?= $adj4_8; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc6']) != 0) echo floatval($rsp8['conc6']) ?><span style="color: red;"><?= $adj5_8; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc7']) != 0) echo floatval($rsp8['conc7']) ?><span style="color: red;"><?= $adj6_8; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp8['conc8']) != 0) echo floatval($rsp8['conc8']) ?><span style="color: red;"><?= $adj7_8; ?></span></td>
             <td style="font-weight: bold;">Colorist 1 : <?php echo $data['colorist1'] ?></td>
             <td style="font-weight: bold;">Colorist 2 : <?php echo $data['colorist2'] ?></td>
         </tr>
@@ -877,16 +925,22 @@
                 ?>
             </td>
             <?php 
-                $adj9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama9);
+                $adj1_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama9);
+                $adj2_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama9);
+                $adj3_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama9);
+                $adj4_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama9);
+                $adj5_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama9);
+                $adj6_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama9);
+                $adj7_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama9);
             ?>
-            <td style="font-weight: bold; <?= $adj9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc1']) != 0) echo floatval($rsp9['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc2']) != 0) echo floatval($rsp9['conc2']) ?><span style="color: red;"><?= $adj9; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc3']) != 0) echo floatval($rsp9['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc4']) != 0) echo floatval($rsp9['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc5']) != 0) echo floatval($rsp9['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc6']) != 0) echo floatval($rsp9['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc7']) != 0) echo floatval($rsp9['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc8']) != 0) echo floatval($rsp9['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc1']) != 0) echo floatval($rsp9['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc2']) != 0) echo floatval($rsp9['conc2']) ?><span style="color: red;"><?= $adj1_9; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc3']) != 0) echo floatval($rsp9['conc3']) ?><span style="color: red;"><?= $adj2_9; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc4']) != 0) echo floatval($rsp9['conc4']) ?><span style="color: red;"><?= $adj3_9; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc5']) != 0) echo floatval($rsp9['conc5']) ?><span style="color: red;"><?= $adj4_9; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc6']) != 0) echo floatval($rsp9['conc6']) ?><span style="color: red;"><?= $adj5_9; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc7']) != 0) echo floatval($rsp9['conc7']) ?><span style="color: red;"><?= $adj6_9; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp9['conc8']) != 0) echo floatval($rsp9['conc8']) ?><span style="color: red;"><?= $adj7_9; ?></span></td>
             <td colspan="2" rowspan="2" align="center"><strong>LAB. SAMPLE</strong></td>
         </tr>
         <!-- BARIS 10 -->
@@ -930,16 +984,22 @@
                 ?>
             </td>
             <?php 
-                $adj10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama10);
+                $adj1_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama10);
+                $adj2_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama10);
+                $adj3_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama10);
+                $adj4_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama10);
+                $adj5_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama10);
+                $adj6_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama10);
+                $adj7_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama10);
             ?>
-            <td style="font-weight: bold; <?= $adj10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc1']) != 0) echo floatval($rsp10['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc2']) != 0) echo floatval($rsp10['conc2']) ?><span style="color: red;"><?= $adj10; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc3']) != 0) echo floatval($rsp10['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc4']) != 0) echo floatval($rsp10['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc5']) != 0) echo floatval($rsp10['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc6']) != 0) echo floatval($rsp10['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc7']) != 0) echo floatval($rsp10['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc8']) != 0) echo floatval($rsp10['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc1']) != 0) echo floatval($rsp10['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc2']) != 0) echo floatval($rsp10['conc2']) ?><span style="color: red;"><?= $adj1_10; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc3']) != 0) echo floatval($rsp10['conc3']) ?><span style="color: red;"><?= $adj2_10; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc4']) != 0) echo floatval($rsp10['conc4']) ?><span style="color: red;"><?= $adj3_10; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc5']) != 0) echo floatval($rsp10['conc5']) ?><span style="color: red;"><?= $adj4_10; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc6']) != 0) echo floatval($rsp10['conc6']) ?><span style="color: red;"><?= $adj5_10; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc7']) != 0) echo floatval($rsp10['conc7']) ?><span style="color: red;"><?= $adj6_10; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp10['conc8']) != 0) echo floatval($rsp10['conc8']) ?><span style="color: red;"><?= $adj7_10; ?></span></td>
         </tr>
         <!-- BARIS 11 -->
         <?php
@@ -982,16 +1042,22 @@
                 ?>
             </td>
             <?php 
-                $adj11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama11);
+                $adj1_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama11);
+                $adj2_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama11);
+                $adj3_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama11);
+                $adj4_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama11);
+                $adj5_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama11);
+                $adj6_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama11);
+                $adj7_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama11);
             ?>
-            <td style="font-weight: bold; <?= $adj11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc1']) != 0) echo floatval($rsp11['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc2']) != 0) echo floatval($rsp11['conc2']) ?><span style="color: red;"><?= $adj11; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc3']) != 0) echo floatval($rsp11['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc4']) != 0) echo floatval($rsp11['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc5']) != 0) echo floatval($rsp11['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc6']) != 0) echo floatval($rsp11['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc7']) != 0) echo floatval($rsp11['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc8']) != 0) echo floatval($rsp11['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc1']) != 0) echo floatval($rsp11['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc2']) != 0) echo floatval($rsp11['conc2']) ?><span style="color: red;"><?= $adj1_11; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc3']) != 0) echo floatval($rsp11['conc3']) ?><span style="color: red;"><?= $adj2_11; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc4']) != 0) echo floatval($rsp11['conc4']) ?><span style="color: red;"><?= $adj3_11; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc5']) != 0) echo floatval($rsp11['conc5']) ?><span style="color: red;"><?= $adj4_11; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc6']) != 0) echo floatval($rsp11['conc6']) ?><span style="color: red;"><?= $adj5_11; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc7']) != 0) echo floatval($rsp11['conc7']) ?><span style="color: red;"><?= $adj6_11; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp11['conc8']) != 0) echo floatval($rsp11['conc8']) ?><span style="color: red;"><?= $adj7_11; ?></span></td>
             <?php
             $sql_Norder1 = mysqli_query($con,"SELECT `order` from tbl_orderchild 
             where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 51,100");
@@ -1044,16 +1110,22 @@
                 ?>
             </td>
             <?php 
-                $adj12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama12);
+                $adj1_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama12);
+                $adj2_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama12);
+                $adj3_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama12);
+                $adj4_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama12);
+                $adj5_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama12);
+                $adj6_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama12);
+                $adj7_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama12);
             ?>
-            <td style="font-weight: bold; <?= $adj12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc1']) != 0) echo floatval($rsp12['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc2']) != 0) echo floatval($rsp12['conc2']) ?><span style="color: red;"><?= $adj12; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc3']) != 0) echo floatval($rsp12['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc4']) != 0) echo floatval($rsp12['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc5']) != 0) echo floatval($rsp12['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc6']) != 0) echo floatval($rsp12['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc7']) != 0) echo floatval($rsp12['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc8']) != 0) echo floatval($rsp12['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc1']) != 0) echo floatval($rsp12['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc2']) != 0) echo floatval($rsp12['conc2']) ?><span style="color: red;"><?= $adj1_12; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc3']) != 0) echo floatval($rsp12['conc3']) ?><span style="color: red;"><?= $adj2_12; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc4']) != 0) echo floatval($rsp12['conc4']) ?><span style="color: red;"><?= $adj3_12; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc5']) != 0) echo floatval($rsp12['conc5']) ?><span style="color: red;"><?= $adj4_12; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc6']) != 0) echo floatval($rsp12['conc6']) ?><span style="color: red;"><?= $adj5_12; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc7']) != 0) echo floatval($rsp12['conc7']) ?><span style="color: red;"><?= $adj6_12; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp12['conc8']) != 0) echo floatval($rsp12['conc8']) ?><span style="color: red;"><?= $adj7_12; ?></span></td>
         </tr>
         <!-- BARIS 13 -->
         <?php
@@ -1096,16 +1168,22 @@
                 ?>
             </td>
             <?php 
-                $adj13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama13);
+                $adj1_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama13);
+                $adj2_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama13);
+                $adj3_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama13);
+                $adj4_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama13);
+                $adj5_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama13);
+                $adj6_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama13);
+                $adj7_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama13);
             ?>
-            <td style="font-weight: bold; <?= $adj13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc1']) != 0) echo floatval($rsp13['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc2']) != 0) echo floatval($rsp13['conc2']) ?><span style="color: red;"><?= $adj13; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc3']) != 0) echo floatval($rsp13['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc4']) != 0) echo floatval($rsp13['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc5']) != 0) echo floatval($rsp13['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc6']) != 0) echo floatval($rsp13['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc7']) != 0) echo floatval($rsp13['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc8']) != 0) echo floatval($rsp13['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc1']) != 0) echo floatval($rsp13['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc2']) != 0) echo floatval($rsp13['conc2']) ?><span style="color: red;"><?= $adj1_13; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc3']) != 0) echo floatval($rsp13['conc3']) ?><span style="color: red;"><?= $adj2_13; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc4']) != 0) echo floatval($rsp13['conc4']) ?><span style="color: red;"><?= $adj3_13; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc5']) != 0) echo floatval($rsp13['conc5']) ?><span style="color: red;"><?= $adj4_13; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc6']) != 0) echo floatval($rsp13['conc6']) ?><span style="color: red;"><?= $adj5_13; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc7']) != 0) echo floatval($rsp13['conc7']) ?><span style="color: red;"><?= $adj6_13; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp13['conc8']) != 0) echo floatval($rsp13['conc8']) ?><span style="color: red;"><?= $adj7_13; ?></span></td>
         </tr>
         <!-- BARIS 14 -->
         <?php
@@ -1148,16 +1226,22 @@
                 ?>
             </td>
             <?php 
-                $adj14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama14);
+                $adj1_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama14);
+                $adj2_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama14);
+                $adj3_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama14);
+                $adj4_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama14);
+                $adj5_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama14);
+                $adj6_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama14);
+                $adj7_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama14);
             ?>
-            <td style="font-weight: bold; <?= $adj14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc1']) != 0) echo floatval($rsp14['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc2']) != 0) echo floatval($rsp14['conc2']) ?><span style="color: red;"><?= $adj14; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc3']) != 0) echo floatval($rsp14['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc4']) != 0) echo floatval($rsp14['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc5']) != 0) echo floatval($rsp14['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc6']) != 0) echo floatval($rsp14['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc7']) != 0) echo floatval($rsp14['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc8']) != 0) echo floatval($rsp14['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc1']) != 0) echo floatval($rsp14['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc2']) != 0) echo floatval($rsp14['conc2']) ?><span style="color: red;"><?= $adj1_14; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc3']) != 0) echo floatval($rsp14['conc3']) ?><span style="color: red;"><?= $adj2_14; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc4']) != 0) echo floatval($rsp14['conc4']) ?><span style="color: red;"><?= $adj3_14; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc5']) != 0) echo floatval($rsp14['conc5']) ?><span style="color: red;"><?= $adj4_14; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc6']) != 0) echo floatval($rsp14['conc6']) ?><span style="color: red;"><?= $adj5_14; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc7']) != 0) echo floatval($rsp14['conc7']) ?><span style="color: red;"><?= $adj6_14; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp14['conc8']) != 0) echo floatval($rsp14['conc8']) ?><span style="color: red;"><?= $adj7_14; ?></span></td>
         </tr>
         <!-- BARIS 15 -->
         <?php
@@ -1200,16 +1284,22 @@
                 ?>
             </td>
             <?php 
-                $adj15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama15);
+                $adj1_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama15);
+                $adj2_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama15);
+                $adj3_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama15);
+                $adj4_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama15);
+                $adj5_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama15);
+                $adj6_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama15);
+                $adj7_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama15);
             ?>
-            <td style="font-weight: bold; <?= $adj15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc1']) != 0) echo floatval($rsp15['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc2']) != 0) echo floatval($rsp15['conc2']) ?><span style="color: red;"><?= $adj15; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc3']) != 0) echo floatval($rsp15['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc4']) != 0) echo floatval($rsp15['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc5']) != 0) echo floatval($rsp15['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc6']) != 0) echo floatval($rsp15['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc7']) != 0) echo floatval($rsp15['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc8']) != 0) echo floatval($rsp15['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc1']) != 0) echo floatval($rsp15['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc2']) != 0) echo floatval($rsp15['conc2']) ?><span style="color: red;"><?= $adj1_15; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc3']) != 0) echo floatval($rsp15['conc3']) ?><span style="color: red;"><?= $adj2_15; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc4']) != 0) echo floatval($rsp15['conc4']) ?><span style="color: red;"><?= $adj3_15; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc5']) != 0) echo floatval($rsp15['conc5']) ?><span style="color: red;"><?= $adj4_15; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc6']) != 0) echo floatval($rsp15['conc6']) ?><span style="color: red;"><?= $adj5_15; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc7']) != 0) echo floatval($rsp15['conc7']) ?><span style="color: red;"><?= $adj6_15; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp15['conc8']) != 0) echo floatval($rsp15['conc8']) ?><span style="color: red;"><?= $adj7_15; ?></span></td>
         </tr>
         <!-- BARIS 16 -->
         <?php
@@ -1252,16 +1342,22 @@
                 ?>
             </td>
             <?php 
-                $adj16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama16);
+                $adj1_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama16);
+                $adj2_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama16);
+                $adj3_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama16);
+                $adj4_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama16);
+                $adj5_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama16);
+                $adj6_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama16);
+                $adj7_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama16);
             ?>
-            <td style="font-weight: bold; <?= $adj16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc1']) != 0) echo floatval($rsp16['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc2']) != 0) echo floatval($rsp16['conc2']) ?><span style="color: red;"><?= $adj16; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc3']) != 0) echo floatval($rsp16['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc4']) != 0) echo floatval($rsp16['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc5']) != 0) echo floatval($rsp16['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc6']) != 0) echo floatval($rsp16['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc7']) != 0) echo floatval($rsp16['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc8']) != 0) echo floatval($rsp16['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc1']) != 0) echo floatval($rsp16['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc2']) != 0) echo floatval($rsp16['conc2']) ?><span style="color: red;"><?= $adj1_16; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc3']) != 0) echo floatval($rsp16['conc3']) ?><span style="color: red;"><?= $adj2_16; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc4']) != 0) echo floatval($rsp16['conc4']) ?><span style="color: red;"><?= $adj3_16; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc5']) != 0) echo floatval($rsp16['conc5']) ?><span style="color: red;"><?= $adj4_16; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc6']) != 0) echo floatval($rsp16['conc6']) ?><span style="color: red;"><?= $adj5_16; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc7']) != 0) echo floatval($rsp16['conc7']) ?><span style="color: red;"><?= $adj6_16; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp16['conc8']) != 0) echo floatval($rsp16['conc8']) ?><span style="color: red;"><?= $adj7_16; ?></span></td>
         </tr>
         <!-- BARIS 17 -->
         <?php
@@ -1304,16 +1400,22 @@
                 ?>
             </td>
             <?php 
-                $adj17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama17);
+                $adj1_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama17);
+                $adj2_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama17);
+                $adj3_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama17);
+                $adj4_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama17);
+                $adj5_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama17);
+                $adj6_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama17);
+                $adj7_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama17);
             ?>
-            <td style="font-weight: bold; <?= $adj17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc1']) != 0) echo floatval($rsp17['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc2']) != 0) echo floatval($rsp17['conc2']) ?><span style="color: red;"><?= $adj17; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc3']) != 0) echo floatval($rsp17['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc4']) != 0) echo floatval($rsp17['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc5']) != 0) echo floatval($rsp17['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc6']) != 0) echo floatval($rsp17['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc7']) != 0) echo floatval($rsp17['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc8']) != 0) echo floatval($rsp17['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc1']) != 0) echo floatval($rsp17['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc2']) != 0) echo floatval($rsp17['conc2']) ?><span style="color: red;"><?= $adj1_17; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc3']) != 0) echo floatval($rsp17['conc3']) ?><span style="color: red;"><?= $adj2_17; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc4']) != 0) echo floatval($rsp17['conc4']) ?><span style="color: red;"><?= $adj3_17; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc5']) != 0) echo floatval($rsp17['conc5']) ?><span style="color: red;"><?= $adj4_17; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc6']) != 0) echo floatval($rsp17['conc6']) ?><span style="color: red;"><?= $adj5_17; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc7']) != 0) echo floatval($rsp17['conc7']) ?><span style="color: red;"><?= $adj6_17; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp17['conc8']) != 0) echo floatval($rsp17['conc8']) ?><span style="color: red;"><?= $adj7_17; ?></span></td>
         </tr>
         <!-- BARIS 18 -->
         <?php
@@ -1356,16 +1458,22 @@
                 ?>
             </td>
             <?php 
-                $adj18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama18);
+                $adj1_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama18);
+                $adj2_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama18);
+                $adj3_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama18);
+                $adj4_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama18);
+                $adj5_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama18);
+                $adj6_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama18);
+                $adj7_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama18);
             ?>
-            <td style="font-weight: bold; <?= $adj18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc1']) != 0) echo floatval($rsp18['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc2']) != 0) echo floatval($rsp18['conc2']) ?><span style="color: red;"><?= $adj18; ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc3']) != 0) echo floatval($rsp18['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc4']) != 0) echo floatval($rsp18['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc5']) != 0) echo floatval($rsp18['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc6']) != 0) echo floatval($rsp18['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc7']) != 0) echo floatval($rsp18['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc8']) != 0) echo floatval($rsp18['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc1']) != 0) echo floatval($rsp18['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc2']) != 0) echo floatval($rsp18['conc2']) ?><span style="color: red;"><?= $adj1_18; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc3']) != 0) echo floatval($rsp18['conc3']) ?><span style="color: red;"><?= $adj2_18; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc4']) != 0) echo floatval($rsp18['conc4']) ?><span style="color: red;"><?= $adj3_18; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc5']) != 0) echo floatval($rsp18['conc5']) ?><span style="color: red;"><?= $adj4_18; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc6']) != 0) echo floatval($rsp18['conc6']) ?><span style="color: red;"><?= $adj5_18; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc7']) != 0) echo floatval($rsp18['conc7']) ?><span style="color: red;"><?= $adj6_18; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp18['conc8']) != 0) echo floatval($rsp18['conc8']) ?><span style="color: red;"><?= $adj7_18; ?></span></td>
         </tr>
         <!-- BARIS 19 -->
         <?php
@@ -1408,16 +1516,22 @@
                 ?>
             </td>
             <?php 
-                $adj19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama19);
+                $adj1_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama19);
+                $adj2_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama19);
+                $adj3_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama19);
+                $adj4_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama19);
+                $adj5_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama19);
+                $adj6_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama19);
+                $adj7_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama19);
             ?>
-            <td style="font-weight: bold; <?= $adj19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc1']) != 0) echo floatval($rsp19['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc2']) != 0) echo floatval($rsp19['conc2']) ?><span style="color: red;"><?= $adj19; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc3']) != 0) echo floatval($rsp19['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc4']) != 0) echo floatval($rsp19['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc5']) != 0) echo floatval($rsp19['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc6']) != 0) echo floatval($rsp19['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc7']) != 0) echo floatval($rsp19['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc8']) != 0) echo floatval($rsp19['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc1']) != 0) echo floatval($rsp19['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc2']) != 0) echo floatval($rsp19['conc2']) ?><span style="color: red;"><?= $adj1_19; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc3']) != 0) echo floatval($rsp19['conc3']) ?><span style="color: red;"><?= $adj2_19; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc4']) != 0) echo floatval($rsp19['conc4']) ?><span style="color: red;"><?= $adj3_19; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc5']) != 0) echo floatval($rsp19['conc5']) ?><span style="color: red;"><?= $adj4_19; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc6']) != 0) echo floatval($rsp19['conc6']) ?><span style="color: red;"><?= $adj5_19; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc7']) != 0) echo floatval($rsp19['conc7']) ?><span style="color: red;"><?= $adj6_19; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp19['conc8']) != 0) echo floatval($rsp19['conc8']) ?><span style="color: red;"><?= $adj7_19; ?></span></td>
         </tr>
         <!-- BARIS 20 -->
         <?php
@@ -1460,16 +1574,22 @@
                 ?>
             </td>
             <?php 
-                $adj20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama20);
+                $adj1_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama20);
+                $adj2_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama20);
+                $adj3_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama20);
+                $adj4_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama20);
+                $adj5_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama20);
+                $adj6_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama20);
+                $adj7_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama20);
             ?>
-            <td style="font-weight: bold; <?= $adj20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc1']) != 0) echo floatval($rsp20['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc2']) != 0) echo floatval($rsp20['conc2']) ?><span style="color: red;"><?= $adj20; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc3']) != 0) echo floatval($rsp20['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc4']) != 0) echo floatval($rsp20['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc5']) != 0) echo floatval($rsp20['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc6']) != 0) echo floatval($rsp20['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc7']) != 0) echo floatval($rsp20['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc8']) != 0) echo floatval($rsp20['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc1']) != 0) echo floatval($rsp20['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc2']) != 0) echo floatval($rsp20['conc2']) ?><span style="color: red;"><?= $adj1_20; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc3']) != 0) echo floatval($rsp20['conc3']) ?><span style="color: red;"><?= $adj2_20; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc4']) != 0) echo floatval($rsp20['conc4']) ?><span style="color: red;"><?= $adj3_20; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc5']) != 0) echo floatval($rsp20['conc5']) ?><span style="color: red;"><?= $adj4_20; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc6']) != 0) echo floatval($rsp20['conc6']) ?><span style="color: red;"><?= $adj5_20; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc7']) != 0) echo floatval($rsp20['conc7']) ?><span style="color: red;"><?= $adj6_20; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp20['conc8']) != 0) echo floatval($rsp20['conc8']) ?><span style="color: red;"><?= $adj7_20; ?></span></td>
         </tr>
         <!-- BARIS 21 -->
         <?php
@@ -1512,16 +1632,22 @@
                 ?>
             </td>
             <?php 
-                $adj21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama21);
+                $adj1_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama21);
+                $adj2_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama21);
+                $adj3_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama21);
+                $adj4_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama21);
+                $adj5_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama21);
+                $adj6_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama21);
+                $adj7_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama21);
             ?>
-            <td style="font-weight: bold; <?= $adj21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc1']) != 0) echo floatval($rsp21['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc2']) != 0) echo floatval($rsp21['conc2']) ?><span style="color: red;"><?= $adj21; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc3']) != 0) echo floatval($rsp21['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc4']) != 0) echo floatval($rsp21['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc5']) != 0) echo floatval($rsp21['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc6']) != 0) echo floatval($rsp21['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc7']) != 0) echo floatval($rsp21['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc8']) != 0) echo floatval($rsp21['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc1']) != 0) echo floatval($rsp21['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc2']) != 0) echo floatval($rsp21['conc2']) ?><span style="color: red;"><?= $adj1_21; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc3']) != 0) echo floatval($rsp21['conc3']) ?><span style="color: red;"><?= $adj2_21; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc4']) != 0) echo floatval($rsp21['conc4']) ?><span style="color: red;"><?= $adj3_21; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc5']) != 0) echo floatval($rsp21['conc5']) ?><span style="color: red;"><?= $adj4_21; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc6']) != 0) echo floatval($rsp21['conc6']) ?><span style="color: red;"><?= $adj5_21; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc7']) != 0) echo floatval($rsp21['conc7']) ?><span style="color: red;"><?= $adj6_21; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp21['conc8']) != 0) echo floatval($rsp21['conc8']) ?><span style="color: red;"><?= $adj7_21; ?></span></td>
             <td width="20%" rowspan="2" align="center"><strong>BEFORE SOAPING</strong></td>
             <td width="21%" rowspan="2" align="center"><strong>T-SIDE</strong></td>
         </tr>
@@ -1566,16 +1692,22 @@
                 ?>
             </td>
             <?php 
-                $adj22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama22);
+                $adj1_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama22);
+                $adj2_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama22);
+                $adj3_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama22);
+                $adj4_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama22);
+                $adj5_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama22);
+                $adj6_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama22);
+                $adj7_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama22);
             ?>
-            <td style="font-weight: bold; <?= $adj22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc1']) != 0) echo floatval($rsp22['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc2']) != 0) echo floatval($rsp22['conc2']) ?><span style="color: red;"><?= $adj22; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc3']) != 0) echo floatval($rsp22['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc4']) != 0) echo floatval($rsp22['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc5']) != 0) echo floatval($rsp22['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc6']) != 0) echo floatval($rsp22['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc7']) != 0) echo floatval($rsp22['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc8']) != 0) echo floatval($rsp22['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc1']) != 0) echo floatval($rsp22['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc2']) != 0) echo floatval($rsp22['conc2']) ?><span style="color: red;"><?= $adj1_22; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc3']) != 0) echo floatval($rsp22['conc3']) ?><span style="color: red;"><?= $adj2_22; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc4']) != 0) echo floatval($rsp22['conc4']) ?><span style="color: red;"><?= $adj3_22; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc5']) != 0) echo floatval($rsp22['conc5']) ?><span style="color: red;"><?= $adj4_22; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc6']) != 0) echo floatval($rsp22['conc6']) ?><span style="color: red;"><?= $adj5_22; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc7']) != 0) echo floatval($rsp22['conc7']) ?><span style="color: red;"><?= $adj6_22; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp22['conc8']) != 0) echo floatval($rsp22['conc8']) ?><span style="color: red;"><?= $adj7_22; ?></span></td>
         </tr>
         <!-- BARIS 23 -->
         <?php
@@ -1618,16 +1750,22 @@
                 ?>
             </td>
             <?php 
-                $adj23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama23);
+                $adj1_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama23);
+                $adj2_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama23);
+                $adj3_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama23);
+                $adj4_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama23);
+                $adj5_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama23);
+                $adj6_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama23);
+                $adj7_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama23);
             ?>
-            <td style="font-weight: bold; <?= $adj23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc1']) != 0) echo floatval($rsp23['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc2']) != 0) echo floatval($rsp23['conc2']) ?><span style="color: red;"><?= $adj23; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc3']) != 0) echo floatval($rsp23['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc4']) != 0) echo floatval($rsp23['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc5']) != 0) echo floatval($rsp23['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc6']) != 0) echo floatval($rsp23['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc7']) != 0) echo floatval($rsp23['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc1']) != 0) echo floatval($rsp23['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc2']) != 0) echo floatval($rsp23['conc2']) ?><span style="color: red;"><?= $adj1_23; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc3']) != 0) echo floatval($rsp23['conc3']) ?><span style="color: red;"><?= $adj2_23; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc4']) != 0) echo floatval($rsp23['conc4']) ?><span style="color: red;"><?= $adj3_23; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc5']) != 0) echo floatval($rsp23['conc5']) ?><span style="color: red;"><?= $adj4_23; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc6']) != 0) echo floatval($rsp23['conc6']) ?><span style="color: red;"><?= $adj5_23; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc7']) != 0) echo floatval($rsp23['conc7']) ?><span style="color: red;"><?= $adj6_23; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?><span style="color: red;"><?= $adj7_23; ?></span></td>
             <td rowspan="7">&nbsp;</td>
             <td rowspan="7">&nbsp;</td>
         </tr>
@@ -1672,16 +1810,22 @@
                 ?>
             </td>
             <?php 
-                $adj24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama24);
+                $adj1_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama24);
+                $adj2_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama24);
+                $adj3_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama24);
+                $adj4_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama24);
+                $adj5_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama24);
+                $adj6_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama24);
+                $adj7_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama24);
             ?>
-            <td style="font-weight: bold; <?= $adj24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc1']) != 0) echo floatval($rsp24['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc2']) != 0) echo floatval($rsp24['conc2']) ?><span style="color: red;"><?= $adj24; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc3']) != 0) echo floatval($rsp24['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc4']) != 0) echo floatval($rsp24['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc5']) != 0) echo floatval($rsp24['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc6']) != 0) echo floatval($rsp24['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc7']) != 0) echo floatval($rsp24['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc8']) != 0) echo floatval($rsp24['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc1']) != 0) echo floatval($rsp24['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc2']) != 0) echo floatval($rsp24['conc2']) ?><span style="color: red;"><?= $adj1_24; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc3']) != 0) echo floatval($rsp24['conc3']) ?><span style="color: red;"><?= $adj2_24; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc4']) != 0) echo floatval($rsp24['conc4']) ?><span style="color: red;"><?= $adj3_24; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc5']) != 0) echo floatval($rsp24['conc5']) ?><span style="color: red;"><?= $adj4_24; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc6']) != 0) echo floatval($rsp24['conc6']) ?><span style="color: red;"><?= $adj5_24; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc7']) != 0) echo floatval($rsp24['conc7']) ?><span style="color: red;"><?= $adj6_24; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp24['conc8']) != 0) echo floatval($rsp24['conc8']) ?><span style="color: red;"><?= $adj7_24; ?></span></td>
         </tr>
         <!-- BARIS 25 -->
         <?php
@@ -1724,16 +1868,22 @@
                 ?>
             </td>
             <?php 
-                $adj25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama25);
+                $adj1_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama25);
+                $adj2_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama25);
+                $adj3_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama25);
+                $adj4_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama25);
+                $adj5_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama25);
+                $adj6_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama25);
+                $adj7_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama25);
             ?>
-            <td style="font-weight: bold; <?= $adj25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc1']) != 0) echo floatval($rsp25['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc2']) != 0) echo floatval($rsp25['conc2']) ?><span style="color: red;"><?= $adj25; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc3']) != 0) echo floatval($rsp25['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc4']) != 0) echo floatval($rsp25['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc5']) != 0) echo floatval($rsp25['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc6']) != 0) echo floatval($rsp25['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc7']) != 0) echo floatval($rsp25['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc8']) != 0) echo floatval($rsp25['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc1']) != 0) echo floatval($rsp25['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc2']) != 0) echo floatval($rsp25['conc2']) ?><span style="color: red;"><?= $adj1_25; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc3']) != 0) echo floatval($rsp25['conc3']) ?><span style="color: red;"><?= $adj2_25; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc4']) != 0) echo floatval($rsp25['conc4']) ?><span style="color: red;"><?= $adj3_25; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc5']) != 0) echo floatval($rsp25['conc5']) ?><span style="color: red;"><?= $adj4_25; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc6']) != 0) echo floatval($rsp25['conc6']) ?><span style="color: red;"><?= $adj5_25; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc7']) != 0) echo floatval($rsp25['conc7']) ?><span style="color: red;"><?= $adj6_25; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp25['conc8']) != 0) echo floatval($rsp25['conc8']) ?><span style="color: red;"><?= $adj7_25; ?></span></td>
         </tr>
         <!-- BARIS 26 -->
         <?php
@@ -1776,16 +1926,22 @@
                 ?>
             </td>
             <?php 
-                $adj26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama26);
+                $adj1_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama26);
+                $adj2_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama26);
+                $adj3_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama26);
+                $adj4_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama26);
+                $adj5_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama26);
+                $adj6_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama26);
+                $adj7_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama26);
             ?>
-            <td style="font-weight: bold; <?= $adj26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc1']) != 0) echo floatval($rsp26['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc2']) != 0) echo floatval($rsp26['conc2']) ?><span style="color: red;"><?= $adj26; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc3']) != 0) echo floatval($rsp26['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc4']) != 0) echo floatval($rsp26['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc5']) != 0) echo floatval($rsp26['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc6']) != 0) echo floatval($rsp26['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc7']) != 0) echo floatval($rsp26['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc8']) != 0) echo floatval($rsp26['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc1']) != 0) echo floatval($rsp26['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc2']) != 0) echo floatval($rsp26['conc2']) ?><span style="color: red;"><?= $adj1_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc3']) != 0) echo floatval($rsp26['conc3']) ?><span style="color: red;"><?= $adj2_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc4']) != 0) echo floatval($rsp26['conc4']) ?><span style="color: red;"><?= $adj3_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc5']) != 0) echo floatval($rsp26['conc5']) ?><span style="color: red;"><?= $adj4_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc6']) != 0) echo floatval($rsp26['conc6']) ?><span style="color: red;"><?= $adj5_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp26['conc7']) != 0) echo floatval($rsp26['conc7']) ?><span style="color: red;"><?= $adj6_26; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp26['conc8']) != 0) echo floatval($rsp26['conc8']) ?><span style="color: red;"><?= $adj7_26; ?></span></td>
         </tr>
         <!-- BARIS 27 -->
         <?php
@@ -1828,16 +1984,22 @@
                 ?>
             </td>
             <?php 
-                $adj27 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama27);
+                $adj1_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama27);
+                $adj2_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama27);
+                $adj3_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama27);
+                $adj4_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama27);
+                $adj5_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama27);
+                $adj6_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama27);
+                $adj7_26 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama27);
             ?>
-            <td style="font-weight: bold; <?= $adj27 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc1']) != 0) echo floatval($rsp27['conc1']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc2']) != 0) echo floatval($rsp27['conc2']) ?><span style="color: red;"><?= $adj27; ?></span></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc3']) != 0) echo floatval($rsp27['conc3']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc4']) != 0) echo floatval($rsp27['conc4']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc5']) != 0) echo floatval($rsp27['conc5']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc6']) != 0) echo floatval($rsp27['conc6']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc7']) != 0) echo floatval($rsp27['conc7']) ?></td>
-            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc8']) != 0) echo floatval($rsp27['conc8']) ?></td>
+            <td style="font-weight: bold; <?= $adj1_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc1']) != 0) echo floatval($rsp27['conc1']) ?></td>
+            <td style="font-weight: bold; <?= $adj2_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc2']) != 0) echo floatval($rsp27['conc2']) ?><span style="color: red;"><?= $adj1_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj3_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc3']) != 0) echo floatval($rsp27['conc3']) ?><span style="color: red;"><?= $adj2_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj4_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc4']) != 0) echo floatval($rsp27['conc4']) ?><span style="color: red;"><?= $adj3_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj5_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc5']) != 0) echo floatval($rsp27['conc5']) ?><span style="color: red;"><?= $adj4_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj6_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc6']) != 0) echo floatval($rsp27['conc6']) ?><span style="color: red;"><?= $adj5_26; ?></span></td>
+            <td style="font-weight: bold; <?= $adj7_26 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp27['conc7']) != 0) echo floatval($rsp27['conc7']) ?><span style="color: red;"><?= $adj6_26; ?></span></td>
+            <td style="font-weight: bold;"><?php if (floatval($rsp27['conc8']) != 0) echo floatval($rsp27['conc8']) ?><span style="color: red;"><?= $adj7_26; ?></span></td>
         </tr>
 
         <tr style="height: 0.4in">
