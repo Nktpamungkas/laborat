@@ -16,6 +16,9 @@ $warehouse = $_POST['warehouse'];
 $query = "SELECT    s.TRANSACTIONDATE,
 s.TRANSACTIONNUMBER,
                     s3.TEMPLATECODE,
+                    s.LOTCODE,
+                    s.ORDERCODE,
+                    s.ORDERLINE,
                     CASE 
                     WHEN s.LOGICALWAREHOUSECODE = 'M101' THEN s3.TEMPLATECODE
                     ELSE s.TEMPLATECODE
@@ -39,10 +42,13 @@ s.TRANSACTIONNUMBER,
                         ELSE s.USERPRIMARYUOMCODE
                     END AS SATUAN_TRANSFER,
                     CASE 
-	                    WHEN  s.TEMPLATECODE = '201' THEN s.ORDERCODE 
-                    	WHEN  s.TEMPLATECODE = '203' THEN s.ORDERCODE 
-                    	WHEN  s.TEMPLATECODE = '303' THEN 'Transfer ke ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
-                    END AS KETERANGAN                   
+	                    WHEN  s.TEMPLATECODE = '201' THEN s2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '203' AND i2.DESTINATIONWAREHOUSECODE = 'M512' THEN 'Transfer ke Finishing'
+                    	WHEN  s.TEMPLATECODE = '203' AND i2.DESTINATIONWAREHOUSECODE = 'P101' THEN 'Transfer ke YND'
+                    	WHEN  s.TEMPLATECODE = '303' AND s3.LOGICALWAREHOUSECODE = 'M512' THEN 'Transfer ke Finishing'
+                        WHEN  s.TEMPLATECODE = '303' AND s3.LOGICALWAREHOUSECODE = 'P101' THEN 'Transfer ke YND'
+                        WHEN  s3.TEMPLATECODE = '304' THEN 'Transfer ke ' || s3.LOGICALWAREHOUSECODE
+                    END AS KETERANGAN
                 FROM
                     STOCKTRANSACTION s
                     LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
@@ -57,6 +63,33 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
+                LEFT JOIN ( SELECT 
+                    i.INTDOCUMENTPROVISIONALCODE,
+                    i.INTDOCPROVISIONALCOUNTERCODE,
+                    i.ORDERTYPE,
+                    i.ORDERLINE ,
+                    i.ITEMTYPEAFICODE,
+                    i.SUBCODE01,
+                    i.SUBCODE02,
+                    i.SUBCODE03,
+                    i.SUBCODE04,
+                    i.SUBCODE05,
+                    i.SUBCODE06,
+                    i.SUBCODE07,
+                    i.SUBCODE08,
+                    i.SUBCODE09,
+                    i.SUBCODE10,
+                    i.ITEMDESCRIPTION,
+                    i.DESTINATIONWAREHOUSECODE,
+                    i.RECEIVINGDATE,
+                    i.WAREHOUSECODE AS WAREHOUSE_ASAL
+                    FROM 
+                    INTERNALDOCUMENTLINE i 
+                    WHERE i.ITEMTYPEAFICODE ='DYC'
+                ) i2 ON i2.INTDOCUMENTPROVISIONALCODE = s.ORDERCODE AND i2.ORDERLINE = s.ORDERLINE 
+                AND i2.SUBCODE01 = s.DECOSUBCODE01
+                AND i2.SUBCODE02 = s.DECOSUBCODE02
+                AND i2.SUBCODE03 = s.DECOSUBCODE03
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
                     AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
@@ -91,6 +124,7 @@ echo "<thead>
                     <th>Tanggal</th>
                     <th>QTY (gr)</th>
                     <th>Template</th>
+                    <th>Lotcode</th>
                     <th>Keterangan</th>                
                 </tr>
             </thead>";
@@ -98,9 +132,10 @@ echo "<tbody>";
 foreach ($rows2 as $row) {
     echo "<tr>";
     echo "<td>" . $no++ . "</td>";
-    echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
+    echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";    
     echo "<td>" . number_format((float) ($row['QTY_TRANSFER'] ?? 0), 2) . "</td>";
     echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
+    echo "<td>" . htmlspecialchars($row['LOTCODE'] ?? '') . "</td>";
     echo "<td>" . htmlspecialchars($row['KETERANGAN'] ?? '') . "</td>";
     echo "</tr>";
 }

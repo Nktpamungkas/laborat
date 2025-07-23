@@ -57,7 +57,9 @@ date_default_timezone_set('Asia/Jakarta');
             <th>Transfer ke Gd. Lain</th>
             <th>Stock Balance</th>
             <th>Stock Minimum</th>
+            <?php if ($warehouse == 'M101'): ?>
             <th>Buka PO</th>
+            <?php endif; ?>
             <th>Pemakaian (belum timbang)</th>
             <th>Stock Balance (future)</th>
             <?php if ($warehouse == 'M101'): ?>
@@ -81,7 +83,9 @@ date_default_timezone_set('Asia/Jakarta');
             echo "<td class='number'>{$r['stock_transfer']}</td>";
             echo "<td class='number'>{$r['stock_balance']}</td>";
             echo "<td class='number'>{$r['stock_minimum']}</td>";
+             if ($warehouse == 'M101') {
             echo "<td class='number'>{$r['buka_po']}</td>";
+            }
             echo "<td class='number'>{$r['stock_pakai_blum_timbang']}</td>";
             echo "<td class='number'>{$r['stock_balance_future']}</td>";
             if ($warehouse == 'M101') {
