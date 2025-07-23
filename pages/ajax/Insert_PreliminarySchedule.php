@@ -28,7 +28,7 @@ $dataReady = mysqli_fetch_assoc($checkEnd);
 if ($dataReady['total'] > 0) {
     echo json_encode([
         'success' => false,
-        'message' => 'Maaf tidak bisa input no. resep inj!'
+        'message' => 'Maaf tidak bisa input no. resep ini!'
     ]);
     exit;
 }
