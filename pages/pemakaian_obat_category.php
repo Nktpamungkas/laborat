@@ -319,7 +319,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                            AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                         GROUP BY
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01,
@@ -360,6 +361,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                        AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                     GROUP BY
                                         s.ITEMTYPECODE,
                                         s.DECOSUBCODE01,  
@@ -397,6 +399,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND s.TEMPLATECODE  IN ('120')
                                             AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                            AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                         GROUP BY
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01, 
@@ -408,29 +411,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $row_qty_pakai = db2_fetch_assoc($qty_pakai);
 
                                     $Balance_stock = db2_exec($conn1, "SELECT 
-                                            b.ITEMTYPECODE,
-                                            b.DECOSUBCODE01,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000000
-                                                ELSE sum(b.BASEPRIMARYQUANTITYUNIT)
-                                            END  AS STOCK_BALANCE,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                ELSE b.BASEPRIMARYUNITCODE
-                                            END  AS BASEPRIMARYUNITCODE
-                                            FROM 
-                                            BALANCE b 
-                                            WHERE 
-                                            ITEMTYPECODE ='DYC'
-                                            AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND DETAILTYPE = 1
-                                            AND DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                            GROUP BY 
-                                            ITEMTYPECODE,
-                                            b.DECOSUBCODE01,
-                                            b.BASEPRIMARYUNITCODE");
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        SUM(STOCK_BALANCE) AS STOCK_BALANCE,
+                                        BASEPRIMARYUNITCODE
+                                        FROM
+                                        (SELECT 	TRIM(DECOSUBCODE01) || '-' || TRIM(DECOSUBCODE02) || '-' || TRIM(DECOSUBCODE03) AS KODE_OBAT,
+                                                    b.ITEMTYPECODE,
+                                                    b.DECOSUBCODE01,
+                                                    CASE 
+                                                        WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN b.BASEPRIMARYQUANTITYUNIT*1000
+                                                        WHEN b.BASEPRIMARYUNITCODE = 't' THEN b.BASEPRIMARYQUANTITYUNIT*1000000
+                                                        ELSE b.BASEPRIMARYQUANTITYUNIT
+                                                    END  AS STOCK_BALANCE,
+                                                    CASE 
+                                                        WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                                        WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                                        ELSE b.BASEPRIMARYUNITCODE
+                                                    END  AS BASEPRIMARYUNITCODE
+                                                    FROM 
+                                                    BALANCE b 
+                                                    WHERE 
+                                                    ITEMTYPECODE ='DYC'
+                                                    AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                                    AND DETAILTYPE = 1)
+                                                    WHERE 
+                                                    DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                    AND NOT KODE_OBAT ='E-1-000' 
+                                                    GROUP BY
+                                                    ITEMTYPECODE,
+                                                    DECOSUBCODE01,
+                                                    BASEPRIMARYUNITCODE ");
                                     $row_balance = db2_fetch_assoc($Balance_stock);
 
                                     $stock_minimum = db2_exec($conn1, " SELECT 
@@ -479,7 +490,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE  
                                             i.ITEMTYPECODE ='DYC'
                                             AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND i.SUBCODE01 = '$row[DECOSUBCODE01]' ");
+                                            AND i.SUBCODE01 = '$row[DECOSUBCODE01]'
+                                            AND NOT TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) ='E-1-000'  ");
                                     $row_stock_minimum = db2_fetch_assoc($stock_minimum);
 
                                     $buka_po = db2_exec($conn1, "SELECT 
@@ -502,18 +514,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
                                             AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                             and DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                            AND NOT TRIM(DECOSUBCODE01) || '-' || TRIM(DECOSUBCODE02) || '-' || TRIM(DECOSUBCODE03) ='E-1-000' 
                                             GROUP BY 
                                             LOGICALWAREHOUSECODE,
                                             COUNTERCODE,
                                             DECOSUBCODE01,
                                             BASEPRIMARYUNITCODE");
-                                    $row_buka_po = db2_fetch_assoc($buka_po);                                                                   
+                                    $row_buka_po = db2_fetch_assoc($buka_po);
 
-                                    $q_qty_awal = mysqli_query($con, "SELECT * 
-                                    FROM stock_awal_obat_gdkimia_1
-                                    WHERE SUBCODE01 = '$row[DECOSUBCODE01]'
-                                    AND logicalwarehouse = '$_POST[warehouse]'
-                                    ORDER BY SUBCODE01 ASC");
+                                    $q_qty_awal = mysqli_query($con, "SELECT
+                                                                SUBCODE01,
+                                                                logicalwarehouse,
+                                                                SUM(qty_awal) AS qty_awal
+                                                                    FROM
+                                                                    (SELECT * 
+                                                                FROM stock_awal_obat_gdkimia_1
+                                                                WHERE logicalwarehouse = '$_POST[warehouse]'                                                             
+                                                                and not kode_obat = 'E-1-000'                                                              
+                                                                ) as T
+                                                                WHERE 
+                                                                SUBCODE01 = '$row[DECOSUBCODE01]'
+                                                                group by 
+                                                                SUBCODE01,
+                                                                logicalwarehouse
+                                                                ORDER BY SUBCODE01 ASC");
+
 
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);                                
 
