@@ -23,9 +23,9 @@ if ($dataReady['total'] > 0) {
 }
 
 $checkEnd = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'end'");
-$dataReady = mysqli_fetch_assoc($checkEnd);
+$dataEnd = mysqli_fetch_assoc($checkEnd);
 
-if ($dataReady['total'] > 0) {
+if ($dataEnd['total'] > 0) {
     echo json_encode([
         'success' => false,
         'message' => 'Maaf tidak bisa input no. resep ini!'
