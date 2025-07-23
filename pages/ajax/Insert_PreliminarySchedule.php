@@ -22,6 +22,17 @@ if ($dataReady['total'] > 0) {
     exit;
 }
 
+$checkEnd = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'end'");
+$dataReady = mysqli_fetch_assoc($checkEnd);
+
+if ($dataReady['total'] > 0) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Maaf tidak bisa input no. resep inj!'
+    ]);
+    exit;
+}
+
 $success = false;
 $errorMessages = [];
 $insertedCount = 0; // Menambahkan penghitung
