@@ -91,7 +91,8 @@ $query = "SELECT
                 and s.DECOSUBCODE01 = '$code' 
             ORDER BY
                 s.PRODUCTIONORDERCODE ASC
-                )                
+                )  
+                WHERE KODE_OBAT <> 'E-1-000'              
                 GROUP BY 
                 TRANSACTIONDATE,
                 DECOSUBCODE01,               

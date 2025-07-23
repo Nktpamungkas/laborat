@@ -113,7 +113,7 @@ $query = mysqli_query($con, "
                 $byUser = $row['username'] ?? '';
                 break;
             case 'scheduled':
-                $byUser = $row['username'] ?? '';
+                $byUser = $row['user_scheduled'] ?? '';
                 break;
             case 'in_progress_dispensing':
                 $byUser = $row['user_dispensing'] ?? '';
