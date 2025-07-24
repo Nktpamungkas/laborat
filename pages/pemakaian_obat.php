@@ -502,10 +502,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                     $Balance_stock = db2_exec($conn1, "SELECT 
                                             *,
-                                            CASE 
-                                            	WHEN STOCK_BALANCE < SAFETYSTOCK_CHECK THEN 'SEGERA ORDER'
-                                            	WHEN STOCK_BALANCE = SAFETYSTOCK_CHECK THEN 'HITUNG KEBUTUHAN ORDER'
-                                            	WHEN STOCK_BALANCE > SAFETYSTOCK_CHECK THEN ''
+                                           CASE 
+                                            	WHEN STOCK_BALANCE < SAFETYSTOCK THEN 'SEGERA ORDER'
+    											WHEN STOCK_BALANCE >= SAFETYSTOCK AND STOCK_BALANCE < SAFETYSTOCK_CHECK THEN 'HITUNG KEBUTUHAN ORDER'
+                                            	WHEN STOCK_BALANCE >= SAFETYSTOCK_CHECK THEN ''
                                             END AS STATUS_                                           
                                             FROM
                                             (SELECT 
@@ -707,10 +707,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             BASEPRIMARYUNITCODE");
                                     $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
 
-                                    $q_qty_awal = mysqli_query($con, "SELECT * 
+                                    $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
+									logicalwarehouse,
+									SUBCODE01,
+									SUBCODE02,
+									SUBCODE03,
+									SUM(qty_awal) as qty_awal 
                                     FROM stock_awal_obat_gdkimia_1
                                     WHERE kode_obat = '$row[KODE_OBAT]'
                                     AND logicalwarehouse = '$_POST[warehouse]'
+                                    group by 
+                                    kode_obat,
+									logicalwarehouse,
+									SUBCODE01,
+									SUBCODE02,
+									SUBCODE03  
                                     ORDER BY kode_obat ASC");
 
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);                                
