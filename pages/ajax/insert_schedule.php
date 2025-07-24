@@ -47,9 +47,8 @@ if ($qty > $maxAllowed) {
 
 if ($no_resep && $no_machine && $code && $id_group && $qty > 0) {
 
-    $stmtInsert = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, no_machine, code, id_group, status, username, user_scheduled, is_insertion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $is_insertion = 1;
-    $stmtInsert->bind_param("sssssssi", $no_resep, $no_machine, $code, $id_group, $status, $username, $username, $is_insertion);
+    $stmtInsert = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, no_machine, code, id_group, status, username, user_scheduled) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmtInsert->bind_param("sssssss", $no_resep, $no_machine, $code, $id_group, $status, $username, $username);
 
     $success = true;
     for ($i = 0; $i < $qty; $i++) {
