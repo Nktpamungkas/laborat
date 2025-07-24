@@ -21,9 +21,9 @@ $query = "SELECT
     KODE_OBAT,
     NAMA_OBAT,
     DESC_USERGENERIC,
-    SUM(CASE WHEN KET_STEPTYPE = 'Normal' THEN NORMAL_QTY ELSE 0 END) AS NORMAL_QTY,
-    SUM(CASE WHEN KET_STEPTYPE = 'Additional' THEN ADITIONAL_QTY ELSE 0 END) AS ADITIONAL_QTY,
-    SUM(CASE WHEN KET_STEPTYPE = 'Tambah Obat' THEN TAMBAH_OBAT_QTY ELSE 0 END) AS TAMBAH_OBAT_QTY
+    SUM(CASE WHEN KET_STEPTYPE = 'Normal' THEN USED_QTY ELSE 0 END) AS NORMAL_QTY,
+    SUM(CASE WHEN KET_STEPTYPE = 'Additional' THEN USED_QTY ELSE 0 END) AS ADITIONAL_QTY,
+    SUM(CASE WHEN KET_STEPTYPE = 'Tambah Obat' THEN USED_QTY ELSE 0 END) AS TAMBAH_OBAT_QTY
 FROM (
   SELECT 
                 TRANSACTIONDATE,
@@ -33,39 +33,27 @@ FROM (
                 KODE_OBAT,
                 LONGDESCRIPTION As NAMA_OBAT,
                 DESC_USERGENERIC,
-                sum(NORMAL_QTY) AS NORMAL_QTY,
-                sum(ADITIONAL_QTY) AS ADITIONAL_QTY,
-                sum(TAMBAH_OBAT_QTY) AS TAMBAH_OBAT_QTY,
+                sum(USED_QTY) AS USED_QTY,
                 TEMPLATECODE,
                 KETERANGAN,
-                KET_STEPTYPE
+                CASE 
+                	WHEN KETERANGAN = 'Tambah Obat' AND  KET_STEPTYPE IS NULL THEN 'Tambah Obat'
+                	WHEN KETERANGAN = 'Perbaikan' AND  KET_STEPTYPE IS NULL THEN 'Additional'
+                	WHEN KETERANGAN NOT IN ('Perbaikan','Tambah Obat') AND  KET_STEPTYPE IS NULL THEN 'Normal'
+                	ELSE KET_STEPTYPE
+                END AS KET_STEPTYPE   
             FROM 
             (SELECT
                 s.TRANSACTIONDATE,
                 s.DECOSUBCODE01,
                 s.DECOSUBCODE02,
                 s.DECOSUBCODE03,
-                CASE
-                    WHEN s.TEMPLATECODE = '120' THEN TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03)                   
-                END AS KODE_OBAT,
-                CASE 
-                    WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 0  THEN s.USERPRIMARYQUANTITY * 1000000
-                    WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 0 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN n2.STEPTYPE = 0 THEN s.USERPRIMARYQUANTITY
-                    ELSE  0
-                END AS NORMAL_QTY,
-                CASE 
-                    WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 1  THEN s.USERPRIMARYQUANTITY * 1000000
-                    WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 1 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN n2.STEPTYPE = 1 THEN s.USERPRIMARYQUANTITY 
-                    ELSE  0
-                END AS ADITIONAL_QTY,
-                CASE 
-                    WHEN  s.USERPRIMARYUOMCODE = 't' AND n2.STEPTYPE = 3  THEN s.USERPRIMARYQUANTITY * 1000000
-                    WHEN  s.USERPRIMARYUOMCODE = 'kg' AND n2.STEPTYPE = 3 THEN s.USERPRIMARYQUANTITY * 1000
-                    WHEN  n2.STEPTYPE = 3  THEN s.USERPRIMARYQUANTITY
-                    ELSE 0
-                END AS TAMBAH_OBAT_QTY,
+                TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
+                    CASE 
+                    WHEN  s.USERPRIMARYUOMCODE = 't'   THEN s.USERPRIMARYQUANTITY * 1000000
+                    WHEN  s.USERPRIMARYUOMCODE = 'kg'  THEN s.USERPRIMARYQUANTITY * 1000
+                    ELSE s.USERPRIMARYQUANTITY
+                END AS USED_QTY,   
                 CASE 
                     WHEN  s.USERPRIMARYUOMCODE = 't'THEN 'g  '
                     WHEN  s.USERPRIMARYUOMCODE = 'kg'THEN 'g  '
@@ -119,7 +107,7 @@ FROM (
             WHERE
                 s.ITEMTYPECODE = 'DYC'
                 AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
-                AND s.TEMPLATECODE IN ('120','201','203')
+                AND s.TEMPLATECODE IN ('120')
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE = '$warehouse'
                 and s.DECOSUBCODE01 = '$code1' AND
@@ -137,11 +125,7 @@ FROM (
                 KODE_OBAT,
                 TEMPLATECODE,
                 KETERANGAN,
-                KET_STEPTYPE
-            HAVING 
-            COALESCE(SUM(NORMAL_QTY), 0) > 0 
-            OR COALESCE(SUM(ADITIONAL_QTY), 0) > 0 
-            OR COALESCE(SUM(TAMBAH_OBAT_QTY), 0) > 0
+                KET_STEPTYPE     
 ) AS sub
 GROUP BY 
     TRANSACTIONDATE,

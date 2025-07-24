@@ -27,7 +27,8 @@ if ($warehouse == 'M101') {
 
 $query = "SELECT    s.TRANSACTIONDATE,
 s.TRANSACTIONNUMBER,
-                    s3.TEMPLATECODE,
+                    s3.TEMPLATECODE as tempalte,
+                     s.TEMPLATECODE,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
                     s.DECOSUBCODE02,
@@ -49,10 +50,10 @@ s.TRANSACTIONNUMBER,
                     CASE 
 	                    WHEN  s.TEMPLATECODE = 'OPN' THEN s2.LONGDESCRIPTION 
                     	WHEN  s.TEMPLATECODE = 'QCT' THEN s.ORDERCODE 
-                    	WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
-                    	WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
-                    	WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
-                    	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)||' - '||l2.LONGDESCRIPTION 
+                    	WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                    	WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                    	WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                    	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
                     END AS KETERANGAN                    
                 FROM
                     STOCKTRANSACTION s
