@@ -4,8 +4,15 @@ header('Content-Type: application/json');
 
 $maxLimit = 24;
 
+$statuses = [
+    'scheduled',
+    'in_progress_dispensing',
+    'in_progress_dyeing',
+];
+$statusList = "'" . implode("','", $statuses) . "'";
+
 $sql = "SELECT no_machine FROM tbl_preliminary_schedule 
-        WHERE no_machine IS NOT NULL AND no_machine != '' AND status = 'scheduled'";
+        WHERE no_machine IS NOT NULL AND no_machine != '' AND status IN ($statusList) AND is_old_data = 0 AND is_old_cycle = 0";
 
 $result = mysqli_query($con, $sql);
 

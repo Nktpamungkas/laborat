@@ -4,8 +4,8 @@ include '../../koneksi.php';
 
 $statuses = [
     'scheduled',
-    // 'in_progress_dispensing',
-    // 'in_progress_dyeing',
+    'in_progress_dispensing',
+    'in_progress_dyeing',
     // 'in_progress_darkroom',
     // 'ok'
 ];

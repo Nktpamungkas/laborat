@@ -6,6 +6,19 @@
     #productNameDisplay {
         margin: -15px 0 10px !important;
     }
+    .table>tbody>tr>td {
+        padding: 5px;
+    }
+    .freeze-column {
+        position: sticky;
+        left: -1px;
+        background-color: white;
+        z-index: 2;
+        border-right: 1px solid #ddd;
+    }
+    .table thead .freeze-column {
+        z-index: 3;
+    }
 </style>
 <div class="row">
     <div class="col-xs-12">
@@ -257,7 +270,7 @@
                 
                 let html = `
                     <div class="table-responsive" style="overflow-x: auto;">
-                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: auto; width: 100%;">
+                        <table class="table table-bordered table-striped align-middle text-center" style="table-layout: auto; width: 100%; margin-bottom: 10px;">
                             <colgroup>
                                 <col style="min-width: 50px;"> <!-- Kolom No -->
                 `;
@@ -273,7 +286,7 @@
                 html += `</colgroup><thead class="table-dark">`;
 
                 // Row 1: Judul Mesin
-                html += `<tr><th rowspan="2">${( Object.keys(data).length === 0) ? 'No Data' : 'No.'}</th>`;
+                html += `<tr><th rowspan="2" class="freeze-column">${( Object.keys(data).length === 0) ? 'No Data' : 'No.'}</th>`;
                 Object.keys(data).forEach(machine => {
                     html += `<th>Mesin ${machine}</th>`;
                 });
@@ -290,7 +303,7 @@
                 html += `</thead><tbody>`;
 
                 for (let i = 0; i < maxPerMachine; i++) {
-                    html += `<tr><td>${i + 1}</td>`;
+                    html += `<tr><td class="freeze-column">${i + 1}</td>`;
                     Object.values(data).forEach(rows => {
                         const cell = rows[i];
                         if (cell) {
