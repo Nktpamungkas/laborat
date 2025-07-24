@@ -39,7 +39,8 @@ $query = mysqli_query($con, "
         MAX(t.darkroom_end) AS darkroom_end,
         MAX(t.user_darkroom_end) AS user_darkroom_end,
         MAX(t.sekali_celup) AS sekali_celup,
-        MAX(t.username) AS username
+        MAX(t.username) AS username,
+        MAX(t.user_scheduled) AS user_scheduled
 
     FROM tbl_preliminary_schedule t
     WHERE t.no_resep = '$no_resep'
