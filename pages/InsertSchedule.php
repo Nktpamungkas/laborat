@@ -174,7 +174,7 @@
                             showConfirmButton: false
                         });
                         $('#insertModal').modal('hide');
-                        $('#insertForm')[0].reset();
+                        resetInsertForm();
                         loadScheduleTable();
                     } else {
                         Swal.fire({
@@ -255,7 +255,20 @@
         $('#insertModal').on('shown.bs.modal', function () {
             loadMachineOptions();
         });
+
+        $('#insertModal').on('hidden.bs.modal', function () {
+            resetInsertForm();
+        });
     });
+
+    function resetInsertForm() {
+        $('#insertForm')[0].reset();
+        $('#productNameDisplay').text('');
+        $('#productNameWrapper').hide();
+        $('#group').val('');
+        $('#temp').prop('disabled', true);
+        $('#bottle_qty').val('').prop('disabled', true).removeAttr('max').attr('placeholder', 'Input Bottle Quantity');
+    }
 </script>
 
 <script>
