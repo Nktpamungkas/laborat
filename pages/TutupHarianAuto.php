@@ -1,5 +1,5 @@
 <?php
-include"../koneksi.php";
+include "koneksi.php";
 ini_set("error_reporting", 1);
 $Awal = date("Y-m-d");
 //$Awal = date("Y-m-d", strtotime("-2 day"));
