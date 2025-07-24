@@ -14,7 +14,9 @@ $query = mysqli_query($con, "
         (
             SELECT dispensing_start 
             FROM tbl_preliminary_schedule 
-            WHERE no_resep = t.no_resep AND dispensing_start IS NOT NULL
+            WHERE no_resep = t.no_resep
+                AND creationdatetime = t.creationdatetime 
+                AND dispensing_start IS NOT NULL
             ORDER BY dispensing_start DESC 
             LIMIT 1
         ) AS dispensing_start,
@@ -23,7 +25,9 @@ $query = mysqli_query($con, "
         (
             SELECT user_dispensing 
             FROM tbl_preliminary_schedule 
-            WHERE no_resep = t.no_resep AND dispensing_start IS NOT NULL
+            WHERE no_resep = t.no_resep
+                AND creationdatetime = t.creationdatetime 
+                AND dispensing_start IS NOT NULL
             ORDER BY dispensing_start DESC 
             LIMIT 1
         ) AS user_dispensing,
