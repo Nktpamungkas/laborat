@@ -137,21 +137,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     min-width: 100px;
     text-align: center;
 }
-
-.status-segera-order {
-    color: red;
-    font-weight: bold;
-    position: relative;
-    padding-left: 18px; /* beri ruang untuk bulatan */
-}
-
-.status-segera-order {
-    color: red;
-    font-weight: bold;
-}
-
-
-
 </style>
 <body>
     <div class="row">
@@ -213,13 +198,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
                                         style="width: 100%;" required>
+                                            <option value="M510">M510</option>
                                         <?php
                                         $sqlDB = "SELECT  
                                                             TRIM(CODE) AS CODE,
                                                             LONGDESCRIPTION 
                                                         FROM
                                                             LOGICALWAREHOUSE
-                                                            WHERE CODE IN('M510','M101')
                                                         ORDER BY 
                                                             CODE ASC";
                                         $stmt = db2_exec($conn1, $sqlDB);
@@ -323,8 +308,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                     -- AND  s.DECOSUBCODE01 = 'D'
-                                    -- AND  s.DECOSUBCODE02 = '4'
-                                    -- AND  s.DECOSUBCODE03  = '031'
+                                    -- AND  s.DECOSUBCODE02 = '1'
+                                    -- AND  s.DECOSUBCODE03  = '012'
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
                                     GROUP BY 
@@ -856,15 +841,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <td><?php echo $qty_stock_pakai_belum_timbang ?></td>
                                         <td><?php echo $sisa_stock_balance_future ?></td>
                                         <?php if ($_POST['warehouse'] == 'M101'): ?>
-                                        <?php
-                                            $status = $row_balance['STATUS_'];
-
-                                            if ($status == 'SEGERA ORDER') {
-                                                echo "<td class='status-segera-order'>SEGERA ORDER</td>";
-                                            } else {
-                                                echo "<td>" . htmlspecialchars($status) . "</td>";
-                                            }
-                                            ?>
+                                        <td><?php echo $row_balance['STATUS_'];?></td>
                                         <?php endif; ?>
                                         <td><?php echo  $row_balance['NOTELAB']?></td>
                                         <td><?php echo  $row_balance['CERTIFICATION']?></td>
