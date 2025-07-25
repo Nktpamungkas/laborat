@@ -1110,6 +1110,32 @@
                 <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
                     <?php echo $iteration++ . '.(' . $no['order']; ?>)&nbsp;&nbsp;&nbsp;
                 <?php } ?>
+                <?php
+                    if($_GET['frm'] == 'bresep'){
+                        $sqlRGB = "SELECT
+                                        CAST(a.VALUEDECIMAL AS INT) AS R,
+                                        CAST(a2.VALUEDECIMAL AS INT) AS G,
+                                        CAST(a3.VALUEDECIMAL AS INT) AS B
+                                    FROM
+                                        USERGENERICGROUP u
+                                    LEFT JOIN ADSTORAGE a ON a.UNIQUEID = u.ABSUNIQUEID AND a.FIELDNAME = 'RGBvalueR'
+                                    LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = u.ABSUNIQUEID AND a2.FIELDNAME = 'RGBvalueG'
+                                    LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = u.ABSUNIQUEID AND a3.FIELDNAME = 'RGBvalueB'
+                                    WHERE 
+                                        u.USERGENERICGROUPTYPECODE = 'CL1'
+                                        AND u.CODE = '250137S'";
+                        $stmtRGB = db2_exec($conn1, $sqlRGB);
+                        $rowRGB  = db2_fetch_assoc($stmtRGB);
+
+                        $r = $rowRGB['R'];
+                        $g = $rowRGB['G'];
+                        $b = $rowRGB['B'];
+
+                        // Buat nilai warna hex
+                        $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b);
+                    }
+                ?>
+                <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>;"></div>
             </td>
         </tr>
         <!-- BARIS 12 -->
