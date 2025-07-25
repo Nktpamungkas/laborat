@@ -11,7 +11,8 @@ $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.mat
         b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
         b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,
         b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2, a.colorist3, a.colorist4, a.colorist5, a.colorist6,a.colorist7, a.colorist8, a.create_resep,a.acc_resep1,a.acc_resep2,a.acc_ulang_ok,
-        b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code,b.recipe_code
+        b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm, a.second_lr, b.color_code,b.recipe_code,
+        b.suhu_chamber, b.warna_flourescent
         FROM tbl_status_matching a
         INNER JOIN tbl_matching b ON a.idm = b.no_resep
         where a.id = '$_GET[idm]'
@@ -333,6 +334,22 @@ $role = $_SESSION['jabatanLAB']
                                         <input type="text" class="form-control input-sm" value="<?php echo $lamp['lampu'] ?>" readonly>
                                     </div>
                                 <?php } ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Suhu Chamber 120</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1" <?= ($data['suhu_chamber'] == '1') ? 'checked' : ''; ?>>
+                                <label for="suhu_chamber">Stempel Aktif</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Warna Fluorescent</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1" <?= ($data['warna_fluorescent'] == '1') ? 'checked' : ''; ?>>
+                                <label for="warna_fluorescent">Stempel Aktif</label>
                             </div>
                         </div>
                     </div>
@@ -3556,6 +3573,54 @@ $role = $_SESSION['jabatanLAB']
             } else {
                 $(colorist_id).prop('required', false);
             }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#suhu_chamber').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'suhu_chamber',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Suhu Chamber berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
+        });
+
+        $('#warna_fluorescent').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'warna_flourescent',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Warna Fluorescent berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
         });
     });
 </script>

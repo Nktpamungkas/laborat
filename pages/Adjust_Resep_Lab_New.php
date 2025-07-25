@@ -9,7 +9,8 @@ a.cside_min, a.tside_c, a.tside_min, a.mulai_by, a.mulai_at, a.selesai_by, a.sel
 b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item, b.jenis_kain, b.benang, b.cocok_warna, b.warna, a.kadar_air,
 b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out,b.recipe_code,
 b.proses, b.buyer, a.final_matcher, a.colorist1, a.colorist2,a.colorist3, a.colorist4,a.colorist5, a.colorist6,a.colorist7, a.colorist8, a.bleaching_tm, a.bleaching_sh, a.second_lr,
-b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.remark_dye
+b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.remark_dye,
+b.suhu_chamber, b.warna_flourescent
 FROM tbl_status_matching a
 INNER JOIN tbl_matching b ON a.idm = b.no_resep
 where a.id = '$_GET[idm]'
@@ -225,6 +226,20 @@ $data = mysqli_fetch_array($sql); ?>
                                     <input type="text" class="form-control input-sm" value="<?php echo $lamp['lampu'] ?>" readonly>
                                 </div>
                             <?php } ?>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Suhu Chamber 120</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1" <?= ($data['suhu_chamber'] == '1') ? 'checked' : ''; ?>>
+                                <label for="suhu_chamber">Stempel Aktif</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Warna Fluorescent</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1" <?= ($data['warna_fluorescent'] == '1') ? 'checked' : ''; ?>>
+                                <label for="warna_fluorescent">Stempel Aktif</label>
+                            </div>
                         </div>
                     </div>
                     <!-- KANAN -->
@@ -2955,4 +2970,52 @@ $data = mysqli_fetch_array($sql); ?>
             ],
         });
     })
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#suhu_chamber').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'suhu_chamber',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Suhu Chamber berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
+        });
+
+        $('#warna_fluorescent').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'warna_flourescent',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Warna Fluorescent berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
+        });
+    });
 </script>

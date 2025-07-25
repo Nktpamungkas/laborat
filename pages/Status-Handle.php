@@ -8,7 +8,8 @@ $sql = mysqli_query($con, "SELECT a.id as id_status, a.idm, a.flag, a.grp, a.mat
                                 a.spektro_r, a.ket, a.created_at as tgl_buat_status, a.created_by as status_created_by, a.edited_at, a.edited_by, a.target_selesai, 
                                 a.mulai_by, a.mulai_at, a.selesai_by, a.selesai_at, a.approve_by, a.approve_at, a.approve, b.id, b.no_resep, b.no_order, b.no_po, b.langganan, b.no_item,
                                 b.jenis_kain, b.benang, b.cocok_warna, b.warna, b.no_warna, b.lebar, b.gramasi, b.qty_order, b.tgl_in, b.tgl_out, b.proses, b.buyer,
-                                b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm,b.color_code,b.recipe_code
+                                b.tgl_delivery, b.note, b.jenis_matching, b.tgl_buat, b.tgl_update, b.created_by, a.bleaching_sh, a.bleaching_tm,b.color_code,b.recipe_code,
+                                b.suhu_chamber, b.warna_flourescent
                                 FROM tbl_status_matching a
                                 INNER JOIN tbl_matching b ON a.idm = b.no_resep
                                 where a.id = '$_GET[idm]'
@@ -308,6 +309,22 @@ $_SESSION['jenis_matching'] = $ldorno;
                                         <input type="text" class="form-control input-sm" value="<?php echo $lamp['lampu'] ?>" readonly>
                                     </div>
                                 <?php } ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Suhu Chamber 120</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1" <?= ($data['suhu_chamber'] == '1') ? 'checked' : ''; ?>>
+                                <label for="suhu_chamber">Stempel Aktif</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Warna Fluorescent</label>
+                            <div class="col-sm-9">
+                                <input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1" <?= ($data['warna_fluorescent'] == '1') ? 'checked' : ''; ?>>
+                                <label for="warna_fluorescent">Stempel Aktif</label>
                             </div>
                         </div>
                     </div>
@@ -3487,6 +3504,54 @@ $_SESSION['jenis_matching'] = $ldorno;
             } else {
                 $(colorist_id).prop('required', false); // Jika koreksi tidak dipilih, colorist tidak required
             }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#suhu_chamber').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'suhu_chamber',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Suhu Chamber berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
+        });
+
+        $('#warna_fluorescent').change(function() {
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                setting: 'warna_flourescent',
+                value: isChecked
+            }, function(response) {
+                if (response.trim() === 'OK') {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengaturan Warna Fluorescent berhasil diperbarui!'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan saat memperbarui.'
+                    });
+                }
+            });
         });
     });
 </script>
