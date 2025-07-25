@@ -656,56 +656,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $row_buka_po = db2_fetch_assoc($buka_po);
 
                                     $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            STATUS,
-                                            sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
-                                            BASEPRIMARYUNITCODE
-                                            FROM 
-                                            (
-                                            SELECT 
-                                            v.LOGICALWAREHOUSECODE,
-                                            v.COUNTERCODE,
-                                            v.ISTANCECODE,
-                                            v.ITEMTYPECODE,
-                                            v.DUEDATE,
-                                            v.DECOSUBCODE01,
-                                            v.DECOSUBCODE02,
-                                            v.DECOSUBCODE03,
-                                            v.STATUS,
-                                            p.STATUS  AS PRODUCTIONORDER_STATUS,
-                                            CASE 
-                                                WHEN v.BASEPRIMARYUNITCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
-                                                WHEN v.BASEPRIMARYUNITCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
-                                                ELSE BASEPRIMARYQUANTITY
-                                            END AS BASEPRIMARYQUANTITY,
-                                            v.BASEPRIMARYUNITCODE  
-                                            FROM 
-                                            VIEWAVANALYSISPART2 v 
-                                            LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.ISTANCECODE 
-                                            WHERE 
-                                            v.ITEMTYPECODE ='DYC'
-                                            AND v.STATUS = 0
-                                            AND p.STATUS = 0
-                                            AND v.COUNTERCODE = '640'
-                                            AND v.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND v.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                            AND v.DECOSUBCODE02 = '$row[DECOSUBCODE02]'
-                                            AND v.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                            AND v.DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
-                                            GROUP BY 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            STATUS,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            BASEPRIMARYUNITCODE");
+                                                                                LOGICALWAREHOUSECODE,
+                                                                                COUNTERCODE,
+                                                                                ITEMTYPECODE,
+                                                                                DECOSUBCODE01,
+                                                                                DECOSUBCODE02,
+                                                                                DECOSUBCODE03,
+                                                                            --    STATUS,
+                                                                                sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
+                                                                                BASEPRIMARYUNITCODE
+                                                                            FROM 
+                                                                                (
+                                                                                SELECT 
+                                                                                    v.WAREHOUSECODE AS LOGICALWAREHOUSECODE,
+                                                                                    p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
+                                                                                    v.PRODUCTIONORDERCODE AS ISTANCECODE,
+                                                                                    v.ITEMTYPEAFICODE AS ITEMTYPECODE,
+                                                                                    v.SCHEDULEDISSUEDATE AS DUEDATE,
+                                                                                    v.SUBCODE01 AS DECOSUBCODE01,
+                                                                                    v.SUBCODE02 AS DECOSUBCODE02,
+                                                                                    v.SUBCODE03 AS DECOSUBCODE03,
+                                                                            --	    v.STATUS,
+                                                                                    p.STATUS AS PRODUCTIONORDER_STATUS,
+                                                                                    CASE 
+                                                                                        WHEN v.BASEPRIMARYUOMCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
+                                                                                        WHEN v.BASEPRIMARYUOMCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
+                                                                                        ELSE BASEPRIMARYQUANTITY
+                                                                                    END AS BASEPRIMARYQUANTITY,
+                                                                                    v.BASEPRIMARYUOMCODE AS BASEPRIMARYUNITCODE
+                                                                                    FROM 
+                                                                                        PRODUCTIONRESERVATION v 
+                                                                                    LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.PRODUCTIONORDERCODE 
+                                                                                    WHERE 
+                                                                                        v.ITEMTYPEAFICODE ='DYC'
+                                                                            --		    AND v.STATUS = 0
+                                                                                        AND p.STATUS = 0
+                                                                                        AND p.PRODUCTIONORDERCOUNTERCODE = '640'
+                                                                                        AND v.WAREHOUSECODE  = 'M510'
+                                                                                        AND v.SUBCODE01 = 'D'
+                                                                                        AND v.SUBCODE02 = '4'
+                                                                                        AND v.SUBCODE03 = '031'
+                                                                                        AND v.SCHEDULEDISSUEDATE BETWEEN '2025-07-24' AND '2025-07-25')
+                                                                                GROUP BY 
+                                                                                    LOGICALWAREHOUSECODE,
+                                                                                    COUNTERCODE,
+                                                                            --	    STATUS,
+                                                                                    ITEMTYPECODE,
+                                                                                    DECOSUBCODE01,
+                                                                                    DECOSUBCODE02,
+                                                                                    DECOSUBCODE03,
+                                                                                    BASEPRIMARYUNITCODE");
                                     $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
 
                                     $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
