@@ -369,11 +369,7 @@
 	<div class="form-group">
 		<label for="buyer" class="col-sm-2 control-label">Buyer</label>
 		<div class="col-sm-8">
-			<input name="buyer" type="text" class="form-control" id="buyer" placeholder="buyer" value="<?php if ($cek > 0) {
-																											echo $rw['langganan'];
-																										} else {
-																											echo $dt['buyer'];
-																										} ?>">
+			<input name="buyer" type="text" class="form-control" id="buyer" placeholder="buyer" value="<?= $dt['langganan'];  ?>">
 		</div>
 	</div>
 	<div class="form-group">
