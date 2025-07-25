@@ -412,7 +412,7 @@
                     tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
                 }
 
-                tr.innerHTML += `<td align="center">${item.no_resep} - ${item.jenis_matching} <!--${isOld ? '🕑' : ''}--></td>`;
+                tr.innerHTML += `<td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
                 tr.innerHTML += `<td align="center">${item.product_name}</td>`;
                 // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
                 tr.innerHTML += `
