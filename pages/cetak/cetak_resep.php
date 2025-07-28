@@ -410,8 +410,8 @@
             }
 
             function getColoristName($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode){
-                $sqlColorist    = "SELECT
-                                        SHORTDESCRIPTION 
+                $sqlColorist    = "SELECT DISTINCT
+                                        TRIM(SHORTDESCRIPTION) As SHORTDESCRIPTION 
                                     FROM
                                         RECIPE r
                                     WHERE
@@ -428,8 +428,8 @@
             }
             
             function getEditorName($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode){
-                $sqlEditor    = "SELECT
-                                        CREATIONUSER 
+                $sqlEditor    = "SELECT DISTINCT
+                                        TRIM(CREATIONUSER) AS CREATIONUSER 
                                     FROM
                                         RECIPE r
                                     WHERE
