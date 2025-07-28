@@ -43,6 +43,7 @@ $tgl = date("Y-m-d");
         WHERE 
             tgl_tutup = '$tgl_tutup'
             AND LOGICALWAREHOUSECODE = '$warehouse'
+            and not KODE_OBAT ='E-1-000'
         GROUP BY  
             ITEMTYPECODE,
             KODE_OBAT,
@@ -53,9 +54,27 @@ $tgl = date("Y-m-d");
             BASEPRIMARYUNITCODE
         ORDER BY KODE_OBAT ASC");		  
     while($r = mysqli_fetch_array($sql)){
-            $total_qty = (substr(number_format($r['total_qty'], 2), -3) == '.00')
-              ? number_format($r['total_qty'], 0)
-              : number_format($r['total_qty'], 2);
+
+            $value = (string) $r['total_qty'];
+
+            if (strpos($value, '.') !== false) {
+              // Hapus nol di belakang desimal, tapi jangan hilangkan titik kalau hasilnya bilangan bulat
+              $formatted = rtrim(rtrim($value, '0'), '.');
+
+              // Jika desimalnya habis (misal 50.), tambahkan .00
+              if (strpos($formatted, '.') === false) {
+                $formatted .= '.00';
+              } else {
+                // Kalau desimalnya tinggal 1 digit, tambahkan 0
+                $decimal_part = explode('.', $formatted)[1];
+                if (strlen($decimal_part) === 1) {
+                  $formatted .= '0';
+                }
+              }
+            } else {
+              // Bilangan bulat → tambahkan .00
+              $formatted = $value . '.00';
+            }
 ?>
 	   <tr>
 	  <td><?php echo $no; ?></td>
@@ -63,7 +82,7 @@ $tgl = date("Y-m-d");
       <td><?php echo $r['LONGDESCRIPTION']; ?></td>
       <td><?php echo $r['LOTCODE']; ?></td>
       <td><?php echo $r['LOGICALWAREHOUSECODE']; ?></td>
-      <td align="center"><?= $total_qty ?></td>
+      <td align="center"><?= $formatted ?></td>
     </tr>
 <?php $no++;
 		$totqty=$totqty+$r['total_qty'];
@@ -72,7 +91,7 @@ $tgl = date("Y-m-d");
 				<tfoot>
                   <tr>
                     <td colspan="5"><center><strong>TOTAL</strong></center></td>
-                    <td><strong><?php echo number_format($totqty,2); ?></strong></td>
+                    <td><strong><?php echo number_format($totqty,5); ?></strong></td>
                     </tr>
                   </tfoot>                  
                 </table>

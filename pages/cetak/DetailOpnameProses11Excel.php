@@ -94,6 +94,7 @@ $tahun = $date->format('Y');
         WHERE 
             tgl_tutup = '$tgl_tutup'
             AND LOGICALWAREHOUSECODE = '$warehouse'
+            and not KODE_OBAT ='E-1-000'
         GROUP BY  
             ITEMTYPECODE,
             KODE_OBAT,

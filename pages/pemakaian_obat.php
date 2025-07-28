@@ -662,7 +662,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                 DECOSUBCODE01,
                                                                                 DECOSUBCODE02,
                                                                                 DECOSUBCODE03,
-                                                                            --    STATUS,
+                                                                               STATUS,
                                                                                 sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
                                                                                 BASEPRIMARYUNITCODE
                                                                             FROM 
@@ -676,7 +676,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                     v.SUBCODE01 AS DECOSUBCODE01,
                                                                                     v.SUBCODE02 AS DECOSUBCODE02,
                                                                                     v.SUBCODE03 AS DECOSUBCODE03,
-                                                                            --	    v.STATUS,
+                                                                            	    v.PROGRESSSTATUS as STATUS,
                                                                                     p.STATUS AS PRODUCTIONORDER_STATUS,
                                                                                     CASE 
                                                                                         WHEN v.BASEPRIMARYUOMCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
@@ -689,18 +689,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                     LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.PRODUCTIONORDERCODE 
                                                                                     WHERE 
                                                                                         v.ITEMTYPEAFICODE ='DYC'
-                                                                            --		    AND v.STATUS = 0
+                                                                            		    AND v.PROGRESSSTATUS = 0
                                                                                         AND p.STATUS = 0
                                                                                         AND p.PRODUCTIONORDERCOUNTERCODE = '640'
-                                                                                        AND v.WAREHOUSECODE  = 'M510'
-                                                                                        AND v.SUBCODE01 = 'D'
-                                                                                        AND v.SUBCODE02 = '4'
-                                                                                        AND v.SUBCODE03 = '031'
-                                                                                        AND v.SCHEDULEDISSUEDATE BETWEEN '2025-07-24' AND '2025-07-25')
+                                                                                        AND v.WAREHOUSECODE  = '$_POST[warehouse]'
+                                                                                        AND v.SUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                                                        AND v.SUBCODE02 = '$row[DECOSUBCODE02]' 
+                                                                                        AND v.SUBCODE03 = '$row[DECOSUBCODE03]' 
+                                                                                        AND v.SCHEDULEDISSUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
                                                                                 GROUP BY 
                                                                                     LOGICALWAREHOUSECODE,
                                                                                     COUNTERCODE,
-                                                                            --	    STATUS,
+                                                                            	    STATUS,
                                                                                     ITEMTYPECODE,
                                                                                     DECOSUBCODE01,
                                                                                     DECOSUBCODE02,
