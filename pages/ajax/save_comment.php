@@ -16,15 +16,15 @@
         if (mysqli_query($con, $update)) {
             echo 'EDITED';
         } else {
-            echo 'ERROR';
+            echo 'ERROR: ' . mysqli_error($con); // Tampilkan error dari MySQL
         }
     }else{
-        $insert = "INSERT INTO tbl_comment (ids, idm, adj_no, comment)
+        $insert = "INSERT INTO tbl_comment (ids, idm, adj, comment)
                     VALUES ('$ids', '$idm', '$adj_no', '$comment')";
         if (mysqli_query($con, $insert)) {
             echo 'SAVED';
         } else {
-            echo 'ERROR';
+            echo 'ERROR: ' . mysqli_error($con); // Tampilkan error dari MySQL
         }
     }
 
