@@ -466,7 +466,7 @@
           <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['recipe_code']; ?></strong></td>
           <td style="border-right:0px #000000 solid;">Color Code</td>
           <td style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-          <td style="border-left:0px #000000 solid;"  id="adjButton"><strong><?Php echo $data['color_code']; ?></strong></td>
+          <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['color_code']; ?></strong></td>
           <td colspan="3" style="text-align: right;" ><span style="font-size: 9px;">FW-12-LAB-04/03</span></td>
         </tr>
         <tr>
@@ -475,7 +475,7 @@
             <td width="20%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_resep']; ?></strong></td>
             <td width="10%" style="border-right:0px #000000 solid;">LAB DIP No</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-            <td width="31%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_warna']; ?></strong></td>
+            <td width="31%" style="border-left:0px #000000 solid;" id="adjButton"><strong><?Php echo $data['no_warna']; ?></strong></td>
             <td width="15%" style="border-right:0px #000000 solid;">Gramasi Aktual</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
             <td width="12%" style="border-left:0px #000000 solid;"><strong><?Php if ($data['lebar_aktual'] != "") {
@@ -1285,19 +1285,21 @@
                                         LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = u.ABSUNIQUEID AND a3.FIELDNAME = 'RGBvalueB'
                                         WHERE 
                                             u.USERGENERICGROUPTYPECODE = 'CL1'
-                                            AND u.CODE = '250137S'";
+                                            AND u.CODE = '$data[color_code]'";
                             $stmtRGB = db2_exec($conn1, $sqlRGB);
                             $rowRGB  = db2_fetch_assoc($stmtRGB);
 
-                            $r = $rowRGB['R'];
-                            $g = $rowRGB['G'];
-                            $b = $rowRGB['B'];
-
-                            // Buat nilai warna hex
-                            $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b);
-                        }
+                            $r = $rowRGB['R'] ?? null;
+                            $g = $rowRGB['G'] ?? null;
+                            $b = $rowRGB['B'] ?? null;
                     ?>
-                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>;"></div>
+                        <?php if ($r !== null && $g !== null && $b !== null) : ?>
+                            <?php $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b); ?>
+                            <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold;">
+                                RGB(<?= $r ?>, <?= $g ?>, <?= $b ?>)
+                            </div>
+                        <?php endif;  ?>
+                    <?php } ?>
                 </td>
             </tr>
             <!-- BARIS 12 -->
@@ -1997,8 +1999,24 @@
                 <td style="font-weight: bold; <?= $adj6_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc6']) != 0) echo floatval($rsp23['conc6']) ?><span style="color: red;"><?= $adj5_23; ?></span></td>
                 <td style="font-weight: bold; <?= $adj7_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc7']) != 0) echo floatval($rsp23['conc7']) ?><span style="color: red;"><?= $adj6_23; ?></span></td>
                 <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?><span style="color: red;"><?= $adj7_23; ?></span></td>
-                <td rowspan="7">&nbsp;</td>
-                <td rowspan="7">&nbsp;</td>
+                <td rowspan="7" style="text-align: center; vertical-align: middle;">
+                    <?php if($_GET['frm'] == 'bresep') : ?>
+                        <?php if($data['suhu_chamber'] == '1') : ?>
+                            <img src="../../dist/img/suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
+                        <?php else : ?>
+                            &nbsp;
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
+                <td rowspan="7" style="text-align: center; vertical-align: middle;">
+                    <?php if($_GET['frm'] == 'bresep') : ?>
+                        <?php if($data['warna_flourescent'] == '1') : ?>
+                            <img src="../../dist/img/warna fluorescent.png" width="300" height="100" alt="Warna Fluorescent">
+                        <?php else : ?>
+                            &nbsp;
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
             </tr>
             <!-- BARIS 24 -->
             <?php
@@ -2520,7 +2538,7 @@
         tooltip.style.left = (rect.left + window.scrollX) + 'px';
 
         // Ambil data dari server
-        const number = '40845D'; // <- Ganti dengan nilai dinamis kalau perlu
+        const number = '<?= $data['no_warna']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
         try {
             const response = await fetch('quality_result.php?number=' + number);
             const html = await response.text();
