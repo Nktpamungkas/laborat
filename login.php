@@ -41,6 +41,14 @@ if ($_POST) { //login user
 		echo "<script>alert('Login Gagal!! $username');window.location='index.php';</script>";
 	}
 } elseif ($_GET['act'] == "logout") { //logout user
+
+	if (isset($_SESSION['is_locked_owner']) && $_SESSION['is_locked_owner'] === true) {
+		$lock_file = __DIR__ . '/access.lock';
+		if (file_exists($lock_file)) {
+			unlink($lock_file);
+		}
+	}
+
 	mysqli_query($con,"INSERT into tbl_log SET
 	`what` = 'Logout',
 	`what_do` = 'Logout from laborat',

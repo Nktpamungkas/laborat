@@ -12,7 +12,7 @@ if ($noResep === '') {
 $stmt = $con->prepare("
     SELECT COUNT(*) AS total 
     FROM tbl_preliminary_schedule 
-    WHERE no_resep = ? AND status = 'in_progress_dyeing' AND is_old_cycle = 0
+    WHERE no_resep = ? AND status IN ('in_progress_dyeing', 'stop_dyeing') AND is_old_cycle = 0
 ");
 $stmt->bind_param("s", $noResep);
 $stmt->execute();

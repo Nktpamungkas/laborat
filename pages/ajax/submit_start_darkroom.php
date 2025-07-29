@@ -31,15 +31,15 @@ $con->begin_transaction();
 
 try {
     foreach ($data['repeat'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'repeat', $userDarkroomStart);
+        processUpdate($con, $no_resep, ['in_progress_dyeing', 'stop_dyeing'], 'repeat', $userDarkroomStart);
     }
 
     foreach ($data['end'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'end', $userDarkroomStart, true);
+        processUpdate($con, $no_resep, ['repeat', 'in_progress_darkroom'], 'end', $userDarkroomStart, true);
     }
 
     foreach ($data['progress'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, 'in_progress_dyeing', 'in_progress_darkroom', $userDarkroomStart);
+        processUpdate($con, $no_resep, ['in_progress_dyeing', 'stop_dyeing'], 'in_progress_darkroom', $userDarkroomStart);
     }
 
     $con->commit();
@@ -59,7 +59,8 @@ try {
 
 $con->close();
 
-function processUpdate($con, $no_resep, $expected_status, $new_status, $userDarkroomStart, $update_end_time = false) {
+
+function processUpdate($con, $no_resep, $expected_statuses, $new_status, $userDarkroomStart, $update_end_time = false) {
     $stmt = $con->prepare("SELECT status FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);
     $stmt->execute();
@@ -69,12 +70,14 @@ function processUpdate($con, $no_resep, $expected_status, $new_status, $userDark
         throw new Exception("No. Resep $no_resep tidak ditemukan.");
     }
 
-    if ($row['status'] !== $expected_status) {
+    // Cek apakah status sekarang termasuk yang diizinkan
+    if (!in_array($row['status'], (array)$expected_statuses)) {
         throw new Exception("Status No. Resep $no_resep tidak sesuai ($row[status]).");
     }
 
     $stmt->close();
 
+    // Update berdasarkan jenis transisi status
     if ($update_end_time) {
         $update = $con->prepare("
             UPDATE tbl_preliminary_schedule 

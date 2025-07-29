@@ -255,7 +255,7 @@
                 },
                 success: function (response) {
                     console.log("Update sukses:", response);
-                    loadData();
+                    fetchAndRenderDataOnly();
                     Swal.fire({
                         icon: 'success',
                         title: 'Status Diperbarui!',
@@ -290,90 +290,46 @@
             .then(response => response.json())
             .then(data => {
                 dispensingData = data;
-
-                const tbodyPoly = document.getElementById("dataBodyPoly");
-                const tbodyCotton = document.getElementById("dataBodyCotton");
-                const tbodyWhite = document.getElementById("dataBodyWhite");
-
-                tbodyPoly.innerHTML = "";
-                tbodyCotton.innerHTML = "";
-                tbodyWhite.innerHTML = "";
-
-                renderTable(data, tbodyPoly, "1");
-                renderTable(data, tbodyCotton, "2");
-                renderTable(data, tbodyWhite, "");
-
-                enableSortableTables();
-
-                document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
-                document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
-                document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
-
-                const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
-                document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
+                renderOnlyTables(data);
+                enableSortableTables(); // hanya sekali saat awal load
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
             });
     }
 
-    // function renderTable(dataArray, tbodyElement, dispensingCode) {
-    //     const rowsPerBlock = 16;
+    function fetchAndRenderDataOnly() {
+        fetch("pages/ajax/GetData_DispensingList.php")
+            .then(response => response.json())
+            .then(data => {
+                dispensingData = data;
+                renderOnlyTables(data); // hanya render ulang isinya
+            })
+            .catch(err => {
+                console.error("Gagal memperbarui data:", err);
+            });
+    }
 
-    //     // Filter berdasarkan kode dispensing
-    //     const filtered = dataArray.filter(item => {
-    //         const code = item.dispensing?.trim() ?? "";
-    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
-    //     });
+    function renderOnlyTables(data) {
+        const tbodyPoly = document.getElementById("dataBodyPoly");
+        const tbodyCotton = document.getElementById("dataBodyCotton");
+        const tbodyWhite = document.getElementById("dataBodyWhite");
 
-    //     const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
-    //     tbodyElement.innerHTML = ""; // Kosongkan dulu
+        tbodyPoly.innerHTML = "";
+        tbodyCotton.innerHTML = "";
+        tbodyWhite.innerHTML = "";
 
-    //     for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
-    //         const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-    //         const cycleNumber = blockIndex + 1;
+        renderTable(data, tbodyPoly, "1");
+        renderTable(data, tbodyCotton, "2");
+        renderTable(data, tbodyWhite, "");
 
-    //         // Pilih baris aktif saja (scheduled/in_progress_dispensing)
-    //         const activeRows = blockRows.filter(item => 
-    //             item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-    //         );
+        document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
+        document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
+        document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
 
-    //         activeRows.forEach((item, activeIndex) => {
-    //             // Cari index asli di blockRows supaya no urut sesuai posisi asli
-    //             const indexInBlock = blockRows.findIndex(row => row.id === item.id);
-    //             const rowNumber = item.rowNumber;
-
-    //             const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-    //             const isOld = item.is_old_data == "1";
-
-    //             const tr = document.createElement("tr");
-    //             tr.style.backgroundColor = bgColor;
-    //             tr.dataset.id = item.id;
-
-    //             // Kolom No (nomor asli di block)
-    //             tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-
-    //             // Kolom Cycle (hanya di baris pertama aktif)
-    //             if (activeIndex === 0) {
-    //                 tr.innerHTML += `
-    //                     <td align="center" rowspan="${activeRows.length}" 
-    //                         style="vertical-align: middle; font-weight: bold;">
-    //                         ${item.cycleNumber}
-    //                     </td>`;
-    //             }
-
-    //             // Kolom data lainnya
-    //             tr.innerHTML += `
-    //                 <td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>
-    //                 <td align="center">${item.product_name}</td>
-    //                 <td align="center">${item.no_machine}</td>
-    //                 <td align="center">${item.status}</td>
-    //             `;
-
-    //             tbodyElement.appendChild(tr);
-    //         });
-    //     }
-    // }
+        const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
+        document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
+    }
 
     function renderTable(dataArray, tbodyElement, dispensingCode) {
         const rowsPerBlock = 16;
@@ -394,7 +350,7 @@
                 item.status === 'scheduled' || item.status === 'in_progress_dispensing'
             );
 
-            const middleIndex = Math.floor((activeRows.length - 1) / 2); // posisi tengah
+            const middleIndex = Math.floor((activeRows.length - 1) / 2); 
 
             activeRows.forEach((item, activeIndex) => {
                 const indexInBlock = blockRows.findIndex(row => row.id === item.id);
