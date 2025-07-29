@@ -233,12 +233,17 @@ $resultApproved = mysqli_query($con, $sqlApproved);
             const customer = getCustomer(code);
             const tgl_approve_rmp = getTglApproveRMP(code);
 
+            // Disable semua tombol approve/reject untuk kode yang sama
+            const buttons = $("button[data-code='" + code + "']");
+            buttons.prop('disabled', true);
+
             if (!pic) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'PIC belum dipilih',
                     text: 'Silakan pilih PIC Lab terlebih dahulu.'
                 });
+                buttons.prop('disabled', false); // Re-enable jika PIC belum dipilih
                 return;
             }
 
@@ -273,7 +278,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                             text: response
                         });
 
-                        // Reload kedua tabel
+                        // Refresh tabel, tombol akan hilang karena data berubah
                         reloadApprovedTable();
                         reloadTboTable();
                         refreshTBOCount();
@@ -283,7 +288,11 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                             title: 'Gagal',
                             text: 'Terjadi kesalahan saat menyimpan data.'
                         });
+                        buttons.prop('disabled', false); // Re-enable jika gagal
                     });
+                } else {
+                    // Re-enable jika batal
+                    buttons.prop('disabled', false);
                 }
             });
         }

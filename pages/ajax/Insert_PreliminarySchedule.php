@@ -44,6 +44,17 @@ if ($dataHold['total'] > 0) {
     exit;
 }
 
+$checkInProgress = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status IN ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing', 'in_progress_darkroom')");
+$dataInProgress = mysqli_fetch_assoc($checkInProgress);
+
+if ($dataInProgress['total'] > 0) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'No. resep ini sedang dalam proses!'
+    ]);
+    exit;
+}
+
 $success = false;
 $errorMessages = [];
 $insertedCount = 0; // Menambahkan penghitung

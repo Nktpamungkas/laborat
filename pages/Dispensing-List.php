@@ -62,10 +62,22 @@
     .table {
         margin-bottom: 0 !important;
     }
+    /* tbody {
+        font-size: 9px;
+    } */
     td.cycle-cell {
         width: 40px;
         text-align: center;
         font-weight: bold;
+    }
+    .content {
+        padding: 15px 0 !important;
+    }
+    .col-xs-12 {
+        padding: 0 !important;
+    }
+    tbody {
+        font-size: 11px;
     }
 </style>
 
@@ -97,7 +109,7 @@
                                 <thead class="bg-green">
                                     <tr>
                                         <th>
-                                            <div align="center">No</div>
+                                            <div align="center" style="width: 5px;">No</div>
                                         </th>
                                         <th>
                                             <div align="center">Cycle</div>
@@ -111,9 +123,6 @@
                                         <th>
                                             <div align="center">No. Mesin</div>
                                         </th>
-                                        <!-- <th>
-                                            <div align="center">No. Mesin</div>
-                                        </th> -->
                                         <th>
                                             <div align="center">Status</div>
                                         </th>
@@ -137,7 +146,7 @@
                                 <thead class="bg-green">
                                     <tr>
                                         <th>
-                                            <div align="center">No</div>
+                                            <div align="center" style="width: 5px;">No</div>
                                         </th>
                                         <th>
                                             <div align="center">Cycle</div>
@@ -151,9 +160,6 @@
                                         <th>
                                             <div align="center">No. Mesin</div>
                                         </th>
-                                        <!-- <th>
-                                            <div align="center">No. Mesin</div>
-                                        </th> -->
                                         <th>
                                             <div align="center">Status</div>
                                         </th>
@@ -177,7 +183,7 @@
                                 <thead class="bg-green">
                                     <tr>
                                         <th>
-                                            <div align="center">No</div>
+                                            <div align="center" style="width: 5px;">No</div>
                                         </th>
                                         <th>
                                             <div align="center">Cycle</div>
@@ -191,9 +197,6 @@
                                         <th>
                                             <div align="center">No. Mesin</div>
                                         </th>
-                                        <!-- <th>
-                                            <div align="center">No. Mesin</div>
-                                        </th> -->
                                         <th>
                                             <div align="center">Status</div>
                                         </th>
@@ -404,6 +407,10 @@
                 tr.style.backgroundColor = bgColor;
                 tr.dataset.id = item.id;
 
+                if (item.status !== 'scheduled') {
+                    tr.classList.add("not-draggable");
+                }
+
                 tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
                 
                 if (activeIndex === middleIndex) {
@@ -412,8 +419,8 @@
                     tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
                 }
 
-                tr.innerHTML += `<td align="center">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-                tr.innerHTML += `<td align="center">${item.product_name}</td>`;
+                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
+                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
                 // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
                 tr.innerHTML += `
                                 <td align="center">
@@ -619,6 +626,7 @@
                 animation: 150,
                 ghostClass: "sortable-ghost",
                 disabled: true,
+                draggable: "tr:not(.not-draggable)",
 
                 multiDrag: true,
                 selectedClass: "sortable-selected",
@@ -713,7 +721,7 @@
             if (isLocked) {
                 loadData();
             }
-        }, 15000);
+        }, 20000);
     });
 
     document.getElementById("toggleLockBtn").addEventListener("click", toggleLock);

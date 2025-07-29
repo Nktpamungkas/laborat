@@ -1,5 +1,6 @@
 <?php
 include "../../koneksi.php";
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     $orderCode = $_POST['order_code'];
@@ -487,71 +488,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 }
 ?>
 <script>
-    $(document).ready(function(){
-        toastr.options = {
-            "positionClass": "toast-top-right",
-            "closeButton": true,
-            "progressBar": true,
-            "timeOut": "3000",
-            "extendedTimeOut": "1000",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
 
-        $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function(){
-            const btn = $(this);
-            const row = btn.closest('.row-item');
+$(document).ready(function(){
+    const currentUser = "<?= $_SESSION['userLAB'] ?? '' ?>";
 
-            const salesorder = row.find('.td-salesorder').text().trim();
-            const orderline  = row.find('.td-orderline').text().trim();
-            const warna      = row.find('.td-warna').text().trim();
-            const benang     = row.find('.td-benang').text().trim();
-            const po         = row.find('.td-po').text().trim();
-            const pic        = row.find('.pic-check').val();
-            const status     = row.find('.status-bonorder').val();
+    toastr.options = {
+        "positionClass": "toast-top-right",
+        "closeButton": true,
+        "progressBar": true,
+        "timeOut": "3000",
+        "extendedTimeOut": "1000",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
 
-            if (!pic || !status) {
-                alert('PIC dan Status Bon Order wajib dipilih!');
-                return;
+    // Lock select jika sudah ada data dari awal
+    $('.row-item').each(function() {
+        const row = $(this);
+        const pic = row.find('.pic-check').val();
+        const status = row.find('.status-bonorder').val();
+        const btn = row.find('.btn-simpan-row');
+
+        if (pic && status) {
+            row.find('.pic-check').prop('disabled', true);
+            row.find('.status-bonorder').prop('disabled', true);
+            btn.find('.btn-text').text('Edit');
+        }
+    });
+
+    // Handler untuk tombol Simpan/Edit/Update
+    $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function(){
+        console.log(currentUser);
+        
+        if (currentUser !== 'Riyan') {
+            toastr.warning('Hanya user Riyan yang dapat melakukan edit');
+            return;
+        }
+
+        const btn = $(this);
+        const row = btn.closest('.row-item');
+        const btnText = btn.find('.btn-text').text().trim();
+
+        const salesorder = row.find('.td-salesorder').text().trim();
+        const orderline  = row.find('.td-orderline').text().trim();
+        const warna      = row.find('.td-warna').text().trim();
+        const benang     = row.find('.td-benang').text().trim();
+        const po         = row.find('.td-po').text().trim();
+        const picSelect  = row.find('.pic-check');
+        const statusSelect = row.find('.status-bonorder');
+
+        const pic        = picSelect.val();
+        const status     = statusSelect.val();
+
+        if (btnText === 'Edit') {
+            // Buka lock dropdown
+            picSelect.prop('disabled', false);
+            statusSelect.prop('disabled', false);
+            btn.find('.btn-text').text('Update');
+            return;
+        }
+
+        if (!pic || !status) {
+            alert('PIC dan Status Bon Order wajib dipilih!');
+            return;
+        }
+
+        // Animasi loading
+        btn.addClass('btn-loading');
+        btn.find('.btn-text').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+        btn.find('.spinner-border').removeClass('d-none');
+
+        $.ajax({
+            url: 'pages/ajax/simpan_status_matching_bonorder.php',
+            type: 'POST',
+            data: {
+                salesorder,
+                orderline,
+                warna,
+                benang,
+                po_greige: po,
+                pic_check: pic,
+                status_bonorder: status
+            },
+            success: function(response) {
+                toastr.success(response);
+
+                setTimeout(function(){
+                    btn.removeClass('btn-loading');
+                    btn.find('.btn-text').text('Edit');
+                    btn.find('.spinner-border').addClass('d-none');
+
+                    // Lock kembali dropdown
+                    picSelect.prop('disabled', true);
+                    statusSelect.prop('disabled', true);
+                }, 1000);
+            },
+            error: function(xhr, status, error) {
+                toastr.error("Terjadi kesalahan: " + error);
+
+                setTimeout(function(){
+                    btn.removeClass('btn-loading');
+                    btn.find('.btn-text').text('Update');
+                    btn.find('.spinner-border').addClass('d-none');
+                }, 1000);
             }
-
-            // Mulai animasi
-            btn.addClass('btn-loading');
-            btn.find('.btn-text').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
-            btn.find('.spinner-border').removeClass('d-none');
-
-            $.ajax({
-                url: 'pages/ajax/simpan_status_matching_bonorder.php',
-                type: 'POST',
-                data: {
-                    salesorder,
-                    orderline,
-                    warna,
-                    benang,
-                    po_greige: po,
-                    pic_check: pic,
-                    status_bonorder: status
-                },
-                success: function(response) {
-                    toastr.success(response);
-
-                    setTimeout(function(){
-                        btn.removeClass('btn-loading');
-                        btn.find('.btn-text').text('Edit');
-                        btn.find('.spinner-border').addClass('d-none');
-                    }, 1000);
-                },
-                error: function(xhr, status, error) {
-                    toastr.success(response);
-
-                    setTimeout(function(){
-                        btn.removeClass('btn-loading');
-                        btn.find('.btn-text').text('Simpan');
-                        btn.find('.spinner-border').addClass('d-none');
-                    }, 1000);
-                }
-            });
         });
     });
 
+});
 </script>

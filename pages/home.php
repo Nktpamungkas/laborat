@@ -329,6 +329,10 @@ $page  = strtolower($page);
 
     </div>
 
+    <div class="row" style="margin-top: 10px;" id="rekap_bon_order">
+
+    </div>
+
     <!-- MATCHER -->
     <!-- <div class="row" style="margin-top: 10px;" id="table_matcher">
 
@@ -487,6 +491,14 @@ $page  = strtolower($page);
       type: "GET",
       success: function(ajaxData) {
         $("#before_switch_day").html(ajaxData);
+      }
+    });
+
+    $.ajax({
+      url: "pages/ajax/rekap_bon_order.php",
+      type: "GET",
+      success: function(ajaxData) {
+        $("#rekap_bon_order").html(ajaxData);
       }
     });
 

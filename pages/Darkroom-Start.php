@@ -98,6 +98,7 @@
                                 <tr>
                                     <th><div align="center">No</div></th>
                                     <th><div align="center">No. Resep</div></th>
+                                    <th><div align="center">Group</div></th>
                                     <th><div align="center">Temp</div></th>
                                     <th><div align="center">Status</div></th>
                                     <!-- <th><div align="center">Dark Room Start</div></th> -->
@@ -255,6 +256,7 @@
                     const row = `<tr style="background-color: ${bgColor}">
                         <td align="center">${index}</td>
                         <td align="center">${item.no_resep}</td>
+                        <td align="center">${item.grp}</td>
                         <td align="center">${item.product_name}</td>
                         <td align="center">${item.status}</td>
                     </tr>`;

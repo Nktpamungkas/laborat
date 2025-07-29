@@ -71,7 +71,7 @@ function resetOrderIndexIfDone($con): void {
                 UPDATE tbl_preliminary_schedule ps
                 LEFT JOIN master_suhu ms ON ps.code = ms.code
                 SET ps.order_index = NULL, ps.pass_dispensing = 1
-                WHERE ms.dispensing = ?
+                WHERE ms.dispensing = ? AND ps.is_old_cycle = 0
             ");
             if ($update) {
                 $update->bind_param("s", $code);
