@@ -466,7 +466,7 @@
           <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['recipe_code']; ?></strong></td>
           <td style="border-right:0px #000000 solid;">Color Code</td>
           <td style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-          <td style="border-left:0px #000000 solid;"  id="adjButton"><strong><?Php echo $data['color_code']; ?></strong></td>
+          <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['color_code']; ?></strong></td>
           <td colspan="3" style="text-align: right;" ><span style="font-size: 9px;">FW-12-LAB-04/03</span></td>
         </tr>
         <tr>
@@ -475,7 +475,7 @@
             <td width="20%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_resep']; ?></strong></td>
             <td width="10%" style="border-right:0px #000000 solid;">LAB DIP No</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-            <td width="31%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_warna']; ?></strong></td>
+            <td width="31%" style="border-left:0px #000000 solid;" id="adjButton"><strong><?Php echo $data['no_warna']; ?></strong></td>
             <td width="15%" style="border-right:0px #000000 solid;">Gramasi Aktual</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
             <td width="12%" style="border-left:0px #000000 solid;"><strong><?Php if ($data['lebar_aktual'] != "") {
