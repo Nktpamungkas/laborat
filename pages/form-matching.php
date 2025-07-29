@@ -287,6 +287,9 @@
 			$tempCode = $_POST['temp_code'];
 			$tempCode2 = $_POST['temp_code2'];
 
+			$suhuchamber			= $_POST['suhu_chamber'];
+			$warnafluorescent		= $_POST['warna_fluorescent'];
+
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
 					no_resep='$no_resep',
 					no_order='$_POST[no_order]',
@@ -314,7 +317,9 @@
 					tgl_buat= now(),
 					tgl_update=now(),
 					salesman_sample='" . $salesman . "',
-					created_by = '$_SESSION[userLAB]'
+					created_by = '$_SESSION[userLAB]',
+					suhu_chamber = '$suhuchamber',
+					warna_flourescent = '$warnafluorescent'
 					");
 
 			// update nomor urut terakhir
@@ -398,8 +403,7 @@
 													} ?> value="Matching Development">Matching Development</option>
 										</select>
 									</div>
-								</div>
-								
+								</div>								
 								<!-- End Temp -->
 								<div id="echoing_the_choice">
 									<div id="before_append">
@@ -760,6 +764,21 @@
 			</select>
 		</div>
 	</div>
+
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent"  value="1">
+			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
+		</div>
+	</div>
 	
 	<div class="box-footer">
 		<div class="col-sm-2">
@@ -887,6 +906,21 @@
 			<option value="">Pilih...</option>
 			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
+			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
 
@@ -1060,6 +1094,21 @@
 			<option value="">Pilih...</option>
 			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
+			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
 
@@ -1352,6 +1401,21 @@
 			<option value="">Pilih...</option>
 			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
+			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
 
@@ -1992,6 +2056,21 @@
 			<option value="">Pilih...</option>
 			<!-- Opsi bisa diisi sama seperti temp_code jika perlu -->
 			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<div class="col-sm-2">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
+			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
 

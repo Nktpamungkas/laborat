@@ -137,6 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     min-width: 100px;
     text-align: center;
 }
+
 </style>
 <body>
     <div class="row">
@@ -198,13 +199,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
                                         style="width: 100%;" required>
-                                            <option value="M510">M510</option>
                                         <?php
                                         $sqlDB = "SELECT  
                                                             TRIM(CODE) AS CODE,
                                                             LONGDESCRIPTION 
                                                         FROM
                                                             LOGICALWAREHOUSE
+                                                            WHERE CODE IN('M510','M101')
                                                         ORDER BY 
                                                             CODE ASC";
                                         $stmt = db2_exec($conn1, $sqlDB);
@@ -214,7 +215,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     <?php if ($rowdb['CODE'] == $_POST['warehouse']) {
                                                         echo "SELECTED";
                                                     } ?>>
-                                                    <?= $rowdb['CODE']; ?>         <?= $rowdb['LONGDESCRIPTION']; ?>
+                                                    <?= $rowdb['CODE'] . " - " . $rowdb['LONGDESCRIPTION'];?>
                                                 </option>
                                         <?php } ?>
                                     </select>
@@ -308,7 +309,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                     -- AND  s.DECOSUBCODE01 = 'D'
-                                    -- AND  s.DECOSUBCODE02 = '1'
+                                    -- AND  s.DECOSUBCODE02 = '4'
                                     -- AND  s.DECOSUBCODE03  = '012'
                                     -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 07:00:00' AND '$_POST[tgl2] 12:00:00' 
                                     )
@@ -655,56 +656,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $row_buka_po = db2_fetch_assoc($buka_po);
 
                                     $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            STATUS,
-                                            sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
-                                            BASEPRIMARYUNITCODE
-                                            FROM 
-                                            (
-                                            SELECT 
-                                            v.LOGICALWAREHOUSECODE,
-                                            v.COUNTERCODE,
-                                            v.ISTANCECODE,
-                                            v.ITEMTYPECODE,
-                                            v.DUEDATE,
-                                            v.DECOSUBCODE01,
-                                            v.DECOSUBCODE02,
-                                            v.DECOSUBCODE03,
-                                            v.STATUS,
-                                            p.STATUS  AS PRODUCTIONORDER_STATUS,
-                                            CASE 
-                                                WHEN v.BASEPRIMARYUNITCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
-                                                WHEN v.BASEPRIMARYUNITCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
-                                                ELSE BASEPRIMARYQUANTITY
-                                            END AS BASEPRIMARYQUANTITY,
-                                            v.BASEPRIMARYUNITCODE  
-                                            FROM 
-                                            VIEWAVANALYSISPART2 v 
-                                            LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.ISTANCECODE 
-                                            WHERE 
-                                            v.ITEMTYPECODE ='DYC'
-                                            AND v.STATUS = 0
-                                            AND p.STATUS = 0
-                                            AND v.COUNTERCODE = '640'
-                                            AND v.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
-                                            AND v.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                            AND v.DECOSUBCODE02 = '$row[DECOSUBCODE02]'
-                                            AND v.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                            AND v.DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
-                                            GROUP BY 
-                                            LOGICALWAREHOUSECODE,
-                                            COUNTERCODE,
-                                            STATUS,
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            BASEPRIMARYUNITCODE");
+                                                                                LOGICALWAREHOUSECODE,
+                                                                                COUNTERCODE,
+                                                                                ITEMTYPECODE,
+                                                                                DECOSUBCODE01,
+                                                                                DECOSUBCODE02,
+                                                                                DECOSUBCODE03,
+                                                                               STATUS,
+                                                                                sum(BASEPRIMARYQUANTITY) AS USERPRIMARYQUANTITY,
+                                                                                BASEPRIMARYUNITCODE
+                                                                            FROM 
+                                                                                (
+                                                                                SELECT 
+                                                                                    v.WAREHOUSECODE AS LOGICALWAREHOUSECODE,
+                                                                                    p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
+                                                                                    v.PRODUCTIONORDERCODE AS ISTANCECODE,
+                                                                                    v.ITEMTYPEAFICODE AS ITEMTYPECODE,
+                                                                                    v.SCHEDULEDISSUEDATE AS DUEDATE,
+                                                                                    v.SUBCODE01 AS DECOSUBCODE01,
+                                                                                    v.SUBCODE02 AS DECOSUBCODE02,
+                                                                                    v.SUBCODE03 AS DECOSUBCODE03,
+                                                                            	    v.PROGRESSSTATUS as STATUS,
+                                                                                    p.STATUS AS PRODUCTIONORDER_STATUS,
+                                                                                    CASE 
+                                                                                        WHEN v.BASEPRIMARYUOMCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
+                                                                                        WHEN v.BASEPRIMARYUOMCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
+                                                                                        ELSE BASEPRIMARYQUANTITY
+                                                                                    END AS BASEPRIMARYQUANTITY,
+                                                                                    v.BASEPRIMARYUOMCODE AS BASEPRIMARYUNITCODE
+                                                                                    FROM 
+                                                                                        PRODUCTIONRESERVATION v 
+                                                                                    LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.PRODUCTIONORDERCODE 
+                                                                                    WHERE 
+                                                                                        v.ITEMTYPEAFICODE ='DYC'
+                                                                            		    AND v.PROGRESSSTATUS = 0
+                                                                                        AND p.STATUS = 0
+                                                                                        AND p.PRODUCTIONORDERCOUNTERCODE = '640'
+                                                                                        AND v.WAREHOUSECODE  = '$_POST[warehouse]'
+                                                                                        AND v.SUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                                                        AND v.SUBCODE02 = '$row[DECOSUBCODE02]' 
+                                                                                        AND v.SUBCODE03 = '$row[DECOSUBCODE03]' 
+                                                                                        AND v.SCHEDULEDISSUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
+                                                                                GROUP BY 
+                                                                                    LOGICALWAREHOUSECODE,
+                                                                                    COUNTERCODE,
+                                                                            	    STATUS,
+                                                                                    ITEMTYPECODE,
+                                                                                    DECOSUBCODE01,
+                                                                                    DECOSUBCODE02,
+                                                                                    DECOSUBCODE03,
+                                                                                    BASEPRIMARYUNITCODE");
                                     $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang);                                    
 
                                     $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
@@ -790,7 +791,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 //     } elseif ($row_balance['STOCK_BALANCE'] < $row_stock_minimum['SAFETYSTOCK']) {
                                 //         $keterangan = 'SEGERA ORDER';
                                 //     }
+                                    $status = $row_balance['STATUS_'];
+                                    $style = '';
 
+                                    if ($status == 'SEGERA ORDER') {
+                                        $style = 'background-color: #f44336; color: white; font-weight: bold;'; // merah cerah + teks putih
+                                    } elseif ($status == 'HITUNG KEBUTUHAN ORDER') {
+                                        $style = 'background-color: #fff176; color: black; font-weight: bold;'; // kuning terang + teks hitam
+                                    }
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['KODE_OBAT'] ?></td>
@@ -841,7 +849,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <td><?php echo $qty_stock_pakai_belum_timbang ?></td>
                                         <td><?php echo $sisa_stock_balance_future ?></td>
                                         <?php if ($_POST['warehouse'] == 'M101'): ?>
-                                        <td><?php echo $row_balance['STATUS_'];?></td>
+                                        <!-- <td><?php echo $row_balance['STATUS_'];?></td>-->
+                                        <td style="<?= $style ?>">
+                                            <?= htmlspecialchars($status) ?>
+                                        </td>
                                         <?php endif; ?>
                                         <td><?php echo  $row_balance['NOTELAB']?></td>
                                         <td><?php echo  $row_balance['CERTIFICATION']?></td>

@@ -211,7 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <th><center>Detail</center></th>
                                     <th><center>Tgl Tutup</center></th>
                                     <th><center>Warehouse</center></th>
-                                    <th><center>Qty</center></th>
+                                    <th><center>Qty (Kg)</center></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -223,6 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                     SUM(BASEPRIMARYQUANTITYUNIT) as total_qty 
                                                                                     FROM tblopname_11
                                                                                     where  tgl_tutup = '$_POST[tgl]' 
+                                                                                    and not kode_obat = 'E-1-000'
                                                                                     GROUP BY LOGICALWAREHOUSECODE, 
                                                                                     tgl_tutup");
                                 while ($row = mysqli_fetch_array($tutup_transaksi)) {
