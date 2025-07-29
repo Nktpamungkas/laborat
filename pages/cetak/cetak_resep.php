@@ -1997,8 +1997,24 @@
                 <td style="font-weight: bold; <?= $adj6_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc6']) != 0) echo floatval($rsp23['conc6']) ?><span style="color: red;"><?= $adj5_23; ?></span></td>
                 <td style="font-weight: bold; <?= $adj7_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc7']) != 0) echo floatval($rsp23['conc7']) ?><span style="color: red;"><?= $adj6_23; ?></span></td>
                 <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?><span style="color: red;"><?= $adj7_23; ?></span></td>
-                <td rowspan="7">&nbsp;</td>
-                <td rowspan="7">&nbsp;</td>
+                <td rowspan="7" style="text-align: center; vertical-align: middle;">
+                    <?php if($_GET['frm'] == 'bresep') : ?>
+                        <?php if($data['suhu_chamber'] == '1') : ?>
+                            <img src="../../dist/img/suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
+                        <?php else : ?>
+                            &nbsp;
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
+                <td rowspan="7" style="text-align: center; vertical-align: middle;">
+                    <?php if($_GET['frm'] == 'bresep') : ?>
+                        <?php if($data['warna_flourescent'] == '1') : ?>
+                            <img src="../../dist/img/warna fluorescent.png" width="300" height="100" alt="Warna Fluorescent">
+                        <?php else : ?>
+                            &nbsp;
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </td>
             </tr>
             <!-- BARIS 24 -->
             <?php
