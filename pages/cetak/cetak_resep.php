@@ -2538,7 +2538,7 @@
         tooltip.style.left = (rect.left + window.scrollX) + 'px';
 
         // Ambil data dari server
-        const number = '40845D'; // <- Ganti dengan nilai dinamis kalau perlu
+        const number = '<?= $data['no_warna']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
         try {
             const response = await fetch('quality_result.php?number=' + number);
             const html = await response.text();
