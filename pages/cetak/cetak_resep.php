@@ -1285,19 +1285,21 @@
                                         LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = u.ABSUNIQUEID AND a3.FIELDNAME = 'RGBvalueB'
                                         WHERE 
                                             u.USERGENERICGROUPTYPECODE = 'CL1'
-                                            AND u.CODE = '250137S'";
+                                            AND u.CODE = '$data[color_code]'";
                             $stmtRGB = db2_exec($conn1, $sqlRGB);
                             $rowRGB  = db2_fetch_assoc($stmtRGB);
 
-                            $r = $rowRGB['R'];
-                            $g = $rowRGB['G'];
-                            $b = $rowRGB['B'];
-
-                            // Buat nilai warna hex
-                            $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b);
-                        }
+                            $r = $rowRGB['R'] ?? null;
+                            $g = $rowRGB['G'] ?? null;
+                            $b = $rowRGB['B'] ?? null;
                     ?>
-                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>;"></div>
+                        <?php if ($r !== null && $g !== null && $b !== null) : ?>
+                            <?php $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b); ?>
+                            <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold;">
+                                RGB(<?= $r ?>, <?= $g ?>, <?= $b ?>)
+                            </div>
+                        <?php endif;  ?>
+                    <?php } ?>
                 </td>
             </tr>
             <!-- BARIS 12 -->
