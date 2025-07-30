@@ -7,7 +7,8 @@ include "../../koneksi.php";
 
 try {
     $statuses = [
-        'in_progress_dyeing'
+        'in_progress_dyeing',
+        'stop_dyeing'
     ];
 
     $statusList = "'" . implode("','", $statuses) . "'";

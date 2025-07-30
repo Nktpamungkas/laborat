@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $prefix = "1";
 
             // Cari apakah sudah ada suhu dengan awalan ini
-            $query = mysqli_query($con, "SELECT `group` FROM master_suhu WHERE program='1' AND product_name LIKE '$suhu%' LIMIT 1");
+            $query = mysqli_query($con, "SELECT `group` FROM master_suhu WHERE program='1' AND suhu LIKE '$suhu%' AND dyeing='$dyeing' LIMIT 1");
             if (mysqli_num_rows($query) > 0) {
                 $row = mysqli_fetch_assoc($query);
                 $group = $row['group'];

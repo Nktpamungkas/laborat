@@ -274,6 +274,9 @@
     let blockedResepMap = {};
 
     function loadScheduleTable() {
+        const scrollLeft = $('#tableContainer').scrollLeft();
+        const scrollLeftNext = $('#tableContainerNext').scrollLeft();
+        
         $.ajax({
             url: 'pages/ajax/generate_dyeing.php',
             type: 'GET',
@@ -338,7 +341,7 @@
                     });
                 }
 
-                let html = `<div class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
+                let html = `<div id="tableContainer" class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
                         <table class="table table-bordered table-striped align-middle text-center">
                         <colgroup><col style="min-width: 50px;">`;
                 machineKeys.forEach(() => html += `<col style="min-width: 300px;">`);
@@ -358,19 +361,46 @@
                         if (cell) {
                             const now = new Date();
                             let warningClass = '';
+                            let shouldStop = false;
+
                             if (cell.dyeing_start) {
                                 const start = new Date(cell.dyeing_start);
                                 const diffMin = (now - start) / 60000;
                                 const proc = parseFloat(cell.waktu) || 0;
-                                if (diffMin > (120 + proc)) warningClass = 'blink-warning';
+
+                                if (diffMin >= (30 + proc)) {
+                                    warningClass = 'blink-warning';
+                                    shouldStop = true;
+                                }
                             }
+
                             const moveClass = cell.justMoved ? 'slide-up' : '';
+
                             html += `<td class="${warningClass} ${moveClass}">
                                         <div style="display: flex; justify-content: space-around; white-space: nowrap;">
                                             <span>${cell.no_resep}</span>
                                             <span class="text-muted">${cell.status}</span>
                                         </div>
                                     </td>`;
+
+                            if (shouldStop) {
+                                // Kirim permintaan update status ke stop_dyeing
+                                $.ajax({
+                                    url: 'pages/ajax/scan_dyeing_update_status.php',
+                                    method: 'POST',
+                                    data: {
+                                        no_resep: cell.no_resep,
+                                        force_stop: true
+                                    },
+                                    success: function (response) {
+                                        console.log("✅ Resep dihentikan otomatis:", cell.no_resep);
+                                    },
+                                    error: function (xhr) {
+                                        console.error("❌ Gagal update stop_dyeing:", cell.no_resep, xhr.responseText);
+                                    }
+                                });
+                            }
+
                         } else {
                             html += `<td></td>`;
                         }
@@ -380,6 +410,7 @@
 
                 html += `</tbody></table></div>`;
                 $('#schedule_table').html(html);
+                $('#tableContainer').scrollLeft(scrollLeft);
 
                 // ✅ Gabungkan semua justMoved jadi satu array dan kirim sekaligus
                 const movedReseps = [];
@@ -411,7 +442,7 @@
                     const oldMax = Math.max(...remainingOldMachines.map(m => oldMachineMap[m].length));
                     let htmlOld = `<div class="card mt-4"><div class="card-body">
                         <h5 class="text-center text-muted">Next Cycle</h5>
-                        <div class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
+                        <div id="tableContainerNext" class="table-responsive" {!--style="max-height: 750px; overflow: auto;"--}>
                         <table class="table table-bordered table-striped align-middle text-center">
                             <colgroup><col style="min-width: 50px;">`;
                     remainingOldMachines.forEach(() => htmlOld += `<col style="min-width: 300px;">`);
@@ -442,6 +473,7 @@
 
                     htmlOld += `</tbody></table></div></div></div>`;
                     $('#schedule_table').append(htmlOld);
+                    $('#tableContainerNext').scrollLeft(scrollLeftNext);
                 }
             },
             error: function (xhr, status, error) {
