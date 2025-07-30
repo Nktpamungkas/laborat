@@ -637,43 +637,47 @@
                 where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 0,50");
                 $iteration = 1;
                 ?>
-                <td colspan="2" rowspan="5">
-                    <div style="display: flex; justify-content:space-between">
-                        <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
-                            <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
-                        <?php } ?>
-                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
-                            <?php
-                            if (!empty($data['no_resep'])) {
-                                include('../../phpqrcode/qrlib.php');
-
-                                $qrcode = $data['no_resep'];
-
-                                if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
-                                    $qrcodeA = $qrcode . '-A';
-                                    $fileqrA = 'qrcode_A.png';
-                                    QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
-
-                                    $qrcodeB = $qrcode . '-B';
-                                    $fileqrB = 'qrcode_B.png';
-                                    QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
-
-                                    echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
-                                    echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
-                                } else {
-                                    $fileqr = 'qrcode.png';
-                                    QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
-                                    echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
-                                }
-                            }
-                            ?>
-
-                            <?php if ($data['salesman_sample'] == "1") { ?>
-                                <strong style="font-size: 21px;">S/S</strong>
+                <?php if($_GET['frm'] == 'bresep') : ?>
+                    <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="5" class="adj" data-adj="info-lab" align="center"><div class="tooltip-wrapper"><strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span></div></td>
+                <?php else : ?>
+                    <td colspan="2" rowspan="5">
+                        <div style="display: flex; justify-content:space-between">
+                            <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
+                                <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
                             <?php } ?>
+                            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+                                <?php
+                                if (!empty($data['no_resep'])) {
+                                    include('../../phpqrcode/qrlib.php');
+
+                                    $qrcode = $data['no_resep'];
+
+                                    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+                                        $qrcodeA = $qrcode . '-A';
+                                        $fileqrA = 'qrcode_A.png';
+                                        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
+
+                                        $qrcodeB = $qrcode . '-B';
+                                        $fileqrB = 'qrcode_B.png';
+                                        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
+
+                                        echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
+                                        echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
+                                    } else {
+                                        $fileqr = 'qrcode.png';
+                                        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                                        echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                                    }
+                                }
+                                ?>
+
+                                <?php if ($data['salesman_sample'] == "1") { ?>
+                                    <strong style="font-size: 21px;">S/S</strong>
+                                <?php } ?>
+                            </div>
                         </div>
-                    </div>
-                </td>
+                    </td>
+                <?php endif; ?>
 
             </tr>
             <!-- BARIS 2 -->
@@ -2350,7 +2354,11 @@
             <td colspan="4" align="center">Bleaching</td>
             <td colspan="3" align="center"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min</td>
             <td colspan="3">&nbsp;</td>
-            <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="4" class="adj" data-adj="info-dyeing" align="center"><div class="tooltip-wrapper"><strong>Info Dyeing : <?= getCommentAdj($con, 'info-dyeing') ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'info-dyeing') ?></span></div></td>
+            <?php else : ?>
+                <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
+            <?php endif; ?>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Soaping</td>
@@ -2485,7 +2493,7 @@
                     title: 'Berhasil!',
                     text: 'Comment berhasil disimpan!',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 1000,
                     timerProgressBar: true
                 }).then(() => {
                     location.reload(); // reload setelah alert tertutup
@@ -2564,4 +2572,3 @@
         tooltip.style.display = 'none';
     });
 </script>
-
