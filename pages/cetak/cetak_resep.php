@@ -637,19 +637,20 @@
                 where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 0,50");
                 $iteration = 1;
                 ?>
-                <?php if($_GET['frm'] == 'bresep') : ?>
-                    <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="5" class="adj" data-adj="info-lab" align="center"><div class="tooltip-wrapper"><strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span></div></td>
-                <?php else : ?>
-                    <td colspan="2" rowspan="5">
-                        <div style="display: flex; justify-content:space-between">
-                            <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
-                                <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
-                            <?php } ?>
-                            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+                <?php if ($_GET['frm'] == 'bresep') : ?>
+                    <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="5" class="adj" data-adj="info-lab">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <!-- Info Laborat (kiri) -->
+                            <div class="tooltip-wrapper" style="max-width: 70%;">
+                                <strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong>
+                                <span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span>
+                            </div>
+
+                            <!-- QR Code (kanan) -->
+                            <div style="display: flex; flex-direction: row; gap: 12px; align-items: flex-start;">
                                 <?php
                                 if (!empty($data['no_resep'])) {
                                     include('../../phpqrcode/qrlib.php');
-
                                     $qrcode = $data['no_resep'];
 
                                     if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
@@ -669,15 +670,56 @@
                                         echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
                                     }
                                 }
-                                ?>
 
-                                <?php if ($data['salesman_sample'] == "1") { ?>
-                                    <strong style="font-size: 21px;">S/S</strong>
-                                <?php } ?>
+                                if ($data['salesman_sample'] == "1") {
+                                    echo '<strong style="font-size: 21px;">S/S</strong>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </td>
+
+                <?php else : ?>
+                    <td colspan="2" rowspan="5">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <?php while ($no = mysqli_fetch_array($sql_Norder1)) : ?>
+                                    <?= $iteration++ . '.(' . $no['order'] . ')' ?>&nbsp;&nbsp;&nbsp;
+                                <?php endwhile; ?>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+                                <?php
+                                if (!empty($data['no_resep'])) {
+                                    include('../../phpqrcode/qrlib.php');
+                                    $qrcode = $data['no_resep'];
+
+                                    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+                                        $qrcodeA = $qrcode . '-A';
+                                        $fileqrA = 'qrcode_A.png';
+                                        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
+
+                                        $qrcodeB = $qrcode . '-B';
+                                        $fileqrB = 'qrcode_B.png';
+                                        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
+
+                                        echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
+                                        echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
+                                    } else {
+                                        $fileqr = 'qrcode.png';
+                                        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                                        echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                                    }
+                                }
+
+                                if ($data['salesman_sample'] == "1") {
+                                    echo '<strong style="font-size: 21px;">S/S</strong>';
+                                }
+                                ?>
                             </div>
                         </div>
                     </td>
                 <?php endif; ?>
+
 
             </tr>
             <!-- BARIS 2 -->
