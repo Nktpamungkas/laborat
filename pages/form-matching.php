@@ -270,25 +270,18 @@
 			// get data no urut terakhir
 			$queryGetNoUrut = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 			$fetchGetNoUrut = mysqli_fetch_array($queryGetNoUrut);
-			$dataNoUrut = $fetchGetNoUrut['nourut'] + 1;
-			$no_resep = $_POST['Dyestuff'] . $dataNoUrut;
+			$dataNoUrut 	= $fetchGetNoUrut['nourut'] + 1;
+			$no_resep 		= $_POST['Dyestuff'] . $dataNoUrut;
 
-			$recipe = str_replace("'", "''", $_POST['recipe_code']);
-			$colorcode = str_replace("'", "''", $_POST['color_code']);
-			$gLD = str_replace("'", "''", $_POST['g_LD']);
+			$recipe 		= str_replace("'", "''", $_POST['recipe_code']);
+			$colorcode 		= str_replace("'", "''", $_POST['color_code']);
+			$gLD 			= str_replace("'", "''", $_POST['g_LD']);
+			$jnsMtch 		= $_POST['jen_matching'];
+			$tempCode 		= $_POST['temp_code'];
+			$tempCode2 		= $_POST['temp_code2'];
 
-			// if ($_POST['jen_matching'] == "Matching Ulang NOW") {
-			// 	$jnsMtch = "Matching Ulang";
-			// } else if ($_POST['jen_matching'] == "Perbaikan NOW") {
-			// 	$jnsMtch = "Perbaikan";
-			// } else {
-			$jnsMtch = $_POST['jen_matching'];
-			// }
-			$tempCode = $_POST['temp_code'];
-			$tempCode2 = $_POST['temp_code2'];
-
-			$suhuchamber			= $_POST['suhu_chamber'];
-			$warnafluorescent		= $_POST['warna_fluorescent'];
+			echo $suhuchamber 	= $_POST['suhu_chamber'] !== '' ? $_POST['suhu_chamber'] : ($_POST['none_suhu_chamber'] !== '' ? $_POST['none_suhu_chamber'] : null);
+			$warnafluorescent	= $_POST['warna_fluorescent'];
 
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
 					no_resep='$no_resep',
@@ -766,19 +759,59 @@
 	</div>
 
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<label class="col-sm-2 control-label">Suhu Chamber</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<!-- Checkbox hanya untuk menampilkan input -->
+			<input type="checkbox" id="suhu_chamber" onchange="toggleInputSuhu()">
 			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+
+			<!-- Input suhu yang akan dikirim -->
+			<input type="number" id="input_suhu" name="suhu_chamber" class="form-control mt-1"
+				placeholder="Isi suhu" style="display: none;" min="0">
+		</div>
+		<div class="col-sm-3">
+			<!-- Checkbox None -->
+			<label style="color: red;">
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+			</label>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<label class="col-sm-2 control-label">Warna Flourescent</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent"  value="1">
+			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
 			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
+
+	<script>
+		function toggleInputSuhu() {
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+
+			if (suhuCheckbox.checked) {
+				inputSuhu.style.display = 'block';
+				inputSuhu.disabled = false;
+				noneCheckbox.checked = false;
+			} else {
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = '';
+			}
+		}
+
+		function toggleNoneSuhu() {
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+
+			if (noneCheckbox.checked) {
+				suhuCheckbox.checked = false;
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = 'none';
+			}
+		}
+	</script>
 	
 	<div class="box-footer">
 		<div class="col-sm-2">
@@ -910,19 +943,59 @@
 	</div>
 
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<label class="col-sm-2 control-label">Suhu Chamber</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<!-- Checkbox hanya untuk menampilkan input -->
+			<input type="checkbox" id="suhu_chamber" onchange="toggleInputSuhu()">
 			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+
+			<!-- Input suhu yang akan dikirim -->
+			<input type="number" id="input_suhu" name="suhu_chamber" class="form-control mt-1"
+				placeholder="Isi suhu" style="display: none;" min="0">
+		</div>
+		<div class="col-sm-3">
+			<!-- Checkbox None -->
+			<label style="color: red;">
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+			</label>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<label class="col-sm-2 control-label">Warna Flourescent</label>
 		<div class="col-sm-2">
 			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
 			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
+
+	<script>
+		function toggleInputSuhu() {
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+
+			if (suhuCheckbox.checked) {
+				inputSuhu.style.display = 'block';
+				inputSuhu.disabled = false;
+				noneCheckbox.checked = false;
+			} else {
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = '';
+			}
+		}
+
+		function toggleNoneSuhu() {
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+
+			if (noneCheckbox.checked) {
+				suhuCheckbox.checked = false;
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = 'none';
+			}
+		}
+	</script>
 
 	<div class="box-footer">
 		<div class="col-sm-2">
@@ -1098,19 +1171,59 @@
 	</div>
 
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<label class="col-sm-2 control-label">Suhu Chamber</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<!-- Checkbox hanya untuk menampilkan input -->
+			<input type="checkbox" id="suhu_chamber" onchange="toggleInputSuhu()">
 			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+
+			<!-- Input suhu yang akan dikirim -->
+			<input type="number" id="input_suhu" name="suhu_chamber" class="form-control mt-1"
+				placeholder="Isi suhu" style="display: none;" min="0">
+		</div>
+		<div class="col-sm-3">
+			<!-- Checkbox None -->
+			<label style="color: red;">
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+			</label>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<label class="col-sm-2 control-label">Warna Flourescent</label>
 		<div class="col-sm-2">
 			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
 			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
+
+	<script>
+		function toggleInputSuhu() {
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+
+			if (suhuCheckbox.checked) {
+				inputSuhu.style.display = 'block';
+				inputSuhu.disabled = false;
+				noneCheckbox.checked = false;
+			} else {
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = '';
+			}
+		}
+
+		function toggleNoneSuhu() {
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+
+			if (noneCheckbox.checked) {
+				suhuCheckbox.checked = false;
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = 'none';
+			}
+		}
+	</script>
 
 	<div class="box-footer">
 		<div class="col-sm-2">
@@ -1405,19 +1518,59 @@
 	</div>
 
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<label class="col-sm-2 control-label">Suhu Chamber</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<!-- Checkbox hanya untuk menampilkan input -->
+			<input type="checkbox" id="suhu_chamber" onchange="toggleInputSuhu()">
 			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+
+			<!-- Input suhu yang akan dikirim -->
+			<input type="number" id="input_suhu" name="suhu_chamber" class="form-control mt-1"
+				placeholder="Isi suhu" style="display: none;" min="0">
+		</div>
+		<div class="col-sm-3">
+			<!-- Checkbox None -->
+			<label style="color: red;">
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+			</label>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<label class="col-sm-2 control-label">Warna Flourescent</label>
 		<div class="col-sm-2">
 			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
 			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
+
+	<script>
+		function toggleInputSuhu() {
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+
+			if (suhuCheckbox.checked) {
+				inputSuhu.style.display = 'block';
+				inputSuhu.disabled = false;
+				noneCheckbox.checked = false;
+			} else {
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = '';
+			}
+		}
+
+		function toggleNoneSuhu() {
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+
+			if (noneCheckbox.checked) {
+				suhuCheckbox.checked = false;
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = 'none';
+			}
+		}
+	</script>
 
 	<div class="box-footer">
 		<div class="col-sm-2">
@@ -2060,19 +2213,59 @@
 	</div>
 
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Suhu Chamber 120</label>
+		<label class="col-sm-2 control-label">Suhu Chamber</label>
 		<div class="col-sm-2">
-			<input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1">
+			<!-- Checkbox hanya untuk menampilkan input -->
+			<input type="checkbox" id="suhu_chamber" onchange="toggleInputSuhu()">
 			<label class="form-check-label" for="suhu_chamber">Stempel Aktif</label>
+
+			<!-- Input suhu yang akan dikirim -->
+			<input type="number" id="input_suhu" name="suhu_chamber" class="form-control mt-1"
+				placeholder="Isi suhu" style="display: none;" min="0">
+		</div>
+		<div class="col-sm-3">
+			<!-- Checkbox None -->
+			<label style="color: red;">
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+			</label>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">Warna Flourescent</label>
+		<label class="col-sm-2 control-label">Warna Flourescent</label>
 		<div class="col-sm-2">
 			<input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1">
 			<label class="form-check-label" for="warna_fluorescent">Stempel Aktif</label>
 		</div>
 	</div>
+
+	<script>
+		function toggleInputSuhu() {
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+
+			if (suhuCheckbox.checked) {
+				inputSuhu.style.display = 'block';
+				inputSuhu.disabled = false;
+				noneCheckbox.checked = false;
+			} else {
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = '';
+			}
+		}
+
+		function toggleNoneSuhu() {
+			const noneCheckbox = document.getElementById('none_suhu_chamber');
+			const suhuCheckbox = document.getElementById('suhu_chamber');
+			const inputSuhu = document.getElementById('input_suhu');
+
+			if (noneCheckbox.checked) {
+				suhuCheckbox.checked = false;
+				inputSuhu.style.display = 'none';
+				inputSuhu.value = 'none';
+			}
+		}
+	</script>
 
 	<div class="box-footer">
 		<div class="col-sm-2">

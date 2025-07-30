@@ -355,7 +355,47 @@
             border: 1px solid #ccc;
         }
     </style>
-
+    <style>
+        .stamp-box-suhuchamber {
+            border: 4px solid #007bff;
+            border-radius: 8px;
+            width: fit-content; /* Biar panjangnya otomatis */
+            min-width: 250px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace; /* gaya cap */
+            letter-spacing: 1px;
+            text-shadow: 0 0 2px #007bff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            background-color: white;
+            transform: rotate(-2deg); /* sedikit miring */
+        }
+        
+        .stamp-box-warnafluorescent {
+            border: 4px solid #dc3545; /* Merah tua */
+            border-radius: 8px;
+            width: fit-content; /* Biar panjangnya otomatis */
+            min-width: 250px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace; /* gaya cap */
+            letter-spacing: 1px;
+            text-shadow: 0 0 2px #dc3545;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            background-color: white;
+            transform: rotate(-2deg); /* sedikit miring */
+        }
+    </style>
 <?php endif; ?>
 
 <body>
@@ -2047,8 +2087,14 @@
                 <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?><span style="color: red;"><?= $adj7_23; ?></span></td>
                 <td rowspan="7" style="text-align: center; vertical-align: middle;">
                     <?php if($_GET['frm'] == 'bresep') : ?>
-                        <?php if($data['suhu_chamber'] == '1') : ?>
-                            <img src="../../dist/img/suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
+                        <?php if(is_numeric($data['suhu_chamber']) > 0) : ?>
+                            <center>
+                                <div class="stamp-box-suhuchamber">
+                                    SUHU CHAMBER <?= $data['suhu_chamber']; ?>°C
+                                </div>
+                            </center>
+                        <?php elseif($data['suhu_chamber'] == 'none') : ?>
+                            <img src="../../dist/img/none suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
                         <?php else : ?>
                             &nbsp;
                         <?php endif; ?>
@@ -2057,7 +2103,11 @@
                 <td rowspan="7" style="text-align: center; vertical-align: middle;">
                     <?php if($_GET['frm'] == 'bresep') : ?>
                         <?php if($data['warna_flourescent'] == '1') : ?>
-                            <img src="../../dist/img/warna fluorescent.png" width="300" height="100" alt="Warna Fluorescent">
+                            <center>
+                                <div class="stamp-box-warnafluorescent">
+                                    WARNA FLUORESCENT
+                                </div>
+                            </center>
                         <?php else : ?>
                             &nbsp;
                         <?php endif; ?>
