@@ -1,28 +1,44 @@
 <?php
 session_start();
-
 $user_ip = $_SERVER['REMOTE_ADDR'];
 $lock_file = __DIR__ . '/access.lock';
+$lock_expired = 600; // 10 menit
 
-// Cek apakah lock sudah ada
+// --- CEK LOCK
 if (file_exists($lock_file)) {
     $data = json_decode(file_get_contents($lock_file), true);
     $lock_ip = $data['ip'];
+    $lock_user = $data['username'];
+    $lock_time = $data['timestamp'];
 
-    // Jika lock bukan milik user ini
-    if (!isset($_SESSION['is_locked_owner']) || $_SESSION['is_locked_owner'] !== true) {
+    if ((time() - $lock_time) > $lock_expired) {
+        // Lock kadaluarsa, hapus
+        unlink($lock_file);
+    } elseif (!isset($_SESSION['is_locked_owner']) || $_SESSION['is_locked_owner'] !== true) {
         if ($lock_ip !== $user_ip) {
-            echo "<h3 style='color:red;'>Halaman sedang digunakan oleh komputer lain.</h3>";
+            echo "<h3 style='color:red;'>Halaman sedang diakses oleh <b>$lock_user</b></h3>";
             exit;
         }
     }
-} else {
-    // Lock belum ada, buat dan tandai session pemilik lock
+}
+
+// --- BUAT LOCK JIKA BELUM ADA
+if (!file_exists($lock_file)) {
     file_put_contents($lock_file, json_encode([
         'ip' => $user_ip,
+        'username' => $_SESSION['userLAB'],
         'timestamp' => time()
     ]));
     $_SESSION['is_locked_owner'] = true;
+}
+
+// --- PERPANJANG LOCK JIKA PEMILIK
+if (isset($_SESSION['is_locked_owner']) && $_SESSION['is_locked_owner'] === true) {
+    file_put_contents($lock_file, json_encode([
+        'ip' => $user_ip,
+        'username' => $_SESSION['userLAB'],
+        'timestamp' => time()
+    ]));
 }
 ?>
 
