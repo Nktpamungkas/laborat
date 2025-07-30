@@ -368,7 +368,7 @@
                                 const diffMin = (now - start) / 60000;
                                 const proc = parseFloat(cell.waktu) || 0;
 
-                                if (diffMin >= 1) {
+                                if (diffMin >= (30 + proc)) {
                                     warningClass = 'blink-warning';
                                     shouldStop = true;
                                 }

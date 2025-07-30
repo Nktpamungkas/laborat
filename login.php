@@ -42,9 +42,10 @@ if ($_POST) { //login user
 	}
 } elseif ($_GET['act'] == "logout") { //logout user
 
-	if (isset($_SESSION['is_locked_owner']) && $_SESSION['is_locked_owner'] === true) {
-		$lock_file = __DIR__ . '/access.lock';
-		if (file_exists($lock_file)) {
+	$lock_file = __DIR__ . '/access.lock';
+	if (file_exists($lock_file)) {
+		$data = json_decode(file_get_contents($lock_file), true);
+		if ($data['ip'] === $_SERVER['REMOTE_ADDR']) {
 			unlink($lock_file);
 		}
 	}
