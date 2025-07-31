@@ -354,26 +354,90 @@
                 });
                 html += `</tr></thead><tbody>`;
 
+                const machinesToForceStop = {};
+                const now = new Date();
+
+                machineKeys.forEach(machine => {
+                    const cells = data[machine];
+                    if (!Array.isArray(cells) || cells.length === 0) return;
+
+                    let latestStart = null;
+                    let maxWaktu = 0;
+                    let allHaveStart = true;
+
+                    cells.forEach(cell => {
+                        if (!cell.dyeing_start) {
+                            allHaveStart = false;
+                        } else {
+                            const startDate = new Date(cell.dyeing_start);
+                            if (!latestStart || startDate > latestStart) {
+                                latestStart = startDate;
+                            }
+                        }
+
+                        const waktu = parseFloat(cell.waktu) || 0;
+                        if (waktu > maxWaktu) {
+                            maxWaktu = waktu;
+                        }
+                    });
+
+                    if (allHaveStart && latestStart) {
+                        const diffMin = (now - latestStart) / 60000;
+                        if (diffMin >= (30 + maxWaktu)) {
+                            machinesToForceStop[machine] = cells.map(c => c.no_resep);
+                        }
+                    }
+                });
+
                 for (let i = 0; i < maxPerMachine; i++) {
                     html += `<tr><td class="sticky-col">${i + 1}</td>`;
                     machineKeys.forEach(machine => {
                         const cell = data[machine]?.[i];
                         if (cell) {
-                            const now = new Date();
-                            let warningClass = '';
-                            let shouldStop = false;
+                            // const now = new Date();
+                            // let warningClass = '';
+                            // let shouldStop = false;
 
-                            if (cell.dyeing_start) {
-                                const start = new Date(cell.dyeing_start);
-                                const diffMin = (now - start) / 60000;
-                                const proc = parseFloat(cell.waktu) || 0;
+                            // if (cell.dyeing_start) {
+                            //     const start = new Date(cell.dyeing_start);
+                            //     const diffMin = (now - start) / 60000;
+                            //     const proc = parseFloat(cell.waktu) || 0;
 
-                                if (diffMin >= (30 + proc)) {
-                                    warningClass = 'blink-warning';
-                                    shouldStop = true;
-                                }
-                            }
+                            //     if (diffMin >= (30 + proc)) {
+                            //         warningClass = 'blink-warning';
+                            //         shouldStop = true;
+                            //     }
+                            // }
 
+                            // const moveClass = cell.justMoved ? 'slide-up' : '';
+
+                            // html += `<td class="${warningClass} ${moveClass}">
+                            //             <div style="display: flex; justify-content: space-around; white-space: nowrap;">
+                            //                 <span>${cell.no_resep}</span>
+                            //                 <span class="text-muted">${cell.status}</span>
+                            //             </div>
+                            //         </td>`;
+
+                            // if (shouldStop) {
+                            //     // Kirim permintaan update status ke stop_dyeing
+                            //     $.ajax({
+                            //         url: 'pages/ajax/scan_dyeing_update_status.php',
+                            //         method: 'POST',
+                            //         data: {
+                            //             no_resep: cell.no_resep,
+                            //             force_stop: true
+                            //         },
+                            //         success: function (response) {
+                            //             console.log("✅ Resep dihentikan otomatis:", cell.no_resep);
+                            //         },
+                            //         error: function (xhr) {
+                            //             console.error("❌ Gagal update stop_dyeing:", cell.no_resep, xhr.responseText);
+                            //         }
+                            //     });
+                            // }
+
+                            const shouldStop = machinesToForceStop[machine]?.includes(cell.no_resep);
+                            const warningClass = shouldStop ? 'blink-warning' : '';
                             const moveClass = cell.justMoved ? 'slide-up' : '';
 
                             html += `<td class="${warningClass} ${moveClass}">
@@ -383,8 +447,9 @@
                                         </div>
                                     </td>`;
 
-                            if (shouldStop) {
-                                // Kirim permintaan update status ke stop_dyeing
+                            if (shouldStop && !cell._alreadyStopped) {
+                                cell._alreadyStopped = true;
+
                                 $.ajax({
                                     url: 'pages/ajax/scan_dyeing_update_status.php',
                                     method: 'POST',
