@@ -5,6 +5,27 @@ include '../../koneksi.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $no_resep = $_POST['no_resep'];
     $userDyeing = $_SESSION['userLAB'] ?? '';
+    $isForceStop = isset($_POST['force_stop']) && $_POST['force_stop'] === 'true';
+
+    if ($isForceStop) {
+        $stmtSD = $con->prepare("
+            UPDATE tbl_preliminary_schedule 
+            SET status = 'stop_dyeing'
+            WHERE no_resep = ? AND is_old_cycle = 0
+        ");
+        $stmtSD->bind_param("s", $no_resep);
+
+        if ($stmtSD->execute()) {
+            echo json_encode(["success" => true, "new_status" => 'stop_dyeing']);
+        } else {
+            http_response_code(500);
+            echo json_encode(["success" => false, "error" => $stmt->error]);
+        }
+
+        $stmtSD->close();
+        $con->close();
+        exit;
+    }
 
     $stmt = $con->prepare("SELECT COUNT(*) AS total, SUM(status = 'in_progress_dispensing') AS matching FROM tbl_preliminary_schedule WHERE no_resep = ? AND is_old_cycle = 0");
     $stmt->bind_param("s", $no_resep);

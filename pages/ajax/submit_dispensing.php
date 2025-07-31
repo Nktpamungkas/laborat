@@ -34,7 +34,7 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
     // }
 
     // 1️⃣ Ambil mesin yang sibuk SEBELUM pemrosesan input
-    $busyStatuses = ['scheduled', 'in_progress_dispensing', 'in_progress_dyeing'];
+    $busyStatuses = ['scheduled', 'in_progress_dispensing', 'in_progress_dyeing', 'stop_dyeing'];
     $placeholders = implode(',', array_fill(0, count($busyStatuses), '?'));
     $types = str_repeat('s', count($busyStatuses));
 

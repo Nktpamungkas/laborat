@@ -5,7 +5,7 @@
 
     $idm        = $_GET['idm'] ?? '';
     $setting    = $_POST['setting'] ?? '';
-    $value      = $_POST['value'] ?? 0;
+    $value      = $_POST['value'] ?? null;
 
     // Validasi kolom yang boleh di-update
     $allowed = ['suhu_chamber', 'warna_flourescent'];

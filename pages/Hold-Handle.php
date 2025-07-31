@@ -340,18 +340,88 @@ $role = $_SESSION['jabatanLAB']
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Suhu Chamber 120</label>
                             <div class="col-sm-9">
-                                <input type="checkbox" name="suhu_chamber" id="suhu_chamber" value="1" <?= ($data['suhu_chamber'] == '1') ? 'checked' : ''; ?>>
+                                <input type="checkbox" name="suhu_chamber" id="suhu_chamber" <?= (is_numeric($data['suhu_chamber']) > 0) ? 'checked' : ''; ?>>
                                 <label for="suhu_chamber">Stempel Aktif</label>
+
+                                <div id="input_suhu_chamber_container" style="display: <?= ((is_numeric($data['suhu_chamber']) > 0)) ? 'block' : 'none'; ?>; margin-top: 10px;">
+                                    <input type="number" class="form-control" id="input_suhu_chamber" placeholder="Masukkan suhu chamber" value="<?= $data['suhu_chamber'] ?? '' ?>">
+                                </div>
+
+                                <div style="margin-top:10px;">
+                                    <input type="checkbox" id="none_suhu_chamber"<?= ($data['suhu_chamber'] == 'none') ? 'checked' : ''; ?>>
+                                    <label for="none_suhu_chamber" style="color:red;">❌ None - Suhu Chamber</label>
+                                </div>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Warna Fluorescent</label>
                             <div class="col-sm-9">
-                                <input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1" <?= ($data['warna_fluorescent'] == '1') ? 'checked' : ''; ?>>
+                                <input type="checkbox" name="warna_fluorescent" id="warna_fluorescent" value="1" <?= ($data['warna_flourescent'] == '1') ? 'checked' : ''; ?>>
                                 <label for="warna_fluorescent">Stempel Aktif</label>
                             </div>
                         </div>
+
+                        <script>
+                            $(document).ready(function () {
+                                // Update suhu ke server
+                                function updateSuhuChamber(value) {
+                                    $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                                        setting: 'suhu_chamber',
+                                        value: value
+                                    }, function (response) {
+                                        if (response.trim() === 'OK') {
+                                            Swal.fire('Berhasil', 'Suhu Chamber berhasil diperbarui!', 'success');
+                                        } else {
+                                            Swal.fire('Gagal', 'Terjadi kesalahan saat memperbarui.', 'error');
+                                        }
+                                    });
+                                }
+
+                                $('#suhu_chamber').change(function () {
+                                    if ($(this).is(':checked')) {
+                                        $('#input_suhu_chamber_container').show();
+                                        $('#input_suhu_chamber').prop('disabled', false);
+                                        $('#none_suhu_chamber').prop('checked', false);
+                                    } else {
+                                        $('#input_suhu_chamber').show();
+                                        updateSuhuChamber(null);
+                                    }
+                                });
+                                $('#none_suhu_chamber').change(function () {
+                                    if ($(this).is(':checked')) {
+                                        $('#suhu_chamber').prop('checked', false);
+                                        $('#input_suhu_chamber').val('').prop('disabled', true);
+                                        $('#input_suhu_chamber_container').hide();
+                                        updateSuhuChamber('none');
+                                    }else{
+                                        $('#input_suhu_chamber').show();
+                                        const nilai = $('#input_suhu_chamber').val();
+                                        updateSuhuChamber(nilai);
+                                    }
+                                });
+
+                                $('#input_suhu_chamber').on('change blur', function () {
+                                    const suhu = $(this).val();
+                                    if ($('#suhu_chamber').is(':checked') && suhu !== '') {
+                                        updateSuhuChamber(suhu);
+                                    }
+                                });
+
+                                $('#warna_fluorescent').change(function () {
+                                    const isChecked = $(this).is(':checked') ? 1 : 0;
+                                    $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
+                                        setting: 'warna_flourescent',
+                                        value: isChecked
+                                    }, function (response) {
+                                        if (response.trim() === 'OK') {
+                                            Swal.fire('Berhasil', 'Pengaturan Warna Fluorescent berhasil diperbarui!', 'success');
+                                        } else {
+                                            Swal.fire('Gagal', 'Terjadi kesalahan saat memperbarui.', 'error');
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
                     </div>
                     <!-- KANAN -->
                     <div class="col-md-7">
