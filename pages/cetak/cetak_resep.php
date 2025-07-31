@@ -355,7 +355,47 @@
             border: 1px solid #ccc;
         }
     </style>
-
+    <style>
+        .stamp-box-suhuchamber {
+            border: 4px solid #007bff;
+            border-radius: 8px;
+            width: fit-content; /* Biar panjangnya otomatis */
+            min-width: 250px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace; /* gaya cap */
+            letter-spacing: 1px;
+            text-shadow: 0 0 2px #007bff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            background-color: white;
+            transform: rotate(-2deg); /* sedikit miring */
+        }
+        
+        .stamp-box-warnafluorescent {
+            border: 4px solid #dc3545; /* Merah tua */
+            border-radius: 8px;
+            width: fit-content; /* Biar panjangnya otomatis */
+            min-width: 250px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace; /* gaya cap */
+            letter-spacing: 1px;
+            text-shadow: 0 0 2px #dc3545;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            background-color: white;
+            transform: rotate(-2deg); /* sedikit miring */
+        }
+    </style>
 <?php endif; ?>
 
 <body>
@@ -637,43 +677,89 @@
                 where id_matching = '$data[id_matching]' and id_status = '$data[id_status]' order by flag limit 0,50");
                 $iteration = 1;
                 ?>
-                <td colspan="2" rowspan="5">
-                    <div style="display: flex; justify-content:space-between">
-                        <?php while ($no = mysqli_fetch_array($sql_Norder1)) { ?>
-                            <?php echo $iteration++ . '.(' . $no['order'] ?>)&nbsp;&nbsp;&nbsp;
-                        <?php } ?>
-                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
-                            <?php
-                            if (!empty($data['no_resep'])) {
-                                include('../../phpqrcode/qrlib.php');
+                <?php if ($_GET['frm'] == 'bresep') : ?>
+                    <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="5" class="adj" data-adj="info-lab">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <!-- Info Laborat (kiri) -->
+                            <div class="tooltip-wrapper" style="max-width: 70%;">
+                                <strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong>
+                                <span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span>
+                            </div>
 
-                                $qrcode = $data['no_resep'];
+                            <!-- QR Code (kanan) -->
+                            <div style="display: flex; flex-direction: row; gap: 12px; align-items: flex-start;">
+                                <?php
+                                if (!empty($data['no_resep'])) {
+                                    include('../../phpqrcode/qrlib.php');
+                                    $qrcode = $data['no_resep'];
 
-                                if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
-                                    $qrcodeA = $qrcode . '-A';
-                                    $fileqrA = 'qrcode_A.png';
-                                    QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
+                                    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+                                        $qrcodeA = $qrcode . '-A';
+                                        $fileqrA = 'qrcode_A.png';
+                                        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
 
-                                    $qrcodeB = $qrcode . '-B';
-                                    $fileqrB = 'qrcode_B.png';
-                                    QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
+                                        $qrcodeB = $qrcode . '-B';
+                                        $fileqrB = 'qrcode_B.png';
+                                        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
 
-                                    echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
-                                    echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
-                                } else {
-                                    $fileqr = 'qrcode.png';
-                                    QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
-                                    echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                                        echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
+                                        echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
+                                    } else {
+                                        $fileqr = 'qrcode.png';
+                                        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                                        echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                                    }
                                 }
-                            }
-                            ?>
 
-                            <?php if ($data['salesman_sample'] == "1") { ?>
-                                <strong style="font-size: 21px;">S/S</strong>
-                            <?php } ?>
+                                if ($data['salesman_sample'] == "1") {
+                                    echo '<strong style="font-size: 21px;">S/S</strong>';
+                                }
+                                ?>
+                            </div>
                         </div>
-                    </div>
-                </td>
+                    </td>
+
+                <?php else : ?>
+                    <td colspan="2" rowspan="5">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <?php while ($no = mysqli_fetch_array($sql_Norder1)) : ?>
+                                    <?= $iteration++ . '.(' . $no['order'] . ')' ?>&nbsp;&nbsp;&nbsp;
+                                <?php endwhile; ?>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+                                <?php
+                                if (!empty($data['no_resep'])) {
+                                    include('../../phpqrcode/qrlib.php');
+                                    $qrcode = $data['no_resep'];
+
+                                    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+                                        $qrcodeA = $qrcode . '-A';
+                                        $fileqrA = 'qrcode_A.png';
+                                        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 4, 0);
+
+                                        $qrcodeB = $qrcode . '-B';
+                                        $fileqrB = 'qrcode_B.png';
+                                        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 4, 0);
+
+                                        echo '<img src="' . $fileqrA . '" alt="QR Code A" class="qrcode" />';
+                                        echo '<img src="' . $fileqrB . '" alt="QR Code B" class="qrcode" />';
+                                    } else {
+                                        $fileqr = 'qrcode.png';
+                                        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 4, 0);
+                                        echo '<img src="' . $fileqr . '" alt="QR Code" class="qrcode" />';
+                                    }
+                                }
+
+                                if ($data['salesman_sample'] == "1") {
+                                    echo '<strong style="font-size: 21px;">S/S</strong>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </td>
+                <?php endif; ?>
+
 
             </tr>
             <!-- BARIS 2 -->
@@ -2001,8 +2087,14 @@
                 <td style="font-weight: bold;"><?php if (floatval($rsp23['conc8']) != 0) echo floatval($rsp23['conc8']) ?><span style="color: red;"><?= $adj7_23; ?></span></td>
                 <td rowspan="7" style="text-align: center; vertical-align: middle;">
                     <?php if($_GET['frm'] == 'bresep') : ?>
-                        <?php if($data['suhu_chamber'] == '1') : ?>
-                            <img src="../../dist/img/suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
+                        <?php if(is_numeric($data['suhu_chamber']) > 0) : ?>
+                            <center>
+                                <div class="stamp-box-suhuchamber">
+                                    SUHU CHAMBER <?= $data['suhu_chamber']; ?>°C
+                                </div>
+                            </center>
+                        <?php elseif($data['suhu_chamber'] == 'none') : ?>
+                            <img src="../../dist/img/none suhu chamber.png" width="300" height="100" alt="Suhu Chamber">
                         <?php else : ?>
                             &nbsp;
                         <?php endif; ?>
@@ -2011,7 +2103,11 @@
                 <td rowspan="7" style="text-align: center; vertical-align: middle;">
                     <?php if($_GET['frm'] == 'bresep') : ?>
                         <?php if($data['warna_flourescent'] == '1') : ?>
-                            <img src="../../dist/img/warna fluorescent.png" width="300" height="100" alt="Warna Fluorescent">
+                            <center>
+                                <div class="stamp-box-warnafluorescent">
+                                    WARNA FLUORESCENT
+                                </div>
+                            </center>
                         <?php else : ?>
                             &nbsp;
                         <?php endif; ?>
@@ -2350,7 +2446,11 @@
             <td colspan="4" align="center">Bleaching</td>
             <td colspan="3" align="center"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min</td>
             <td colspan="3">&nbsp;</td>
-            <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="4" class="adj" data-adj="info-dyeing" align="center"><div class="tooltip-wrapper"><strong>Info Dyeing : <?= getCommentAdj($con, 'info-dyeing') ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'info-dyeing') ?></span></div></td>
+            <?php else : ?>
+                <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
+            <?php endif; ?>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Soaping</td>
@@ -2485,7 +2585,7 @@
                     title: 'Berhasil!',
                     text: 'Comment berhasil disimpan!',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 1000,
                     timerProgressBar: true
                 }).then(() => {
                     location.reload(); // reload setelah alert tertutup
@@ -2564,4 +2664,3 @@
         tooltip.style.display = 'none';
     });
 </script>
-
