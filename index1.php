@@ -477,6 +477,7 @@ $page = strtolower($page);
                                             $_GET['p'] == "Approval-Bon-Order" ||
                                             $_GET['p'] == "Status-Matching-Bon-Order" ||
                                             $_GET['p'] == "Status-Matching-Ganti-kain" ||
+                                            $_GET['p'] == "Rekap-Update-Status" ||
                                             $_GET['p'] == "Rekap-Data"
                                         )
                                             echo "active"; ?>">
@@ -500,6 +501,10 @@ $page = strtolower($page);
                                                     echo "active"; ?>">
                                                     <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti
                                                             Kain</span></a>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "Rekap-Update-Status")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=Rekap-Update-Status"><i class="fa fa-spinner"></i> <span>Rekap Update Status</span></a>
                                                 </li>
                                                 <li class="<?php if ($_GET['p'] == "Rekap-Data")
                                                     echo "active"; ?>">

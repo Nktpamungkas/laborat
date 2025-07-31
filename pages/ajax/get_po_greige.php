@@ -1,18 +1,128 @@
 <?php
-include "../../koneksi.php";
 session_start();
-
+include "../../koneksi.php";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     $orderCode = $_POST['order_code'];
 
+    // $query = "SELECT DISTINCT 
+    //                 SALESORDERCODE,
+    //                 ORDERLINE,
+    //                 LEGALNAME1,
+    //                 AKJ,
+    //                 JENIS_KAIN,
+    //                 LISTAGG(DISTINCT ITEMCODE, ', ') AS ITEMCODE,
+    //                 LISTAGG(DISTINCT NOTETAS, ', ') AS NOTETAS,
+    //                 NO_PO,
+    //                 GRAMASI,
+    //                 LEBAR,
+    //                 COLOR_STANDARD,
+    //                 WARNA,
+    //                 KODE_WARNA,
+    //                 COLORREMARKS,
+    //                 SUBCODE01,
+    //                 SUBCODE02,
+    //                 SUBCODE03,
+    //                 SUBCODE04,
+    //                 SUBCODE04_FIXED,
+    //                 SUBCODE05,
+    //                 SUBCODE06,
+    //                 SUBCODE07,
+    //                 SUBCODE08,
+    //                 SUBCODE09,
+    //                 SUBCODE10
+    //             FROM 
+    //             (SELECT
+    //                 i.SALESORDERCODE,
+    //                 i.ORDERLINE,
+    //                 CASE 
+    //                     WHEN i.ITEMTYPEAFICODE = 'KFF' THEN i.RESERVATION_SUBCODE04
+    //                     ELSE i.SUBCODE04
+    //                 END AS SUBCODE04_FIXED,
+    //                 i.LEGALNAME1,
+    //                 i.AKJ,
+    //                 p.LONGDESCRIPTION AS JENIS_KAIN,
+    //                 i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
+    //                 i.NOTETAS,
+    //                 i.EXTERNALREFERENCE AS NO_PO,
+    //                 COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+    //                 i3.LEBAR,
+    //                 CASE a.VALUESTRING
+    //                     WHEN '1' THEN 'L/D'
+    //                     WHEN '2' THEN 'First Lot'
+    //                     WHEN '3' THEN 'Original'
+    //                     WHEN '4' THEN 'Previous Order'
+    //                     WHEN '5' THEN 'Master Color'
+    //                     WHEN '6' THEN 'Lampiran Buyer'
+    //                     WHEN '7' THEN 'Body'
+    //                     ELSE ''
+    //                 END AS COLOR_STANDARD,
+    //                 i.WARNA,
+    //                 TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
+    //                 a2.VALUESTRING AS COLORREMARKS,
+    //                 TRIM(i.SUBCODE01) AS SUBCODE01,
+    //                 TRIM(i.SUBCODE02) AS SUBCODE02,
+    //                 TRIM(i.SUBCODE03) AS SUBCODE03,
+    //                 TRIM(i.SUBCODE04) AS SUBCODE04,
+    //                 TRIM(i.SUBCODE05) AS SUBCODE05,
+    //                 TRIM(i.SUBCODE06) AS SUBCODE06,
+    //                 TRIM(i.SUBCODE07) AS SUBCODE07,
+    //                 TRIM(i.SUBCODE08) AS SUBCODE08,
+    //                 TRIM(i.SUBCODE09) AS SUBCODE09,
+    //                 TRIM(i.SUBCODE10) AS SUBCODE10
+    //             FROM
+    //                 ITXVIEWBONORDER i
+    //             LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
+    //                                 AND p.SUBCODE01 = i.SUBCODE01 
+    //                                 AND p.SUBCODE02 = i.SUBCODE02 
+    //                                 AND p.SUBCODE03 = i.SUBCODE03 
+    //                                 AND p.SUBCODE04 = i.SUBCODE04 
+    //                                 AND p.SUBCODE05 = i.SUBCODE05 
+    //                                 AND p.SUBCODE06 = i.SUBCODE06 
+    //                                 AND p.SUBCODE07 = i.SUBCODE07 
+    //                                 AND p.SUBCODE08 = i.SUBCODE08 
+    //                                 AND p.SUBCODE09 = i.SUBCODE09 
+    //                                 AND p.SUBCODE10 = i.SUBCODE10
+    //             LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
+    //             LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
+    //             LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
+    //             LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+    //             WHERE i.SALESORDERCODE = '$orderCode')
+    //             GROUP BY
+    //                 SALESORDERCODE,
+    //                 ORDERLINE,
+    //                 LEGALNAME1,
+    //                 AKJ,
+    //                 JENIS_KAIN,
+    //                 -- ITEMCODE,
+    //                 NO_PO,
+    //                 GRAMASI,
+    //                 LEBAR,
+    //                 COLOR_STANDARD,
+    //                 WARNA,
+    //                 KODE_WARNA,
+    //                 COLORREMARKS,
+    //                 SUBCODE01,
+    //                 SUBCODE02,
+    //                 SUBCODE03,
+    //                 SUBCODE04,
+    //                 SUBCODE04_FIXED,
+    //                 SUBCODE05,
+    //                 SUBCODE06,
+    //                 SUBCODE07,
+    //                 SUBCODE08,
+    //                 SUBCODE09,
+    //                 SUBCODE10
+    //             ORDER BY
+    //                 ORDERLINE 
+    //             ASC";
     $query = "SELECT DISTINCT 
                     SALESORDERCODE,
                     ORDERLINE,
                     LEGALNAME1,
                     AKJ,
-                    JENIS_KAIN,
-                    ITEMCODE,
-                    LISTAGG(NOTETAS, ', ') AS NOTETAS,
+                   	JENIS_KAIN,
+                    LISTAGG(DISTINCT ITEMCODE, ', ') AS ITEMCODE,
+                    LISTAGG(DISTINCT NOTETAS, ', ') AS NOTETAS,
                     NO_PO,
                     GRAMASI,
                     LEBAR,
@@ -24,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     SUBCODE02,
                     SUBCODE03,
                     SUBCODE04,
-                    SUBCODE04_FIXED,
+                    LISTAGG(DISTINCT TRIM(SUBCODE04_FIXED), ', ') AS SUBCODE04_FIXED,
                     SUBCODE05,
                     SUBCODE06,
                     SUBCODE07,
@@ -93,8 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     ORDERLINE,
                     LEGALNAME1,
                     AKJ,
-                    JENIS_KAIN,
-                    ITEMCODE,
+                   	JENIS_KAIN,
                     NO_PO,
                     GRAMASI,
                     LEBAR,
@@ -106,7 +215,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     SUBCODE02,
                     SUBCODE03,
                     SUBCODE04,
-                    SUBCODE04_FIXED,
                     SUBCODE05,
                     SUBCODE06,
                     SUBCODE07,
@@ -374,6 +482,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                 }
             // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
 
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 7
+                $skipBlmReady7 = (
+                    $d_itxviewkk['AKJ'] === 'AKJ' ||
+                    $d_itxviewkk['AKJ'] === 'AKW' 
+                );
+
+                if ($skipBlmReady7) {
+                    $d_booking_blm_ready_7 = [
+                        'BENANG' => '',
+                        'PO_GREIGE' => ''
+                    ];
+                } else {
+                    $q_booking_blm_ready_7 = db2_exec($conn1, "SELECT
+                                                                    ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                    COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                                FROM
+                                                                    ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                                WHERE
+                                                                    SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                    AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                    AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                    AND SUBCODE04 = '$subcode04'
+                                                                    AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA6A']}'
+                                                                    AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                    $d_booking_blm_ready_7 = db2_fetch_assoc($q_booking_blm_ready_7);
+                    $d_booking_blm_ready_7 = $d_booking_blm_ready_7 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+                }
+            // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
+
             // Gabungkan BENANG
                 $benangList = array_values(array_filter([
                     htmlspecialchars($d_rajut['BENANG'] ?? ''),
@@ -383,7 +520,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     htmlspecialchars($d_booking_blm_ready_3['BENANG'] ?? ''),
                     htmlspecialchars($d_booking_blm_ready_4['BENANG'] ?? ''),
                     htmlspecialchars($d_booking_blm_ready_5['BENANG'] ?? ''),
-                    htmlspecialchars($d_booking_blm_ready_6['BENANG'] ?? '')
+                    htmlspecialchars($d_booking_blm_ready_6['BENANG'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_7['BENANG'] ?? '')
                 ]));
             // Gabungkan BENANG
 
@@ -396,7 +534,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     htmlspecialchars($d_booking_blm_ready_3['PO_GREIGE'] ?? ''),
                     htmlspecialchars($d_booking_blm_ready_4['PO_GREIGE'] ?? ''),
                     htmlspecialchars($d_booking_blm_ready_5['PO_GREIGE'] ?? ''),
-                    htmlspecialchars($d_booking_blm_ready_6['PO_GREIGE'] ?? '')
+                    htmlspecialchars($d_booking_blm_ready_6['PO_GREIGE'] ?? ''),
+                    htmlspecialchars($d_booking_blm_ready_7['PO_GREIGE'] ?? ''),
                 ]));
             // Gabungkan PO_GREIGE
 
@@ -420,6 +559,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                                         AND po_greige = '$po'
                                     LIMIT 1";
                 $resultCheck = mysqli_query($con, $queryCheck);
+                // console.log(mysqli_num_rows($resultCheck));
                 if ($resultCheck && mysqli_num_rows($resultCheck) > 0) {
                     $dataCheck = mysqli_fetch_assoc($resultCheck);
                     $selectedPIC = htmlspecialchars($dataCheck['pic_check']);
@@ -490,7 +630,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 <script>
 
 $(document).ready(function(){
-    const currentUser = "<?= $_SESSION['userLAB'] ?? '' ?>";
+    const currentUser = "<?= $_SESSION['userLAB'] ;?>";
+    const ip_user = "<?= $_SESSION['ip'] ;?>";
 
     toastr.options = {
         "positionClass": "toast-top-right",
@@ -505,95 +646,128 @@ $(document).ready(function(){
     // Lock select jika sudah ada data dari awal
     $('.row-item').each(function() {
         const row = $(this);
-        const pic = row.find('.pic-check').val();
-        const status = row.find('.status-bonorder').val();
+        const picSelect = row.find('.pic-check');  // Perbaikan: tambahkan deklarasi picSelect
+        const statusSelect = row.find('.status-bonorder');  // Perbaikan: tambahkan deklarasi statusSelect
+        const pic = picSelect.val();
+        const status = statusSelect.val();
         const btn = row.find('.btn-simpan-row');
-
-        if (pic && status) {
-            row.find('.pic-check').prop('disabled', true);
-            row.find('.status-bonorder').prop('disabled', true);
-            btn.find('.btn-text').text('Edit');
-        }
-    });
-
-    // Handler untuk tombol Simpan/Edit/Update
-    $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function(){
-        console.log(currentUser);
         
-        if (currentUser !== 'Riyan') {
-            toastr.warning('Hanya user Riyan yang dapat melakukan edit');
-            return;
-        }
-
-        const btn = $(this);
-        const row = btn.closest('.row-item');
-        const btnText = btn.find('.btn-text').text().trim();
-
-        const salesorder = row.find('.td-salesorder').text().trim();
-        const orderline  = row.find('.td-orderline').text().trim();
-        const warna      = row.find('.td-warna').text().trim();
-        const benang     = row.find('.td-benang').text().trim();
-        const po         = row.find('.td-po').text().trim();
-        const picSelect  = row.find('.pic-check');
-        const statusSelect = row.find('.status-bonorder');
-
-        const pic        = picSelect.val();
-        const status     = statusSelect.val();
-
-        if (btnText === 'Edit') {
-            // Buka lock dropdown
+        // Pengecekan lebih ketat dan aman
+        const hasValidData = pic && pic.trim() !== '' && status && status.trim() !== '';
+        
+        if (hasValidData) {
+            picSelect.prop('disabled', true);
+            statusSelect.prop('disabled', true);
+            btn.find('.btn-text').text('Edit');
+        } else {
+            // Pastikan dalam mode edit jika data kosong/tidak valid
             picSelect.prop('disabled', false);
             statusSelect.prop('disabled', false);
             btn.find('.btn-text').text('Update');
-            return;
         }
-
-        if (!pic || !status) {
-            alert('PIC dan Status Bon Order wajib dipilih!');
-            return;
-        }
-
-        // Animasi loading
-        btn.addClass('btn-loading');
-        btn.find('.btn-text').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
-        btn.find('.spinner-border').removeClass('d-none');
-
-        $.ajax({
-            url: 'pages/ajax/simpan_status_matching_bonorder.php',
-            type: 'POST',
-            data: {
-                salesorder,
-                orderline,
-                warna,
-                benang,
-                po_greige: po,
-                pic_check: pic,
-                status_bonorder: status
-            },
-            success: function(response) {
-                toastr.success(response);
-
-                setTimeout(function(){
-                    btn.removeClass('btn-loading');
-                    btn.find('.btn-text').text('Edit');
-                    btn.find('.spinner-border').addClass('d-none');
-
-                    // Lock kembali dropdown
-                    picSelect.prop('disabled', true);
-                    statusSelect.prop('disabled', true);
-                }, 1000);
-            },
-            error: function(xhr, status, error) {
-                toastr.error("Terjadi kesalahan: " + error);
-
-                setTimeout(function(){
-                    btn.removeClass('btn-loading');
-                    btn.find('.btn-text').text('Update');
-                    btn.find('.spinner-border').addClass('d-none');
-                }, 1000);
-            }
+        
+        // Debugging yang lebih informatif
+        console.log('Row state:', {
+            row: row.index(),
+            pic: pic,
+            status: status,
+            picDisabled: picSelect.prop('disabled'),
+            statusDisabled: statusSelect.prop('disabled'),
+            btnText: btn.find('.btn-text').text()
         });
     });
+
+    
+
+    // Handler untuk tombol Simpan/Edit/Update
+    $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function() {
+    if (currentUser.toLowerCase() !== 'riyan') {
+        toastr.warning('Hanya user Riyan yang dapat melakukan edit');
+        return;
+    }
+
+    const btn = $(this);
+    const row = btn.closest('.row-item');
+    const btnText = btn.find('.btn-text').text().trim();
+
+    const salesorder = row.find('.td-salesorder').text().trim();
+    const orderline = row.find('.td-orderline').text().trim();
+    const warna = row.find('.td-warna').text().trim();
+    const benang = row.find('.td-benang').text().trim();
+    const po = row.find('.td-po').text().trim();
+
+    const picSelect = row.find('.pic-check');
+    const statusSelect = row.find('.status-bonorder');
+
+    // Jika tombol berada di mode Edit, enable dropdown dan ubah tombol ke Update
+    if (btnText === 'Edit') {
+        picSelect.prop('disabled', false);
+        statusSelect.prop('disabled', false);
+        btn.find('.btn-text').text('Update');
+        return;
+    }
+
+    // Jika tombol berada di mode Update, validasi dan kirim ajax
+    const pic = picSelect.val();
+    const status = statusSelect.val();
+
+    if (!pic || !status) {
+        alert('PIC dan Status Bon Order wajib dipilih!');
+        return;
+    }
+
+    // Lock dropdown dan tombol agar tidak bisa diubah/klik saat loading
+    picSelect.prop('disabled', true);
+    statusSelect.prop('disabled', true);
+    btn.prop('disabled', true);
+    btn.addClass('btn-loading');
+    btn.find('.btn-text').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
+    btn.find('.spinner-border').removeClass('d-none');
+
+    $.ajax({
+        url: 'pages/ajax/simpan_status_matching_bonorder.php',
+        type: 'POST',
+        data: {
+            salesorder,
+            orderline,
+            warna,
+            benang,
+            ip: ip_user,
+            user: currentUser,
+            po_greige: po,
+            pic_check: pic,
+            status_bonorder: status
+        },
+        success: function(response) {
+            toastr.success(response);
+
+            setTimeout(function() {
+                btn.removeClass('btn-loading');
+                btn.prop('disabled', false);
+                btn.find('.btn-text').text('Edit');
+                btn.find('.spinner-border').addClass('d-none');
+
+                // Lock dropdown setelah update selesai
+                picSelect.prop('disabled', true);
+                statusSelect.prop('disabled', true);
+            }, 1000);
+        },
+        error: function(xhr, status, error) {
+            toastr.error("Terjadi kesalahan: " + error);
+
+            // Jika gagal, buka kembali dropdown dan tombol agar bisa direvisi
+            setTimeout(function() {
+                btn.removeClass('btn-loading');
+                btn.prop('disabled', false);
+                btn.find('.btn-text').text('Update');
+                btn.find('.spinner-border').addClass('d-none');
+                picSelect.prop('disabled', false);
+                statusSelect.prop('disabled', false);
+            }, 1000);
+        }
+    });
+});
+
 
 });
 </script>
