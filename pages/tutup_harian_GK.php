@@ -229,9 +229,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 while ($row = mysqli_fetch_array($tutup_transaksi)) {
                                     $tgl_tutup = $row['tgl_tutup'];
                                     $warehouse = $row['LOGICALWAREHOUSECODE'];
-                                    $total_qty = (substr(number_format($row['total_qty'], 2), -3) == '.00')
-                                        ? number_format($row['total_qty'], 0)
-                                        : number_format($row['total_qty'], 2);
+                                    $value = (string) $row['total_qty'];
+
+                                    if (strpos($value, '.') !== false) {
+                                        // Hapus nol di belakang desimal, tapi jangan hilangkan titik kalau hasilnya bilangan bulat
+                                        $formatted = rtrim(rtrim($value, '0'), '.');
+
+                                        // Jika desimalnya habis (misal 50.), tambahkan .00
+                                        if (strpos($formatted, '.') === false) {
+                                            $formatted .= '.00';
+                                        } else {
+                                            // Kalau desimalnya tinggal 1 digit, tambahkan 0
+                                            $decimal_part = explode('.', $formatted)[1];
+                                            if (strlen($decimal_part) === 1) {
+                                                $formatted .= '0';
+                                            }
+                                        }
+                                    } else {
+                                        // Bilangan bulat → tambahkan .00
+                                        $formatted = $value . '.00';
+                                    }
                                     ?>
                                         <tr>
                                             <td><?= $no++ ?></td>
@@ -249,7 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                             <td><?= htmlspecialchars($tgl_tutup) ?></td>
                                             <td><?= htmlspecialchars($warehouse) ?></td>
-                                            <td><?= $total_qty ?></td>
+                                            <td><?= $formatted ?></td>
                                         </tr>
                                 <?php } ?>
                             </tbody>
