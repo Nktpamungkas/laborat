@@ -85,13 +85,13 @@ $tgl = date("Y-m-d");
       <td align="center"><?= $formatted ?></td>
     </tr>
 <?php $no++;
-		$totqty=$totqty+$r['total_qty'];
+		$totqty=$totqty+$formatted;
 	} ?>
 				  </tbody>
 				<tfoot>
                   <tr>
                     <td colspan="5"><center><strong>TOTAL</strong></center></td>
-                    <td><strong><?php echo number_format($totqty,5); ?></strong></td>
+                    <td><strong><?php echo $totqty; ?></strong></td>
                     </tr>
                   </tfoot>                  
                 </table>

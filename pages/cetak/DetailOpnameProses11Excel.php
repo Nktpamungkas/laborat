@@ -105,10 +105,26 @@ $tahun = $date->format('Y');
             BASEPRIMARYUNITCODE
         ORDER BY KODE_OBAT ASC");		  
     while($r = mysqli_fetch_array($sql)){
-            // echo "<pre>$query</pre>";
-            $total_qty = (substr(number_format($r['total_qty'], 2), -3) == '.00')
-              ? number_format($r['total_qty'], 0)
-              : number_format($r['total_qty'], 2);
+            $value = (string) $r['total_qty'];
+
+            if (strpos($value, '.') !== false) {
+              // Hapus nol di belakang desimal, tapi jangan hilangkan titik kalau hasilnya bilangan bulat
+              $formatted = rtrim(rtrim($value, '0'), '.');
+
+              // Jika desimalnya habis (misal 50.), tambahkan .00
+              if (strpos($formatted, '.') === false) {
+                $formatted .= '.00';
+              } else {
+                // Kalau desimalnya tinggal 1 digit, tambahkan 0
+                $decimal_part = explode('.', $formatted)[1];
+                if (strlen($decimal_part) === 1) {
+                  $formatted .= '0';
+                }
+              }
+            } else {
+              // Bilangan bulat → tambahkan .00
+              $formatted = $value . '.00';
+            }
 ?>
 	  <tr>
 	  <td><?php echo $no; ?></td>
@@ -116,10 +132,10 @@ $tahun = $date->format('Y');
       <td ><?php echo $r['LONGDESCRIPTION']; ?></td>
       <td><?php echo $r['LOTCODE']; ?></td>
       <td><?php echo $r['LOGICALWAREHOUSECODE']; ?></td>
-      <td align="center"><?= $total_qty ?></td>     
+      <td align="center"><?= $formatted ?></td>     
       </tr>	  				  
 <?php	$no++;
-		$totqty=$totqty+$r['total_qty'];
+		$totqty=$totqty+ $formatted;
 	} ?>
 				  </tbody>
 				<tfoot>
@@ -138,7 +154,7 @@ $tahun = $date->format('Y');
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td><strong>Grand Total</strong></td>
-                    <td align="right"><strong><?php echo number_format(round($totqty,3),3); ?></strong></td>                
+                    <td align="right"><strong><?php echo $totqty; ?></strong></td>                
                   <tr>
                     <td style="border-bottom: 0px solid black;border-top: 0px solid black;border-right: 0px solid black; border-left: 0px solid black;">&nbsp;</td>
                     <td style="border-bottom: 0px solid black;border-top: 0px solid black;border-right: 0px solid black; border-left: 0px solid black;">&nbsp;</td>
