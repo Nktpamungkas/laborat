@@ -4,6 +4,18 @@ session_start();
 include '../../koneksi.php';
 
 $kemarin = date('Y-m-d', strtotime('-1 day'));
+$today = date('Y-m-d');
+
+$todays = date('N'); // 1 = Senin, 7 = Minggu
+
+if ($todays == 1) {
+    // Hari ini Senin, jadi kemarin dianggap Hari Sabtu (2 hari sebelumnya)
+    $kemarin = date('Y-m-d', strtotime('-2 days'));
+} else {
+    // Hari selain Senin, kemarin = 1 hari sebelum hari ini
+    $kemarin = date('Y-m-d', strtotime('-1 day'));
+}
+
 $tanggalAwal = '2025-06-01';
 
 // Ambil semua PIC
@@ -19,14 +31,34 @@ while ($row = mysqli_fetch_assoc($resPIC)) {
     ];
 }
 
+$sqlApproved = "SELECT * FROM approval_bon_order WHERE tgl_approve_rmp ='$kemarin' ORDER BY id DESC";
+$resultApproved = mysqli_query($con, $sqlApproved);
+$approve_today = mysqli_num_rows($resultApproved);
+// echo mysqli_num_rows($resultApproved);
+
 // Rekap Approved & Rejected dari approval_bon_order
-$resApproval = mysqli_query($con, "
-    SELECT pic_lab, status FROM approval_bon_order
-    WHERE 
-        (status = 'Approved' AND tgl_approve_lab <= '$kemarin')
-        OR
-        (status = 'Rejected' AND tgl_rejected_lab <= '$kemarin')
-");
+// $resApproval = mysqli_query($con, "SELECT
+//                                         pic_lab,
+//                                         `status`
+//                                     FROM
+//                                         approval_bon_order
+//                                     WHERE
+//                                         (STATUS = 'Approved'
+//                                         AND tgl_approve_lab between '$kemarin' AND '$today')
+//                                         OR (STATUS = 'Rejected'
+//                                             AND tgl_rejected_lab between '$kemarin' AND '$today')
+//                                             ");
+$resApproval = mysqli_query($con, "SELECT
+                                        pic_lab,
+                                        `status`
+                                    FROM
+                                        approval_bon_order
+                                    WHERE
+                                        (STATUS = 'Approved'
+                                        AND tgl_approve_lab = '$kemarin')
+                                        OR (STATUS = 'Rejected'
+                                            AND tgl_rejected_lab = '$kemarin')
+                                            ");
 
 while ($row = mysqli_fetch_assoc($resApproval)) {
     $pic = $row['pic_lab'];
@@ -49,16 +81,28 @@ while ($row = mysqli_fetch_assoc($resApproval)) {
 }
 
 // Rekap status_matching_bon_order JOIN approval_bon_order (ambil yg code match & sesuai tanggal H-1)
-$resStatus = mysqli_query($con, "
-    SELECT smb.pic_check, LOWER(TRIM(smb.status_bonorder)) AS status_bonorder
-    FROM status_matching_bon_order smb
-    JOIN approval_bon_order ab ON ab.code = smb.salesorder
-    WHERE 
-        (
-            (ab.status = 'Approved' AND ab.tgl_approve_lab <= '$kemarin') OR
-            (ab.status = 'Rejected' AND ab.tgl_rejected_lab <= '$kemarin')
-        )
-");
+// $resStatus = mysqli_query($con, "SELECT 
+//                                     smb.pic_check, 
+//                                     LOWER(TRIM(smb.status_bonorder)) AS status_bonorder
+//                                 FROM status_matching_bon_order smb
+//                                 JOIN approval_bon_order ab ON ab.code = smb.salesorder
+//                                 WHERE 
+//                                     (
+//                                         (ab.status = 'Approved' AND ab.tgl_approve_lab between '$kemarin' and '$today') OR
+//                                         (ab.status = 'Rejected' AND ab.tgl_rejected_lab between '$kemarin' and '$today')
+//                                     )
+//                             ");
+$resStatus = mysqli_query($con, "SELECT 
+                                    smb.pic_check, 
+                                    LOWER(TRIM(smb.status_bonorder)) AS status_bonorder
+                                FROM status_matching_bon_order smb
+                                JOIN approval_bon_order ab ON ab.code = smb.salesorder
+                                WHERE 
+                                    (
+                                        (ab.status = 'Approved' AND ab.tgl_approve_lab =  '$kemarin') OR
+                                        (ab.status = 'Rejected' AND ab.tgl_rejected_lab =  '$kemarin')
+                                    )
+                            ");
 
 while ($row = mysqli_fetch_assoc($resStatus)) {
     $pic = $row['pic_check'];
@@ -88,22 +132,41 @@ while ($r = mysqli_fetch_assoc($resCode)) {
 }
 $codeList = implode(",", $approvedCodes);
 
-$sqlTBO = "
-    SELECT DISTINCT isa.CODE AS CODE
-    FROM ITXVIEW_SALESORDER_APPROVED isa 
-    LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
-    LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
-    WHERE 
-        isa.APPROVEDRMP IS NOT NULL
-        AND CAST(s.CREATIONDATETIME AS DATE) BETWEEN '$tanggalAwal' AND '$kemarin'
+$sqlTBO = "SELECT DISTINCT 
+            isa.CODE AS CODE,
+            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
+            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
+        FROM
+            ITXVIEW_SALESORDER_APPROVED isa 
+        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
+        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+        WHERE 
+            isa.APPROVEDRMP IS NOT NULL
+            AND CAST(isa.TGL_APPROVEDRMP AS DATE) = '$kemarin'
+";
+
+$sqlTBO1 = "SELECT DISTINCT 
+            isa.CODE AS CODE,
+            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
+            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
+        FROM
+            ITXVIEW_SALESORDER_APPROVED isa 
+        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
+        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+        WHERE 
+            isa.APPROVEDRMP IS NOT NULL
+            AND CAST(isa.TGL_APPROVEDRMP AS DATE) = '$kemarin'
 ";
 if (!empty($codeList)) {
-    $sqlTBO .= " AND isa.CODE NOT IN ($codeList)";
+    $sqlTBO1 .= " AND isa.CODE NOT IN ($codeList)";
 }
 
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
-$totalH1 = db2_num_rows($resultTBO);
 
+$resultTBO1 = db2_exec($conn1, $sqlTBO1, ['cursor' => DB2_SCROLLABLE]);
+$totalH11 = db2_num_rows($resultTBO1);
+
+$totalH1 = $approve_today + $totalH11;
 // Hitung total per status
 $totalApproved = $totalReject = $totalMatchingUlang = $totalOK = 0;
 foreach ($rekap as $data) {
@@ -118,7 +181,7 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
 
 <div class="col-md-6">
     <div class="box">
-        <h4 class="text-center" style="font-weight: bold;">REKAP STATUS BON ORDER <span class="text-center" style="font-weight: bold;">H-1</span></h4>
+        <h4 class="text-center" style="font-weight: bold;">REKAP STATUS BON ORDER <span class="text-center" style="font-weight: bold;">H-1 (<?=$kemarin; ?>)</span></h4>
 
         <table class="table table-chart">
             <thead class="table-secondary">
@@ -151,10 +214,12 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
                 <tr class="table-warning fw-bold">
                     <th>Total Bon Order Diterima H-1</th>
                     <th colspan="4" style="text-align: center;"><?= $totalH1 ?></th>
+                    <!-- <th colspan="4" style="text-align: center;"><?= $totalH1 ?></th> -->
                 </tr>
                 <tr class="table-danger fw-bold">
                     <th>Sisa Bon Order Belum Direview</th>
-                    <th colspan="4" style="text-align: center;"><?= max(0, $sisaReview) ?></th>
+                    <th colspan="4" style="text-align: center;"><?= $totalH11 ?></th>
+                    <!-- <th colspan="4" style="text-align: center;"><?= max(0, $sisaReview) ?></th> -->
                 </tr>
             </tbody>
         </table>

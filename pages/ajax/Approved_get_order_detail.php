@@ -5,142 +5,252 @@ include "../../koneksi.php";
 $code = $_POST['code'];
 
 $query = "SELECT DISTINCT 
-                SALESORDERCODE,
-                ORDERLINE,
-                LEGALNAME1,
-                AKJ,
-                JENIS_KAIN,
-                ITEMCODE,
-                LISTAGG(NOTETAS, ', ') AS NOTETAS,
-                NO_PO,
-                GRAMASI,
-                LEBAR,
-                COLOR_STANDARD,
-                WARNA,
-                KODE_WARNA,
-                COLORREMARKS,
-                SUBCODE01,
-                SUBCODE02,
-                SUBCODE03,
-                SUBCODE04,
-                SUBCODE04_FIXED,
-                SUBCODE05,
-                SUBCODE06,
-                SUBCODE07,
-                SUBCODE08,
-                SUBCODE09,
-                SUBCODE10
-            FROM 
-            (
-            SELECT
-                i.SALESORDERCODE,
-                i.ORDERLINE,
-                LEFT(LISTAGG(TRIM(i.RESERVATION_SUBCODE04), ''), 3) AS SUBCODE04_FIXED,
-                i.LEGALNAME1,
-                i.AKJ,
-                p.LONGDESCRIPTION AS JENIS_KAIN,
-                i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
-                LISTAGG(NOTETAS, ', ') AS NOTETAS,
-                i.EXTERNALREFERENCE AS NO_PO,
-                COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
-                i3.LEBAR,
-                CASE a.VALUESTRING
-                    WHEN '1' THEN 'L/D'
-                    WHEN '2' THEN 'First Lot'
-                    WHEN '3' THEN 'Original'
-                    WHEN '4' THEN 'Previous Order'
-                    WHEN '5' THEN 'Master Color'
-                    WHEN '6' THEN 'Lampiran Buyer'
-                    WHEN '7' THEN 'Body'
-                    ELSE ''
-                END AS COLOR_STANDARD,
-                i.WARNA,
-                TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
-                a2.VALUESTRING AS COLORREMARKS,
-                TRIM(i.SUBCODE01) AS SUBCODE01,
-                TRIM(i.SUBCODE02) AS SUBCODE02,
-                TRIM(i.SUBCODE03) AS SUBCODE03,
-                TRIM(i.SUBCODE04) AS SUBCODE04,
-                TRIM(i.SUBCODE05) AS SUBCODE05,
-                TRIM(i.SUBCODE06) AS SUBCODE06,
-                TRIM(i.SUBCODE07) AS SUBCODE07,
-                TRIM(i.SUBCODE08) AS SUBCODE08,
-                TRIM(i.SUBCODE09) AS SUBCODE09,
-                TRIM(i.SUBCODE10) AS SUBCODE10
-            FROM
-                ITXVIEWBONORDER i
-            LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
-                                AND p.SUBCODE01 = i.SUBCODE01 
-                                AND p.SUBCODE02 = i.SUBCODE02 
-                                AND p.SUBCODE03 = i.SUBCODE03 
-                                AND p.SUBCODE04 = i.SUBCODE04 
-                                AND p.SUBCODE05 = i.SUBCODE05 
-                                AND p.SUBCODE06 = i.SUBCODE06 
-                                AND p.SUBCODE07 = i.SUBCODE07 
-                                AND p.SUBCODE08 = i.SUBCODE08 
-                                AND p.SUBCODE09 = i.SUBCODE09 
-                                AND p.SUBCODE10 = i.SUBCODE10
-            LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
-            LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
-            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
-            LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
-            WHERE 
-                i.SALESORDERCODE = '$code' 
-            GROUP BY
-                i.SALESORDERCODE,
-                i.ORDERLINE,
-                i.ITEMTYPEAFICODE,
-                i.LEGALNAME1,
-                i.AKJ,
-                p.LONGDESCRIPTION,
-                i.NOTETAS_KGF,
-                i.EXTERNALREFERENCE,
-                i2.GRAMASI_KFF, 
-                i2.GRAMASI_FKF,
-                i3.LEBAR,
-                a.VALUESTRING,
-                i.WARNA,
-                i.COLORGROUP,
-                a2.VALUESTRING,
-                i.SUBCODE01,
-                i.SUBCODE02,
-                i.SUBCODE03,
-                i.SUBCODE04,
-                i.SUBCODE05,
-                i.SUBCODE06,
-                i.SUBCODE07,
-                i.SUBCODE08,
-                i.SUBCODE09,
-                i.SUBCODE10
-            )
-            GROUP BY
-                SALESORDERCODE,
-                ORDERLINE,
-                LEGALNAME1,
-                AKJ,
-                JENIS_KAIN,
-                ITEMCODE,
-                NO_PO,
-                GRAMASI,
-                LEBAR,
-                COLOR_STANDARD,
-                WARNA,
-                KODE_WARNA,
-                COLORREMARKS,
-                SUBCODE01,
-                SUBCODE02,
-                SUBCODE03,
-                SUBCODE04,
-                SUBCODE04_FIXED,
-                SUBCODE05,
-                SUBCODE06,
-                SUBCODE07,
-                SUBCODE08,
-                SUBCODE09,
-                SUBCODE10
-            ORDER BY
-                ORDERLINE 
-            ASC";
+                    SALESORDERCODE,
+                    ORDERLINE,
+                    LEGALNAME1,
+                    AKJ,
+                   	JENIS_KAIN,
+                    LISTAGG(DISTINCT ITEMCODE, ', ') AS ITEMCODE,
+                    LISTAGG(DISTINCT NOTETAS, ', ') AS NOTETAS,
+                    NO_PO,
+                    GRAMASI,
+                    LEBAR,
+                    COLOR_STANDARD,
+                    WARNA,
+                    KODE_WARNA,
+                    COLORREMARKS,
+                    SUBCODE01,
+                    SUBCODE02,
+                    SUBCODE03,
+                    SUBCODE04,
+                    LISTAGG(DISTINCT TRIM(SUBCODE04_FIXED), ', ') AS SUBCODE04_FIXED,
+                    SUBCODE05,
+                    SUBCODE06,
+                    SUBCODE07,
+                    SUBCODE08,
+                    SUBCODE09,
+                    SUBCODE10
+                FROM 
+                (SELECT
+                    i.SALESORDERCODE,
+                    i.ORDERLINE,
+                    CASE 
+                        WHEN i.ITEMTYPEAFICODE = 'KFF' THEN i.RESERVATION_SUBCODE04
+                        ELSE i.SUBCODE04
+                    END AS SUBCODE04_FIXED,
+                    i.LEGALNAME1,
+                    i.AKJ,
+                    p.LONGDESCRIPTION AS JENIS_KAIN,
+                    i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
+                    i.NOTETAS,
+                    i.EXTERNALREFERENCE AS NO_PO,
+                    COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+                    i3.LEBAR,
+                    CASE a.VALUESTRING
+                        WHEN '1' THEN 'L/D'
+                        WHEN '2' THEN 'First Lot'
+                        WHEN '3' THEN 'Original'
+                        WHEN '4' THEN 'Previous Order'
+                        WHEN '5' THEN 'Master Color'
+                        WHEN '6' THEN 'Lampiran Buyer'
+                        WHEN '7' THEN 'Body'
+                        ELSE ''
+                    END AS COLOR_STANDARD,
+                    i.WARNA,
+                    TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
+                    a2.VALUESTRING AS COLORREMARKS,
+                    TRIM(i.SUBCODE01) AS SUBCODE01,
+                    TRIM(i.SUBCODE02) AS SUBCODE02,
+                    TRIM(i.SUBCODE03) AS SUBCODE03,
+                    TRIM(i.SUBCODE04) AS SUBCODE04,
+                    TRIM(i.SUBCODE05) AS SUBCODE05,
+                    TRIM(i.SUBCODE06) AS SUBCODE06,
+                    TRIM(i.SUBCODE07) AS SUBCODE07,
+                    TRIM(i.SUBCODE08) AS SUBCODE08,
+                    TRIM(i.SUBCODE09) AS SUBCODE09,
+                    TRIM(i.SUBCODE10) AS SUBCODE10
+                FROM
+                    ITXVIEWBONORDER i
+                LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
+                                    AND p.SUBCODE01 = i.SUBCODE01 
+                                    AND p.SUBCODE02 = i.SUBCODE02 
+                                    AND p.SUBCODE03 = i.SUBCODE03 
+                                    AND p.SUBCODE04 = i.SUBCODE04 
+                                    AND p.SUBCODE05 = i.SUBCODE05 
+                                    AND p.SUBCODE06 = i.SUBCODE06 
+                                    AND p.SUBCODE07 = i.SUBCODE07 
+                                    AND p.SUBCODE08 = i.SUBCODE08 
+                                    AND p.SUBCODE09 = i.SUBCODE09 
+                                    AND p.SUBCODE10 = i.SUBCODE10
+                LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
+                LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
+                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
+                LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+                WHERE i.SALESORDERCODE = '$code')
+                GROUP BY
+                    SALESORDERCODE,
+                    ORDERLINE,
+                    LEGALNAME1,
+                    AKJ,
+                   	JENIS_KAIN,
+                    NO_PO,
+                    GRAMASI,
+                    LEBAR,
+                    COLOR_STANDARD,
+                    WARNA,
+                    KODE_WARNA,
+                    COLORREMARKS,
+                    SUBCODE01,
+                    SUBCODE02,
+                    SUBCODE03,
+                    SUBCODE04,
+                    SUBCODE05,
+                    SUBCODE06,
+                    SUBCODE07,
+                    SUBCODE08,
+                    SUBCODE09,
+                    SUBCODE10
+                ORDER BY
+                    ORDERLINE 
+                ASC";
+
+// $query = "SELECT DISTINCT 
+//                 SALESORDERCODE,
+//                 ORDERLINE,
+//                 LEGALNAME1,
+//                 AKJ,
+//                 JENIS_KAIN,
+//                 ITEMCODE,
+//                 LISTAGG(NOTETAS, ', ') AS NOTETAS,
+//                 NO_PO,
+//                 GRAMASI,
+//                 LEBAR,
+//                 COLOR_STANDARD,
+//                 WARNA,
+//                 KODE_WARNA,
+//                 COLORREMARKS,
+//                 SUBCODE01,
+//                 SUBCODE02,
+//                 SUBCODE03,
+//                 SUBCODE04,
+//                 SUBCODE04_FIXED,
+//                 SUBCODE05,
+//                 SUBCODE06,
+//                 SUBCODE07,
+//                 SUBCODE08,
+//                 SUBCODE09,
+//                 SUBCODE10
+//             FROM 
+//             (
+//             SELECT
+//                 i.SALESORDERCODE,
+//                 i.ORDERLINE,
+//                 LEFT(LISTAGG(TRIM(i.RESERVATION_SUBCODE04), ''), 3) AS SUBCODE04_FIXED,
+//                 i.LEGALNAME1,
+//                 i.AKJ,
+//                 p.LONGDESCRIPTION AS JENIS_KAIN,
+//                 i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
+//                 LISTAGG(NOTETAS, ', ') AS NOTETAS,
+//                 i.EXTERNALREFERENCE AS NO_PO,
+//                 COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+//                 i3.LEBAR,
+//                 CASE a.VALUESTRING
+//                     WHEN '1' THEN 'L/D'
+//                     WHEN '2' THEN 'First Lot'
+//                     WHEN '3' THEN 'Original'
+//                     WHEN '4' THEN 'Previous Order'
+//                     WHEN '5' THEN 'Master Color'
+//                     WHEN '6' THEN 'Lampiran Buyer'
+//                     WHEN '7' THEN 'Body'
+//                     ELSE ''
+//                 END AS COLOR_STANDARD,
+//                 i.WARNA,
+//                 TRIM(i.SUBCODE05) || ' (' || TRIM(i.COLORGROUP) || ')' AS KODE_WARNA,
+//                 a2.VALUESTRING AS COLORREMARKS,
+//                 TRIM(i.SUBCODE01) AS SUBCODE01,
+//                 TRIM(i.SUBCODE02) AS SUBCODE02,
+//                 TRIM(i.SUBCODE03) AS SUBCODE03,
+//                 TRIM(i.SUBCODE04) AS SUBCODE04,
+//                 TRIM(i.SUBCODE05) AS SUBCODE05,
+//                 TRIM(i.SUBCODE06) AS SUBCODE06,
+//                 TRIM(i.SUBCODE07) AS SUBCODE07,
+//                 TRIM(i.SUBCODE08) AS SUBCODE08,
+//                 TRIM(i.SUBCODE09) AS SUBCODE09,
+//                 TRIM(i.SUBCODE10) AS SUBCODE10
+//             FROM
+//                 ITXVIEWBONORDER i
+//             LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = i.ITEMTYPEAFICODE 
+//                                 AND p.SUBCODE01 = i.SUBCODE01 
+//                                 AND p.SUBCODE02 = i.SUBCODE02 
+//                                 AND p.SUBCODE03 = i.SUBCODE03 
+//                                 AND p.SUBCODE04 = i.SUBCODE04 
+//                                 AND p.SUBCODE05 = i.SUBCODE05 
+//                                 AND p.SUBCODE06 = i.SUBCODE06 
+//                                 AND p.SUBCODE07 = i.SUBCODE07 
+//                                 AND p.SUBCODE08 = i.SUBCODE08 
+//                                 AND p.SUBCODE09 = i.SUBCODE09 
+//                                 AND p.SUBCODE10 = i.SUBCODE10
+//             LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
+//             LEFT JOIN ITXVIEWLEBAR i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
+//             LEFT JOIN ADSTORAGE a ON a.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a.FIELDNAME = 'ColorStandard'
+//             LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND a2.FIELDNAME = 'ColorRemarks'
+//             WHERE 
+//                 i.SALESORDERCODE = '$code' 
+//             GROUP BY
+//                 i.SALESORDERCODE,
+//                 i.ORDERLINE,
+//                 i.ITEMTYPEAFICODE,
+//                 i.LEGALNAME1,
+//                 i.AKJ,
+//                 p.LONGDESCRIPTION,
+//                 i.NOTETAS_KGF,
+//                 i.EXTERNALREFERENCE,
+//                 i2.GRAMASI_KFF, 
+//                 i2.GRAMASI_FKF,
+//                 i3.LEBAR,
+//                 a.VALUESTRING,
+//                 i.WARNA,
+//                 i.COLORGROUP,
+//                 a2.VALUESTRING,
+//                 i.SUBCODE01,
+//                 i.SUBCODE02,
+//                 i.SUBCODE03,
+//                 i.SUBCODE04,
+//                 i.SUBCODE05,
+//                 i.SUBCODE06,
+//                 i.SUBCODE07,
+//                 i.SUBCODE08,
+//                 i.SUBCODE09,
+//                 i.SUBCODE10
+//             )
+//             GROUP BY
+//                 SALESORDERCODE,
+//                 ORDERLINE,
+//                 LEGALNAME1,
+//                 AKJ,
+//                 JENIS_KAIN,
+//                 ITEMCODE,
+//                 NO_PO,
+//                 GRAMASI,
+//                 LEBAR,
+//                 COLOR_STANDARD,
+//                 WARNA,
+//                 KODE_WARNA,
+//                 COLORREMARKS,
+//                 SUBCODE01,
+//                 SUBCODE02,
+//                 SUBCODE03,
+//                 SUBCODE04,
+//                 SUBCODE04_FIXED,
+//                 SUBCODE05,
+//                 SUBCODE06,
+//                 SUBCODE07,
+//                 SUBCODE08,
+//                 SUBCODE09,
+//                 SUBCODE10
+//             ORDER BY
+//                 ORDERLINE 
+//             ASC";
 $stmt = db2_exec($conn1, $query);
 $no = 1;
 if ($stmt) {
@@ -406,6 +516,35 @@ if ($stmt) {
             }
         // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
 
+        // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 7
+            $skipBlmReady7 = (
+                $d_itxviewkk['AKJ'] === 'AKJ' ||
+                $d_itxviewkk['AKJ'] === 'AKW' 
+            );
+
+            if ($skipBlmReady7) {
+                $d_booking_blm_ready_7 = [
+                    'BENANG' => '',
+                    'PO_GREIGE' => ''
+                ];
+            } else {
+                $q_booking_blm_ready_7 = db2_exec($conn1, "SELECT
+                                                                ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+                                                                COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+                                                            FROM
+                                                                ITXVIEW_BOOKING_BLM_READY ibbr 
+                                                            WHERE
+                                                                SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
+                                                                AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
+                                                                AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
+                                                                AND SUBCODE04 = '$subcode04'
+                                                                AND ORIGDLVSALORDLINESALORDERCODE = '{$d_itxviewkk['ADDITIONALDATA6A']}'
+                                                                AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
+                $d_booking_blm_ready_7 = db2_fetch_assoc($q_booking_blm_ready_7);
+                $d_booking_blm_ready_7 = $d_booking_blm_ready_7 ?: ['BENANG' => '', 'PO_GREIGE' => ''];
+            }
+        // Cek kondisi AKJ/AKW/ADDITIONALDATA (BlmReady) 6
+
         // Gabungkan BENANG
             $benangList = [
                 htmlspecialchars($d_rajut['BENANG'] ?? ''),
@@ -415,7 +554,8 @@ if ($stmt) {
                 htmlspecialchars($d_booking_blm_ready_3['BENANG'] ?? ''),
                 htmlspecialchars($d_booking_blm_ready_4['BENANG'] ?? ''),
                 htmlspecialchars($d_booking_blm_ready_5['BENANG'] ?? ''),
-                htmlspecialchars($d_booking_blm_ready_6['BENANG'] ?? '')
+                htmlspecialchars($d_booking_blm_ready_6['BENANG'] ?? ''),
+                htmlspecialchars($d_booking_blm_ready_7['BENANG'] ?? ''),
             ];
             $benang = implode('<br><br>', array_filter($benangList));
         // Gabungkan BENANG
@@ -429,7 +569,8 @@ if ($stmt) {
                 htmlspecialchars($d_booking_blm_ready_3['PO_GREIGE'] ?? ''),
                 htmlspecialchars($d_booking_blm_ready_4['PO_GREIGE'] ?? ''),
                 htmlspecialchars($d_booking_blm_ready_5['PO_GREIGE'] ?? ''),
-                htmlspecialchars($d_booking_blm_ready_6['PO_GREIGE'] ?? '')
+                htmlspecialchars($d_booking_blm_ready_6['PO_GREIGE'] ?? ''),
+                htmlspecialchars($d_booking_blm_ready_7['PO_GREIGE'] ?? ''),
             ];
             $po_greige = implode('<br><br>', array_filter($po_greige_List));
         // Gabungkan PO_GREIGE

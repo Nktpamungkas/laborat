@@ -33,6 +33,7 @@
 <?php 
     require "../../koneksi.php"; 
     $number_id = $_GET['number'] ?? '';
+    $no_order  = $_GET['no_order'] ?? '';
     $query = "SELECT
                 MAX(CASE WHEN q2.CHARACTERISTICCODE = 'LABDIPCLRF' THEN 
                     CASE 
@@ -389,7 +390,8 @@
             --     q3.CODE = q2.CHARACTERISTICCODE
             WHERE
                 q2.QUALITYDOCUMENTHEADERCODE = 'LABDIP' AND 
-                a.VALUESTRING LIKE '%$number_id%'
+                a.VALUESTRING LIKE '%$number_id%' AND
+                q.LOTCODE LIKE '%$no_order%'
             GROUP BY
                 q.HEADERCODE, 
                 q.HEADERNUMBERID, 
