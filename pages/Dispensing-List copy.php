@@ -355,105 +355,32 @@
         document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
     }
 
-    function renderTable(dataArray, tbodyElement, dispensingCode) {
-        const rowsPerBlock = 16;
-
-        const filtered = dataArray.filter(item => {
-            const code = item.dispensing?.trim() ?? "";
-            return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
-        });
-
-        const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
-        tbodyElement.innerHTML = "";
-
-        for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
-            const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-            const cycleNumber = blockIndex + 1;
-
-            const activeRows = blockRows.filter(item =>
-                item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-            );
-
-            const middleIndex = Math.floor((activeRows.length - 1) / 2); 
-
-            activeRows.forEach((item, activeIndex) => {
-                const indexInBlock = blockRows.findIndex(row => row.id === item.id);
-                // const rowNumber = item.rowNumber;
-                const rowNumber = indexInBlock + 1;
-                const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-                const isOld = item.is_old_data == "1";
-
-                const tr = document.createElement("tr");
-                tr.style.backgroundColor = bgColor;
-                tr.dataset.id = item.id;
-
-                if (item.status !== 'scheduled') {
-                    tr.classList.add("not-draggable");
-                }
-
-                tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-                
-                if (activeIndex === middleIndex) {
-                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-                } else {
-                    tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
-                }
-
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
-                // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
-                tr.innerHTML += `
-                                <td align="center">
-                                    <span 
-                                        class="editable-machine" 
-                                        data-id="${item.id}" 
-                                        data-group="${item.id_group}" 
-                                        data-current="${item.no_machine}"
-                                    >
-                                        ${item.no_machine}
-                                    </span>
-                                </td>`;
-                tr.innerHTML += `<td align="center">${item.status}</td>`;
-
-                tbodyElement.appendChild(tr);
-            });
-        }
-    }
-
     // function renderTable(dataArray, tbodyElement, dispensingCode) {
     //     const rowsPerBlock = 16;
 
-    //     // Filter berdasarkan kode dispensing
     //     const filtered = dataArray.filter(item => {
     //         const code = item.dispensing?.trim() ?? "";
     //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
     //     });
 
-    //     // Kelompokkan per cycle
-    //     const groupedByCycle = {};
-    //     filtered.forEach(item => {
-    //         const cycle = item.cycleNumber ?? 1;
-    //         if (!groupedByCycle[cycle]) {
-    //             groupedByCycle[cycle] = [];
-    //         }
-    //         groupedByCycle[cycle].push(item);
-    //     });
-
+    //     const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
     //     tbodyElement.innerHTML = "";
 
-    //     Object.keys(groupedByCycle).sort((a, b) => a - b).forEach(cycleNumber => {
-    //         const blockRows = groupedByCycle[cycleNumber];
+    //     for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
+    //         const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
+    //         const cycleNumber = blockIndex + 1;
 
-    //         // Ambil hanya data aktif (scheduled / in_progress_dispensing)
     //         const activeRows = blockRows.filter(item =>
     //             item.status === 'scheduled' || item.status === 'in_progress_dispensing'
     //         );
 
-    //         const middleIndex = Math.floor((activeRows.length - 1) / 2);
+    //         const middleIndex = Math.floor((activeRows.length - 1) / 2); 
 
     //         activeRows.forEach((item, activeIndex) => {
-    //             const rowNumber = item.rowNumber;
-    //             const bgColor = cycleNumber % 2 === 0 ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
+    //             const indexInBlock = blockRows.findIndex(row => row.id === item.id);
+    //             // const rowNumber = item.rowNumber;
+    //             const rowNumber = indexInBlock + 1;
+    //             const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
     //             const isOld = item.is_old_data == "1";
 
     //             const tr = document.createElement("tr");
@@ -465,7 +392,7 @@
     //             }
 
     //             tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-
+                
     //             if (activeIndex === middleIndex) {
     //                 tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
     //             } else {
@@ -474,23 +401,96 @@
 
     //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
     //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
+    //             // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
     //             tr.innerHTML += `
-    //                 <td align="center">
-    //                     <span 
-    //                         class="editable-machine" 
-    //                         data-id="${item.id}" 
-    //                         data-group="${item.id_group}" 
-    //                         data-current="${item.no_machine}"
-    //                     >
-    //                         ${item.no_machine}
-    //                     </span>
-    //                 </td>`;
+    //                             <td align="center">
+    //                                 <span 
+    //                                     class="editable-machine" 
+    //                                     data-id="${item.id}" 
+    //                                     data-group="${item.id_group}" 
+    //                                     data-current="${item.no_machine}"
+    //                                 >
+    //                                     ${item.no_machine}
+    //                                 </span>
+    //                             </td>`;
     //             tr.innerHTML += `<td align="center">${item.status}</td>`;
 
     //             tbodyElement.appendChild(tr);
     //         });
-    //     });
+    //     }
     // }
+
+    function renderTable(dataArray, tbodyElement, dispensingCode) {
+        const rowsPerBlock = 16;
+
+        // Filter berdasarkan kode dispensing
+        const filtered = dataArray.filter(item => {
+            const code = item.dispensing?.trim() ?? "";
+            return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+        });
+
+        // Kelompokkan per cycle
+        const groupedByCycle = {};
+        filtered.forEach(item => {
+            const cycle = item.cycleNumber ?? 1;
+            if (!groupedByCycle[cycle]) {
+                groupedByCycle[cycle] = [];
+            }
+            groupedByCycle[cycle].push(item);
+        });
+
+        tbodyElement.innerHTML = "";
+
+        Object.keys(groupedByCycle).sort((a, b) => a - b).forEach(cycleNumber => {
+            const blockRows = groupedByCycle[cycleNumber];
+
+            // Ambil hanya data aktif (scheduled / in_progress_dispensing)
+            const activeRows = blockRows.filter(item =>
+                item.status === 'scheduled' || item.status === 'in_progress_dispensing'
+            );
+
+            const middleIndex = Math.floor((activeRows.length - 1) / 2);
+
+            activeRows.forEach((item, activeIndex) => {
+                const rowNumber = item.rowNumber;
+                const bgColor = cycleNumber % 2 === 0 ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
+                const isOld = item.is_old_data == "1";
+
+                const tr = document.createElement("tr");
+                tr.style.backgroundColor = bgColor;
+                tr.dataset.id = item.id;
+
+                if (item.status !== 'scheduled') {
+                    tr.classList.add("not-draggable");
+                }
+
+                tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
+
+                if (activeIndex === middleIndex) {
+                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
+                } else {
+                    tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
+                }
+
+                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
+                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
+                tr.innerHTML += `
+                    <td align="center">
+                        <span 
+                            class="editable-machine" 
+                            data-id="${item.id}" 
+                            data-group="${item.id_group}" 
+                            data-current="${item.no_machine}"
+                        >
+                            ${item.no_machine}
+                        </span>
+                    </td>`;
+                tr.innerHTML += `<td align="center">${item.status}</td>`;
+
+                tbodyElement.appendChild(tr);
+            });
+        });
+    }
 
 
     document.addEventListener("click", function (e) {
@@ -692,17 +692,25 @@
                     const fullData = [...fullGroupedData[dispCode]];
 
                     console.log("Urutan TR dalam DOM setelah drag:");
-                    [...tbody.querySelectorAll("tr")].forEach((tr, i) => {
+                    visibleRows.forEach((tr, i) => {
                         console.log(`${i + 1}: ID = ${tr.dataset.id}`);
                     });
 
 
-                    const visibleIdOrder = visibleRows.map(row => row.dataset.id);
+                    // const visibleIdOrder = visibleRows.map(row => row.dataset.id);
 
-                    const reordered = visibleIdOrder.map((id, index) => ({
-                        id,
-                        order_index: index + 1
+                    // const reordered = visibleIdOrder.map((id, index) => ({
+                    //     id,
+                    //     order_index: index + 1
+                    // }));
+
+                    const reordered = [...tbody.querySelectorAll("tr")].map((tr, index) => ({
+                        id: parseInt(tr.dataset.id),
+                        order_index: index + 1,
+                        row_number: index + 1,
+                        cycle_number: getCycleNumberFromRow(tr) 
                     }));
+
 
                     console.log("Reordered dikirim ke server:", reordered);
 

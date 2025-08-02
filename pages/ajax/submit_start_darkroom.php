@@ -35,7 +35,7 @@ try {
     }
 
     foreach ($data['end'] ?? [] as $no_resep) {
-        processUpdate($con, $no_resep, ['repeat', 'in_progress_darkroom'], 'end', $userDarkroomStart, true);
+        processUpdate($con, $no_resep, ['in_progress_darkroom', 'stop_dyeing'], 'end', $userDarkroomStart, true);
     }
 
     foreach ($data['progress'] ?? [] as $no_resep) {
