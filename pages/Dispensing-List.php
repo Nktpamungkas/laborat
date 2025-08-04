@@ -720,14 +720,6 @@
                     .then(response => {
                         if (response.success) {
                             fetchAndRenderDataOnly();
-                            Swal.fire({
-                                toast: true,
-                                position: 'center',
-                                icon: 'success',
-                                title: 'Urutan berhasil diperbarui',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
                         } else {
                             Swal.fire({
                                 icon: 'error',
