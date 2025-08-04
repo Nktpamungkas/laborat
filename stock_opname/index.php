@@ -39,6 +39,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="../login_assets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="../login_assets/css/main.css">
+    <link href="../bower_components/sweet-alert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
 	<!--===============================================================================================-->
     <style>
         body{
@@ -192,11 +193,12 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 	<script src="../login_assets/vendor/countdowntime/countdowntime.js"></script>
 	<!--===============================================================================================-->
 	<script src="../login_assets/js/main.js"></script>
+    <script type="text/javascript" src="../bower_components/sweet-alert/dist/sweetalert2.min.js"></script>
 
     <script>
         var loading = false;
-        $(".container").on("click", function() {
-            // checkForm(false);
+        $("#first").on("click", function() {
+            checkForm(false);
         } );
         $("#barcode").on("focus", function() {
             checkForm(true);
@@ -293,6 +295,14 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 success: function(response) {
                     if(response.success){ 
                         $("#detailModal").modal("hide");
+                        Swal.fire({
+                            title: 'Saved',
+                            text: 'Berhasil Submit',
+                            icon: 'success',
+                            timer: 1000,
+                            topLayer: false,
+                            showConfirmButton: false
+                        })
                     }else{
                         alert("Terjadi Error Update, mohon hubungi DIT");
                     }

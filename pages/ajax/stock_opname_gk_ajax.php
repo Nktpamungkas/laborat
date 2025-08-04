@@ -34,6 +34,42 @@
                 $response->send();
             }
         }
+        else if($_POST['status']=="cek_data"){
+            $tgl_tutup = $_POST['tgl_tutup'];
+            $warehouse = $_POST['warehouse'];
+            $query = "SELECT id,qty_dus,total_stock
+                FROM tbl_stock_opname_gk 
+                WHERE 
+                    tgl_tutup = '$tgl_tutup'
+                    AND LOGICALWAREHOUSECODE = '$warehouse'
+                ORDER BY KODE_OBAT ASC";
+            $stmt = mysqli_query($con, $query);
+            if (!$stmt) {
+                echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
+                $response->setSuccess(false);
+                $response->addMessage("Query gagal: ".$query." \nERROR : ". mysqli_error($con));
+            }
+            
+            $num_rows_data=mysqli_num_rows($stmt);
+                if ($num_rows_data > 0) {
+                    $dataOpname=array();
+                    while ($rowOpname = mysqli_fetch_assoc($stmt)) {
+                        $tmp_data=array();
+                        $tmp_data['id']=$rowOpname['id'];                        
+                        $tmp_data['qty_dus']=Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
+                        $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
+                        $dataOpname[]=$tmp_data;
+                    }
+                    $response->setSuccess(true);
+                    $response->addMessage("Berhasil Check Data");
+                    $response->addMessage($num_rows_data);
+                    $response->setData($dataOpname);
+                }else{
+                    $response->setSuccess(false);
+                    $response->addMessage("Gagal Check Data");
+                }
+                $response->send();
+        }
         else{
             $response->setSuccess(false);
             $response->addMessage("Error Status");
