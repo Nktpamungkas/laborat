@@ -682,6 +682,12 @@
         document.querySelectorAll("tbody").forEach(tbody => {
             const sortable = new Sortable(tbody, {
                 animation: 150,
+                handle: null,
+                ghostClass: "sortable-ghost", // Class saat dragging
+                chosenClass: "sortable-chosen", // Class saat diklik
+                dragClass: "sortable-drag", // Class elemen yang sedang diseret
+                fallbackOnBody: true, // Biar ghost tidak lepas dari DOM
+                swapThreshold: 0.65,
                 multiDrag: true,
                 selectedClass: 'sortable-selected',
                 fallbackTolerance: 3,
