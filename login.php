@@ -130,6 +130,11 @@ if ($_POST) { //login user
 							Login
 						</button>
 					</div>
+					</br>
+					</br>
+					<div class="container-login100-form-btn">
+						<a href="stock_opname/index.php" target="_blank" class="btn btn-outline-info btn-sm text-center"><i class="fa fa-barcode" aria-hidden="true"></i> Stock Opname GK</a>
+					</div>
 				</form>
 			</div>
 		</div>

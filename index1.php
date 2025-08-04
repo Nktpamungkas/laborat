@@ -533,7 +533,8 @@ if ($page !== 'preliminary-schedule') {
                                         <li class="dropdown-submenu <?php if (
                                             $_GET['p'] == "pemakaian_obat" ||
                                             $_GET['p'] == "pemakaian_obat_category" ||
-                                            $_GET['p'] == "tutup_harian_GK"
+                                            $_GET['p'] == "tutup_harian_GK" ||
+                                            $_GET['p'] == "stock_opname_GK"
                                         )
                                             echo "active"; ?>">
                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -556,6 +557,11 @@ if ($page !== 'preliminary-schedule') {
                                                 <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
                                                     echo "active"; ?>">
                                                     <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Transaksi(Test) </span></a>
+                                                </li>
+                                                </li>
+                                                <li class="<?php if ($_GET['p'] == "stock_opname_GK")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a>
                                                 </li>
                                             </ul>
                                         </li>

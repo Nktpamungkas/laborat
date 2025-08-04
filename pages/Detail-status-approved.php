@@ -1835,7 +1835,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
 </body>
 <script>
     $(document).ready(function() {
-        $('input:not(#suhu_chamber):not(#warna_fluorescent)').prop("disabled", true);
+        $('input:not(#suhu_chamber):not(#warna_fluorescent):not(#input_suhu_chamber):not(#none_suhu_chamber').prop("disabled", true);
         $('select').prop("disabled", true);
         $('textarea').prop("disabled", true);
     })
@@ -3858,51 +3858,3 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
         })
     });
 </script> -->
-
-<script>
-    $(document).ready(function() {
-        $('#suhu_chamber').change(function() {
-            let isChecked = $(this).is(':checked') ? 1 : 0;
-            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
-                setting: 'suhu_chamber',
-                value: isChecked
-            }, function(response) {
-                if (response.trim() === 'OK') {
-                    Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Pengaturan Suhu Chamber berhasil diperbarui!'
-                    });
-                } else {
-                    Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: 'Terjadi kesalahan saat memperbarui.'
-                    });
-                }
-            });
-        });
-
-        $('#warna_fluorescent').change(function() {
-            let isChecked = $(this).is(':checked') ? 1 : 0;
-            $.post('pages/ajax/update_suhuchamber_warna_flourescent.php?idm=<?= $_GET['idm']; ?>', {
-                setting: 'warna_flourescent',
-                value: isChecked
-            }, function(response) {
-                if (response.trim() === 'OK') {
-                    Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Pengaturan Warna Fluorescent berhasil diperbarui!'
-                    });
-                } else {
-                    Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: 'Terjadi kesalahan saat memperbarui.'
-                    });
-                }
-            });
-        });
-    });
-</script>
