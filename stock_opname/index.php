@@ -196,7 +196,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
     <script>
         var loading = false;
         $(".container").on("click", function() {
-            checkForm(false);
+            // checkForm(false);
         } );
         $("#barcode").on("focus", function() {
             checkForm(true);
