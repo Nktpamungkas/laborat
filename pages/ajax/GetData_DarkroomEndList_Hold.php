@@ -18,7 +18,9 @@ try {
             ms.product_name,
             ms.suhu,
             ms.waktu,
-            ms.dispensing
+            ms.dispensing,
+            tsm.grp,
+            tm.warna
         FROM tbl_preliminary_schedule tps
         INNER JOIN (
             SELECT MIN(id) AS id
@@ -27,6 +29,20 @@ try {
             GROUP BY no_resep
         ) AS sub ON tps.id = sub.id
         LEFT JOIN master_suhu ms ON tps.code = ms.code
+        LEFT JOIN tbl_matching tm
+                ON (
+                    CASE 
+                        WHEN LEFT(tps.no_resep, 2) = 'DR' THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
+                        ELSE tps.no_resep
+                    END
+                ) = tm.no_resep
+        LEFT JOIN tbl_status_matching tsm 
+                ON (
+                    CASE 
+                        WHEN LEFT(tps.no_resep, 2) = 'DR' THEN LEFT(tps.no_resep, LENGTH(tps.no_resep) - 2)
+                        ELSE tps.no_resep
+                    END
+                ) = tsm.idm
         ORDER BY 
             (tps.status = 'in_progress_darkroom') DESC,
             tps.id ASC
