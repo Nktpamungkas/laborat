@@ -140,7 +140,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                             <tr class="WH_M101 WAREHOUSE_ALL">
                                 <td>Qty Dus</td>
                                 <td>: &nbsp;</td>
-                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' id='opname_qty_dus' placeholder='Quantity Dus' title='Quantity Dus' /></td>
+                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus' placeholder='Quantity Dus' title='Quantity Dus' /></td>
                             </tr>
                             <tr class="WH_M510 WAREHOUSE_ALL">
                                 <td>JENIS</td>

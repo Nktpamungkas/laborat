@@ -387,5 +387,5 @@ setInterval(function(){
     if (cari_data){
         checkData()
     }
-}, 10000);
+}, 3000);
 </script>
