@@ -368,18 +368,15 @@
 
         for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
             const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-            const cycleNumber = blockIndex + 1;
 
+            // Hitung activeRows untuk kebutuhan cycle cell
             const activeRows = blockRows.filter(item =>
                 item.status === 'scheduled' || item.status === 'in_progress_dispensing'
             );
+            const middleIndex = Math.floor((activeRows.length - 1) / 2);
 
-            const middleIndex = Math.floor((activeRows.length - 1) / 2); 
-
-            activeRows.forEach((item, activeIndex) => {
-                const indexInBlock = blockRows.findIndex(row => row.id === item.id);
-                // const rowNumber = item.rowNumber;
-                const rowNumber = indexInBlock + 1;
+            blockRows.forEach((item, indexInBlock) => {
+                const rowNumber = item.rowNumber;
                 const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
                 const isOld = item.is_old_data == "1";
 
@@ -387,12 +384,20 @@
                 tr.style.backgroundColor = bgColor;
                 tr.dataset.id = item.id;
 
-                if (item.status !== 'scheduled') {
+                const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+
+                // Sembunyikan jika status tidak diizinkan
+                if (!isVisible) {
+                    tr.style.display = "none";
+                    tr.classList.add("not-draggable");
+                } else if (item.status !== 'scheduled') {
                     tr.classList.add("not-draggable");
                 }
 
                 tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-                
+
+                // Tampilkan cycleNumber di tengah baris aktif
+                const activeIndex = activeRows.findIndex(i => i.id === item.id);
                 if (activeIndex === middleIndex) {
                     tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
                 } else {
@@ -401,24 +406,24 @@
 
                 tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
                 tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
-                // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
                 tr.innerHTML += `
-                                <td align="center">
-                                    <span 
-                                        class="editable-machine" 
-                                        data-id="${item.id}" 
-                                        data-group="${item.id_group}" 
-                                        data-current="${item.no_machine}"
-                                    >
-                                        ${item.no_machine}
-                                    </span>
-                                </td>`;
+                    <td align="center">
+                        <span 
+                            class="editable-machine" 
+                            data-id="${item.id}" 
+                            data-group="${item.id_group}" 
+                            data-current="${item.no_machine}"
+                        >
+                            ${item.no_machine}
+                        </span>
+                    </td>`;
                 tr.innerHTML += `<td align="center">${item.status}</td>`;
 
                 tbodyElement.appendChild(tr);
             });
         }
     }
+
 
     // function renderTable(dataArray, tbodyElement, dispensingCode) {
     //     const rowsPerBlock = 16;
