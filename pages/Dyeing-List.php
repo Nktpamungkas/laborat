@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="bower_components/animate/animate.min.css">
 
 <style>
     .blink-warning {
@@ -70,8 +70,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- <script>
     let blockedResepMap = {};
