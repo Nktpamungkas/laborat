@@ -515,7 +515,7 @@
             <td width="20%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_resep']; ?></strong></td>
             <td width="10%" style="border-right:0px #000000 solid;">LAB DIP No</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-            <td width="31%" style="border-left:0px #000000 solid;" id="adjButton"><strong><?Php echo $data['no_warna']; ?></strong></td>
+            <td width="31%" style="border-left:0px #000000 solid;" <?php if($data['jenis_matching'] == 'LD NOW' OR $data['jenis_matching'] == 'L?D') { echo 'id="adjButton"'; } ?>><strong><?Php echo $data['no_warna']; ?></strong></td>
             <td width="15%" style="border-right:0px #000000 solid;">Gramasi Aktual</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
             <td width="12%" style="border-left:0px #000000 solid;"><strong><?Php if ($data['lebar_aktual'] != "") {
