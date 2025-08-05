@@ -236,6 +236,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </html>
 <script>
+    var cari_data=false;
   $(document).ready(function () {
     $('#Table-obat').DataTable({
       ordering: false,
@@ -274,6 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     console.log('Destroying existing DataTable');
                     $('#detailmasukTable').DataTable().destroy();
                 }
+                cari_data=true;
                 $('#detailmasukTable').DataTable({
                     paging: true,
                     searching: true,
@@ -360,4 +362,30 @@ function nilaiKeRibuan(angka,ribuan,koma){
     }
 }
 
+function checkData(){
+    let tgl_tutup = $("#tgl_tutup").val();
+    let warehouse = $("#warehouse").val();
+    if(tgl_tutup!="" && warehouse!=""){
+        $.ajax({
+            url: 'pages/ajax/stock_opname_gk_ajax.php',
+            type: 'POST',
+            data: {status:"cek_data", tgl_tutup: tgl_tutup, warehouse: warehouse },
+            success: function(response) {
+                $.each( response.data, function( key, value ) {
+                    $("#td_dus_"+value.id).html(value.qty_dus);
+                    $("#ts_"+value.id).html(value.total_stock);
+                });
+            },
+            error: function() {
+                // $('#tabelDetail').html('<p class="text-danger">Gagal memuat data.</p>');
+            }
+        });
+    }  
+}
+
+setInterval(function(){
+    if (cari_data){
+        checkData()
+    }
+}, 3000);
 </script>

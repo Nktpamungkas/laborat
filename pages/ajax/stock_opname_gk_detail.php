@@ -87,9 +87,9 @@ if(trim($warehouse," ")=="M101"){
                     <td>" . htmlspecialchars($row['LOTCODE']) . "</td>
                     <td class='text-center'>" . htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
                     <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty'])."</td>
-                    <td class='text-right' id='td_dus_".$row['id']."'>$dus</td>
+                    <td class='text-right' id='td_dus_".$row['id']."' >$dus</td>
                     <td class='text-right' id='pu_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan(doubleval($row['pakingan_utuh']))."</td>
-                    <td class='text-right' id='ts_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>
+                    <td class='text-right' id='ts_".$row['id']."' >".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>
                     <td class='text-center' id='confirm_".$row['id']."'>$btn</td>
                 </tr>";
             $no++;
