@@ -300,6 +300,31 @@
             opacity: 1;
         }
 
+        .tooltip-wrapper.has-comment::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 10px solid red;   /* Segitiga kecil merah */
+            border-left: 10px solid transparent;
+        }
+
+        .comment-indicator {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 8px solid red; /* Warna segitiga */
+            border-left: 8px solid transparent;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
+        }
+
     </style>
     <style>
         #tooltipContainer {
@@ -633,14 +658,14 @@
             <td width="8%" align="center"><strong>KODE</strong></td>
             <td width="10%" align="center"><strong>ERP KODE</strong></td>
             <?php if($_GET['frm'] == 'bresep') : ?>
-                <td width="5%" class="adj" data-adj="adj_lab" align="center"><div class="tooltip-wrapper"><strong>LAB</strong><span class="tooltip-text"><?= getCommentAdj($con, 'adj_lab') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="1" align="center"><div class="tooltip-wrapper"><strong>Adj-1</strong><span class="tooltip-text"><?= getCommentAdj($con, '1') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="2" align="center"><div class="tooltip-wrapper"><strong>Adj-2</strong><span class="tooltip-text"><?= getCommentAdj($con, '2') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="3" align="center"><div class="tooltip-wrapper"><strong>Adj-3</strong><span class="tooltip-text"><?= getCommentAdj($con, '3') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="4" align="center"><div class="tooltip-wrapper"><strong>Adj-4</strong><span class="tooltip-text"><?= getCommentAdj($con, '4') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="5" align="center"><div class="tooltip-wrapper"><strong>Adj-5</strong><span class="tooltip-text"><?= getCommentAdj($con, '5') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="6" align="center"><div class="tooltip-wrapper"><strong>Adj-6</strong><span class="tooltip-text"><?= getCommentAdj($con, '6') ?></span></div><div class="comment"></div></td>
-                <td width="5%" class="adj" data-adj="7" align="center"><div class="tooltip-wrapper"><strong>Adj-7</strong><span class="tooltip-text"><?= getCommentAdj($con, '7') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="adj_lab" align="center"><div class="tooltip-wrapper "><strong>LAB &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'adj_lab')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'adj_lab') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="1" align="center"><div class="tooltip-wrapper"><strong>Adj-1 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '1')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '1') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="2" align="center"><div class="tooltip-wrapper"><strong>Adj-2 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '2')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '2') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="3" align="center"><div class="tooltip-wrapper"><strong>Adj-3 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '3')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '3') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="4" align="center"><div class="tooltip-wrapper"><strong>Adj-4 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '4')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '4') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="5" align="center"><div class="tooltip-wrapper"><strong>Adj-5 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '5')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '5') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="6" align="center"><div class="tooltip-wrapper"><strong>Adj-6 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '6')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '6') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="7" align="center"><div class="tooltip-wrapper"><strong>Adj-7 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '7')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '7') ?></span></div><div class="comment"></div></td>
             <?php else : ?>
                 <td width="5%" align="center"><strong>LAB</td>
                 <td width="5%" align="center"><strong>Adj-1</td>
@@ -3154,7 +3179,11 @@
         <?php endif; ?>
 
         <tr style="height: 0.4in">
-            <td colspan="4" align="center">Temp x Time</td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="4" class="adj" data-adj="Temp x Time" align="center"><div class="tooltip-wrapper">Temp x Time<span class="tooltip-text"><?= getCommentAdj($con, 'Temp x Time') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="4" align="center">Temp x Time</td>
+            <?php endif; ?>
             <?php if($_GET['frm'] == 'bresep') : ?>
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['tside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['tside_min']) ?> min</td>
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['cside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['cside_min']) ?> min</td>
