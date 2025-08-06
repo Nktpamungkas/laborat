@@ -1300,14 +1300,14 @@
                     <tr style="height: 0.2in" class="flag">
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;">C-SIDE</td>
-                        <td style="font-weight: bold;"><?= $dataSuhu1CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu2CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu3CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu4CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu5CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu6CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu7CSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu8CSide['commentline']; ?></td>
+                        <td class="adj" data-adj="C-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE1') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE2') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE3') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE4') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE5') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE6') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE7') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE8') ?></span></div><div class="comment"></div></td>
                     </tr>
                 <!-- BARIS 28 -->
                     <tr style="height: 0.2in" class="flag">
