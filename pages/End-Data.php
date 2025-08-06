@@ -173,12 +173,8 @@
                 });
 
                 $('#tableCombined').DataTable({
-                    pageLength: 10,
-                    // lengthChange: false,
-                    searching: true,
-                    ordering: true,
-                    info: false,
-                    autoWidth: false
+                    pageLength: 20,
+                    lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "All"]]
                 });
             })
             .catch(err => {

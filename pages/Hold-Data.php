@@ -154,6 +154,11 @@
         fetch("pages/ajax/GetData_DarkroomEndList_Hold.php")
             .then(response => response.json())
             .then(data => {
+
+                if ($.fn.DataTable.isDataTable('#tableCombined')) {
+                    $('#tableCombined').DataTable().destroy();
+                }
+
                 const tbodyCombined = document.getElementById("dataBodyCombined");
                 tbodyCombined.innerHTML = "";
                 let index = 0;
@@ -170,6 +175,11 @@
                         <td align="center">${item.status}</td>
                     </tr>`;
                     tbodyCombined.innerHTML += row;
+                });
+
+                $('#tableCombined').DataTable({
+                    pageLength: 20,
+                    lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "All"]]
                 });
             })
             .catch(err => {
