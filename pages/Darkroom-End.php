@@ -199,7 +199,7 @@
     $(document).ready(function () {
         loadData();
 
-        setInterval(loadData, 5000);
+        setInterval(loadData, 20000);
 
         // Pilih tombol aksi
         $(".action-btn").on("click", function () {
