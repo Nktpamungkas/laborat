@@ -521,6 +521,21 @@
                     return null;
                 }
             }
+
+            function getCommentAdj($con, $adjNo) {
+                $ids = $_GET['ids'];
+                $idm = $_GET['idm'];
+                $sqlComment = "SELECT * FROM tbl_comment WHERE ids = '$ids' AND idm = '$idm' AND adj = '$adjNo' ORDER BY id DESC LIMIT 1";
+                $resultComment  = mysqli_query($con, $sqlComment);
+                $dataComment    = mysqli_fetch_assoc($resultComment);
+
+                if ($dataComment) {
+                    $raw = $dataComment['comment'];
+                    return $raw;
+                } else {
+                    return null;
+                }
+            }
         }else{
             function getRecipeAdj1(){
                 return null;
@@ -617,32 +632,17 @@
         <tr style="height: 0.3in">
             <td width="8%" align="center"><strong>KODE</strong></td>
             <td width="10%" align="center"><strong>ERP KODE</strong></td>
-            <td width="5%" align="center"><strong>LAB</td>
             <?php if($_GET['frm'] == 'bresep') : ?>
-                <?php
-                    function getCommentAdj($con, $adjNo) {
-                        $ids = $_GET['ids'];
-                        $idm = $_GET['idm'];
-                        $sqlComment = "SELECT * FROM tbl_comment WHERE ids = '$ids' AND idm = '$idm' AND adj = '$adjNo' ORDER BY id DESC LIMIT 1";
-                        $resultComment  = mysqli_query($con, $sqlComment);
-                        $dataComment    = mysqli_fetch_assoc($resultComment);
-
-                        if ($dataComment) {
-                            $raw = $dataComment['comment'];
-                            return $raw;
-                        } else {
-                            return null;
-                        }
-                    }
-                ?>
-                <td class="adj" data-adj="1" align="center"><div class="tooltip-wrapper"><strong>Adj-1</strong><span class="tooltip-text"><?= getCommentAdj($con, '1') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="2" align="center"><div class="tooltip-wrapper"><strong>Adj-2</strong><span class="tooltip-text"><?= getCommentAdj($con, '2') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="3" align="center"><div class="tooltip-wrapper"><strong>Adj-3</strong><span class="tooltip-text"><?= getCommentAdj($con, '3') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="4" align="center"><div class="tooltip-wrapper"><strong>Adj-4</strong><span class="tooltip-text"><?= getCommentAdj($con, '4') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="5" align="center"><div class="tooltip-wrapper"><strong>Adj-5</strong><span class="tooltip-text"><?= getCommentAdj($con, '5') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="6" align="center"><div class="tooltip-wrapper"><strong>Adj-6</strong><span class="tooltip-text"><?= getCommentAdj($con, '6') ?></span></div><div class="comment"></div></td>
-                <td class="adj" data-adj="7" align="center"><div class="tooltip-wrapper"><strong>Adj-7</strong><span class="tooltip-text"><?= getCommentAdj($con, '7') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="adj_lab" align="center"><div class="tooltip-wrapper"><strong>LAB</strong><span class="tooltip-text"><?= getCommentAdj($con, 'adj_lab') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="1" align="center"><div class="tooltip-wrapper"><strong>Adj-1</strong><span class="tooltip-text"><?= getCommentAdj($con, '1') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="2" align="center"><div class="tooltip-wrapper"><strong>Adj-2</strong><span class="tooltip-text"><?= getCommentAdj($con, '2') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="3" align="center"><div class="tooltip-wrapper"><strong>Adj-3</strong><span class="tooltip-text"><?= getCommentAdj($con, '3') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="4" align="center"><div class="tooltip-wrapper"><strong>Adj-4</strong><span class="tooltip-text"><?= getCommentAdj($con, '4') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="5" align="center"><div class="tooltip-wrapper"><strong>Adj-5</strong><span class="tooltip-text"><?= getCommentAdj($con, '5') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="6" align="center"><div class="tooltip-wrapper"><strong>Adj-6</strong><span class="tooltip-text"><?= getCommentAdj($con, '6') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="7" align="center"><div class="tooltip-wrapper"><strong>Adj-7</strong><span class="tooltip-text"><?= getCommentAdj($con, '7') ?></span></div><div class="comment"></div></td>
             <?php else : ?>
+                <td width="5%" align="center"><strong>LAB</td>
                 <td width="5%" align="center"><strong>Adj-1</td>
                 <td width="5%" align="center"><strong>Adj-2</strong></td>
                 <td width="5%" align="center"><strong>Adj-3</strong></td>
@@ -1287,14 +1287,14 @@
                     <tr style="height: 0.2in" class="flag">
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;">T-SIDE</td>
-                        <td style="font-weight: bold;"><?= $dataSuhu1TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu2TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu3TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu4TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu5TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu6TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu7TSide['commentline']; ?></td>
-                        <td style="font-weight: bold;"><?= $dataSuhu8TSide['commentline']; ?></td>
+                        <td class="adj" data-adj="T-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE1') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE2') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE3') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE4') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE5') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE6') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE7') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE8') ?></span></div><div class="comment"></div></td>
                     </tr>
                 <!-- BARIS 27 -->
                     <tr style="height: 0.2in" class="flag">
