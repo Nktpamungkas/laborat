@@ -123,91 +123,6 @@
     </div>
 </div>
 
-
-<!-- <script>
-    $(document).ready(function() {
-        loadData();
-
-        $('#scanInput').on('keypress', function (e) {
-            if (e.which === 13) { // Enter key
-                const noResep = $(this).val().trim();
-                if (noResep !== "") {
-                    updateStatus(noResep);
-                    $(this).val("");
-                }
-            }
-        });
-
-        function updateStatus(noResep) {
-            $.ajax({
-                url: 'pages/ajax/scan_darkroom_update_status.php',
-                method: 'POST',
-                data: { no_resep: noResep },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    loadData(); // Refresh data tabel
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr.responseText);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status.',
-                    });
-                }
-            });
-        }
-    });
-</script> -->
-<!-- <script>
-    function loadData() {
-        fetch("pages/ajax/GetData_DarkroomStartList.php")
-            .then(response => response.json())
-            .then(data => {
-                const tbodyCombined = document.getElementById("dataBodyCombined");
-                tbodyCombined.innerHTML = "";
-
-                let index = 0;
-                const now = new Date();
-
-                data.forEach((item) => {
-                    index++;
-                    const rowNumber = index;
-                    const bgColor = index % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-
-                    let warningText = "-";
-                    if (item.darkroom_start) {
-                        const startTime = new Date(item.darkroom_start);
-                        const diffMs = now - startTime;
-                        const diffMins = diffMs / 1000 / 60;
-
-                        warningText = diffMins > 90
-                            ? `<span class="blink-warning">⚠ ${item.darkroom_start}</span>`
-                            : item.darkroom_start;
-                    }
-
-                    const row = `<tr style="background-color: ${bgColor}">
-                        <td align="center">${rowNumber}</td>
-                        <td align="center">${item.no_resep}</td>
-                        <td align="center">${item.product_name}</td>
-                        <td align="center">${item.status}</td>
-                    </tr>`;
-
-                    tbodyCombined.innerHTML += row;
-                });
-            })
-            .catch(err => {
-                console.error("Gagal mengambil data:", err);
-            });
-    }
-</script> -->
 <script>
     let currentAction = "";
     let repeatList = [];
@@ -245,6 +160,11 @@
         fetch("pages/ajax/GetData_DarkroomStartList.php")
             .then(response => response.json())
             .then(data => {
+
+                if ($.fn.DataTable.isDataTable('#tableCombined')) {
+                    $('#tableCombined').DataTable().destroy();
+                }
+
                 const tbodyCombined = document.getElementById("dataBodyCombined");
                 tbodyCombined.innerHTML = "";
                 let index = 0;
@@ -262,6 +182,11 @@
                     </tr>`;
                     tbodyCombined.innerHTML += row;
                 });
+
+                $('#tableCombined').DataTable({
+                    pageLength: 20,
+                    lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "All"]]
+                });
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
@@ -271,7 +196,7 @@
     $(document).ready(function () {
         loadData();
 
-        setInterval(loadData, 5000);
+        setInterval(loadData, 20000);
 
         // Pilih tombol aksi
         $(".action-btn").on("click", function () {

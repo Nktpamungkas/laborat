@@ -163,6 +163,11 @@
         fetch("pages/ajax/GetData_DarkroomEndList.php")
             .then(response => response.json())
             .then(data => {
+
+                if ($.fn.DataTable.isDataTable('#tableCombined')) {
+                    $('#tableCombined').DataTable().destroy();
+                }
+
                 const tbodyCombined = document.getElementById("dataBodyCombined");
                 tbodyCombined.innerHTML = "";
                 let index = 0;
@@ -180,6 +185,11 @@
                     </tr>`;
                     tbodyCombined.innerHTML += row;
                 });
+
+                $('#tableCombined').DataTable({
+                    pageLength: 20,
+                    lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "All"]]
+                });
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
@@ -189,7 +199,7 @@
     $(document).ready(function () {
         loadData();
 
-        setInterval(loadData, 5000);
+        setInterval(loadData, 20000);
 
         // Pilih tombol aksi
         $(".action-btn").on("click", function () {
