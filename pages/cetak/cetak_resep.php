@@ -1072,6 +1072,9 @@
                         <td colspan="2" rowspan="10" valign="top">
                             <?php
                                 if($_GET['frm'] == 'bresep'){
+                                    $color_code = $data['color_code'];
+                                    $color_code_potong = substr($data['color_code'], 0, -1);
+
                                     $sqlRGB = "SELECT
                                                     CAST(a.VALUEDECIMAL AS INT) AS R,
                                                     CAST(a2.VALUEDECIMAL AS INT) AS G,
@@ -1083,7 +1086,7 @@
                                                 LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = u.ABSUNIQUEID AND a3.FIELDNAME = 'RGBvalueB'
                                                 WHERE 
                                                     u.USERGENERICGROUPTYPECODE = 'CL1'
-                                                    AND u.CODE = '$data[color_code]'";
+                                                    AND u.CODE LIKE '%$color_code%'";
                                     $stmtRGB = db2_exec($conn1, $sqlRGB);
                                     $rowRGB  = db2_fetch_assoc($stmtRGB);
 
@@ -2130,6 +2133,9 @@
                         <?php } ?>
                         <?php
                             if($_GET['frm'] == 'bresep'){
+                                $color_code = $data['color_code'];
+                                $color_code_potong = substr($data['color_code'], 0, -1);
+
                                 $sqlRGB = "SELECT
                                                 CAST(a.VALUEDECIMAL AS INT) AS R,
                                                 CAST(a2.VALUEDECIMAL AS INT) AS G,
@@ -2141,7 +2147,7 @@
                                             LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = u.ABSUNIQUEID AND a3.FIELDNAME = 'RGBvalueB'
                                             WHERE 
                                                 u.USERGENERICGROUPTYPECODE = 'CL1'
-                                                AND u.CODE = '$data[color_code]'";
+                                                AND u.CODE LIKE '%$color_code%'";
                                 $stmtRGB = db2_exec($conn1, $sqlRGB);
                                 $rowRGB  = db2_fetch_assoc($stmtRGB);
 
@@ -3246,32 +3252,39 @@
             <?php if($_GET['frm'] == 'bresep') : ?>
                 <td colspan="10" style="text-align: left; vertical-align: top;">
                     <?php
-                        $sqlHistoryRecipe1 = "SELECT DISTINCT
-                                                a.VALUESTRING AS RCODE,
-                                                LISTAGG(DISTINCT '''' || TRIM(p.PRODUCTIONORDERCODE) || '''', ', ') AS PRODUCTIONORDERCODE 
-                                            FROM
-                                                PRODUCTIONRESERVATION p
-                                            LEFT JOIN RECIPE r ON r.SUBCODE01 = p.SUBCODE01 AND r.SUFFIXCODE = p.SUFFIXCODE 
-                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
-                                            WHERE 
-                                                a.VALUESTRING = '$data[no_resep]'
-                                            GROUP BY
-                                                a.VALUESTRING";
-                        $stmtHistoryRecipe1  = db2_exec($conn1, $sqlHistoryRecipe1);
-                        $dataHistoryRecipe1 = db2_fetch_assoc($stmtHistoryRecipe1);
-                        
-                            $sqlHistoryRecipe2 = "SELECT 
-                                                    LISTAGG(DISTINCT TRIM(PROJECTCODE) || ' (' || TRIM(LOT) || ')', ', ') AS SALESORDER
-                                                FROM
-                                                    ITXVIEWKK
-                                                WHERE
-                                                    PRODUCTIONORDERCODE IN ($dataHistoryRecipe1[PRODUCTIONORDERCODE])";
-                        $stmtHistoryRecipe2  = db2_exec($conn1, $sqlHistoryRecipe2);
+                        $salesorderText = "-";
+
+                        $sql1 = "SELECT DISTINCT
+                                    a.VALUESTRING AS RCODE,
+                                    LISTAGG(DISTINCT '''' || TRIM(p.PRODUCTIONORDERCODE) || '''', ', ') AS PRODUCTIONORDERCODE 
+                                FROM
+                                    PRODUCTIONRESERVATION p
+                                LEFT JOIN RECIPE r ON r.SUBCODE01 = p.SUBCODE01 AND r.SUFFIXCODE = p.SUFFIXCODE 
+                                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
+                                WHERE 
+                                    a.VALUESTRING = '$data[no_resep]'
+                                GROUP BY
+                                    a.VALUESTRING";
+
+                        $stmt1 = db2_exec($conn1, $sql1);
+                        if ($stmt1 && ($row1 = db2_fetch_assoc($stmt1)) && !empty($row1['PRODUCTIONORDERCODE'])) {
+                            $kodePO = $row1['PRODUCTIONORDERCODE'];
+                            $sql2 = "SELECT 
+                                        LISTAGG(DISTINCT TRIM(PROJECTCODE) || ' (' || TRIM(LOT) || ')', ', ') AS SALESORDER
+                                    FROM
+                                        ITXVIEWKK
+                                    WHERE
+                                        PRODUCTIONORDERCODE IN ($kodePO)";
+                            $stmt2 = db2_exec($conn1, $sql2);
+                            if ($stmt2 && ($row2 = db2_fetch_assoc($stmt2)) && !empty($row2['SALESORDER'])) {
+                                $salesorderText = $row2['SALESORDER'];
+                            }
+                        }
+
+                        echo $salesorderText;
                     ?>
-                    <?php while ($rowHistoryRecipe = db2_fetch_assoc($stmtHistoryRecipe2)) : ?>
-                        <?= $rowHistoryRecipe['SALESORDER'] ?>
-                    <?php endwhile; ?>
                 </td>
+
             <?php else : ?>
                 <td colspan="4">&nbsp;</td>
                 <td colspan="6">&nbsp;</td>
