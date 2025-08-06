@@ -267,32 +267,6 @@
         #contextMenu li:hover {
         background: #eee;
         }
-        /* Modal */
-        #commentModal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        }
-        #commentModalContent {
-        background: #fff;
-        padding: 20px;
-        width: 400px;
-        margin: 100px auto;
-        border-radius: 5px;
-        }
-        #commentModalContent textarea {
-        width: 100%;
-        height: 150px;
-        }
-        #commentModalContent button {
-        margin-top: 10px;
-        padding: 5px 15px;
-        }
     </style>
     <style>
         .tooltip-wrapper {
@@ -396,6 +370,69 @@
             transform: rotate(-2deg); /* sedikit miring */
         }
     </style>
+    <style>
+        #commentModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        #commentModalContent h3,
+        #commentModalContent h4 {
+            margin-top: 0;
+        }
+
+        #commentInput {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+
+        #historyTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        #historyTable thead th {
+            background-color: #f4f4f4;
+            position: sticky;
+            top: 0;
+        }
+
+        #historyTable tbody {
+            display: block;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #historyTable thead,
+        #historyTable tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        #historyTable td,
+        #historyTable th {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+    </style>
+
 <?php endif; ?>
 
 <body>
@@ -586,7 +623,7 @@
                     function getCommentAdj($con, $adjNo) {
                         $ids = $_GET['ids'];
                         $idm = $_GET['idm'];
-                        $sqlComment = "SELECT * FROM tbl_comment WHERE ids = '$ids' AND idm = '$idm' AND adj = '$adjNo'";
+                        $sqlComment = "SELECT * FROM tbl_comment WHERE ids = '$ids' AND idm = '$idm' AND adj = '$adjNo' ORDER BY id DESC LIMIT 1";
                         $resultComment  = mysqli_query($con, $sqlComment);
                         $dataComment    = mysqli_fetch_assoc($resultComment);
 
@@ -3194,7 +3231,7 @@
                         $stmtHistoryRecipe1  = db2_exec($conn1, $sqlHistoryRecipe1);
                         $dataHistoryRecipe1 = db2_fetch_assoc($stmtHistoryRecipe1);
                         
-                        $sqlHistoryRecipe2 = "SELECT 
+                            $sqlHistoryRecipe2 = "SELECT 
                                                     LISTAGG(DISTINCT TRIM(PROJECTCODE) || ' (' || TRIM(LOT) || ')', ', ') AS SALESORDER
                                                 FROM
                                                     ITXVIEWKK
@@ -3252,6 +3289,20 @@
                 <textarea id="commentInput"></textarea><br/>
                 <button id="saveComment">Save</button>
                 <button id="cancelComment">Cancel</button>
+
+                <!-- Tabel Riwayat Komentar -->
+                <hr>
+                <h4>Riwayat Komentar</h4>
+                <table border="1" cellpadding="5" cellspacing="0" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Tanggal</th>
+                            <th>Komentar</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody> <!-- Akan diisi via JavaScript -->
+                </table>
             </div>
         </div>
     <?php endif; ?>
@@ -3287,6 +3338,36 @@
         commentInput.value = tooltipText ? tooltipText.textContent : '';
         commentModal.style.display = 'block';
         contextMenu.style.display = 'none';
+
+        // Ambil data
+        const ids = '<?= $_GET['ids'] ?? '' ?>';
+        const idm = '<?= $_GET['idm'] ?? '' ?>';
+        const adjNo = currentCell.dataset.adj;
+
+        // Kosongkan isi table history dulu
+        const tbody = document.querySelector("#historyTable tbody");
+        tbody.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+
+        // Ambil history via Ajax
+        $.get('../ajax/get_comment_history.php', {
+            ids: ids,
+            idm: idm,
+            adj: adjNo
+        }, function(data) {
+            if (data.length > 0) {
+                let html = '';
+                data.forEach(row => {
+                    html += `<tr>
+                                <td>${row.username}</td>
+                                <td>${row.created_at}</td>
+                                <td>${row.comment}</td>
+                            </tr>`;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = "<tr><td colspan='2'>Belum ada komentar.</td></tr>";
+            }
+        });
     });
 
     document.getElementById('saveComment').addEventListener('click', function() {
@@ -3297,13 +3378,15 @@
         const ids = '<?= $_GET['ids'] ?? '' ?>';
         const idm = '<?= $_GET['idm'] ?? '' ?>';
         const adjNo = currentCell.dataset.adj; // ⬅️ ambil data-adj
+        const idUser = '<?= $_GET['created_by'] ?? '' ?>';
 
         // Kirim via $.post (pola kamu)
         $.post('../ajax/save_comment.php', {
             ids: ids,
             idm: idm,
             adj_no: adjNo, // ⬅️ kirim nomor adj
-            comment: commentInput.value
+            comment: commentInput.value,
+            idUser: idUser
         }, function(response) {
             if (response.trim() === 'SAVED') {
                 Swal.fire({
