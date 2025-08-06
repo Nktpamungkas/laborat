@@ -515,7 +515,7 @@
             <td width="20%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_resep']; ?></strong></td>
             <td width="10%" style="border-right:0px #000000 solid;">LAB DIP No</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-            <td width="31%" style="border-left:0px #000000 solid;" id="adjButton"><strong><?Php echo $data['no_warna']; ?></strong></td>
+            <td width="31%" style="border-left:0px #000000 solid;" <?php if($data['jenis_matching'] == 'LD NOW' OR $data['jenis_matching'] == 'L?D') { echo 'id="adjButton"'; } ?>><strong><?Php echo $data['no_warna']; ?></strong></td>
             <td width="15%" style="border-right:0px #000000 solid;">Gramasi Aktual</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
             <td width="12%" style="border-left:0px #000000 solid;"><strong><?Php if ($data['lebar_aktual'] != "") {
@@ -3119,7 +3119,6 @@
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Temp x Time</td>
             <?php if($_GET['frm'] == 'bresep') : ?>
-
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['tside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['tside_min']) ?> min</td>
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['cside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['cside_min']) ?> min</td>
             <?php else : ?>
@@ -3181,18 +3180,30 @@
             <?php if($_GET['frm'] == 'bresep') : ?>
                 <td colspan="10" style="text-align: left; vertical-align: top;">
                     <?php
-                        $sqlHistoryRecipe = "SELECT 
-                                                GROUP_CONCAT(CONCAT(TRIM(c.no_order), ' (', TRIM(c.lot), ')') ORDER BY c.no_order SEPARATOR ', ') AS no_order
+                        $sqlHistoryRecipe1 = "SELECT DISTINCT
+                                                a.VALUESTRING AS RCODE,
+                                                LISTAGG(DISTINCT '''' || TRIM(p.PRODUCTIONORDERCODE) || '''', ', ') AS PRODUCTIONORDERCODE 
                                             FROM
-                                                `tbl_hasilcelup` a
-                                            LEFT JOIN tbl_montemp b ON b.id = a.id_montemp
-                                            LEFT JOIN tbl_schedule c ON c.id = b.id_schedule
-                                            WHERE
-                                                rcode = '$data[no_resep]'";
-                        $stmtHistoryRecipe  = mysqli_query($con_db_dyeing, $sqlHistoryRecipe);
+                                                PRODUCTIONRESERVATION p
+                                            LEFT JOIN RECIPE r ON r.SUBCODE01 = p.SUBCODE01 AND r.SUFFIXCODE = p.SUFFIXCODE 
+                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
+                                            WHERE 
+                                                a.VALUESTRING = '$data[no_resep]'
+                                            GROUP BY
+                                                a.VALUESTRING";
+                        $stmtHistoryRecipe1  = db2_exec($conn1, $sqlHistoryRecipe1);
+                        $dataHistoryRecipe1 = db2_fetch_assoc($stmtHistoryRecipe1);
+                        
+                        $sqlHistoryRecipe2 = "SELECT 
+                                                    LISTAGG(DISTINCT TRIM(PROJECTCODE) || ' (' || TRIM(LOT) || ')', ', ') AS SALESORDER
+                                                FROM
+                                                    ITXVIEWKK
+                                                WHERE
+                                                    PRODUCTIONORDERCODE IN ($dataHistoryRecipe1[PRODUCTIONORDERCODE])";
+                        $stmtHistoryRecipe2  = db2_exec($conn1, $sqlHistoryRecipe2);
                     ?>
-                    <?php while ($rowHistoryRecipe = mysqli_fetch_array($stmtHistoryRecipe)) : ?>
-                        <?= $rowHistoryRecipe['no_order'] ?>
+                    <?php while ($rowHistoryRecipe = db2_fetch_assoc($stmtHistoryRecipe2)) : ?>
+                        <?= $rowHistoryRecipe['SALESORDER'] ?>
                     <?php endwhile; ?>
                 </td>
             <?php else : ?>
