@@ -2,6 +2,9 @@
 class Penomoran_helper{
     public static function nilaiKeRibuan($angka,$ribuan=".",$koma=","){
         try{
+            if($angka==""||$angka=="-"){
+                $angka=0;
+            }
             $str=explode(".",strval($angka)+ 0);
             if(count($str)==2){
                 return number_format(intval($str[0]),0,$koma,$ribuan).$koma.$str[1];
