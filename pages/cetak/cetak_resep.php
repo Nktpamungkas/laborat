@@ -294,6 +294,12 @@
             font-size: 0.75rem;
         }
 
+        /* Aktifkan tooltip secara manual */
+        .active-tooltip {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
         .tooltip-wrapper:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
@@ -456,7 +462,36 @@
             border: 1px solid #ddd;
         }
     </style>
+    <style>
+        #toggleButton {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+        }
 
+        #toggleButton:hover {
+            background-color: #e9ecef;
+            border-color: #bbb;
+        }
+
+        #toggleButton:active {
+            background-color: #dee2e6;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        #toggleButton:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+    </style>
 <?php endif; ?>
 
 <body>
@@ -775,8 +810,37 @@
     <br>
     <?php if($_GET['frm'] == 'bresep') : ?>
         <?= $data['jenis_matching']; ?>
+        <button id="toggleButton" onclick="toggleTooltip()">💬 Tampilkan Komentar</button>
+        <script>
+            function toggleTooltip() {
+                const tooltips = document.querySelectorAll('.tooltip-text');
+                tooltips.forEach(t => t.classList.toggle('active-tooltip'));
+            }
+            function toggleTooltip() {
+                const tooltips = document.querySelectorAll('.tooltip-text');
+                const btn = document.getElementById('toggleButton');
+
+                let isVisible = false;
+
+                // Cek apakah tooltip saat ini visible
+                if (tooltips.length > 0) {
+                    isVisible = tooltips[0].classList.contains('active-tooltip');
+                }
+
+                // Toggle class untuk semua tooltip
+                tooltips.forEach(t => t.classList.toggle('active-tooltip'));
+
+                // Ganti teks tombol berdasarkan state
+                if (isVisible) {
+                    btn.innerHTML = '💬 Tampilkan Komentar';
+                } else {
+                    btn.innerHTML = '❌ Sembunyikan Komentar';
+                }
+            }
+        </script>
     <?php endif; ?>
     <!--<div align="right" style="font-size: 12px;">FW-12-LAB-04</div>-->
+
     <table width="100%" border="0" class="table-list1">
         <tr>
           <td style="border-right:0px #000000 solid;">Recipe Code</td>
