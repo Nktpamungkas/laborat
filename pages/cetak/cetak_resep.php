@@ -5,13 +5,20 @@
     $ids = $_GET['ids'];
     $idm = $_GET['idm'];
     $ip_num = $_SERVER['REMOTE_ADDR'];
-    mysqli_query($con,"INSERT INTO log_status_matching SET
-            `ids` = '$idm', 
-            `status` = 'print', 
-            `info` = 'cetak resep', 
-            `do_by` = '".$_SESSION['userLAB']."', 
-            `do_at` = '$time', 
-            `ip_address` = '$ip_num'");
+    if($_GET['frm'] == 'bresep'){
+        if (empty($_GET['created_by'])) {
+            echo "<script>window.close();</script>";
+            exit;
+        }
+    }else{
+        mysqli_query($con,"INSERT INTO log_status_matching SET
+                `ids` = '$idm', 
+                `status` = 'print', 
+                `info` = 'cetak resep', 
+                `do_by` = '".$_SESSION['userLAB']."', 
+                `do_at` = '$time', 
+                `ip_address` = '$ip_num'");
+    }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
