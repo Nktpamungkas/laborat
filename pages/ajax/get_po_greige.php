@@ -653,18 +653,22 @@ $(document).ready(function(){
         const btn = row.find('.btn-simpan-row');
         
         // Pengecekan lebih ketat dan aman
-        const hasValidData = pic && pic.trim() !== '' && status && status.trim() !== '';
-        
-        if (hasValidData) {
+        // const hasValidData = pic && pic.trim() !== '' && status && status.trim() !== '';
+        const hasData = picSelect.val() && statusSelect.val();
+    
+        if (hasData) {
+            // Disable fields if data exists
             picSelect.prop('disabled', true);
             statusSelect.prop('disabled', true);
             btn.find('.btn-text').text('Edit');
         } else {
-            // Pastikan dalam mode edit jika data kosong/tidak valid
+            // Enable fields if no data
             picSelect.prop('disabled', false);
             statusSelect.prop('disabled', false);
-            btn.find('.btn-text').text('Update');
-        }
+            btn.find('.btn-text').text('Simpan');
+            btn.show();
+        }   
+        
         
         // Debugging yang lebih informatif
         console.log('Row state:', {
@@ -681,11 +685,10 @@ $(document).ready(function(){
 
     // Handler untuk tombol Simpan/Edit/Update
     $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function() {
-    if (currentUser.toLowerCase() !== 'riyan') {
-        toastr.warning('Hanya user Riyan yang dapat melakukan edit');
-        return;
-    }
-
+    // if (currentUser.toLowerCase() !== 'riyan') {
+    //     toastr.warning('Hanya user Riyan yang dapat melakukan edit');
+    //     return;
+    // }
     const btn = $(this);
     const row = btn.closest('.row-item');
     const btnText = btn.find('.btn-text').text().trim();
@@ -701,12 +704,15 @@ $(document).ready(function(){
 
     // Jika tombol berada di mode Edit, enable dropdown dan ubah tombol ke Update
     if (btnText === 'Edit') {
-        picSelect.prop('disabled', false);
-        statusSelect.prop('disabled', false);
-        btn.find('.btn-text').text('Update');
-        return;
-    }
-
+            if (currentUser.toLowerCase() !== 'riyan') {
+                toastr.warning('Hanya user Riyan yang dapat melakukan edit');
+                return;
+            }
+            picSelect.prop('disabled', false);
+            statusSelect.prop('disabled', false);
+            btn.find('.btn-text').text('Update');
+            return;
+        }
     // Jika tombol berada di mode Update, validasi dan kirim ajax
     const pic = picSelect.val();
     const status = statusSelect.val();
