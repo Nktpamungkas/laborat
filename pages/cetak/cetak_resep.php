@@ -18,7 +18,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- <link href="styles_cetak.css" rel="stylesheet" type="text/css"> -->
-    <title>Cetak Form Tempelan Laborat</title>.
+    <title>Cetak Form Tempelan Laborat</title>
     <?php if($_GET['frm'] == 'bresep') : ?>
         <script src="../../bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
         <link href="../../bower_components/sweet-alert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
@@ -298,6 +298,9 @@
             visibility: visible;
             opacity: 1;
         }
+        .tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
+        }
 
         .tooltip-wrapper.has-comment::after {
             content: "";
@@ -319,9 +322,6 @@
             position: absolute;
             top: 0;
             right: 0;
-        }
-        .tooltip-wrapper:hover .tooltip-text {
-            visibility: visible;
         }
 
     </style>
@@ -851,9 +851,6 @@
             <td valign="top" style="border-left:0px #000000 solid;"><?Php echo $data['cocok_warna']; ?></td>
         </tr>
     </table>
-    <!-- Tempat Tooltip -->
-    <div id="tooltipContainer" class="hidden"></div>
-
     <table width="100%" border="1" class="table-list1">
         <tr style="height: 0.3in">
             <td width="8%" align="center"><strong>KODE</strong></td>
