@@ -1099,7 +1099,7 @@
                             ?>
                                 <?php if ($r !== null && $g !== null && $b !== null) : ?>
                                     <?php $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b); ?>
-                                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: flex-end; justify-content: flex-end; font-size: 12px; font-weight: bold;">
                                         RGB(<?= $r ?>, <?= $g ?>, <?= $b ?>)
                                     </div>
                                 <?php endif;  ?>
@@ -2160,7 +2160,7 @@
                             ?>
                                 <?php if ($r !== null && $g !== null && $b !== null) : ?>
                                     <?php $hexRGB = sprintf("#%02x%02x%02x", $r, $g, $b); ?>
-                                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                                    <div style="width: 100%; height: 200px; background-color: <?= $hexRGB; ?>; color: rgba(255,255,255,0.2); display: flex; align-items: flex-end; justify-content: flex-end; font-size: 12px; font-weight: bold;">
                                         RGB(<?= $r ?>, <?= $g ?>, <?= $b ?>)
                                     </div>
                                 <?php endif;  ?>
