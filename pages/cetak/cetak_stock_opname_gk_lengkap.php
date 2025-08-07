@@ -1,10 +1,10 @@
 <?php
-// header("Content-type: application/octet-stream");
-// header("Content-Disposition: attachment; filename=detailtutupproses11_" . date("Ymd", strtotime($_GET['tgl'])) . "_" . $_GET['tipe'] . ".xls");
-// header("Pragma: no-cache");
-// header("Expires: 0");
+header("Content-type: application/octet-stream");
+header("Content-Disposition: attachment; filename=detailtutupproses11_" . date("Ymd", strtotime($_GET['tgl'])) . "_" . $_GET['tipe'] . ".xls");
+header("Pragma: no-cache");
+header("Expires: 0");
 //disini script laporan anda
-// ob_start();
+ob_start();
 ?>
 <?php
 $tgl_tutup = isset($_GET['tgl']) ? $_GET['tgl'] : '';
@@ -174,4 +174,4 @@ $tahun = $date->format('Y');
                   </tfoot>                  
                 </table>
 <br>
-<?php //ob_end_flush(); ?>
+<?php ob_end_flush(); ?>
