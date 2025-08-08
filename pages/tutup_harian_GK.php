@@ -200,7 +200,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="box">                
                 <div class="box-header with-border">
                 <div class="card-header table-card-header">
-                    <h5>LAPORAN PEMAKAIAN OBAT GUDANG KIMIA PERKATEGORI</h5>
+                    <h5>LAPORAN TUTUP TRANSAKSI OBAT GUDANG KIMIA</h5>
                 </div>
                     <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">                                          
                             <table id="Table-obat" class="table table-bordered table-hover" style="width: 100%;">                       
