@@ -421,6 +421,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 $("#kardus_multiple").trigger("change");
             }else{
                 $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_bp").val(), ".",","));
+                hitungTotal();
             }
         }
         function selectUT(){
