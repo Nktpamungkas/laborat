@@ -471,26 +471,33 @@
     </style>
     <style>
         #toggleButton {
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #007bff; /* biru Bootstrap */
+            color: white;
             border: 1px solid #ccc;
-            padding: 4px 10px;
+            padding: 10px 15px;
             font-size: 12px;
             font-weight: 500;
-            border-radius: 4px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 1px 1px rgba(0,0,0,0.04);
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+
+            position: fixed;     /* bikin tombol “menempel” di layar */
+            bottom: 15px;        /* jarak dari bawah layar */
+            right: 15px;         /* jarak dari kanan layar */
+            z-index: 1000;       /* supaya tombol selalu di atas elemen lain */
         }
 
         #toggleButton:hover {
-            background-color: #e9ecef;
+            /* background-color: #e9ecef; */
+            background-color: #0056b3; /* biru lebih gelap saat hover */
             border-color: #bbb;
         }
 
         #toggleButton:active {
-            background-color: #dee2e6;
+            /* background-color: #dee2e6; */
+            background-color: #004085; /* biru gelap saat ditekan */
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
         }
 
@@ -1529,6 +1536,7 @@
                                     <div class="tooltip-wrapper" style="max-width: 70%;">
                                         <strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong>
                                         <span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span>
+                                        &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'info-lab')) ? '<span class="comment-indicator"></span>' : '' ?>
                                         <br>
                                         <strong>Keterangan : <?= $data['ket']; ?></strong>
                                     </div>
@@ -3558,42 +3566,54 @@
     });
 </script>
 <script>
-    const btn = document.getElementById('adjButton');
-    const tooltip = document.getElementById('tooltipContainer');
-    let hideTimeout;
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('adjButton');
 
-    btn.addEventListener('mouseenter', async (e) => {
-        clearTimeout(hideTimeout);
-
-        const rect = btn.getBoundingClientRect();
-        tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
-        tooltip.style.left = (rect.left + window.scrollX) + 'px';
-
-        // Ambil data dari server
-        const number = '<?= $data['no_warna']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
-        const no_order = '<?= $data['no_order']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
-        try {
-            const response = await fetch('quality_result.php?number=' + number + '&no_order=' + no_order);
-            const html = await response.text();
-            tooltip.innerHTML = html;
-            tooltip.style.display = 'block';
-        } catch (err) {
-            tooltip.innerHTML = '<p>Error loading data.</p>';
-            tooltip.style.display = 'block';
+        // Kalau belum ada tooltipContainer, buat otomatis
+        let tooltip = document.getElementById('tooltipContainer');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'tooltipContainer';
+            document.body.appendChild(tooltip);
         }
-    });
 
-    btn.addEventListener('mouseleave', () => {
-        hideTimeout = setTimeout(() => {
+        if (!btn) return; // Kalau tombol nggak ada, stop
+
+        let hideTimeout;
+
+        btn.addEventListener('mouseenter', async () => {
+            clearTimeout(hideTimeout);
+
+            const rect = btn.getBoundingClientRect();
+            tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
+            tooltip.style.left = (rect.left + window.scrollX) + 'px';
+
+            const number = '<?= $data['no_warna']; ?>';
+            const no_order = '<?= $data['no_order']; ?>';
+
+            try {
+                const response = await fetch('quality_result.php?number=' + encodeURIComponent(number) + '&no_order=' + encodeURIComponent(no_order));
+                const html = await response.text();
+                tooltip.innerHTML = html;
+                tooltip.style.display = 'block';
+            } catch (err) {
+                tooltip.innerHTML = '<p>Error loading data.</p>';
+                tooltip.style.display = 'block';
+            }
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 300);
+        });
+
+        tooltip.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+        });
+
+        tooltip.addEventListener('mouseleave', () => {
             tooltip.style.display = 'none';
-        }, 300);
-    });
-
-    tooltip.addEventListener('mouseenter', () => {
-        clearTimeout(hideTimeout);
-    });
-
-    tooltip.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+        });
     });
 </script>
