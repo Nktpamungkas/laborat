@@ -170,6 +170,20 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                     </div>                                    
                                 </td>
                             </tr>
+                            <tr class="WH_M510 WAREHOUSE_ALL FORMULA va-top" id="berat_row">
+                                <td>Berat</td>
+                                <td>: &nbsp;</td>
+                                <td id="formula_text">
+                                    <div class="col-sm-12 pd0">
+                                        <div class="form-group mb0">
+                                            <select class="form-select w100" aria-label="Berat Select" id="berat">
+                                                <option value="kardus">Kardus Tong </option>
+                                                <option value="toples">Toples</option>
+                                            </select> 
+                                        </div>
+                                    </div>                                    
+                                </td>
+                            </tr>
                             <tr class="va-top">
                                 <td id="label_qty">Qty Dus</td>
                                 <td>: &nbsp;</td>
@@ -220,9 +234,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         } );
         $("#barcode").on("focus", function() {
             checkForm(true);
+            $(this).attr("placeholder", "");
         } );
         $("#barcode").on("focusout", function() {
-            // checkForm(false);
+            //kalau stack matikan saja ini
+            $(this).attr("placeholder", "Silahkan Klik Disini Untuk Scan");
         } );
         $("#tgl_tutup").on("change", function() {
             checkForm(false);
@@ -232,9 +248,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         $("#kategori").on("change", function() {
             if($(this).val()=="utuhan"){
                 $("#formula_row").hide();
+                $("#berat_row").hide();
                 $("#label_qty").html("Qty Dus");
-                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_ut").val(), ".",","));
-                hitungTotal();
+                selectUT();
             }else{
                 $("#formula_row").show(); 
                 ubahFormula();
@@ -242,6 +258,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         } );
         $("#formula").on("change", function() {
             ubahFormula();
+        } );
+        $("#berat").on("change", function() {
+            ubahBerat();
         } );
         $("#warehouse").on("change", function() {
             checkForm(false);
@@ -279,6 +298,12 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                          }
                          $("#opname_pakingan_standar").val(response.data.pakingan_standar);
                          $("#opname_total_stock").val(response.data.total_stock);
+                       
+                        updateSP(response.data.ut,"ut");
+                        updateSP(response.data.tg,"tg");
+                        updateSP(response.data.bj,"bj");
+                        updateSP(response.data.bp,"bp");
+                        updateSP(response.data.bk,"bk");
 
                         $(".WH_"+$("#warehouse").val()).show();
                         $("#detailModal").modal("show");
@@ -287,30 +312,22 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                         
                         if(response.data.kategori=="utuhan"){
                             $("#kategori").val(response.data.kategori).trigger("change");
-                            let paking_std = response.data.ut.split("||");
-                            if(paking_std.length>=2){
-                                select=`<select class="form-select w100" aria-label="Multiple Pakingan" id="pakingan_multiple">`;
-                                for (let i = 0; i < paking_std.length; i++) { 
-                                    let selected= response.data.pakingan_standar ==paking_std[i]?"selected": "";
-                                    select+=`<option value="`+paking_std[i]+`" `+selected+`>`+nilaiKeRibuan(paking_std[i], ".",",")+`</option>`;
-                                }
-                                select+= `</select> `;
-                                $("#opname_pakingan_standar_text").html(select);
-                                $("#pakingan_multiple").trigger("change");
-                            }else{
-                                $("#opname_pakingan_standar_text").html(nilaiKeRibuan(response.data.ut, ".",","));
-                            }
+                            selectUT();
                         }
                         else{
-                            $("#formula").val(response.data.kategori);
-                            $("#kategori").val('bukaan').trigger("change");
+                            if(response.data.kategori=="kardus"||response.data.kategori=="toples"){
+                                $("#berat").val(response.data.kategori);
+                                $("#formula").val("berat");
+                                $("#kategori").val('bukaan').trigger("change");
+                                if(response.data.kategori=="kardus"){
+                                    selectBP();
+                                }
+                                
+                            }else{
+                                $("#formula").val(response.data.kategori);
+                                $("#kategori").val('bukaan').trigger("change");
+                            }
                         }
-                       
-                        updateSP(response.data.ut,"ut");
-                        updateSP(response.data.tg,"tg");
-                        updateSP(response.data.bj,"bj");
-                        updateSP(response.data.bp,"bp");
-                        updateSP(response.data.bk,"bk");
                         
                         $("#opname_total_stock_text").html(response.data.total_stock_text);
 
@@ -339,6 +356,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         $(document).on('change', '#pakingan_multiple', function(e) {
             hitungTotal()
         });
+        $(document).on('change', '#kardus_multiple', function(e) {
+            hitungTotal()
+        });
         $(document).on('click', '.confirm', function() {
             if($("#opname_qty_dus").val()==""||$("#opname_qty_dus").val()=="0"){
                 Swal.fire({
@@ -355,7 +375,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     ctgr = $("#kategori").val();
                 }
                 else{
-                    ctgr = $("#formula").val();
+                    if($("#formula").val()=="berat"){
+                        ctgr = $("#berat").val();
+                    }else{
+                        ctgr = $("#formula").val();
+                    }
                 }
             }
             let dataPost={check:"simpan_stock",id_dt: id,qty_dus:$("#opname_qty_dus").val(),total_stock:$("#opname_total_stock").val(),pakingan_standar:$("#opname_pakingan_standar").val(),kategori:ctgr};
@@ -384,15 +408,61 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             });
         });
         //logic function
+        function selectBP(){
+            let paking_kds = $("#opname_bp").val().split("||");
+            if(paking_kds.length>=2){
+                let select=`<select class="form-select w100" aria-label="Multiple Kardus" id="kardus_multiple">`;
+                for (let i = 0; i < paking_kds.length; i++) { 
+                    let selected= $("#opname_pakingan_standar").val() ==paking_kds[i]?"selected": "";
+                    select+=`<option value="`+paking_kds[i]+`" `+selected+`>`+nilaiKeRibuan(paking_kds[i], ".",",")+`</option>`;
+                }
+                select+= `</select> `;
+                $("#opname_pakingan_standar_text").html(select);
+                $("#kardus_multiple").trigger("change");
+            }else{
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_bp").val(), ".",","));
+            }
+        }
+        function selectUT(){
+            let paking_std = $("#opname_ut").val().split("||");
+            if(paking_std.length>=2){
+                let select=`<select class="form-select w100" aria-label="Multiple Pakingan" id="pakingan_multiple">`;
+                for (let i = 0; i < paking_std.length; i++) { 
+                    let selected= $("#opname_pakingan_standar").val() ==paking_std[i]?"selected": "";
+                    select+=`<option value="`+paking_std[i]+`" `+selected+`>`+nilaiKeRibuan(paking_std[i], ".",",")+`</option>`;
+                }
+                select+= `</select> `;
+                $("#opname_pakingan_standar_text").html(select);
+                $("#pakingan_multiple").trigger("change");
+            }else{
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_ut").val(), ".",","));
+            }
+        }
         function ubahFormula(){
+            $("#berat_row").hide();
             $("#label_qty").html(ucfirst($("#formula").val()));
             let val=0;
             if($("#formula").val()=="berat"){
-                val=$("#opname_bp").val();
+                $("#berat_row").show();
+                ubahBerat();
+                return true;
             }else if($("#formula").val()=="volume"){
                 val=$("#opname_bj").val();
             }else if($("#formula").val()=="tinggi"){
                 val=$("#opname_tg").val();
+            }
+            $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
+            hitungTotal();
+        }
+        function ubahBerat(){
+            $("#label_qty").html(ucfirst($("#berat").val()));
+            let val=0;
+            if($("#berat").val()=="kardus"){
+                val=$("#opname_bp").val();
+                selectBP()
+                return 1;
+            }else if($("#berat").val()=="toples"){
+                val=$("#opname_bk").val();
             }
             $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
             hitungTotal();
@@ -413,8 +483,17 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             }
             else{
                 if($("#formula").val()=="berat"){
-                    $("#opname_pakingan_standar").val($("#opname_bp").val());
-                    ps=$("#opname_bp").val();
+                     if($("#berat").val()=="kardus"){
+                        ps=$("#opname_bp").val();
+                        let pkg_kds = ps.split("||");
+                        if(pkg_kds.length>=2){
+                            ps=$("#kardus_multiple").val();
+                        }
+                        $("#opname_pakingan_standar").val(ps);
+                    }else if($("#berat").val()=="toples"){
+                        $("#opname_pakingan_standar").val($("#opname_bk").val());
+                        ps=$("#opname_bk").val();
+                    }
                     total_stock=Number(val)-ps;
                 }else if($("#formula").val()=="volume"){
                     $("#opname_pakingan_standar").val($("#opname_bj").val());
