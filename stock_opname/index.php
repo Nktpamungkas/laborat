@@ -436,6 +436,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 $("#pakingan_multiple").trigger("change");
             }else{
                 $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_ut").val(), ".",","));
+                hitungTotal();
             }
         }
         function ubahFormula(){
