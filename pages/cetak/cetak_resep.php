@@ -613,6 +613,7 @@
                 $queryFinal     = "WITH BASE AS (
                                     SELECT
                                         SEQUENCE,
+                                        GROUPNUMBER,
                                         CASE 
                                             WHEN RIGHT(TRIM(RECIPESUBCODE01), 1) = 'D' THEN '1'
                                             WHEN RIGHT(TRIM(RECIPESUBCODE01), 1) = 'R' THEN '2'
@@ -637,6 +638,7 @@
                                     SELECT
                                         KODE,
                                         SEQUENCE,
+                                        GROUPNUMBER,
                                         SUFFIXTYPE,
                                         MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
                                         MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
@@ -649,11 +651,11 @@
                                     FROM 
                                         BASE
                                     GROUP BY 
-                                        KODE, SEQUENCE, SUFFIXTYPE
+                                        KODE, GROUPNUMBER, SEQUENCE, SUFFIXTYPE
                                 ),
                                 FINALDATA AS (
                                     SELECT 
-                                        ROW_NUMBER() OVER (ORDER BY SUFFIXTYPE, SEQUENCE, KODE) AS FLAG,
+                                        ROW_NUMBER() OVER (ORDER BY SUFFIXTYPE, GROUPNUMBER, SEQUENCE, KODE) AS FLAG,
                                         P.KODE || 
                                         CASE 
                                             WHEN LAB IS NULL THEN ' (NEW)'
@@ -661,6 +663,7 @@
                                             ELSE ''
                                         END AS KODE,
                                         P.SEQUENCE,
+                                        P.GROUPNUMBER,
                                         P.SUFFIXTYPE,
                                         P.LAB,
                                         P.ADJ1,
@@ -685,8 +688,10 @@
                                 WHERE 
                                     FLAG = {$flag}
                                 ORDER BY 
+                                    FLAG,
                                     SUFFIXTYPE, 
                                     SEQUENCE, 
+                                    GROUPNUMBER,
                                     KODE;";
                 $resultFinal = db2_exec($conn1, $queryFinal);
                 $dataFinal = db2_fetch_assoc($resultFinal);
