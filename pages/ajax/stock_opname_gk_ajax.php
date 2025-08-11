@@ -246,7 +246,7 @@
                     }
                 }else{
                     $response->setSuccess(false);
-                    $response->addMessage("Data Tutup Buku Tidak Tersedia");
+                    $response->addMessage("Data Tutup Buku Untuk ".$dataTransaksi['kode_obat']." lot ".$dataTransaksi['lot']." Tidak Tersedia");
                     $response->addMessage($dataTransaksi);
                 }
                 $response->send();
@@ -317,7 +317,7 @@
                     }
                 }else{
                     $response->setSuccess(false);
-                    $response->addMessage("Data Tutup Buku Tidak Tersedia");
+                    $response->addMessage("Data Tutup Buku Untuk ".$dataTransaksi['kode_obat']." lot ".$dataTransaksi['lot']." Tidak Tersedia");
                     $response->addMessage($dataTransaksi);
                 }
                 $response->send();
