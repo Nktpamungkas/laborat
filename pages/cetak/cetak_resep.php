@@ -633,6 +633,7 @@
                                                                 '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
                                                                 '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
                                     AND ITEMTYPEAFICODE = 'DYC'
+                                    AND GROUPNUMBER < 20
                                 ),
                                 PIVOTED AS (
                                     SELECT
