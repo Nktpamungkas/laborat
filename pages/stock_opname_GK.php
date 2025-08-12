@@ -329,7 +329,6 @@ $(document).on('click', '.confirm', function() {
                     text: 'Berhasil Konfirmasi',
                     icon: 'success',
                     timer: 1000,
-                    topLayer: false,
                     position : 'top-end',
                     showConfirmButton: false
                 })
@@ -366,18 +365,41 @@ function checkData(){
     let tgl_tutup = $("#tgl_tutup").val();
     let warehouse = $("#warehouse").val();
     if(tgl_tutup!="" && warehouse!=""){
+        let sts="cek_data";
+        if(warehouse=="M510"){
+            sts="cek_data_m510";
+        }
         $.ajax({
             url: 'pages/ajax/stock_opname_gk_ajax.php',
             type: 'POST',
-            data: {status:"cek_data", tgl_tutup: tgl_tutup, warehouse: warehouse },
+            data: {status:sts, tgl_tutup: tgl_tutup, warehouse: warehouse },
             success: function(response) {
-                $.each( response.data, function( key, value ) {
-                    $("#td_dus_"+value.id).html(value.qty_dus);
-                    $("#ts_"+value.id).html(value.total_stock);
-                });
+                if(response.success){
+                    $.each( response.data, function( key, value ) {
+                        $("#td_dus_"+value.id).html(value.qty_dus);
+                        $("#ts_"+value.id).html(value.total_stock);
+                        $("#ps_"+value.id).html(value.pakingan_standar);
+                        $("#confirm_"+value.id).html(value.konfirm);
+                    });
+                }else{
+                    cari_data=false;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Mohon Maaf anda sudah logout, Silahkan Refresh halaman.',
+                        buttons: [
+                            'Refresh Halaman'
+                        ],
+                    }).then(function(isConfirm) {
+                        if (isConfirm) {
+                            location.reload();
+                        } else {
+                            location.reload();
+                        }
+                    });
+                }
             },
             error: function() {
-                // $('#tabelDetail').html('<p class="text-danger">Gagal memuat data.</p>');
             }
         });
     }  

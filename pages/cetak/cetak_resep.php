@@ -5,20 +5,27 @@
     $ids = $_GET['ids'];
     $idm = $_GET['idm'];
     $ip_num = $_SERVER['REMOTE_ADDR'];
-    mysqli_query($con,"INSERT INTO log_status_matching SET
-            `ids` = '$idm', 
-            `status` = 'print', 
-            `info` = 'cetak resep', 
-            `do_by` = '".$_SESSION['userLAB']."', 
-            `do_at` = '$time', 
-            `ip_address` = '$ip_num'");
+    if($_GET['frm'] == 'bresep'){
+        if (empty($_GET['created_by'])) {
+            echo "<script>window.close();</script>";
+            exit;
+        }
+    }else{
+        mysqli_query($con,"INSERT INTO log_status_matching SET
+                `ids` = '$idm', 
+                `status` = 'print', 
+                `info` = 'cetak resep', 
+                `do_by` = '".$_SESSION['userLAB']."', 
+                `do_at` = '$time', 
+                `ip_address` = '$ip_num'");
+    }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- <link href="styles_cetak.css" rel="stylesheet" type="text/css"> -->
-    <title>Cetak Form Tempelan Laborat</title>.
+    <title>Cetak Form Tempelan Laborat</title>
     <?php if($_GET['frm'] == 'bresep') : ?>
         <script src="../../bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
         <link href="../../bower_components/sweet-alert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
@@ -294,9 +301,18 @@
             font-size: 0.75rem;
         }
 
+        /* Aktifkan tooltip secara manual */
+        .active-tooltip {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
         .tooltip-wrapper:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
+        }
+        .tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
         }
 
         .tooltip-wrapper.has-comment::after {
@@ -319,9 +335,6 @@
             position: absolute;
             top: 0;
             right: 0;
-        }
-        .tooltip-wrapper:hover .tooltip-text {
-            visibility: visible;
         }
 
     </style>
@@ -456,7 +469,43 @@
             border: 1px solid #ddd;
         }
     </style>
+    <style>
+        #toggleButton {
+            background-color: #007bff; /* biru Bootstrap */
+            color: white;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
 
+            position: fixed;     /* bikin tombol “menempel” di layar */
+            bottom: 15px;        /* jarak dari bawah layar */
+            right: 15px;         /* jarak dari kanan layar */
+            z-index: 1000;       /* supaya tombol selalu di atas elemen lain */
+        }
+
+        #toggleButton:hover {
+            /* background-color: #e9ecef; */
+            background-color: #0056b3; /* biru lebih gelap saat hover */
+            border-color: #bbb;
+        }
+
+        #toggleButton:active {
+            /* background-color: #dee2e6; */
+            background-color: #004085; /* biru gelap saat ditekan */
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        #toggleButton:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+    </style>
 <?php endif; ?>
 
 <body>
@@ -546,6 +595,27 @@
                 }
             }
 
+            function getEditorName_laborat($con, $suffix){
+                $sqlEditor    = "SELECT
+                                    do_by 
+                                FROM
+                                    `log_status_matching` 
+                                WHERE
+                                    ids = '{$suffix}'
+                                    AND info = 'modifikasi resep'
+                                ORDER BY 
+                                    do_at DESC
+                                LIMIT 1";
+                $stmtEditor = mysqli_query($con, $sqlEditor);
+                $rowEditor  = mysqli_fetch_assoc($stmtEditor);
+                if ($rowEditor) {
+                    $rawEditor = $rowEditor['do_by'];
+                    return $rawEditor;
+                } else {
+                    return null;
+                }
+            }
+
             function getCommentAdj($con, $adjNo) {
                 $ids = $_GET['ids'];
                 $idm = $_GET['idm'];
@@ -560,34 +630,49 @@
                     return null;
                 }
             }
+
             function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02){
                 $queryFinal     = "WITH BASE AS (
                                     SELECT
-                                        SEQUENCE,
+                                        r.SEQUENCE,
+                                        r.GROUPNUMBER,
+                                        r.GROUPTYPECODE,
                                         CASE 
-                                            WHEN RIGHT(TRIM(RECIPESUBCODE01), 1) = 'D' THEN '1'
-                                            WHEN RIGHT(TRIM(RECIPESUBCODE01), 1) = 'R' THEN '2'
+                                            WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN '1'
+                                            WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN '2'
                                             ELSE '1'
                                         END AS SUFFIXTYPE, 
-                                        RECIPESUFFIXCODE,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03,
-                                        CONSUMPTION,
-                                        COALESCE(TRIM(SUBCODE01),'') || '-' || COALESCE(TRIM(SUBCODE02),'') || '-' || COALESCE(TRIM(SUBCODE03),'') AS KODE
+                                        r.RECIPESUFFIXCODE,
+                                        r.SUBCODE01,
+                                        r.SUBCODE02,
+                                        r.SUBCODE03,
+                                        CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END AS CONSUMPTION,
+                                        CASE
+                                            WHEN GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
+                                            ELSE 
+                                                COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
+                                        END AS KODE
                                     FROM 
-                                        RECIPECOMPONENT
+                                        RECIPECOMPONENT r
+                                    LEFT JOIN RECIPE r2 ON r2.SUBCODE01 = r.RECIPESUBCODE01 AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
+	                                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r2.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
                                     WHERE 
-                                        RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                        AND RECIPESUFFIXCODE IN ('{$suffixL}', 
+                                        r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
+                                        AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
                                                                 '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
                                                                 '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
-                                    AND ITEMTYPEAFICODE = 'DYC'
+                                        AND
+                                            CASE
+                                                WHEN SUBSTR(a.VALUESTRING, 1,2) = 'OB' THEN GROUPTYPECODE IN ('001', '100')
+                                                ELSE ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20
+                                            END
                                 ),
                                 PIVOTED AS (
                                     SELECT
                                         KODE,
                                         SEQUENCE,
+                                        GROUPNUMBER,
+                                        GROUPTYPECODE,
                                         SUFFIXTYPE,
                                         MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
                                         MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
@@ -600,18 +685,19 @@
                                     FROM 
                                         BASE
                                     GROUP BY 
-                                        KODE, SEQUENCE, SUFFIXTYPE
+                                        KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
                                 ),
                                 FINALDATA AS (
                                     SELECT 
-                                        ROW_NUMBER() OVER (ORDER BY SUFFIXTYPE, SEQUENCE, KODE) AS FLAG,
+                                        ROW_NUMBER() OVER (ORDER BY SUFFIXTYPE, GROUPNUMBER, SEQUENCE, KODE) AS FLAG,
                                         P.KODE || 
                                         CASE 
-                                            WHEN LAB IS NULL THEN ' (NEW)'
-                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL THEN ' (REMOVED)'
+                                            WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
+                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN ' (REMOVED)'
                                             ELSE ''
                                         END AS KODE,
                                         P.SEQUENCE,
+                                        P.GROUPNUMBER,
                                         P.SUFFIXTYPE,
                                         P.LAB,
                                         P.ADJ1,
@@ -622,8 +708,8 @@
                                         P.ADJ6,
                                         P.ADJ7,
                                         CASE 
-                                            WHEN LAB IS NULL THEN 'NEW'
-                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL THEN 'REMOVED'
+                                            WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN 'NEW'
+                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN 'REMOVED'
                                             ELSE ''
                                         END AS STATUSDYC
                                     FROM 
@@ -636,8 +722,10 @@
                                 WHERE 
                                     FLAG = {$flag}
                                 ORDER BY 
+                                    FLAG,
                                     SUFFIXTYPE, 
                                     SEQUENCE, 
+                                    GROUPNUMBER,
                                     KODE;";
                 $resultFinal = db2_exec($conn1, $queryFinal);
                 $dataFinal = db2_fetch_assoc($resultFinal);
@@ -769,14 +857,46 @@
             function getEditorName(){
                 return null;
             }
+            function getEditorName_laborat(){
+                return null;
+            }
         }
         
     ?>
     <br>
     <?php if($_GET['frm'] == 'bresep') : ?>
         <?= $data['jenis_matching']; ?>
+        <button id="toggleButton" onclick="toggleTooltip()">💬 Tampilkan Komentar</button>
+        <script>
+            function toggleTooltip() {
+                const tooltips = document.querySelectorAll('.tooltip-text');
+                tooltips.forEach(t => t.classList.toggle('active-tooltip'));
+            }
+            function toggleTooltip() {
+                const tooltips = document.querySelectorAll('.tooltip-text');
+                const btn = document.getElementById('toggleButton');
+
+                let isVisible = false;
+
+                // Cek apakah tooltip saat ini visible
+                if (tooltips.length > 0) {
+                    isVisible = tooltips[0].classList.contains('active-tooltip');
+                }
+
+                // Toggle class untuk semua tooltip
+                tooltips.forEach(t => t.classList.toggle('active-tooltip'));
+
+                // Ganti teks tombol berdasarkan state
+                if (isVisible) {
+                    btn.innerHTML = '💬 Tampilkan Komentar';
+                } else {
+                    btn.innerHTML = '❌ Sembunyikan Komentar';
+                }
+            }
+        </script>
     <?php endif; ?>
     <!--<div align="right" style="font-size: 12px;">FW-12-LAB-04</div>-->
+
     <table width="100%" border="0" class="table-list1">
         <tr>
           <td style="border-right:0px #000000 solid;">Recipe Code</td>
@@ -793,7 +913,7 @@
             <td width="20%" style="border-left:0px #000000 solid;"><strong><?Php echo $data['no_resep']; ?></strong></td>
             <td width="10%" style="border-right:0px #000000 solid;">LAB DIP No</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-            <td width="31%" style="border-left:0px #000000 solid;" <?php if($data['jenis_matching'] == 'LD NOW' OR $data['jenis_matching'] == 'L?D') { echo 'id="adjButton"'; } ?>><strong><?Php echo $data['no_warna']; ?></strong></td>
+            <td width="31%" style="border-left:0px #000000 solid;" <?php if($data['jenis_matching'] == 'LD NOW' OR $data['jenis_matching'] == 'L/D') { echo 'id="adjButton"'; } ?>><strong><?php echo $data['no_warna']; ?></strong></td>
             <td width="15%" style="border-right:0px #000000 solid;">Gramasi Aktual</td>
             <td width="1%" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
             <td width="12%" style="border-left:0px #000000 solid;"><strong><?Php if ($data['lebar_aktual'] != "") {
@@ -851,15 +971,12 @@
             <td valign="top" style="border-left:0px #000000 solid;"><?Php echo $data['cocok_warna']; ?></td>
         </tr>
     </table>
-    <!-- Tempat Tooltip -->
-    <div id="tooltipContainer" class="hidden"></div>
-
     <table width="100%" border="1" class="table-list1">
         <tr style="height: 0.3in">
             <td width="8%" align="center"><strong>KODE</strong></td>
             <td width="10%" align="center"><strong>ERP KODE</strong></td>
             <?php if($_GET['frm'] == 'bresep') : ?>
-                <td width="5%" class="adj" data-adj="adj_lab" align="center"><div class="tooltip-wrapper "><strong>LAB &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'adj_lab')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'adj_lab') ?></span></div><div class="comment"></div></td>
+                <td width="5%" class="adj" data-adj="adj_lab" align="center"><div class="tooltip-wrapper"><strong>LAB &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'adj_lab')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'adj_lab') ?></span></div><div class="comment"></div></td>
                 <td width="5%" class="adj" data-adj="1" align="center"><div class="tooltip-wrapper"><strong>Adj-1 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '1')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '1') ?></span></div><div class="comment"></div></td>
                 <td width="5%" class="adj" data-adj="2" align="center"><div class="tooltip-wrapper"><strong>Adj-2 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '2')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '2') ?></span></div><div class="comment"></div></td>
                 <td width="5%" class="adj" data-adj="3" align="center"><div class="tooltip-wrapper"><strong>Adj-3 &nbsp;&nbsp;<?= !empty(getCommentAdj($con, '3')) ? '<span class="comment-indicator"></span>' : '' ?></strong><span class="tooltip-text"><?= getCommentAdj($con, '3') ?></span></div><div class="comment"></div></td>
@@ -899,6 +1016,7 @@
                                 <div class="tooltip-wrapper" style="max-width: 70%;">
                                     <strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong>
                                     <span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span>
+                                    &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'info-lab')) ? '<span class="comment-indicator"></span>' : '' ?>
                                     <br>
                                     <strong>Keterangan : <?= $data['ket']; ?></strong>
                                 </div>
@@ -1318,27 +1436,27 @@
                     <tr style="height: 0.2in" class="flag">
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;">T-SIDE</td>
-                        <td class="adj" data-adj="T-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE1') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE2') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE3') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE4') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE5') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE6') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE7') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="T-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8TSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE8') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE1')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE1') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE2')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE2') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE3')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE3') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE4')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE4') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE5')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE5') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE6')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE6') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE7')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE7') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="T-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8TSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'T-SIDE8')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE8') ?></span></div><div class="comment"></div></td>
                     </tr>
                 <!-- BARIS 27 -->
                     <tr style="height: 0.2in" class="flag">
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;">C-SIDE</td>
-                        <td class="adj" data-adj="C-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE1') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE2') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE3') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE4') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE5') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE6') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE7') ?></span></div><div class="comment"></div></td>
-                        <td class="adj" data-adj="C-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8CSide['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE8') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE1')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE1') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE2" align="center"><div class="tooltip-wrapper"><?= $dataSuhu2CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE2')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE2') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE3" align="center"><div class="tooltip-wrapper"><?= $dataSuhu3CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE3')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE3') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE4" align="center"><div class="tooltip-wrapper"><?= $dataSuhu4CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE4')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE4') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE5" align="center"><div class="tooltip-wrapper"><?= $dataSuhu5CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE5')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE5') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE6" align="center"><div class="tooltip-wrapper"><?= $dataSuhu6CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE6')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE6') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE7" align="center"><div class="tooltip-wrapper"><?= $dataSuhu7CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE7')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE7') ?></span></div><div class="comment"></div></td>
+                        <td class="adj" data-adj="C-SIDE8" align="center"><div class="tooltip-wrapper"><?= $dataSuhu8CSide['commentline']; ?>&nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE8')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE8') ?></span></div><div class="comment"></div></td>
                     </tr>
                 <!-- BARIS 28 -->
                     <tr style="height: 0.2in" class="flag">
@@ -1460,6 +1578,7 @@
                                     <div class="tooltip-wrapper" style="max-width: 70%;">
                                         <strong>Info Laborat : <?= getCommentAdj($con, 'info-lab') ?></strong>
                                         <span class="tooltip-text"><?= getCommentAdj($con, 'info-lab') ?></span>
+                                        &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'info-lab')) ? '<span class="comment-indicator"></span>' : '' ?>
                                         <br>
                                         <strong>Keterangan : <?= $data['ket']; ?></strong>
                                     </div>
@@ -3042,7 +3161,7 @@
                         <?php if($_GET['frm'] == 'bresep') : ?>
                             <td style="font-weight: bold;"></td>
                             <td style="font-weight: bold;">T-SIDE</td>
-                            <td class="adj" data-adj="T-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1TSideLD['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE1') ?></span></div><div class="comment"></div></td>
+                            <td class="adj" data-adj="T-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1TSideLD['commentline']; ?><?= !empty(getCommentAdj($con, 'T-SIDE1')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE1') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="T-SIDE2" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE2') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="T-SIDE3" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE3') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="T-SIDE4" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'T-SIDE4') ?></span></div><div class="comment"></div></td>
@@ -3103,7 +3222,7 @@
                         <?php if($_GET['frm'] == 'bresep') : ?>
                             <td style="font-weight: bold;"></td>
                             <td style="font-weight: bold;">C-SIDE</td>
-                            <td class="adj" data-adj="C-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1CSideLD['commentline']; ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE1') ?></span></div><div class="comment"></div></td>
+                            <td class="adj" data-adj="C-SIDE1" align="center"><div class="tooltip-wrapper"><?= $dataSuhu1CSideLD['commentline']; ?>&nbsp;<?= !empty(getCommentAdj($con, 'C-SIDE1')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE1') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="C-SIDE2" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE2') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="C-SIDE3" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE3') ?></span></div><div class="comment"></div></td>
                             <td class="adj" data-adj="C-SIDE4" align="center"><div class="tooltip-wrapper"><span class="tooltip-text"><?= getCommentAdj($con, 'C-SIDE4') ?></span></div><div class="comment"></div></td>
@@ -3154,9 +3273,10 @@
                         <td style="font-weight: bold;">Editor Name</td>
                         <?php 
                             $editorname1  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], '001');
+                            $editorname2  = getEditorName_laborat($con, $data['no_resep']);
                         ?>
                         <td style="font-weight: bold;"><?= $editorname1; ?></td>
-                        <td style="font-weight: bold;"></td>
+                        <td style="font-weight: bold;" title="Modifikasi Resep – Log Perlakuan Resep (Online Laborat)"><?= $editorname2; ?></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
@@ -3174,11 +3294,7 @@
         <?php endif; ?>
 
         <tr style="height: 0.4in">
-            <?php if($_GET['frm'] == 'bresep') : ?>
-                <td colspan="4" class="adj" data-adj="Temp x Time" align="center"><div class="tooltip-wrapper">Temp x Time<span class="tooltip-text"><?= getCommentAdj($con, 'Temp x Time') ?></span></div><div class="comment"></div></td>
-            <?php else : ?>
-                <td colspan="4" align="center">Temp x Time</td>
-            <?php endif; ?>
+            <td colspan="4" align="center">Temp x Time</td>
             <?php if($_GET['frm'] == 'bresep') : ?>
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['tside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['tside_min']) ?> min</td>
                 <td colspan="3" align="center" style="color:red; text-decoration: line-through;"><?php echo ($data['cside_c']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['cside_min']) ?> min</td>
@@ -3189,9 +3305,19 @@
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">L:R</td>
-            <td colspan="3" align="center"><?php echo $data['lr'] ?></td>
-            <td colspan="3" align="center"><?php echo $data['second_lr'] ?></td>
-            <td valign="top"><strong>PROSES</strong> : <?php echo $data['proses'] ?></td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="3" align="center" class="adj" data-adj="LR"><div class="tooltip-wrapper"><?= $data['lr'] ?> &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'LR')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'LR') ?></span></div><div class="comment"></div></td>
+                <td colspan="3" align="center" class="adj" data-adj="LR2"><div class="tooltip-wrapper"><?= $data['second_lr'] ?> &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'LR2')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'LR2') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="3" align="center"><?php echo $data['lr'] ?></td>
+                <td colspan="3" align="center"><?php echo $data['second_lr'] ?></td>
+            <?php endif; ?>
+
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td class="adj" data-adj="PROSES" valign="top"><div class="tooltip-wrapper"><strong>PROSES</strong> : <?php echo $data['proses'] ?> &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'PROSES')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'PROSES') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td valign="top"><strong>PROSES</strong> : <?php echo $data['proses'] ?></td>
+            <?php endif; ?>
             <?php $sqlLampu =  mysqli_query($con,"SELECT lampu from vpot_lampbuy where buyer = '$data[buyer]' order by flag"); ?>
             <td valign="top">
                 <strong>LAMPU : </strong>
@@ -3203,7 +3329,12 @@
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">pH</td>
-            <td colspan="3" align="center">&nbsp; <?php echo $data['ph'] ?></td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="3" align="center" class="adj" data-adj="pH"><div class="tooltip-wrapper"><?= $data['ph'] ?> &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'pH')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'pH') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="3" align="center">&nbsp; <?php echo $data['ph'] ?></td>
+            <?php endif; ?>
+
             <td colspan="3">&nbsp;</td>
             <td style="font-weight: bold;" colspan="2">
                 CIE WI &nbsp;&nbsp;: <?php echo number_format($data['cie_wi'], 2); ?>
@@ -3213,16 +3344,24 @@
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">RC</td>
-            <td colspan="3" align="center"><?php echo ($data['rc_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['rc_tm']) ?> min</td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="3" align="center" class="adj" data-adj="rc"><div class="tooltip-wrapper"><?php echo ($data['rc_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['rc_tm']) ?> min &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'rc')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'rc') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="3" align="center"><?php echo ($data['rc_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['rc_tm']) ?> min</td>
+            <?php endif; ?>
             <td colspan="3">&nbsp;</td>
             <td colspan="2" align="center"><strong>GREIGE</strong></td>
         </tr>
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Bleaching</td>
-            <td colspan="3" align="center"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min</td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="3" align="center" class="adj" data-adj="bleaching"><div class="tooltip-wrapper"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'bleaching')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'bleaching') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="3" align="center"><?php echo ($data['bleaching_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['bleaching_tm']) ?> min</td>
+            <?php endif; ?>
             <td colspan="3">&nbsp;</td>
             <?php if($_GET['frm'] == 'bresep') : ?>
-                <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="4" class="adj" data-adj="info-dyeing" align="center"><div class="tooltip-wrapper"><strong>Info Dyeing : <?= getCommentAdj($con, 'info-dyeing') ?></strong><span class="tooltip-text"><?= getCommentAdj($con, 'info-dyeing') ?></span></div></td>
+                <td style="text-align: left; vertical-align: top;" colspan="2" rowspan="4" class="adj" data-adj="info-dyeing" align="center"><div class="tooltip-wrapper"><strong>Info Dyeing : <?= getCommentAdj($con, 'info-dyeing') ?></strong> &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'info-dyeing')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'info-dyeing') ?></span></div></td>
             <?php else : ?>
                 <td colspan="2" rowspan="4" valign="top">Info Dyeing : <?php echo $data['remark_dye'] ?></td>
             <?php endif; ?>
@@ -3230,7 +3369,11 @@
         <tr style="height: 0.4in">
             <td colspan="4" align="center">Soaping</td>
             <td colspan="3" align="center">&nbsp;</td>
-            <td colspan="3" align="center"><?php echo ($data['soaping_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['soaping_tm']) ?> min</td>
+            <?php if($_GET['frm'] == 'bresep') : ?>
+                <td colspan="3" align="center" class="adj" data-adj="soaping"><div class="tooltip-wrapper"><?php echo ($data['soaping_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['soaping_tm']) ?> min &nbsp;&nbsp;<?= !empty(getCommentAdj($con, 'soaping')) ? '<span class="comment-indicator"></span>' : '' ?><span class="tooltip-text"><?= getCommentAdj($con, 'soaping') ?></span></div><div class="comment"></div></td>
+            <?php else : ?>
+                <td colspan="3" align="center"><?php echo ($data['soaping_sh']) ?> &deg;C &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo ($data['soaping_tm']) ?> min</td>
+            <?php endif; ?>
 
         </tr>
         <tr style="height: 0.4in">
@@ -3466,42 +3609,54 @@
     });
 </script>
 <script>
-    const btn = document.getElementById('adjButton');
-    const tooltip = document.getElementById('tooltipContainer');
-    let hideTimeout;
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('adjButton');
 
-    btn.addEventListener('mouseenter', async (e) => {
-        clearTimeout(hideTimeout);
-
-        const rect = btn.getBoundingClientRect();
-        tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
-        tooltip.style.left = (rect.left + window.scrollX) + 'px';
-
-        // Ambil data dari server
-        const number = '<?= $data['no_warna']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
-        const no_order = '<?= $data['no_order']; ?>'; // <- Ganti dengan nilai dinamis kalau perlu
-        try {
-            const response = await fetch('quality_result.php?number=' + number + '&no_order=' + no_order);
-            const html = await response.text();
-            tooltip.innerHTML = html;
-            tooltip.style.display = 'block';
-        } catch (err) {
-            tooltip.innerHTML = '<p>Error loading data.</p>';
-            tooltip.style.display = 'block';
+        // Kalau belum ada tooltipContainer, buat otomatis
+        let tooltip = document.getElementById('tooltipContainer');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'tooltipContainer';
+            document.body.appendChild(tooltip);
         }
-    });
 
-    btn.addEventListener('mouseleave', () => {
-        hideTimeout = setTimeout(() => {
+        if (!btn) return; // Kalau tombol nggak ada, stop
+
+        let hideTimeout;
+
+        btn.addEventListener('mouseenter', async () => {
+            clearTimeout(hideTimeout);
+
+            const rect = btn.getBoundingClientRect();
+            tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
+            tooltip.style.left = (rect.left + window.scrollX) + 'px';
+
+            const number = '<?= $data['no_warna']; ?>';
+            const no_order = '<?= $data['no_order']; ?>';
+
+            try {
+                const response = await fetch('quality_result.php?number=' + encodeURIComponent(number) + '&no_order=' + encodeURIComponent(no_order));
+                const html = await response.text();
+                tooltip.innerHTML = html;
+                tooltip.style.display = 'block';
+            } catch (err) {
+                tooltip.innerHTML = '<p>Error loading data.</p>';
+                tooltip.style.display = 'block';
+            }
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 300);
+        });
+
+        tooltip.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+        });
+
+        tooltip.addEventListener('mouseleave', () => {
             tooltip.style.display = 'none';
-        }, 300);
-    });
-
-    tooltip.addEventListener('mouseenter', () => {
-        clearTimeout(hideTimeout);
-    });
-
-    tooltip.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+        });
     });
 </script>

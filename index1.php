@@ -556,7 +556,7 @@ if ($page !== 'preliminary-schedule') {
                                                 </li>
                                                 <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
                                                     echo "active"; ?>">
-                                                    <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Transaksi(Test) </span></a>
+                                                    <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Transaksi </span></a>
                                                 </li>
                                                 </li>
                                                 <li class="<?php if ($_GET['p'] == "stock_opname_GK")

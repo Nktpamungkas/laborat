@@ -18,34 +18,17 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 	<title>Scan Barcode Laborat</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!--===============================================================================================-->
 	<link rel="icon" type="image/png" href="../login_assets/images/icons/ITTI_Logo index.ico" />
-	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/bootstrap/css/bootstrap.min.css">
-	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="../login_assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="../login_assets/fonts/iconic/css/material-design-iconic-font.min.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/animate/animate.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/css-hamburgers/hamburgers.min.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/animsition/css/animsition.min.css">
-	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/select2/select2.min.css">
-	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="../login_assets/vendor/daterangepicker/daterangepicker.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="../login_assets/css/util.css">
-	<link rel="stylesheet" type="text/css" href="../login_assets/css/main.css">
-    <link href="../bower_components/sweet-alert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
-	<!--===============================================================================================-->
+	<link href="../bower_components/sweet-alert/dist/sweetalert2.css" rel="stylesheet" type="text/css">
     <style>
         body{
-        padding-top:4.2rem;
-		padding-bottom:4.2rem;
-		background:rgba(0, 0, 0, 0.76);
+            padding-top: 2.2rem;
+            padding-bottom: 4.2rem;
+            background: rgb(177 177 177);
         }
         .myform{
             position: relative;
@@ -62,7 +45,23 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             border-radius: 1.1rem;
             outline: 0;
             max-width: 500px;
-		 }
+            box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+		}
+        .mb0{
+            margin-bottom :0px !important;
+        }
+        .mr25{
+            margin-left: 25px !important;
+        }
+        .pd0{
+            padding-left : 0px !important;
+        }
+        .w100{
+            width: 100% !important;
+        }
+        .va-top{
+            vertical-align: top;
+        }
          
     </style>
 </head>
@@ -82,16 +81,16 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     <div class="form-group">
                         <div class="col-sm-12" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" id="tgl_tutup" placeholder="Tanggal Awal" name="tgl_tutup" autofocus> 
-                                <select class="form-select" aria-label="Default select example" id="warehouse">
+                                <select class="form-select" aria-label="Gudang Select" id="warehouse">
                                     <option value="" readonly>Pilih Gudang</option>
                                     <option value="M101">M101</option>
                                     <option value="M510">M510</option>
                                 </select>                           
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group text-center">
                         <label for="barcode" id="label_barcode" class="text-center">Silahkan Isi Tanggal Tutup Buku</label>
-                        <input type="text" name="barcode"  class="form-control" id="barcode" placeholder="Silahkan Klik disini sebelum Scan" >
+                        <input type="text" name="barcode"  class="form-control" id="barcode" placeholder="" >
                     </div>
                     <div class="form-group">
                         <div id="response_pesan" class="text-center"></div>
@@ -114,50 +113,88 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     <div id="m-content" class="table-responsive">
                         <input type="hidden" value="0" id="opname_id">
                         <input type="hidden" value="0" id="opname_total_qty">
-                        <input type="hidden" value="0" id="opname_pakingan_utuh">
+                        <input type="hidden" value="0" id="opname_pakingan_standar">
                         <input type="hidden" value="0" id="opname_total_stock">
-                        <table border=0>
-                            <tr>
+                        <input type="hidden" value="0" id="opname_ut">
+                        <input type="hidden" value="0" id="opname_tg">
+                        <input type="hidden" value="0" id="opname_bj">
+                        <input type="hidden" value="0" id="opname_bp">
+                        <input type="hidden" value="0" id="opname_bk">
+                        <table border=0 width="100%">
+                           <tr class="va-top">
                                 <td>Code</td>
                                 <td>: &nbsp;</td>
                                 <td id="opname_kode_obat"></td>
                             </tr>
-                            <tr>
+                            <tr class="va-top">
                                 <td>Nama Obat</td>
                                 <td>: &nbsp;</td>
                                 <td id="opname_nama_obat"></td>
                             </tr>
-                            <tr>
+                            <tr class="va-top">
                                 <td>Lot</td>
                                 <td>: &nbsp;</td>
                                 <td id="opname_lot"></td>
                             </tr>
-                            <tr>
+                            <tr class="va-top">
                                 <td>Qty Stock</td>
                                 <td>: &nbsp;</td>
                                 <td id="opname_total_qty_text"></td>
                             </tr>
-                            <tr class="WH_M101 WAREHOUSE_ALL">
-                                <td>Qty Dus</td>
+                            <tr class="WH_M510 WAREHOUSE_ALL KATEGORI va-top" id="kategori_row">
+                                <td>Kategori</td>
                                 <td>: &nbsp;</td>
-                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus' placeholder='Quantity Dus' title='Quantity Dus' /></td>
-                            </tr>
-                            <tr class="WH_M510 WAREHOUSE_ALL">
-                                <td>JENIS</td>
-                                <td>: &nbsp;</td>
-                                <td id="opname_qty_dus_text">
-                                    <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
-                                    <label class="form-check-label" for="inlineRadio1">1</label>
-                                    </div>
+                                <td id="kategori_text">
+                                    <div class="col-sm-12 pd0">
+                                        <div class="form-group mb0">
+                                            <select class="form-select w100" aria-label="Kategori Select" id="kategori">
+                                                <option value="utuhan">Utuhan</option>
+                                                <option value="bukaan">Bukaan</option>
+                                            </select> 
+                                        </div>
+                                    </div>                                    
                                 </td>
                             </tr>
-                            
-                            <tr>
+                            <tr class="WH_M510 WAREHOUSE_ALL FORMULA va-top" id="formula_row">
+                                <td>Formula</td>
+                                <td>: &nbsp;</td>
+                                <td id="formula_text">
+                                    <div class="col-sm-12 pd0">
+                                        <div class="form-group mb0">
+                                           <select class="form-select w100" aria-label="Formula Select" id="formula">
+                                                <option value="berat">Berat</option>
+                                                <option value="volume">Volume</option>
+                                                <option value="tinggi">Tinggi</option>
+                                            </select> 
+                                        </div>
+                                    </div>                                    
+                                </td>
+                            </tr>
+                            <tr class="WH_M510 WAREHOUSE_ALL FORMULA va-top" id="berat_row">
+                                <td>Berat</td>
+                                <td>: &nbsp;</td>
+                                <td id="formula_text">
+                                    <div class="col-sm-12 pd0">
+                                        <div class="form-group mb0">
+                                            <select class="form-select w100" aria-label="Berat Select" id="berat">
+                                                <option value="kardus">Kardus Tong </option>
+                                                <option value="toples">Toples</option>
+                                            </select> 
+                                        </div>
+                                    </div>                                    
+                                </td>
+                            </tr>
+                            <tr class="va-top">
+                                <td id="label_qty">Qty Dus</td>
+                                <td>: &nbsp;</td>
+                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus'  /></td>
+                            </tr>
+                            <tr class="va-top">
                                 <td>Standar packaging</td>
                                 <td>: &nbsp;</td>
-                                <td id="opname_pakingan_utuh_text"></td>
-                            </tr>
+                                <td id="opname_pakingan_standar_text"></td>
+                            </tr >
+                            <tr class="va-top">
                                 <td>Total Stock</td>
                                 <td>: &nbsp;</td>
                                 <td id="opname_total_stock_text"></td>
@@ -177,39 +214,53 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         </div>
     </div>
 
-	<!--===============================================================================================-->
 	<script src="../login_assets/vendor/jquery/jquery-3.2.1.min.js"></script>
-	<!--===============================================================================================-->
-	<script src="../login_assets/vendor/animsition/js/animsition.min.js"></script>
-	<!--===============================================================================================-->
 	<script src="../login_assets/vendor/bootstrap/js/popper.js"></script>
 	<script src="../login_assets/vendor/bootstrap/js/bootstrap.min.js"></script>
-	<!--===============================================================================================-->
 	<script src="../login_assets/vendor/select2/select2.min.js"></script>
-	<!--===============================================================================================-->
 	<script src="../login_assets/vendor/daterangepicker/moment.min.js"></script>
 	<script src="../login_assets/vendor/daterangepicker/daterangepicker.js"></script>
-	<!--===============================================================================================-->
-	<script src="../login_assets/vendor/countdowntime/countdowntime.js"></script>
-	<!--===============================================================================================-->
 	<script src="../login_assets/js/main.js"></script>
     <script type="text/javascript" src="../bower_components/sweet-alert/dist/sweetalert2.min.js"></script>
 
     <script>
         var loading = false;
-        $("#first").on("click", function() {
-            checkForm(false);
+         $("#first").on("click", function(e) {
+            if(e.target.id=="warehouse" || e.target.id=="tgl_tutup"){
+                
+            }else{
+                checkForm(false);
+            }
         } );
         $("#barcode").on("focus", function() {
             checkForm(true);
+            $(this).attr("placeholder", "");
         } );
         $("#barcode").on("focusout", function() {
-            // checkForm(false);
+            //kalau stack matikan saja ini
+            $(this).attr("placeholder", "Silahkan Klik Disini Untuk Scan");
         } );
         $("#tgl_tutup").on("change", function() {
             checkForm(false);
             $("#barcode").val("");
             $("#response_pesan").html("");
+        } );
+        $("#kategori").on("change", function() {
+            if($(this).val()=="utuhan"){
+                $("#formula_row").hide();
+                $("#berat_row").hide();
+                $("#label_qty").html("Qty Dus");
+                selectUT();
+            }else{
+                $("#formula_row").show(); 
+                ubahFormula();
+            }
+        } );
+        $("#formula").on("change", function() {
+            ubahFormula();
+        } );
+        $("#berat").on("change", function() {
+            ubahBerat();
         } );
         $("#warehouse").on("change", function() {
             checkForm(false);
@@ -232,14 +283,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 success: function(response) {
                     loading = false;
                     if(response.success){ 
+                        $("#label_qty").html("Qty Dus");
                         $("#opname_kode_obat").html(response.data.kode_obat);
                         $("#opname_nama_obat").html(response.data.nama_obat);
                         $("#opname_lot").html(response.data.lot);
                         $("#opname_total_qty_text").html(response.data.total_qty_text +" Kg");
-                        // $("#opname_qty_dus_text").html(response.data.qty_dus_text);
-                        $("#opname_pakingan_utuh_text").html(response.data.pakingan_utuh_text);
-                        $("#opname_total_stock_text").html(response.data.total_stock_text);
-                        // $("#opname_submit").html("submit");
 
                          $("#opname_id").val(response.data.id);
                          $("#opname_total_qty").val(response.data.total_qty);
@@ -248,15 +296,42 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                          }else{
                             $("#opname_qty_dus").val(response.data.qty_dus);
                          }
-                         $("#opname_pakingan_utuh").val(response.data.pakingan_utuh);
+                         $("#opname_pakingan_standar").val(response.data.pakingan_standar);
                          $("#opname_total_stock").val(response.data.total_stock);
+                       
+                        updateSP(response.data.ut,"ut");
+                        updateSP(response.data.tg,"tg");
+                        updateSP(response.data.bj,"bj");
+                        updateSP(response.data.bp,"bp");
+                        updateSP(response.data.bk,"bk");
 
+                        $(".WH_"+$("#warehouse").val()).show();
                         $("#detailModal").modal("show");
                         $("#m-title").html(response.messages[1].kode_obat+" lot "+response.messages[1].lot);
                         $("#response_pesan").html(" ");
                         
+                        if(response.data.kategori=="utuhan"){
+                            $("#kategori").val(response.data.kategori).trigger("change");
+                            selectUT();
+                        }
+                        else{
+                            if(response.data.kategori=="kardus"||response.data.kategori=="toples"){
+                                $("#berat").val(response.data.kategori);
+                                $("#formula").val("berat");
+                                $("#kategori").val('bukaan').trigger("change");
+                                if(response.data.kategori=="kardus"){
+                                    selectBP();
+                                }
+                                
+                            }else{
+                                $("#formula").val(response.data.kategori);
+                                $("#kategori").val('bukaan').trigger("change");
+                            }
+                        }
                         
-                        $(".WH_"+$("#warehouse").val()).show();
+                        $("#opname_total_stock_text").html(response.data.total_stock_text);
+
+                        hitungTotal();
                     }else{
                         $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' aria-hidden='true'></i></button>");
                     }
@@ -276,17 +351,38 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         $(document).on('keyup', '.qty_dus', function(e) {
             let val=formatAngka($(this).val());
             this.value= val;
-            let pu = $("#opname_pakingan_utuh").val();
-            
-            let total_stock=Number(val)*pu;
-            total_stock=total_stock.toFixed(2);
-
-            $("#opname_total_stock_text").html(nilaiKeRibuan(total_stock, ".",","));
-            $("#opname_total_stock").val(total_stock);
+            hitungTotal()
+        });
+        $(document).on('change', '#pakingan_multiple', function(e) {
+            hitungTotal()
+        });
+        $(document).on('change', '#kardus_multiple', function(e) {
+            hitungTotal()
         });
         $(document).on('click', '.confirm', function() {
+            if($("#opname_qty_dus").val()==""||$("#opname_qty_dus").val()=="0"){
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Qty Tidak boleh kosong',
+                    icon: 'error',
+                });
+                return 1;
+            }
             let id = $("#opname_id").val();
-            let dataPost={check:"simpan_stock",id_dt: id,qty_dus:$("#opname_qty_dus").val(),total_stock:$("#opname_total_stock").val()};
+            let ctgr = "utuhan";
+            if($("#warehouse").val()=="M510"){
+                if($("#kategori").val()=="utuhan"){
+                    ctgr = $("#kategori").val();
+                }
+                else{
+                    if($("#formula").val()=="berat"){
+                        ctgr = $("#berat").val();
+                    }else{
+                        ctgr = $("#formula").val();
+                    }
+                }
+            }
+            let dataPost={check:"simpan_stock",id_dt: id,qty_dus:$("#opname_qty_dus").val(),total_stock:$("#opname_total_stock").val(),pakingan_standar:$("#opname_pakingan_standar").val(),kategori:ctgr};
             $.ajax({
                 url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
@@ -300,7 +396,6 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                             text: 'Berhasil Submit',
                             icon: 'success',
                             timer: 1000,
-                            topLayer: false,
                             showConfirmButton: false
                         })
                     }else{
@@ -312,11 +407,111 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 }
             });
         });
-        function formatAngka(val){
-            var Num=val;
-            Num += '';
-            Num = Num.replace(/[^0-9.]/g, '').replace(/(\..?)\../g, '$1').replace(/^0[^.]/, '0');
-            return Num;
+        //logic function
+        function selectBP(){
+            let paking_kds = $("#opname_bp").val().split("||");
+            if(paking_kds.length>=2){
+                let select=`<select class="form-select w100" aria-label="Multiple Kardus" id="kardus_multiple">`;
+                for (let i = 0; i < paking_kds.length; i++) { 
+                    let selected= $("#opname_pakingan_standar").val() ==paking_kds[i]?"selected": "";
+                    select+=`<option value="`+paking_kds[i]+`" `+selected+`>`+nilaiKeRibuan(paking_kds[i], ".",",")+`</option>`;
+                }
+                select+= `</select> `;
+                $("#opname_pakingan_standar_text").html(select);
+                $("#kardus_multiple").trigger("change");
+            }else{
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_bp").val(), ".",","));
+                hitungTotal();
+            }
+        }
+        function selectUT(){
+            let paking_std = $("#opname_ut").val().split("||");
+            if(paking_std.length>=2){
+                let select=`<select class="form-select w100" aria-label="Multiple Pakingan" id="pakingan_multiple">`;
+                for (let i = 0; i < paking_std.length; i++) { 
+                    let selected= $("#opname_pakingan_standar").val() ==paking_std[i]?"selected": "";
+                    select+=`<option value="`+paking_std[i]+`" `+selected+`>`+nilaiKeRibuan(paking_std[i], ".",",")+`</option>`;
+                }
+                select+= `</select> `;
+                $("#opname_pakingan_standar_text").html(select);
+                $("#pakingan_multiple").trigger("change");
+            }else{
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_ut").val(), ".",","));
+                hitungTotal();
+            }
+        }
+        function ubahFormula(){
+            $("#berat_row").hide();
+            $("#label_qty").html(ucfirst($("#formula").val()));
+            let val=0;
+            if($("#formula").val()=="berat"){
+                $("#berat_row").show();
+                ubahBerat();
+                return true;
+            }else if($("#formula").val()=="volume"){
+                val=$("#opname_bj").val();
+            }else if($("#formula").val()=="tinggi"){
+                val=$("#opname_tg").val();
+            }
+            $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
+            hitungTotal();
+        }
+        function ubahBerat(){
+            $("#label_qty").html(ucfirst($("#berat").val()));
+            let val=0;
+            if($("#berat").val()=="kardus"){
+                val=$("#opname_bp").val();
+                selectBP()
+                return 1;
+            }else if($("#berat").val()=="toples"){
+                val=$("#opname_bk").val();
+            }
+            $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
+            hitungTotal();
+        }
+        function hitungTotal(){
+            let ps=0;
+            let total_stock=0;
+            let val=$("#opname_qty_dus").val();
+            
+            if($("#kategori").val()=="utuhan"){
+                ps=$("#opname_ut").val();
+                let pkg_std = ps.split("||");
+                if(pkg_std.length>=2){
+                    ps=$("#pakingan_multiple").val();
+                }
+                $("#opname_pakingan_standar").val(ps);
+                total_stock=Number(val)*ps;
+            }
+            else{
+                if($("#formula").val()=="berat"){
+                     if($("#berat").val()=="kardus"){
+                        ps=$("#opname_bp").val();
+                        let pkg_kds = ps.split("||");
+                        if(pkg_kds.length>=2){
+                            ps=$("#kardus_multiple").val();
+                        }
+                        $("#opname_pakingan_standar").val(ps);
+                    }else if($("#berat").val()=="toples"){
+                        $("#opname_pakingan_standar").val($("#opname_bk").val());
+                        ps=$("#opname_bk").val();
+                    }
+                    total_stock=Number(val)-ps;
+                }else if($("#formula").val()=="volume"){
+                    $("#opname_pakingan_standar").val($("#opname_bj").val());
+                    ps=$("#opname_bj").val();
+                    total_stock=Number(val)*ps;
+                }else if($("#formula").val()=="tinggi"){  
+                    $("#opname_pakingan_standar").val($("#opname_tg").val());
+                    ps=$("#opname_tg").val();
+                    total_stock=Number(val)/ps*$("#opname_ut").val();  
+                }
+            }
+            
+            total_stock=total_stock.toFixed(2);
+
+            $("#opname_total_stock_text").html(nilaiKeRibuan(total_stock, ".",","));
+            $("#opname_total_stock").val(total_stock);
         }
         function checkForm(barcode){
             let tgl_tutup = $("#tgl_tutup").val();
@@ -335,6 +530,13 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 }
             }
         }
+        //helper function
+        function formatAngka(val){
+            var Num=val;
+            Num += '';
+            Num = Num.replace(/[^0-9.]/g, '').replace(/(\..?)\../g, '$1').replace(/^0[^.]/, '0');
+            return Num;
+        }
         function numberWithCommas(x,ribu) {
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ribu);
         }
@@ -352,7 +554,18 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     return angka;
             }
         }
-
+        function ucfirst(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1)
+        }
+        function updateSP(val,sp){
+            let value=0;
+            if(val=="-"||val==""){
+                value=0;
+            }else{
+                value=val;
+            }
+            $("#opname_"+sp).val(value);
+        }
         
     </script>
 </body>

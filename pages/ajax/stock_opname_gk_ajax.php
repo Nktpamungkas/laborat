@@ -37,7 +37,7 @@
         else if($_POST['status']=="cek_data"){
             $tgl_tutup = $_POST['tgl_tutup'];
             $warehouse = $_POST['warehouse'];
-            $query = "SELECT id,qty_dus,total_stock
+            $query = "SELECT id,qty_dus,total_stock,kategori,pakingan_standar,konfirmasi
                 FROM tbl_stock_opname_gk 
                 WHERE 
                     tgl_tutup = '$tgl_tutup'
@@ -58,6 +58,54 @@
                         $tmp_data['id']=$rowOpname['id'];                        
                         $tmp_data['qty_dus']=Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
                         $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
+                        $tmp_data['pakingan_standar']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
+                        if($rowOpname['konfirmasi']){
+                            $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                        }else{
+                            $tmp_data['konfirm']="<button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                        }
+                        $dataOpname[]=$tmp_data;
+                    }
+                    $response->setSuccess(true);
+                    $response->addMessage("Berhasil Check Data");
+                    $response->addMessage($num_rows_data);
+                    $response->setData($dataOpname);
+                }else{
+                    $response->setSuccess(false);
+                    $response->addMessage("Gagal Check Data");
+                }
+                $response->send();
+        }
+        else if($_POST['status']=="cek_data_m510"){
+            $tgl_tutup = $_POST['tgl_tutup'];
+            $warehouse = $_POST['warehouse'];
+            $query = "SELECT id,qty_dus,total_stock,kategori,pakingan_standar,konfirmasi
+                FROM tbl_stock_opname_gk 
+                WHERE 
+                    tgl_tutup = '$tgl_tutup'
+                    AND LOGICALWAREHOUSECODE = '$warehouse'
+                ORDER BY KODE_OBAT ASC";
+            $stmt = mysqli_query($con, $query);
+            if (!$stmt) {
+                echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
+                $response->setSuccess(false);
+                $response->addMessage("Query gagal: ".$query." \nERROR : ". mysqli_error($con));
+            }
+            
+            $num_rows_data=mysqli_num_rows($stmt);
+                if ($num_rows_data > 0) {
+                    $dataOpname=array();
+                    while ($rowOpname = mysqli_fetch_assoc($stmt)) {
+                        $tmp_data=array();
+                        $tmp_data['id']=$rowOpname['id'];                        
+                        $tmp_data['qty_dus']=ucfirst($rowOpname['kategori'])."<br/>Qty : ".Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
+                        $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
+                        $tmp_data['pakingan_standar']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
+                        if($rowOpname['konfirmasi']){
+                            $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                        }else{
+                            $tmp_data['konfirm']="<button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                        }
                         $dataOpname[]=$tmp_data;
                     }
                     $response->setSuccess(true);
@@ -107,7 +155,7 @@
             $row_count=mysqli_num_rows($check);
             mysqli_free_result($check);
             if($row_count==0){
-                $insert = mysqli_query($con,"INSERT INTO  tbl_stock_opname_gk (ITEMTYPECODE,KODE_OBAT,LONGDESCRIPTION,LOTCODE,LOGICALWAREHOUSECODE,tgl_tutup,total_qty,BASEPRIMARYUNITCODE,pakingan_utuh)
+                $insert = mysqli_query($con,"INSERT INTO  tbl_stock_opname_gk (ITEMTYPECODE,KODE_OBAT,LONGDESCRIPTION,LOTCODE,LOGICALWAREHOUSECODE,tgl_tutup,total_qty,BASEPRIMARYUNITCODE,pakingan_standar)
                     SELECT 
                         ITEMTYPECODE,
                         KODE_OBAT,
@@ -117,7 +165,7 @@
                         tgl_tutup,
                         SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
                         BASEPRIMARYUNITCODE,
-                        (select pakingan_utuh from tbl_standar_packaging s where s.kode_erp = o.KODE_OBAT limit 1) pakingan_utuh
+                        '0'
                     FROM tblopname_11 o
                     WHERE 
                         tgl_tutup = '$tgl_tutup'
@@ -158,20 +206,38 @@
                         $dataOpane['lot']=$rowOpname['LOTCODE'];
                         $dataOpane['total_qty']=$rowOpname['total_qty'];
                         $dataOpane['qty_dus']=$rowOpname['qty_dus'];
-                        $dataOpane['pakingan_utuh']=$rowOpname['pakingan_utuh'];
+                        $dataOpane['pakingan_standar']=$rowOpname['pakingan_standar'];
                         $dataOpane['total_stock']=$rowOpname['total_stock'];
+                        $dataOpane['kategori']=$rowOpname['kategori'];
                         $dataOpane['c']=$rowOpname['konfirmasi'];
                         
                         $dataOpane['total_qty_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_qty']);
                         $dataOpane['qty_dus_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
-                        $dataOpane['pakingan_utuh_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_utuh']);
+                        $dataOpane['pakingan_standar_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
                         $dataOpane['total_stock_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
+
+                        //inisiasi data awal standar packaging
+                        $dataOpane['ut']=0;
+                        $dataOpane['tg']=0;
+                        $dataOpane['bj']=0;
+                        $dataOpane['bp']=0;
+                        $dataOpane['bk']=0;
                     }
                     if($dataOpane['c']==1){
                         $response->setSuccess(false);
                         $response->addMessage("Data : ".$dataOpane['kode_obat']." lot ".$dataOpane['lot']." Dengan Qty Dus : ".$dataOpane['qty_dus_text']." dan Total Stock : ".$dataOpane['total_stock_text']." Sudah Di Konfirmasi");
                         $response->addMessage($dataTransaksi);
                     }else{
+                        mysqli_free_result($stmt);
+                        $sp = "SELECT * FROM tbl_standar_packaging s WHERE s.kode_erp = '".$dataOpane['kode_obat']."' limit 1";
+                        $spResult = mysqli_query($con, $sp);
+                        while ($rowSP = mysqli_fetch_assoc($spResult)) {
+                            $dataOpane['ut']=$rowSP['pakingan_utuh'];
+                            $dataOpane['tg']=$rowSP['tinggi_pakingan'];
+                            $dataOpane['bj']=$rowSP['bj_pakingan'];
+                            $dataOpane['bp']=$rowSP['berat_pakingan'];
+                            $dataOpane['bk']=$rowSP['berat_pakingan_botol_kecil'];
+                        }
                         $response->setSuccess(true);
                         $response->addMessage("Berhasil Menampilkan Tutup Buku");
                         $response->addMessage($dataTransaksi);
@@ -180,7 +246,7 @@
                     }
                 }else{
                     $response->setSuccess(false);
-                    $response->addMessage("Data Tutup Buku Tidak Tersedia");
+                    $response->addMessage("Data Tutup Buku Untuk ".$dataTransaksi['kode_obat']." lot ".$dataTransaksi['lot']." Tidak Tersedia");
                     $response->addMessage($dataTransaksi);
                 }
                 $response->send();
@@ -211,20 +277,38 @@
                         $dataOpane['lot']=$rowOpname['LOTCODE'];
                         $dataOpane['total_qty']=$rowOpname['total_qty'];
                         $dataOpane['qty_dus']=$rowOpname['qty_dus'];
-                        $dataOpane['pakingan_utuh']=$rowOpname['pakingan_utuh'];
+                        $dataOpane['pakingan_standar']=$rowOpname['pakingan_standar'];
                         $dataOpane['total_stock']=$rowOpname['total_stock'];
+                        $dataOpane['kategori']=$rowOpname['kategori'];
                         $dataOpane['c']=$rowOpname['konfirmasi'];
                         
                         $dataOpane['total_qty_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_qty']);
                         $dataOpane['qty_dus_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
-                        $dataOpane['pakingan_utuh_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_utuh']);
+                        $dataOpane['pakingan_standar_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
                         $dataOpane['total_stock_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
+
+                        //inisiasi data awal standar packaging
+                        $dataOpane['ut']=0;
+                        $dataOpane['tg']=0;
+                        $dataOpane['bj']=0;
+                        $dataOpane['bp']=0;
+                        $dataOpane['bk']=0;
                     }
                     if($dataOpane['c']==1){
                         $response->setSuccess(false);
                         $response->addMessage("Data : ".$dataOpane['kode_obat']." lot ".$dataOpane['lot']." Dengan Qty Dus : ".$dataOpane['qty_dus_text']." dan Total Stock : ".$dataOpane['total_stock_text']." Sudah Di Konfirmasi");
                         $response->addMessage($dataTransaksi);
                     }else{
+                        mysqli_free_result($stmt);
+                        $sp = "SELECT * FROM tbl_standar_packaging s WHERE s.kode_erp = '".$dataOpane['kode_obat']."' limit 1";
+                        $spResult = mysqli_query($con, $sp);
+                        while ($rowSP = mysqli_fetch_assoc($spResult)) {
+                            $dataOpane['ut']=$rowSP['pakingan_utuh'];
+                            $dataOpane['tg']=$rowSP['tinggi_pakingan'];
+                            $dataOpane['bj']=$rowSP['bj_pakingan'];
+                            $dataOpane['bp']=$rowSP['berat_pakingan'];
+                            $dataOpane['bk']=$rowSP['berat_pakingan_botol_kecil'];
+                        }
                         $response->setSuccess(true);
                         $response->addMessage("Berhasil Menampilkan Tutup Buku");
                         $response->addMessage($dataTransaksi);
@@ -233,7 +317,7 @@
                     }
                 }else{
                     $response->setSuccess(false);
-                    $response->addMessage("Data Tutup Buku Tidak Tersedia");
+                    $response->addMessage("Data Tutup Buku Untuk ".$dataTransaksi['kode_obat']." lot ".$dataTransaksi['lot']." Tidak Tersedia");
                     $response->addMessage($dataTransaksi);
                 }
                 $response->send();
@@ -247,10 +331,12 @@
     else if($_POST['check']=="simpan_stock" && $id != 0){
         $update = "UPDATE tbl_stock_opname_gk 
                  SET qty_dus = ? ,
+                 pakingan_standar = ?,
+                 kategori = ?,
                  total_stock = ?
                  WHERE id = ? LIMIT 1";
         $confirm=mysqli_prepare( $con, $update );
-        mysqli_stmt_bind_param($confirm, "dds", $_POST['qty_dus'],$_POST['total_stock'],$id );
+        mysqli_stmt_bind_param($confirm, "dssds", $_POST['qty_dus'],$_POST['pakingan_standar'],$_POST['kategori'],$_POST['total_stock'],$id );
         if(mysqli_stmt_execute($confirm)){ 
             $response->setSuccess(true);
             $response->addMessage("Berhasil Save Stock");
@@ -264,9 +350,8 @@
         }
     }
   }
-  else{
-    $response->setSuccess(false);
-    $response->addMessage("Tidak ada sesion");
-    $response->send();
-  }
+  $response->setSuccess(false);
+  $response->addMessage("Tidak ada sesion");
+  $response->send();
+  
   
