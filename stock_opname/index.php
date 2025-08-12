@@ -78,6 +78,8 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 							<h1>Scan Stock Opname Gudang Kimia</h1>
 						</div>
 					</div>
+                    <input type="hidden" value="0" id='trans_kd_obat'>
+                    <input type="hidden" value="0" id='trans_lot'>
                     <div class="form-group">
                         <div class="col-sm-12" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" id="tgl_tutup" placeholder="Tanggal Awal" name="tgl_tutup" autofocus> 
@@ -272,16 +274,52 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 return 1;
             }
             else{
-            loading = true;
+                loading = true;
+                let dataPost={check:"check_transaksi_multiple", val:$(this).val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val()};
+                $.ajax({
+                    url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                    type: 'POST',
+                    data: dataPost,
+                    dataType: "JSON",
+                    success: function(response) {
+                        loading = false;
+                        if(response.success){ 
+                            if(response.messages[1]==1){
+                                $("#trans_kd_obat").val(response.data[1].kode_obat);
+                                $("#trans_lot").val(response.data[1].lot);
+                                $("#m-title").html($("#trans_kd_obat").val()+" lot "+$("#trans_lot").val());
+                                editData()
+                                $("#detailModal").modal("show");
+                            }else{
+                                let select=`<select class="form-select" aria-label="Multiple Lot Obat" id="lot_obat_multiple">`;
+                                $.each( response.data, function( key, value ) {
+                                    select+=`<option value="`+value.lot+`" > &nbsp; `+value.lot+` &nbsp; </option>`;
+                                });
+                                select+= `</select> `;
+
+                                $("#trans_kd_obat").val(response.data[1].kode_obat);
+                                $("#m-title").html(response.data[1].kode_obat+" lot (Select) "+select);
+                                $("#lot_obat_multiple").val(response.data[1].lot).trigger("change");     
+                                $("#detailModal").modal("show");                                    
+                            }
+                        }else{
+                            $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' aria-hidden='true'></i></button>");
+                        }
+                    },
+                    error: function() {
+                    }
+                });
+            }
+        } );
+        function editData(){
             $(".WAREHOUSE_ALL").hide();
-            let dataPost={check:"check_transaksi", val:$(this).val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val()};
+            let dataPost={check:"edit_data", val:$("#barcode").val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val(),kode_obat:$("#trans_kd_obat").val(),lot:$("#trans_lot").val()};
             $.ajax({
                 url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
                 data: dataPost,
                 dataType: "JSON",
                 success: function(response) {
-                    loading = false;
                     if(response.success){ 
                         $("#label_qty").html("Qty Dus");
                         $("#opname_kode_obat").html(response.data.kode_obat);
@@ -306,8 +344,6 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                         updateSP(response.data.bk,"bk");
 
                         $(".WH_"+$("#warehouse").val()).show();
-                        $("#detailModal").modal("show");
-                        $("#m-title").html(response.messages[1].kode_obat+" lot "+response.messages[1].lot);
                         $("#response_pesan").html(" ");
                         
                         if(response.data.kategori=="utuhan"){
@@ -339,8 +375,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 error: function() {
                 }
             });
-            }
-        } );
+        }
+        $(document).on('change', '#lot_obat_multiple', function(e) {
+            $("#trans_lot").val($(this).val());                  
+            editData() 
+        });
         $('#detailModal').on('hidden.bs.modal', function () {
             $("#barcode").val("").focus();
         })
