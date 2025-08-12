@@ -3276,7 +3276,7 @@
                             $editorname2  = getEditorName_laborat($con, $data['no_resep']);
                         ?>
                         <td style="font-weight: bold;"><?= $editorname1; ?></td>
-                        <td style="font-weight: bold;"><?= $editorname2; ?></td>
+                        <td style="font-weight: bold;" title="Modifikasi Resep – Log Perlakuan Resep (Online Laborat)"><?= $editorname2; ?></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
