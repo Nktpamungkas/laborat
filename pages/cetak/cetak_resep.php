@@ -632,101 +632,138 @@
             }
 
             function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02){
-                $queryFinal     = "WITH BASE AS (
-                                    SELECT
-                                        r.SEQUENCE,
-                                        r.GROUPNUMBER,
-                                        r.GROUPTYPECODE,
-                                        CASE 
-                                            WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN '1'
-                                            WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN '2'
-                                            ELSE '1'
-                                        END AS SUFFIXTYPE, 
-                                        r.RECIPESUFFIXCODE,
-                                        r.SUBCODE01,
-                                        r.SUBCODE02,
-                                        r.SUBCODE03,
-                                        CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END AS CONSUMPTION,
-                                        CASE
-                                            WHEN GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
-                                            ELSE 
-                                                COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
-                                        END AS KODE
-                                    FROM 
-                                        RECIPECOMPONENT r
-                                    LEFT JOIN RECIPE r2 ON r2.SUBCODE01 = r.RECIPESUBCODE01 AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
-	                                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r2.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
-                                    WHERE 
-                                        r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                        AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
-                                                                '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
-                                                                '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
-                                        AND
+                $queryFinal     = "WITH BASEDATA AS (
+                                        SELECT
+                                            r.RECIPESUBCODE01,
+                                            r.SEQUENCE,
+                                            r.GROUPNUMBER,
+                                            r.GROUPTYPECODE,
+                                            CASE 
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN '1'
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN '2'
+                                                ELSE '1'
+                                            END AS SUFFIXTYPE, 
+                                            r.RECIPESUFFIXCODE,
+                                            r.SUBCODE01,
+                                            r.SUBCODE02,
+                                            r.SUBCODE03,
+                                            CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END AS CONSUMPTION,
                                             CASE
-                                                WHEN SUBSTR(a.VALUESTRING, 1,2) = 'OB' THEN GROUPTYPECODE IN ('001', '100')
-                                                ELSE ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20
-                                            END
-                                ),
-                                PIVOTED AS (
-                                    SELECT
-                                        KODE,
-                                        SEQUENCE,
-                                        GROUPNUMBER,
-                                        GROUPTYPECODE,
-                                        SUFFIXTYPE,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
-                                        MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
-                                    FROM 
-                                        BASE
-                                    GROUP BY 
-                                        KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
-                                ),
-                                FINALDATA AS (
+                                                WHEN GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
+                                                ELSE COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
+                                            END AS KODE,
+                                            CASE 
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN 1
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN 3
+                                            END AS RECIPE_NUMBER
+                                        FROM 
+                                            RECIPECOMPONENT r
+                                        LEFT JOIN RECIPE r2 
+                                            ON r2.SUBCODE01 = r.RECIPESUBCODE01 
+                                            AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
+                                        LEFT JOIN ADSTORAGE a 
+                                            ON a.UNIQUEID = r2.ABSUNIQUEID 
+                                            AND a.FIELDNAME = 'RCode'
+                                        WHERE 
+                                            r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
+                                            AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
+                                                                    '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
+                                                                    '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
+                                            AND (
+                                                (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND GROUPTYPECODE IN ('001', '100'))
+                                                OR (ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20)
+                                            )
+                                    ),
+                                    CHECK_EXIST AS (
+                                        SELECT 
+                                            MAX(CASE WHEN RECIPE_NUMBER = 1 THEN 1 ELSE 0 END) AS HAS_1,
+                                            MAX(CASE WHEN RECIPE_NUMBER = 3 THEN 1 ELSE 0 END) AS HAS_3
+                                        FROM BASEDATA
+                                    ),
+                                    BASE AS (
+                                        SELECT * FROM BASEDATA
+                                        UNION ALL
+                                        SELECT 
+                                            '-' AS RECIPESUBCODE01,
+                                            2   AS SEQUENCE,
+                                            NULL AS GROUPNUMBER,
+                                            2   AS GROUPTYPECODE,
+                                            2   AS SUFFIXTYPE, 
+                                            '-' AS RECIPESUFFIXCODE,
+                                            '-' AS SUBCODE01,
+                                            '-' AS SUBCODE02,
+                                            '-' AS SUBCODE03,
+                                            NULL AS CONSUMPTION,
+                                            '-' AS KODE,
+                                            2   AS RECIPE_NUMBER
+                                        FROM ITXVIEW_KOSONG, CHECK_EXIST
+                                        WHERE HAS_1 = 1 AND HAS_3 = 1  -- hanya masuk kalau 1 & 3 ada
+                                    ),
+                                    PIVOTED AS (
+                                        SELECT
+                                            RECIPESUBCODE01,
+                                            RECIPE_NUMBER,
+                                            KODE,
+                                            SEQUENCE,
+                                            GROUPNUMBER,
+                                            GROUPTYPECODE,
+                                            SUFFIXTYPE,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
+                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
+                                        FROM 
+                                            BASE
+                                        GROUP BY 
+                                            RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
+                                    ),
+                                    FINALDATA AS (
+                                        SELECT 
+                                            P.RECIPESUBCODE01,
+                                            P.RECIPE_NUMBER,
+                                            ROW_NUMBER() OVER (ORDER BY P.SUFFIXTYPE, P.RECIPE_NUMBER, P.GROUPNUMBER, P.SEQUENCE, P.KODE) AS FLAG,
+                                            P.KODE || 
+                                            CASE 
+                                                WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
+                                                WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN ' (REMOVED)'
+                                                ELSE ''
+                                            END AS KODE,
+                                            P.SEQUENCE,
+                                            P.GROUPNUMBER,
+                                            P.SUFFIXTYPE,
+                                            P.LAB,
+                                            P.ADJ1,
+                                            P.ADJ2,
+                                            P.ADJ3,
+                                            P.ADJ4,
+                                            P.ADJ5,
+                                            P.ADJ6,
+                                            P.ADJ7,
+                                            CASE 
+                                                WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN 'NEW'
+                                                WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN 'REMOVED'
+                                                ELSE ''
+                                            END AS STATUSDYC
+                                            FROM 
+                                                PIVOTED P
+                                    )
                                     SELECT 
-                                        ROW_NUMBER() OVER (ORDER BY SUFFIXTYPE, GROUPNUMBER, SEQUENCE, KODE) AS FLAG,
-                                        P.KODE || 
-                                        CASE 
-                                            WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
-                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN ' (REMOVED)'
-                                            ELSE ''
-                                        END AS KODE,
-                                        P.SEQUENCE,
-                                        P.GROUPNUMBER,
-                                        P.SUFFIXTYPE,
-                                        P.LAB,
-                                        P.ADJ1,
-                                        P.ADJ2,
-                                        P.ADJ3,
-                                        P.ADJ4,
-                                        P.ADJ5,
-                                        P.ADJ6,
-                                        P.ADJ7,
-                                        CASE 
-                                            WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN 'NEW'
-                                            WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN 'REMOVED'
-                                            ELSE ''
-                                        END AS STATUSDYC
+                                        *
                                     FROM 
-                                        PIVOTED P
-                                )
-                                SELECT 
-                                    *
-                                FROM 
-                                    FINALDATA
-                                WHERE 
-                                    FLAG = {$flag}
-                                ORDER BY 
-                                    FLAG,
-                                    SUFFIXTYPE, 
-                                    SEQUENCE, 
-                                    GROUPNUMBER,
-                                    KODE;";
+                                        FINALDATA
+                                    WHERE 
+                                        FLAG = {$flag}
+                                    ORDER BY 
+                                        RECIPE_NUMBER,
+                                        FLAG,
+                                        SUFFIXTYPE, 
+                                        SEQUENCE, 
+                                        GROUPNUMBER,
+                                        KODE";
                 $resultFinal = db2_exec($conn1, $queryFinal);
                 $dataFinal = db2_fetch_assoc($resultFinal);
                 if ($dataFinal) {
