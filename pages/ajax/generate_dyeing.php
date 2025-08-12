@@ -183,9 +183,79 @@ foreach ($data as $machine => $entries) {
     }
 }
 
+$oldMachineMap = [];
+
+foreach ($oldDataList as $old) {
+    $machine = $old['no_machine'] ?: 'UNASSIGNED';
+
+    if (!isset($oldMachineMap[$machine])) {
+        $oldMachineMap[$machine] = [];
+    }
+
+    $oldMachineMap[$machine][] = $old;
+}
+
+// Buat tempListMapNext untuk old data (Next Cycle)
+$tempListMapNext = [];
+
+foreach ($oldMachineMap as $machine => $oldEntries) {
+    $groupSet = [];
+
+    foreach ($oldEntries as $entry) {
+        if (!empty($entry['group'])) {
+            $groupSet[$entry['group']] = true;
+        }
+    }
+
+    $groupNames = array_keys($groupSet);
+    $firstGroup = $groupNames[0] ?? null;
+
+    if ($firstGroup) {
+        $groupName = $firstGroup;
+
+        // Ambil info dyeing
+        $stmt = $con->prepare("SELECT dyeing FROM master_suhu WHERE `group` = ? LIMIT 1");
+        $stmt->bind_param("s", $groupName);
+        $stmt->execute();
+        $stmt->bind_result($dyeingValue);
+        $stmt->fetch();
+        $stmt->close();
+
+        $keterangan = '';
+        if ($dyeingValue == "1") {
+            $keterangan = 'POLY';
+        } elseif ($dyeingValue == "2") {
+            $keterangan = 'COTTON';
+        }
+
+        $stmtTemp = $con->prepare("SELECT program, suhu, product_name FROM master_suhu WHERE `group` = ? LIMIT 1");
+        $stmtTemp->bind_param("s", $groupName);
+        $stmtTemp->execute();
+        $result = $stmtTemp->get_result();
+        $row = $result->fetch_assoc();
+        $stmtTemp->close();
+
+        if ($row) {
+            $desc = '';
+            if ($row['program'] == 1) {
+                $desc .= 'Constant ' . $row['suhu'];
+            } elseif ($row['program'] == 2) {
+                $desc .= 'Raising ' . $row['product_name'];
+            } else {
+                $desc .= 'Unknown';
+            }
+
+            if (!isset($tempListMapNext[$machine]) || !in_array($desc, $tempListMapNext[$machine])) {
+                $tempListMapNext[$machine][] = $desc;
+            }
+        }
+    }
+}
+
 $response = [
     'data' => $data,
     'tempListMap' => $tempListMap,
+    'tempListMapNext' => $tempListMapNext,
     'maxPerMachine' => $maxPerMachine,
     'oldDataList' => $remainingOldData,
     'allMachines'   => $allMachines

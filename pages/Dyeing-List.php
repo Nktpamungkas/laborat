@@ -83,7 +83,7 @@
             type: 'GET',
             dataType: 'json',
             success: function (response) {
-                const { data, allMachines, maxPerMachine, tempListMap, oldDataList } = response;
+                const { data, allMachines, maxPerMachine, tempListMap, tempListMapNext, oldDataList } = response;
 
                 const priorityOrder = [
                     'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A10', 'A11', 'A12',
@@ -169,12 +169,12 @@
                     oldMachineMap[machine].push(item);
                 });
 
-                blockedResepMap = {};
-                for (const [machine, list] of Object.entries(oldMachineMap)) {
-                    list.forEach(item => {
-                        blockedResepMap[item.no_resep] = true;
-                    });
-                }
+                // blockedResepMap = {};
+                // for (const [machine, list] of Object.entries(oldMachineMap)) {
+                //     list.forEach(item => {
+                //         blockedResepMap[item.no_resep] = true;
+                //     });
+                // }
 
                 let htmlOld = `<div class="card mt-4"><div class="card-body">
                     <h5 class="text-center text-muted">Next Cycle</h5>
@@ -186,8 +186,8 @@
                 machineKeys.forEach(m => htmlOld += `<th>Mesin ${m}</th>`);
                 htmlOld += `</tr><tr>`;
                 machineKeys.forEach(m => {
-                    const tempList = tempListMap[m]?.join(' ; ') || '-';
-                    htmlOld += `<th><small class="text-danger">${tempList}</small></th>`;
+                    const tempListNext = tempListMapNext[m]?.join(' ; ') || '-';
+                    htmlOld += `<th><small class="text-danger">${tempListNext}</small></th>`;
                 });
                 htmlOld += `</tr></thead><tbody>`;
 
