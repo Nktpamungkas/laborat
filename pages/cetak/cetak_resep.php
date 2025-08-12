@@ -595,6 +595,27 @@
                 }
             }
 
+            function getEditorName_laborat($con, $suffix){
+                $sqlEditor    = "SELECT
+                                    do_by 
+                                FROM
+                                    `log_status_matching` 
+                                WHERE
+                                    ids = '{$suffix}'
+                                    AND info = 'modifikasi resep'
+                                ORDER BY 
+                                    do_at DESC
+                                LIMIT 1";
+                $stmtEditor = mysqli_query($con, $sqlEditor);
+                $rowEditor  = mysqli_fetch_assoc($stmtEditor);
+                if ($rowEditor) {
+                    $rawEditor = $rowEditor['do_by'];
+                    return $rawEditor;
+                } else {
+                    return null;
+                }
+            }
+
             function getCommentAdj($con, $adjNo) {
                 $ids = $_GET['ids'];
                 $idm = $_GET['idm'];
@@ -609,6 +630,7 @@
                     return null;
                 }
             }
+
             function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02){
                 $queryFinal     = "WITH BASE AS (
                                     SELECT
@@ -833,6 +855,9 @@
                 return null;
             }
             function getEditorName(){
+                return null;
+            }
+            function getEditorName_laborat(){
                 return null;
             }
         }
@@ -3248,9 +3273,10 @@
                         <td style="font-weight: bold;">Editor Name</td>
                         <?php 
                             $editorname1  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], '001');
+                            $editorname2  = getEditorName_laborat($con, $data['no_resep']);
                         ?>
                         <td style="font-weight: bold;"><?= $editorname1; ?></td>
-                        <td style="font-weight: bold;"></td>
+                        <td style="font-weight: bold;"><?= $editorname2; ?></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
                         <td style="font-weight: bold;"></td>
