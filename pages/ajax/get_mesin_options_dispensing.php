@@ -44,4 +44,20 @@ if ($keterangan === 'COTTON' && $suhu == 80) {
     $stmtMesin->close();
 }
 
-echo json_encode($machines);
+// echo json_encode($machines);
+
+$filteredMachines = [];
+foreach ($machines as $machine) {
+    $stmtCheckOldData = $con->prepare("SELECT COUNT(*) FROM tbl_preliminary_schedule WHERE no_machine = ? AND is_old_data = 1");
+    $stmtCheckOldData->bind_param("s", $machine);
+    $stmtCheckOldData->execute();
+    $stmtCheckOldData->bind_result($count);
+    $stmtCheckOldData->fetch();
+    $stmtCheckOldData->close();
+
+    if ($count == 0) {
+        $filteredMachines[] = $machine;
+    }
+}
+
+echo json_encode($filteredMachines);

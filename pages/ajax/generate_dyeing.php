@@ -2,6 +2,13 @@
 session_start();
 include '../../koneksi.php';
 
+$allMachines = [];
+$sqlMachines = "SELECT no_machine FROM master_mesin";
+$resMachines = mysqli_query($con, $sqlMachines);
+while ($row = mysqli_fetch_assoc($resMachines)) {
+    $allMachines[] = $row['no_machine'];
+}
+
 // Ambil data utama (tidak termasuk old_data)
 $statuses = [
     'scheduled',
@@ -60,6 +67,16 @@ while ($row = mysqli_fetch_assoc($result)) {
     }
 }
 
+// Buat array urut dengan maksimal 24
+$maxRow = 24;
+foreach ($data as $machine => $entries) {
+    // Tambahkan data kosong jika kurang dari 24
+    while (count($entries) < $maxRow) {
+        $entries[] = null;
+    }
+    $data[$machine] = $entries;
+}
+
 // Ambil old data (is_old_data = 1)
 $oldDataList = [];
 $oldQuery = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
@@ -83,6 +100,11 @@ foreach ($oldDataList as $old) {
 
     if (!in_array($machine, $machinesWithMainData) || count($data[$machine]) === 0) {
         if (!isset($data[$machine])) $data[$machine] = [];
+
+        // Tambahkan old data pada mesin yang kosong
+        while (count($data[$machine]) < $maxRow) {
+            $data[$machine][] = null;
+        }
 
         $data[$machine][] = [
             'no_resep' => $old['no_resep'],
@@ -165,7 +187,8 @@ $response = [
     'data' => $data,
     'tempListMap' => $tempListMap,
     'maxPerMachine' => $maxPerMachine,
-    'oldDataList' => $remainingOldData
+    'oldDataList' => $remainingOldData,
+    'allMachines'   => $allMachines
 ];
 
 header('Content-Type: application/json');
