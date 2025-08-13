@@ -17,7 +17,7 @@ if ($id && $no_machine !== '') {
         $check = mysqli_query($con, "
             SELECT COUNT(*) AS total 
             FROM tbl_preliminary_schedule 
-            WHERE no_machine = '$no_machine' AND is_old_data = 1 AND is_old_cycle = 0 AND id_group = $existingGroupId
+            WHERE no_machine = '$no_machine' AND is_old_data = 1 AND is_old_cycle = 0 AND id_group = '$existingGroupId'
         ");
         $checkRow = mysqli_fetch_assoc($check);
         $oldCountInTarget = intval($checkRow['total']);
