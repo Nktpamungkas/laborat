@@ -2,12 +2,12 @@
 ini_set("error_reporting", 1);
 session_start();
 // include "koneksi.php";
-$host="svr4";
-$username="timdit";
-$password="4dm1n";
-$db_name="TM";
-$connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
-$conn     = sqlsrv_connect( $host, $connInfo);
+// $host="svr4";
+// $username="timdit";
+// $password="4dm1n";
+// $db_name="TM";
+// $connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
+// $conn     = sqlsrv_connect( $host, $connInfo);
 $cn=mysqli_connect("10.0.1.91","dit","4dm1n","db_qc");
 $conn1=mysqli_connect("10.0.1.91","dit","4dm1n","dbknitt");
 ?>

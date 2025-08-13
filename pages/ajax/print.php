@@ -3,10 +3,10 @@ ini_set("error_reporting", 1);
 session_start();
 $lReg_username = $_SESSION['labReg_username'];
 
-$host1 = "10.0.0.4";
-$username1 = "timdit";
-$password1 = "4dm1n";
-$db_name1 = "TM";
+// $host1 = "10.0.0.4";
+// $username1 = "timdit";
+// $password1 = "4dm1n";
+// $db_name1 = "TM";
 set_time_limit(600);
 $connInfo = array( "Database"=>$db_name, "UID"=>$username, "PWD"=>$password);
 $conn1     = sqlsrv_connect( $host, $connInfo);

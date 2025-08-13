@@ -10,12 +10,12 @@ date_default_timezone_set('Asia/Jakarta');
 $con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat");
 $con_db_dyeing=mysqli_connect("10.0.0.10","dit","4dm1n","db_dying");
 
-// $hostSVR19     = "10.0.0.221";
-// $usernameSVR19 = "sa";
-// $passwordSVR19 = "Ind@taichen2024";
-// $nowprd        = "nowprd";
-// $nowprdd       = ["Database" => $nowprd, "UID" => $usernameSVR19, "PWD" => $passwordSVR19];
-// $con_nowprd = sqlsrv_connect($hostSVR19, $nowprdd);
+$hostSVR19     = "10.0.0.221";
+$usernameSVR19 = "sa";
+$passwordSVR19 = "Ind@taichen2024";
+$nowprd        = "nowprd";
+$nowprdd       = ["Database" => $nowprd, "UID" => $usernameSVR19, "PWD" => $passwordSVR19];
+$con_nowprd = sqlsrv_connect($hostSVR19, $nowprdd);
 
 
 $cona = mysqli_connect("10.0.0.10","dit","4dm1n","db_adm");
