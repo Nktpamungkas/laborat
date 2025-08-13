@@ -57,22 +57,28 @@ date_default_timezone_set('Asia/Jakarta');
             <th>Transfer ke Gd. Lain</th>
             <th>Stock Balance</th>
             <th>Stock Minimum</th>
-            <?php if ($warehouse == 'M101'): ?>
             <th>Buka PO</th>
-            <?php endif; ?>
             <th>Pemakaian (belum timbang)</th>
             <th>Stock Balance (future)</th>
-            <?php if ($warehouse == 'M101'): ?>
             <th>Status</th>
-            <?php endif; ?>
             <th>Note</th>
             <th>Certification</th>
         </tr>
 
         <?php
+       
         $no = 1;
         $sql = mysqli_query($con, "SELECT * FROM tb_stock_gd_kimia WHERE ip_address = '$ip_num'");
         while ($r = mysqli_fetch_array($sql)) {
+            $status = $r['status_'];
+            $style = '';
+
+            if ($status === 'HITUNG KEBUTUHAN ORDER') {
+                $style = 'background-color: #FFFF00; color: #000000;';
+            } elseif ($status === 'SEGERA ORDER') {
+                $style = 'background-color: #FF0000; color: #FFFFFF;';
+            }
+
             echo "<tr>";
             echo "<td class='int' style='text-align:center'>$no</td>";
             echo "<td>{$r['kode_obat']}</td>";
@@ -83,14 +89,10 @@ date_default_timezone_set('Asia/Jakarta');
             echo "<td class='number'>{$r['stock_transfer']}</td>";
             echo "<td class='number'>{$r['stock_balance']}</td>";
             echo "<td class='number'>{$r['stock_minimum']}</td>";
-             if ($warehouse == 'M101') {
             echo "<td class='number'>{$r['buka_po']}</td>";
-            }
             echo "<td class='number'>{$r['stock_pakai_blum_timbang']}</td>";
             echo "<td class='number'>{$r['stock_balance_future']}</td>";
-            if ($warehouse == 'M101') {
-                echo "<td>{$r['status_']}</td>";
-            }
+            echo "<td style='{$style}'>{$status}</td>";
             echo "<td>{$r['note']}</td>";
             echo "<td>{$r['ket_sertifikat']}</td>";
             echo "</tr>";
