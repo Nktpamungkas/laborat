@@ -116,7 +116,7 @@ if (isset($_POST['schedules'])) {
                             $stmtExclude = $con->prepare("
                                 SELECT DISTINCT no_machine 
                                 FROM tbl_preliminary_schedule 
-                                WHERE is_old_data = 1
+                                WHERE is_old_data = 1 AND is_old_cycle = 0 AND status IN ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing')
                             ");
                             $stmtExclude->execute();
                             $resultExclude = $stmtExclude->get_result();
