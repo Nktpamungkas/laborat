@@ -83,7 +83,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     <div class="form-group">
                         <div class="col-sm-12" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" id="tgl_tutup" placeholder="Tanggal Awal" name="tgl_tutup" autofocus> 
-                                <select class="form-select" aria-label="Gudang Select" id="warehouse">
+                                <select class="form-select" id="warehouse">
                                     <option value="" readonly>Pilih Gudang</option>
                                     <option value="M101">M101</option>
                                     <option value="M510">M510</option>
@@ -102,14 +102,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 		</div>
     </div>   
     <!-- Modal Detail -->
-    <div id="detailModal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="detailModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-dialog-centered " role="document" >
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="m-title">Detail Stock Opname</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span>&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body p-3">
                     <div id="m-content" class="table-responsive">
@@ -149,7 +146,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                 <td id="kategori_text">
                                     <div class="col-sm-12 pd0">
                                         <div class="form-group mb0">
-                                            <select class="form-select w100" aria-label="Kategori Select" id="kategori">
+                                            <select class="form-select w100" id="kategori">
                                                 <option value="utuhan">Utuhan</option>
                                                 <option value="bukaan">Bukaan</option>
                                             </select> 
@@ -163,7 +160,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                 <td id="formula_text">
                                     <div class="col-sm-12 pd0">
                                         <div class="form-group mb0">
-                                           <select class="form-select w100" aria-label="Formula Select" id="formula">
+                                           <select class="form-select w100" id="formula">
                                                 <option value="berat">Berat</option>
                                                 <option value="volume">Volume</option>
                                                 <option value="tinggi">Tinggi</option>
@@ -178,7 +175,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                 <td id="formula_text">
                                     <div class="col-sm-12 pd0">
                                         <div class="form-group mb0">
-                                            <select class="form-select w100" aria-label="Berat Select" id="berat">
+                                            <select class="form-select w100" id="berat">
                                                 <option value="kardus">Kardus Tong </option>
                                                 <option value="toples">Toples</option>
                                             </select> 
@@ -204,13 +201,16 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                             <tr>
                                 <td></td>
                                 <td></td>
-                                <td id="opname_submit"><button class='btn btn-primary btn-sm confirm' title='Submit' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i> Submit</button></td>
+                                <td id="opname_submit"><button class='btn btn-primary btn-sm confirm' title='Submit' ><i class='fa fa-check-square-o' ></i> Submit</button></td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <div class="form-group">
+                        <div id="response_pesan2" class="text-center"></div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="close_modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -288,10 +288,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                 $("#trans_kd_obat").val(response.data[1].kode_obat);
                                 $("#trans_lot").val(response.data[1].lot);
                                 $("#m-title").html($("#trans_kd_obat").val()+" lot "+$("#trans_lot").val());
-                                editData()
-                                $("#detailModal").modal("show");
+                                editData(true)
                             }else{
-                                let select=`<select class="form-select" aria-label="Multiple Lot Obat" id="lot_obat_multiple">`;
+                                let select=`<select class="form-select" id="lot_obat_multiple">`;
                                 $.each( response.data, function( key, value ) {
                                     select+=`<option value="`+value.lot+`" > &nbsp; `+value.lot+` &nbsp; </option>`;
                                 });
@@ -299,11 +298,10 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 
                                 $("#trans_kd_obat").val(response.data[1].kode_obat);
                                 $("#m-title").html(response.data[1].kode_obat+" lot (Select) "+select);
-                                $("#lot_obat_multiple").val(response.data[1].lot).trigger("change");     
-                                $("#detailModal").modal("show");                                    
+                                $("#lot_obat_multiple").val(response.data[1].lot).trigger("change");                                 
                             }
                         }else{
-                            $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' aria-hidden='true'></i></button>");
+                            $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' ></i></button>");
                         }
                     },
                     error: function() {
@@ -311,7 +309,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 });
             }
         } );
-        function editData(){
+        function editData(satu_transaksi){
             $(".WAREHOUSE_ALL").hide();
             let dataPost={check:"edit_data", val:$("#barcode").val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val(),kode_obat:$("#trans_kd_obat").val(),lot:$("#trans_lot").val()};
             $.ajax({
@@ -345,6 +343,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
 
                         $(".WH_"+$("#warehouse").val()).show();
                         $("#response_pesan").html(" ");
+                        $("#response_pesan2").html(" ");
                         
                         if(response.data.kategori=="utuhan"){
                             $("#kategori").val(response.data.kategori).trigger("change");
@@ -368,8 +367,24 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                         $("#opname_total_stock_text").html(response.data.total_stock_text);
 
                         hitungTotal();
+                        $(".modal-body").show();
+                        if($('#detailModal').hasClass('in')||$('#detailModal').hasClass('show')){
+
+                        }else{
+                            $("#detailModal").modal("show"); 
+                        }  
                     }else{
-                        $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' aria-hidden='true'></i></button>");
+                        if(satu_transaksi){
+                            $("#response_pesan").html(response.messages[0]+" <button type='button' class='btn btn-outline-warning btn-sm' id='reset_barcode' title='reset'><i class='fa fa-ban' ></i></button>");
+                        }else{
+                            $(".modal-body").hide();
+                            $("#response_pesan2").html(response.messages[0]+" ");
+                            if($('#detailModal').hasClass('in')||$('#detailModal').hasClass('show')){
+
+                            }else{
+                                $("#detailModal").modal("show"); 
+                            }
+                        }
                     }
                 },
                 error: function() {
@@ -378,7 +393,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         }
         $(document).on('change', '#lot_obat_multiple', function(e) {
             $("#trans_lot").val($(this).val());                  
-            editData() 
+            editData(false) 
         });
         $('#detailModal').on('hidden.bs.modal', function () {
             $("#barcode").val("").focus();
@@ -446,11 +461,14 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 }
             });
         });
+        $("#close_modal").click(function(){
+            $("#detailModal").modal("hide"); 
+        });
         //logic function
         function selectBP(){
             let paking_kds = $("#opname_bp").val().split("||");
             if(paking_kds.length>=2){
-                let select=`<select class="form-select w100" aria-label="Multiple Kardus" id="kardus_multiple">`;
+                let select=`<select class="form-select w100" id="kardus_multiple">`;
                 for (let i = 0; i < paking_kds.length; i++) { 
                     let selected= $("#opname_pakingan_standar").val() ==paking_kds[i]?"selected": "";
                     select+=`<option value="`+paking_kds[i]+`" `+selected+`>`+nilaiKeRibuan(paking_kds[i], ".",",")+`</option>`;
@@ -466,7 +484,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         function selectUT(){
             let paking_std = $("#opname_ut").val().split("||");
             if(paking_std.length>=2){
-                let select=`<select class="form-select w100" aria-label="Multiple Pakingan" id="pakingan_multiple">`;
+                let select=`<select class="form-select w100" id="pakingan_multiple">`;
                 for (let i = 0; i < paking_std.length; i++) { 
                     let selected= $("#opname_pakingan_standar").val() ==paking_std[i]?"selected": "";
                     select+=`<option value="`+paking_std[i]+`" `+selected+`>`+nilaiKeRibuan(paking_std[i], ".",",")+`</option>`;
