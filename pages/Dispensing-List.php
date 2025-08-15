@@ -697,11 +697,21 @@
                     if (isLocked) return;
 
                     const tbody = evt.from;
-                    
-                    // clear sortable-selected sebelumnya => tampilan mulus hehe
-                    tbody.querySelectorAll(".sortable-selected").forEach(row => {
-                        row.classList.remove("sortable-selected");
+                    const sortable = sortables.find(s => s.el === tbody);
+
+                    // clear sortable-selected sebelumnya => tampilan mulus
+                    // tbody.querySelectorAll(".sortable-selected").forEach(row => {
+                    //     row.classList.remove("sortable-selected");
+                    // });
+
+                    tbody.querySelectorAll('.sortable-selected, .sortable-ghost, .sortable-drag').forEach(el => {
+                        el.classList.remove('sortable-selected', 'sortable-ghost', 'sortable-drag');
                     });
+
+                    if (sortable && sortable.multiDrag) {
+                        sortable.multiDrag._deselectMultiDrag();
+                        sortable.multiDrag._selected = [];
+                    }
 
                     const visibleRows = [...tbody.querySelectorAll("tr")];
                     const dispCode = getDispensingCodeFromTbody(tbody.id);
@@ -732,6 +742,9 @@
                     .then(response => {
                         if (response.success) {
                             fetchAndRenderDataOnly();
+                            setTimeout(() => {
+                                enableSortableTables();
+                            }, 50);
                         } else {
                             Swal.fire({
                                 icon: 'error',
