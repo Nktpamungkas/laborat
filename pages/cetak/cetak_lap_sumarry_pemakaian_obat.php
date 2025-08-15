@@ -1,8 +1,8 @@
 <?php
 $namaFile = 'lap_Bulanan_pemakaian_Obat_gd_kimia.xls';
 
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=$namaFile");
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header("Content-Disposition: attachment; filename=\"$namaFile\"");
 header("Pragma: no-cache");
 header("Expires: 0");
 
@@ -11,9 +11,55 @@ include "./../../koneksi.php";
 
 $ip_num = $_SERVER['REMOTE_ADDR'];
 $os = $_SERVER['HTTP_USER_AGENT'];
-$warehouse = $_POST['warehouse'];
-// optional: atur timezone untuk tgl_tarik_data jika diperlukan
+
 date_default_timezone_set('Asia/Jakarta');
+
+$awalParam = $_GET['awal'] ?? '';
+$Bln2 = (new DateTime($awalParam))->format('m');
+$Thn2 = (new DateTime($awalParam))->format('Y');
+
+$Bulan = $Thn2 . "-" . $Bln2;
+$namaFile = "Laporan harian gudang-{$Bulan}.xls";
+
+$d = cal_days_in_month(CAL_GREGORIAN, $Bln2, $Thn2);
+if ($Thn2 != "" and $Bln2 != "") {
+    $Lalu = $Bln2 - 1;
+    if ($Lalu == "0") {
+        $BlnLalu = "12";
+        $Thn = $Thn2 - 1;
+    } else {
+        $BlnLalu = $Lalu;
+        $Thn = $Thn2;
+    }
+}
+
+function namabln($b)
+{
+    $bulan = [
+        "1" => "JANUARI",
+        "2" => "FEBRUARI",
+        "3" => "MARET",
+        "4" => "APRIL",
+        "5" => "MEI",
+        "6" => "JUNI",
+        "7" => "JULI",
+        "8" => "AGUSTUS",
+        "9" => "SEPTEMBER",
+        "10" => "OKTOBER",
+        "11" => "NOVEMBER",
+        "12" => "DESEMBER"
+    ];
+    return $bulan[(int) $b] ?? $b;
+}
+
+// Generate base64 logo
+$logoPath = realpath(__DIR__ . '\\images\\ITTI_Logo.png');
+$logoBase64 = '';
+if (file_exists($logoPath)) {
+    $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+    $logoData = base64_encode(file_get_contents($logoPath));
+    $logoBase64 = 'data:image/' . $logoType . ';base64,' . $logoData;
+}
 ?>
 
 <html>
@@ -24,19 +70,16 @@ date_default_timezone_set('Asia/Jakarta');
         td,
         th {
             mso-number-format: "\@";
-            /* force text format for Excel */
             padding: 5px;
             border: 1px solid #000;
         }
 
         .number {
             mso-number-format: "#,##0.00";
-            /* angka dengan koma */
         }
 
         .int {
             mso-number-format: "0";
-            /* angka tanpa koma */
         }
 
         th {
@@ -46,60 +89,134 @@ date_default_timezone_set('Asia/Jakarta');
 </head>
 
 <body>
+
+    <table border="0" width="100%" style="margin-bottom: 20px;">
+        <tr>
+            <!-- Logo -->
+           <td colspan="2" 
+                style="width: 20%; height: 60px; text-align: left; vertical-align: middle;">
+                <img src="http://10.0.5.23/laborat1/login_assets/images/ITTI_Logo.png" 
+                    alt="Logo" 
+                    style="width:60px; height:60px; object-fit:contain;">
+            </td>
+
+            <!-- Judul -->
+            <td colspan="9" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
+                <h3 style="margin: 0;">
+                    <strong>DATA PEMAKAIAN BAHAN PEMBANTU BULAN
+                        <?= ($Bln2 != "01") ? namabln($Bln2) . " " . $Thn2 : namabln($Bln2) . " " . $Thn; ?>
+                    </strong>
+                </h3>
+            </td>
+
+            <!-- No Form -->
+            <td style="width: 20%; font-size: 12px; vertical-align: top;">
+                <table border="0">
+                    <tr>
+                        <td><strong>No Form</strong></td>
+                        <td colspan="2">: FW-19-LAB-11</td>
+                    </tr>
+                    <tr>
+                        <td><strong>No Revisi</strong></td>
+                        <td colspan="2">: 06</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tgl. Revisi</strong></td>
+                        <td colspan="2">:</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <br><br>
     <table border="1">
         <tr>
             <th>No</th>
             <th>Kode Obat</th>
-            <th>Dyestuff/Chemical</th>
+            <th>Nama Bahan Kimia Dyestuff/Chemical</th>
             <th>Stock Awal (gr)</th>
-            <th>Masuk</th>
-            <th>Pemakaian (gr)</th>
-            <th>Transfer ke Gd. Lain</th>
-            <th>Stock Balance</th>
-            <th>Stock Minimum</th>
-            <th>Buka PO</th>
-            <th>Pemakaian (belum timbang)</th>
-            <th>Stock Balance (future)</th>
+            <th>Masuk (gr)</th>
+            <th>Total Pemakaian (gr)</th>
+            <th>Transfer (gr)</th>
+            <th>Total Out</th>
+            <th>Sisa Stock</th>
+            <th>Stock Aman</th>
+            <th>Sisa PO</th>
             <th>Status</th>
             <th>Note</th>
             <th>Certification</th>
         </tr>
 
-        <?php
-       
-        $no = 1;
-        $sql = mysqli_query($con, "SELECT * FROM tb_stock_gd_kimia WHERE ip_address = '$ip_num'");
-        while ($r = mysqli_fetch_array($sql)) {
-            $status = $r['status_'];
-            $style = '';
+    <?php
 
-            if ($status === 'HITUNG KEBUTUHAN ORDER') {
-                $style = 'background-color: #FFFF00; color: #000000;';
-            } elseif ($status === 'SEGERA ORDER') {
-                $style = 'background-color: #FF0000; color: #FFFFFF;';
-            }
+    $no = 1;
+    $sql = mysqli_query($con, "SELECT * FROM tb_stock_gd_kimia WHERE ip_address = '$ip_num'");
+    while ($r = mysqli_fetch_array($sql)) {
+        $status = $r['status_'];
+        $style = '';
 
-            echo "<tr>";
-            echo "<td class='int' style='text-align:center'>$no</td>";
-            echo "<td>{$r['kode_obat']}</td>";
-            echo "<td>{$r['nama_obat']}</td>";
-            echo "<td class='number'>{$r['qty_awal']}</td>";
-            echo "<td class='number'>{$r['stock_masuk']}</td>";
-            echo "<td class='number'>{$r['stock_keluar']}</td>";
-            echo "<td class='number'>{$r['stock_transfer']}</td>";
-            echo "<td class='number'>{$r['stock_balance']}</td>";
-            echo "<td class='number'>{$r['stock_minimum']}</td>";
-            echo "<td class='number'>{$r['buka_po']}</td>";
-            echo "<td class='number'>{$r['stock_pakai_blum_timbang']}</td>";
-            echo "<td class='number'>{$r['stock_balance_future']}</td>";
-            echo "<td style='{$style}'>{$status}</td>";
-            echo "<td>{$r['note']}</td>";
-            echo "<td>{$r['ket_sertifikat']}</td>";
-            echo "</tr>";
-            $no++;
+        if ($status === 'HITUNG KEBUTUHAN ORDER') {
+            $style = 'background-color: #FFFF00; color: #000000;';
+        } elseif ($status === 'SEGERA ORDER') {
+            $style = 'background-color: #FF0000; color: #FFFFFF;';
         }
-        ?>
+
+        echo "<tr>";
+        echo "<td class='int' style='text-align:center'>$no</td>";
+        echo "<td>{$r['kode_obat']}</td>";
+        echo "<td>{$r['nama_obat']}</td>";
+        echo "<td class='number'>{$r['qty_awal']}</td>";
+        echo "<td class='number'>{$r['stock_masuk']}</td>";
+        echo "<td class='number'>{$r['stock_keluar']}</td>";
+        echo "<td class='number'>{$r['stock_transfer']}</td>";
+        echo "<td class='number'>{$r['total_out']}</td>";
+        echo "<td class='number'>{$r['stock_balance']}</td>";
+        echo "<td class='number'>{$r['stock_minimum']}</td>";
+        echo "<td class='number'>{$r['buka_po']}</td>";
+        echo "<td style='{$style}'>{$status}</td>";
+        echo "<td>{$r['note']}</td>";
+        echo "<td>{$r['ket_sertifikat']}</td>";
+        echo "</tr>";
+        $no++;
+    }
+    ?>
     </table>
+
+    <br><br>
+
+    <table style="width: auto;" border="1">
+        <tr>
+            <td colspan="3"></td>
+            <td colspan="3" style="text-align: center;">Dibuat Oleh :</td>
+            <td colspan="4" style="text-align: center;">Diperiksa Oleh :</td>
+            <td colspan="4" style="text-align: center;">Mengetahui :</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: center;">Nama</td>
+            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: center;">Jabatan</td>
+            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: center;">Tanggal</td>
+            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: center;">Tanda Tangan</td>
+            <td colspan="3" style="text-align: center;"><br><br><br><br></td>
+            <td colspan="4" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;"></td>
+        </tr>
+    </table>
+
 </body>
 
 </html>
