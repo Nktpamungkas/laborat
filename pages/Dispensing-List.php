@@ -697,6 +697,12 @@
                     if (isLocked) return;
 
                     const tbody = evt.from;
+                    
+                    // clear sortable-selected sebelumnya => tampilan mulus hehe
+                    tbody.querySelectorAll(".sortable-selected").forEach(row => {
+                        row.classList.remove("sortable-selected");
+                    });
+
                     const visibleRows = [...tbody.querySelectorAll("tr")];
                     const dispCode = getDispensingCodeFromTbody(tbody.id);
 
