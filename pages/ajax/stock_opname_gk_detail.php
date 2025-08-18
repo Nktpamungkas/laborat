@@ -77,16 +77,16 @@ if(trim($warehouse," ")=="M101"){
                 $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }else{
-                $btn="<button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o'></i></button>";
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }
-            echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."'>
+            echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
                     <td class='text-center'>{$no}</td>
                     <td>" . htmlspecialchars($row['KODE_OBAT']) . "</td>
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
                     <td>" . htmlspecialchars($row['LOTCODE']) . "</td>
                     <td class='text-center'>" . htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty'])."</td>
+                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty']*1000)." GR</td>
                     <td class='text-right' id='td_dus_".$row['id']."' >$dus</td>
                     <td class='text-right' id='ps_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan(doubleval($row['pakingan_standar']))."</td>
                     <td class='text-right' id='ts_".$row['id']."' >".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>
@@ -135,15 +135,15 @@ else if(trim($warehouse," ")=="M510"){
             if($row['konfirmasi']){
                 $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
             }else{
-                $btn="<button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
             }
-            echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."'>
+            echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
                     <td class='text-center'>{$no}</td>
                     <td>" . htmlspecialchars($row['KODE_OBAT']) . "</td>
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
                     <td>" . htmlspecialchars($row['LOTCODE']) . "</td>
                     <td class='text-center'>" . htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty'])."</td>
+                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty']*1000)." GR</td>
                     <td class='text-right' id='td_dus_".$row['id']."' >".ucfirst($row['kategori'])."<br/>Qty : ".Penomoran_helper::nilaiKeRibuan($row['qty_dus'])."</td>
                     <td class='text-right' id='ps_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan(doubleval($row['pakingan_standar']))."</td>
                     <td class='text-right' id='ts_".$row['id']."' >".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>
