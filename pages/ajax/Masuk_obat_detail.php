@@ -13,22 +13,29 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-if ($warehouse == 'M101') {
-    $templateCodes = "'QCT','OPN','204'";
-} else {
-    $templateCodes = "'QCT','304','OPN','204'";
-}
+// if ($warehouse == 'M101') {
+//     $templateCodes = "'QCT','OPN','204'";
+// } else {
+//     $templateCodes = "'QCT','304','OPN','204'";
+// }
 
-if ($warehouse == 'M101') {
-    $detailtype = '2';
-} else {
-    $detailtype = '1';
-}
+// if ($warehouse == 'M101') {
+//     $detailtype = '2';
+// } else {
+//     $detailtype = '1';
+// }
 
-$query = "SELECT    s.TRANSACTIONDATE,
+$query = "SELECT 
+                                        *
+                                        FROM 
+                                        (SELECT    s.TRANSACTIONDATE,
 s.TRANSACTIONNUMBER,
-                    s3.TEMPLATECODE as tempalte,
-                     s.TEMPLATECODE,
+                    CASE 
+                    	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                    	ELSE s.TEMPLATECODE
+                    END  as tempalte,
+                    s3.LOGICALWAREHOUSECODE AS terimadarigd,
+                    s.TEMPLATECODE,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
                     s.DECOSUBCODE02,
@@ -54,6 +61,7 @@ s.TRANSACTIONNUMBER,
                     	WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
                     	WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
                     	WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                    	WHEN  s.TEMPLATECODE = '125' THEN 'Retur dari ' || trim(s.ORDERCODE )
                     END AS KETERANGAN                    
                 FROM
                     STOCKTRANSACTION s
@@ -65,17 +73,19 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
                 LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
                 LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE = $detailtype
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
                     AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
-                    AND s.TEMPLATECODE IN ($templateCodes)
-                   AND s.LOGICALWAREHOUSECODE = '$warehouse'
+                    AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
+                   AND s.LOGICALWAREHOUSECODE $warehouse
                     and s.CREATIONUSER != 'MT_STI'
-                    and s.DECOSUBCODE01 = '$code1' 
-                    AND s.DECOSUBCODE02 = '$code2' 
-                    AND s.DECOSUBCODE03 = '$code3'";
+                   and s.DECOSUBCODE01 = '$code1' 
+                   AND s.DECOSUBCODE02 = '$code2' 
+                   AND s.DECOSUBCODE03 = '$code3'
+                    )
+                    WHERE tempalte <> '304'";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);

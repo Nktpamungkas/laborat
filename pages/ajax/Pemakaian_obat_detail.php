@@ -109,7 +109,7 @@ FROM (
                 AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
                 AND s.TEMPLATECODE IN ('120')
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
-                AND s.LOGICALWAREHOUSECODE = '$warehouse'
+                AND s.LOGICALWAREHOUSECODE $warehouse
                 and s.DECOSUBCODE01 = '$code1' AND
             s.DECOSUBCODE02 = '$code2' AND
             s.DECOSUBCODE03 = '$code3'
