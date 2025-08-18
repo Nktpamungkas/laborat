@@ -48,7 +48,7 @@ if ($keterangan === 'COTTON' && $suhu == 80) {
 
 $filteredMachines = [];
 foreach ($machines as $machine) {
-    $stmtCheckOldData = $con->prepare("SELECT COUNT(*) FROM tbl_preliminary_schedule WHERE no_machine = ? AND is_old_data = 1");
+    $stmtCheckOldData = $con->prepare("SELECT COUNT(*) FROM tbl_preliminary_schedule WHERE no_machine = ? AND is_old_data = 1 AND status IN  ('scheduled', 'in_progress_dispensing', 'in_progress_dyeing')");
     $stmtCheckOldData->bind_param("s", $machine);
     $stmtCheckOldData->execute();
     $stmtCheckOldData->bind_result($count);

@@ -504,7 +504,7 @@
             const currentValue = span.dataset.current;
             const id = span.dataset.id;
             const group = span.dataset.group;
-
+                
             fetch(`pages/ajax/get_mesin_options_dispensing.php?group=${encodeURIComponent(group)}`)
                 .then(res => res.json())
                 .then(options => {

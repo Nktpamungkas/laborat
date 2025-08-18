@@ -1,7 +1,7 @@
 <?php
 ini_set("error_reporting", 1);
 include "../../koneksi.php";
-include "../../includes/log_helper.php";
+
 session_start();
 
 $no_resep       = trim(htmlspecialchars($_POST['no_resep']));
