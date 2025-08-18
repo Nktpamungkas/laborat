@@ -525,6 +525,7 @@
         } elseif (substr(strtoupper($data['no_resep']), 0, 2) == 'DR' or substr(strtoupper($data['no_resep']), 0, 2) == 'OB' or substr(strtoupper($data['no_resep']), 0, 2) == 'CD') {
             $suffixcode = substr($data['no_resep'], 2);
         }
+        $kodesuffix = substr(strtoupper($data['no_resep']), 0, 2);
 
         if($_GET['frm'] == 'bresep'){
             // ADJUSTMENT 1
@@ -631,60 +632,73 @@
                 }
             }
 
-            function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02){
-                $queryFinal     = "WITH BASEDATA AS (
+            function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02, $kodesuffix){
+                if($kodesuffix == 'OB'){
+                    $queryFinal     = "WITH BASEDATA AS (
                                         SELECT
-                                            r.RECIPESUBCODE01,
+                                            CASE TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN r3.RECIPESUBCODE01 ELSE r.RECIPESUBCODE01 END AS RECIPESUBCODE01,
                                             r.SEQUENCE,
                                             r.GROUPNUMBER,
                                             r.GROUPTYPECODE,
                                             CASE 
-                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN '1'
-                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN '2'
-                                                ELSE '1'
-                                            END AS SUFFIXTYPE, 
-                                            r.RECIPESUFFIXCODE,
-                                            r.SUBCODE01,
-                                            r.SUBCODE02,
-                                            r.SUBCODE03,
-                                            CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END AS CONSUMPTION,
-                                            CASE
-                                                WHEN GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
-                                                ELSE COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' AND NOT a3.VALUESTRING = 'W' THEN '1'
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' AND NOT a3.VALUESTRING = 'W' THEN '2'
+                                                ELSE COALESCE(a2.VALUESTRING, '3')
+                                            END AS SUFFIXTYPE,  
+                                            CASE TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN r3.RECIPESUFFIXCODE ELSE r.RECIPESUFFIXCODE END AS RECIPESUFFIXCODE,
+                                            CASE TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN r3.SUBCODE01 ELSE r.SUBCODE01 END AS SUBCODE01,
+                                            CASE TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN r3.SUBCODE02 ELSE r.SUBCODE02 END AS SUBCODE02,
+                                            CASE TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN r3.SUBCODE03 ELSE r.SUBCODE03 END AS SUBCODE03,
+                                            CASE 
+                                                TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN CASE WHEN r3.CONSUMPTION = 0 THEN NULL ELSE r3.CONSUMPTION END
+                                                ELSE CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END 
+                                            END AS CONSUMPTION,
+                                            CASE 
+                                                TRIM(r.ITEMTYPEAFICODE) WHEN 'RFF' THEN
+                                                    CASE
+                                                        WHEN r3.GROUPTYPECODE = '100' THEN TRIM(r3.COMMENTLINE)
+                                                        ELSE COALESCE(TRIM(r3.SUBCODE01),'') || '-' || COALESCE(TRIM(r3.SUBCODE02),'') || '-' || COALESCE(TRIM(r3.SUBCODE03),'')
+                                                    END
+                                                ELSE 
+                                                    CASE
+                                                        WHEN r.GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
+                                                        ELSE COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
+                                                    END
                                             END AS KODE,
                                             CASE 
-                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN 1
-                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN 3
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' AND NOT a3.VALUESTRING = 'W' THEN 1
+                                                WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' AND NOT a3.VALUESTRING = 'W' THEN 3
+                                                ELSE 
+                                                    COALESCE(a2.VALUESTRING, '3')
                                             END AS RECIPE_NUMBER
                                         FROM 
                                             RECIPECOMPONENT r
-                                        LEFT JOIN RECIPE r2 
-                                            ON r2.SUBCODE01 = r.RECIPESUBCODE01 
-                                            AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
-                                        LEFT JOIN ADSTORAGE a 
-                                            ON a.UNIQUEID = r2.ABSUNIQUEID 
-                                            AND a.FIELDNAME = 'RCode'
+                                        LEFT JOIN RECIPE r2 ON r2.SUBCODE01 = r.RECIPESUBCODE01 AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
+                                        LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r2.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
+                                        LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = r2.ABSUNIQUEID AND a2.FIELDNAME = 'UrutanRecipe'
+                                        LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = r2.ABSUNIQUEID AND a3.FIELDNAME = 'Chroma'
+                                        LEFT JOIN RECIPECOMPONENT r3 ON r3.RECIPESUBCODE01 = r.SUBCODE01 AND r3.RECIPESUFFIXCODE = r.SUFFIXCODE
                                         WHERE 
                                             r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                            AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
-                                                                    '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
-                                                                    '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
+                                                AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
+                                                                        '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
+                                                                        '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
                                             AND (
-                                                (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND GROUPTYPECODE IN ('001', '100'))
-                                                OR (ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20)
-                                            )
-                                    ),
-                                    CHECK_EXIST AS (
-                                        SELECT 
-                                            MAX(CASE WHEN RECIPE_NUMBER = 1 THEN 1 ELSE 0 END) AS HAS_1,
-                                            MAX(CASE WHEN RECIPE_NUMBER = 3 THEN 1 ELSE 0 END) AS HAS_3
-                                        FROM BASEDATA
-                                    ),
-                                    BASE AS (
-                                        SELECT * FROM BASEDATA
-                                        UNION ALL
-                                        SELECT 
-                                            '-' AS RECIPESUBCODE01,
+                                                (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND r.GROUPTYPECODE IN ('001', '100', '201'))
+                                                OR (r.ITEMTYPEAFICODE = 'DYC' AND r.GROUPNUMBER < 20)
+                                                )
+                                        ),
+                                        CHECK_EXIST AS (
+                                            SELECT 
+                                                MAX(CASE WHEN RECIPE_NUMBER = 1 THEN 1 ELSE 0 END) AS HAS_1,
+                                                MAX(CASE WHEN RECIPE_NUMBER = 3 THEN 1 ELSE 0 END) AS HAS_3
+                                            FROM BASEDATA
+                                        ),
+                                        BASE AS (
+                                            SELECT * FROM BASEDATA
+                                            UNION ALL
+                                            SELECT 
+                                                '-' AS RECIPESUBCODE01,
                                             2   AS SEQUENCE,
                                             NULL AS GROUPNUMBER,
                                             2   AS GROUPTYPECODE,
@@ -698,37 +712,37 @@
                                             2   AS RECIPE_NUMBER
                                         FROM ITXVIEW_KOSONG, CHECK_EXIST
                                         WHERE HAS_1 = 1 AND HAS_3 = 1  -- hanya masuk kalau 1 & 3 ada
-                                    ),
-                                    PIVOTED AS (
-                                        SELECT
-                                            RECIPESUBCODE01,
-                                            RECIPE_NUMBER,
-                                            KODE,
-                                            SEQUENCE,
-                                            GROUPNUMBER,
-                                            GROUPTYPECODE,
-                                            SUFFIXTYPE,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
-                                            MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
-                                        FROM 
-                                            BASE
-                                        GROUP BY 
-                                            RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
-                                    ),
-                                    FINALDATA AS (
-                                        SELECT 
-                                            P.RECIPESUBCODE01,
-                                            P.RECIPE_NUMBER,
-                                            ROW_NUMBER() OVER (ORDER BY P.SUFFIXTYPE, P.RECIPE_NUMBER, P.GROUPNUMBER, P.SEQUENCE, P.KODE) AS FLAG,
-                                            P.KODE || 
-                                            CASE 
-                                                WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
+                                        ),
+                                        PIVOTED AS (
+                                            SELECT
+                                                RECIPESUBCODE01,
+                                                RECIPE_NUMBER,
+                                                KODE,
+                                                SEQUENCE,
+                                                GROUPNUMBER,
+                                                GROUPTYPECODE,
+                                                SUFFIXTYPE,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
+                                            FROM 
+                                                BASE
+                                            GROUP BY 
+                                                RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
+                                        ),
+                                        FINALDATA AS (
+                                            SELECT 
+                                                P.RECIPESUBCODE01,
+                                                P.RECIPE_NUMBER,
+                                                ROW_NUMBER() OVER (ORDER BY P.SUFFIXTYPE, P.RECIPE_NUMBER, P.GROUPNUMBER, P.SEQUENCE, P.KODE) AS FLAG,
+                                                P.KODE || 
+                                                CASE 
+                                                    WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
                                                 WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN ' (REMOVED)'
                                                 ELSE ''
                                             END AS KODE,
@@ -747,23 +761,157 @@
                                                 WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN 'NEW'
                                                 WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN 'REMOVED'
                                                 ELSE ''
-                                            END AS STATUSDYC
+                                                END AS STATUSDYC
+                                                FROM 
+                                                    PIVOTED P
+                                        )
+                                        SELECT 
+                                            *
+                                        FROM 
+                                            FINALDATA
+                                        WHERE 
+                                            FLAG = {$flag}
+                                        ORDER BY 
+                                            RECIPE_NUMBER,
+                                            FLAG,
+                                            SUFFIXTYPE, 
+                                            SEQUENCE, 
+                                            GROUPNUMBER,
+                                            KODE";
+                }else{
+                    $queryFinal     = "WITH BASEDATA AS (
+                                            SELECT
+                                                r.RECIPESUBCODE01,
+                                                r.SEQUENCE,
+                                                r.GROUPNUMBER,
+                                                r.GROUPTYPECODE,
+                                                CASE 
+                                                    WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN '1'
+                                                    WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN '2'
+                                                    ELSE '1'
+                                                END AS SUFFIXTYPE, 
+                                                r.RECIPESUFFIXCODE,
+                                                r.SUBCODE01,
+                                                r.SUBCODE02,
+                                                r.SUBCODE03,
+                                                CASE WHEN r.CONSUMPTION = 0 THEN NULL ELSE r.CONSUMPTION END AS CONSUMPTION,
+                                                CASE
+                                                    WHEN GROUPTYPECODE = '100' THEN TRIM(r.COMMENTLINE)
+                                                    ELSE COALESCE(TRIM(r.SUBCODE01),'') || '-' || COALESCE(TRIM(r.SUBCODE02),'') || '-' || COALESCE(TRIM(r.SUBCODE03),'')
+                                                END AS KODE,
+                                                CASE 
+                                                    WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN 1
+                                                    WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN 3
+                                                END AS RECIPE_NUMBER
                                             FROM 
-                                                PIVOTED P
-                                    )
-                                    SELECT 
-                                        *
-                                    FROM 
-                                        FINALDATA
-                                    WHERE 
-                                        FLAG = {$flag}
-                                    ORDER BY 
-                                        RECIPE_NUMBER,
-                                        FLAG,
-                                        SUFFIXTYPE, 
-                                        SEQUENCE, 
-                                        GROUPNUMBER,
-                                        KODE";
+                                                RECIPECOMPONENT r
+                                            LEFT JOIN RECIPE r2 
+                                                ON r2.SUBCODE01 = r.RECIPESUBCODE01 
+                                                AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
+                                            LEFT JOIN ADSTORAGE a 
+                                                ON a.UNIQUEID = r2.ABSUNIQUEID 
+                                                AND a.FIELDNAME = 'RCode'
+                                            WHERE 
+                                                r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
+                                                AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
+                                                                        '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
+                                                                        '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
+                                                AND (
+                                                    (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND GROUPTYPECODE IN ('001', '100'))
+                                                    OR (ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20)
+                                                )
+                                        ),
+                                        CHECK_EXIST AS (
+                                            SELECT 
+                                                MAX(CASE WHEN RECIPE_NUMBER = 1 THEN 1 ELSE 0 END) AS HAS_1,
+                                                MAX(CASE WHEN RECIPE_NUMBER = 3 THEN 1 ELSE 0 END) AS HAS_3
+                                            FROM BASEDATA
+                                        ),
+                                        BASE AS (
+                                            SELECT * FROM BASEDATA
+                                            UNION ALL
+                                            SELECT 
+                                                '-' AS RECIPESUBCODE01,
+                                                2   AS SEQUENCE,
+                                                NULL AS GROUPNUMBER,
+                                                2   AS GROUPTYPECODE,
+                                                2   AS SUFFIXTYPE, 
+                                                '-' AS RECIPESUFFIXCODE,
+                                                '-' AS SUBCODE01,
+                                                '-' AS SUBCODE02,
+                                                '-' AS SUBCODE03,
+                                                NULL AS CONSUMPTION,
+                                                '-' AS KODE,
+                                                2   AS RECIPE_NUMBER
+                                            FROM ITXVIEW_KOSONG, CHECK_EXIST
+                                            WHERE HAS_1 = 1 AND HAS_3 = 1  -- hanya masuk kalau 1 & 3 ada
+                                        ),
+                                        PIVOTED AS (
+                                            SELECT
+                                                RECIPESUBCODE01,
+                                                RECIPE_NUMBER,
+                                                KODE,
+                                                SEQUENCE,
+                                                GROUPNUMBER,
+                                                GROUPTYPECODE,
+                                                SUFFIXTYPE,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
+                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
+                                            FROM 
+                                                BASE
+                                            GROUP BY 
+                                                RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
+                                        ),
+                                        FINALDATA AS (
+                                            SELECT 
+                                                P.RECIPESUBCODE01,
+                                                P.RECIPE_NUMBER,
+                                                ROW_NUMBER() OVER (ORDER BY P.SUFFIXTYPE, P.RECIPE_NUMBER, P.GROUPNUMBER, P.SEQUENCE, P.KODE) AS FLAG,
+                                                P.KODE || 
+                                                CASE 
+                                                    WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN ' (NEW)'
+                                                    WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN ' (REMOVED)'
+                                                    ELSE ''
+                                                END AS KODE,
+                                                P.SEQUENCE,
+                                                P.GROUPNUMBER,
+                                                P.SUFFIXTYPE,
+                                                P.LAB,
+                                                P.ADJ1,
+                                                P.ADJ2,
+                                                P.ADJ3,
+                                                P.ADJ4,
+                                                P.ADJ5,
+                                                P.ADJ6,
+                                                P.ADJ7,
+                                                CASE 
+                                                    WHEN LAB IS NULL AND P.GROUPTYPECODE = '001' THEN 'NEW'
+                                                    WHEN COALESCE(LAB,ADJ1,ADJ2,ADJ3,ADJ4,ADJ5,ADJ6,ADJ7) IS NULL AND P.GROUPTYPECODE = '001' THEN 'REMOVED'
+                                                    ELSE ''
+                                                END AS STATUSDYC
+                                                FROM 
+                                                    PIVOTED P
+                                        )
+                                        SELECT 
+                                            *
+                                        FROM 
+                                            FINALDATA
+                                        WHERE 
+                                            FLAG = {$flag}
+                                        ORDER BY 
+                                            RECIPE_NUMBER,
+                                            FLAG,
+                                            SUFFIXTYPE, 
+                                            SEQUENCE, 
+                                            GROUPNUMBER,
+                                            KODE";
+                }
                 $resultFinal = db2_exec($conn1, $queryFinal);
                 $dataFinal = db2_fetch_assoc($resultFinal);
                 if ($dataFinal) {
@@ -793,31 +941,31 @@
                     return null;
                 }
             }
-            $dataDyc1 = GetDataFinalAdj($conn1, '1', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc2 = GetDataFinalAdj($conn1, '2', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc3 = GetDataFinalAdj($conn1, '3', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc4 = GetDataFinalAdj($conn1, '4', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc5 = GetDataFinalAdj($conn1, '5', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc6 = GetDataFinalAdj($conn1, '6', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc7 = GetDataFinalAdj($conn1, '7', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc8 = GetDataFinalAdj($conn1, '8', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc9 = GetDataFinalAdj($conn1, '9', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc10 = GetDataFinalAdj($conn1, '10', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc11 = GetDataFinalAdj($conn1, '11', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc12 = GetDataFinalAdj($conn1, '12', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc13 = GetDataFinalAdj($conn1, '13', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc14 = GetDataFinalAdj($conn1, '14', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc15 = GetDataFinalAdj($conn1, '15', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc16 = GetDataFinalAdj($conn1, '16', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc17 = GetDataFinalAdj($conn1, '17', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc18 = GetDataFinalAdj($conn1, '18', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc19 = GetDataFinalAdj($conn1, '19', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc20 = GetDataFinalAdj($conn1, '20', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc21 = GetDataFinalAdj($conn1, '21', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc22 = GetDataFinalAdj($conn1, '22', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc23 = GetDataFinalAdj($conn1, '23', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc24 = GetDataFinalAdj($conn1, '24', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
-            $dataDyc25 = GetDataFinalAdj($conn1, '25', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2']);
+            $dataDyc1 = GetDataFinalAdj($conn1, '1', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc2 = GetDataFinalAdj($conn1, '2', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc3 = GetDataFinalAdj($conn1, '3', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc4 = GetDataFinalAdj($conn1, '4', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc5 = GetDataFinalAdj($conn1, '5', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc6 = GetDataFinalAdj($conn1, '6', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc7 = GetDataFinalAdj($conn1, '7', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc8 = GetDataFinalAdj($conn1, '8', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc9 = GetDataFinalAdj($conn1, '9', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc10 = GetDataFinalAdj($conn1, '10', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc11 = GetDataFinalAdj($conn1, '11', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc12 = GetDataFinalAdj($conn1, '12', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc13 = GetDataFinalAdj($conn1, '13', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc14 = GetDataFinalAdj($conn1, '14', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc15 = GetDataFinalAdj($conn1, '15', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc16 = GetDataFinalAdj($conn1, '16', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc17 = GetDataFinalAdj($conn1, '17', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc18 = GetDataFinalAdj($conn1, '18', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc19 = GetDataFinalAdj($conn1, '19', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc20 = GetDataFinalAdj($conn1, '20', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc21 = GetDataFinalAdj($conn1, '21', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc22 = GetDataFinalAdj($conn1, '22', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc23 = GetDataFinalAdj($conn1, '23', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc24 = GetDataFinalAdj($conn1, '24', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc25 = GetDataFinalAdj($conn1, '25', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
 
 
             function GetDataFinalSuhu($conn1, $suffix, $recipesubcode01, $recipesubcode02, $side){
