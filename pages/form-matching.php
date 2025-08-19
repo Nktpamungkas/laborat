@@ -772,7 +772,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -956,7 +956,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -1184,7 +1184,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -1531,7 +1531,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -2226,7 +2226,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>

@@ -5,13 +5,18 @@
     $ids = $_GET['ids'];
     $idm = $_GET['idm'];
     $ip_num = $_SERVER['REMOTE_ADDR'];
+    $substr_idm = substr($idm, 0,2);
+    
     if($_GET['frm'] == 'bresep'){
         if (empty($_GET['created_by'])) {
             echo "<script>window.close();</script>";
             exit;
         }
+        if($substr_idm == 'R2'){
+            mysqli_query($con, "UPDATE tbl_matching SET suhu_chamber = 'none' WHERE no_resep = '$idm'");
+        }
     }else{
-        mysqli_query($con,"INSERT INTO log_status_matching SET
+        mysqli_query($con, "INSERT INTO log_status_matching SET
                 `ids` = '$idm', 
                 `status` = 'print', 
                 `info` = 'cetak resep', 
