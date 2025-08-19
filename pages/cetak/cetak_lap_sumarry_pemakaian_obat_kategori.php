@@ -93,12 +93,11 @@ if (file_exists($logoPath)) {
     <table border="0" width="100%" style="margin-bottom: 20px;">
         <tr>
             <!-- Logo -->
-            <td colspan="3" style="width: 20%; text-align: left; vertical-align: middle;">
-                <?php if ($logoBase64): ?>
-                    <img src="<?= $logoBase64 ?>" alt="Logo" style="height: 80px;">
-                <?php else: ?>
-                    <strong>Logo tidak ditemukan</strong>
-                <?php endif; ?>
+           <td colspan="2" 
+                style="width: 20%; height: 60px; text-align: center; vertical-align: middle;">
+                <img src="online.indotaichen.com/laborat/login_assets/images/ITTI_Logo_.png" 
+                    alt="Logo" 
+                    style="width:60px; height:60px; object-fit:contain;">
             </td>
 
             <!-- Judul -->

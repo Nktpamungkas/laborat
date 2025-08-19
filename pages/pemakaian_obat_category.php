@@ -174,13 +174,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
                                         style="width: 100%;" required>
-                                            <option value="M510">M510</option>
                                         <?php
                                         $sqlDB = "SELECT  
                                                             TRIM(CODE) AS CODE,
                                                             LONGDESCRIPTION 
                                                         FROM
                                                             LOGICALWAREHOUSE
+                                                            WHERE CODE IN('M510','M101')
                                                         ORDER BY 
                                                             CODE ASC";
                                         $stmt = db2_exec($conn1, $sqlDB);
@@ -190,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     <?php if ($rowdb['CODE'] == $_POST['warehouse']) {
                                                         echo "SELECTED";
                                                     } ?>>
-                                                    <?= $rowdb['CODE']; ?>         <?= $rowdb['LONGDESCRIPTION']; ?>
+                                                    <?= $rowdb['CODE'] . " - " . $rowdb['LONGDESCRIPTION'];?>
                                                 </option>
                                         <?php } ?>
                                     </select>
@@ -538,45 +538,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $tahunBulan2 = $date->format('Y-m');
 
 
-                                    if ($tahunBulan == '2025-07') {
-                                        $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
-                                        logicalwarehouse,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03,
-                                        SUM(qty_awal) as qty_awal 
-                                        FROM stock_awal_obat_gdkimia_1
-                                        WHERE kode_obat = '$kode_obat'
-                                        AND logicalwarehouse = '$warehouse'
-                                        group by 
-                                        kode_obat,
-                                        logicalwarehouse,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03  
-                                        ORDER BY kode_obat ASC");
+                                    if ($tahunBulan2 == '2025-06') {
+                                        $q_qty_awal = mysqli_query($con, "SELECT
+                                            SUBCODE01,
+                                            logicalwarehouse,
+                                            SUM(qty_awal) AS qty_awal
+                                                FROM
+                                                (SELECT * 
+                                            FROM stock_awal_obat_gdkimia_1
+                                            WHERE logicalwarehouse = '$_POST[warehouse]'                                                             
+                                            and not kode_obat = 'E-1-000'                                                              
+                                            ) as T
+                                            WHERE 
+                                            SUBCODE01 = '$row[DECOSUBCODE01]'
+                                            group by 
+                                            SUBCODE01,
+                                            logicalwarehouse
+                                            ORDER BY SUBCODE01 ASC");
                                     } else {
                                         $q_qty_awal = mysqli_query($con, "SELECT 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
-                                    FROM tblopname_11 t
-                                    WHERE 
-                                        KODE_OBAT = '$kode_obat'
-                                        AND LOGICALWAREHOUSECODE = '$warehouse'
-                                        AND tgl_tutup = (
-                                            SELECT MAX(tgl_tutup)
-                                            FROM tblopname_11
+                                                tgl_tutup,
+                                                DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                                DECOSUBCODE01,
+                                                SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                            FROM tblopname_11 t
                                             WHERE 
-                                                KODE_OBAT = '$kode_obat'
-                                                AND LOGICALWAREHOUSECODE = '$warehouse'
-                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') = '$tahunBulan2'
-                                        )
-                                    GROUP BY tgl_tutup, KODE_OBAT");
+                                                DECOSUBCODE01 = '$row[DECOSUBCODE01]'
+                                                AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'    
+                                                AND tgl_tutup = (
+                                                    SELECT MAX(tgl_tutup)
+                                                    FROM tblopname_11
+                                                    WHERE 
+                                                        DECOSUBCODE01  = '$row[DECOSUBCODE01]'
+                                                        and not KODE_OBAT ='E-1-000'
+                                                        AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'    
+                                                        AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                                ) and not KODE_OBAT ='E-1-000'
+                                            GROUP BY tgl_tutup, DECOSUBCODE01");
                                     }                                
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);                 
                                     
