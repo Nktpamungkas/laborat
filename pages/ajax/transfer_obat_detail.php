@@ -13,16 +13,20 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-$query = "SELECT    s.TRANSACTIONDATE,
-s.TRANSACTIONNUMBER,
-                    s3.TEMPLATECODE,
+$query = "SELECT 
+                    *
+                    from
+                    (SELECT s.TRANSACTIONDATE,
+					s.TRANSACTIONNUMBER,
+                    CASE 
+                    	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                    	ELSE s.TEMPLATECODE
+                    END  as tempalte,
+                    s3.LOGICALWAREHOUSECODE,
                     s.LOTCODE,
                     s.ORDERCODE,
-                    s.ORDERLINE,
-                    CASE 
-                    WHEN s.LOGICALWAREHOUSECODE = 'M101' THEN s3.TEMPLATECODE
-                    ELSE s.TEMPLATECODE
-                    END AS TEMPLATECODE,
+                    s.ORDERLINE, 
+                    s.TEMPLATECODE,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
                     s.DECOSUBCODE02,
@@ -59,7 +63,7 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
                 LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
                 LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE = 2
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
@@ -94,10 +98,12 @@ s.TRANSACTIONNUMBER,
                     s.ITEMTYPECODE = 'DYC'
                     AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
                     AND s.TEMPLATECODE IN ('201','203','303')
-                    AND s.LOGICALWAREHOUSECODE = '$warehouse'
+                    AND s.LOGICALWAREHOUSECODE $warehouse
                     AND s.DECOSUBCODE01 = '$code1' 
                     AND s.DECOSUBCODE02 = '$code2' 
-                    AND s.DECOSUBCODE03 = '$code3'";
+                    AND s.DECOSUBCODE03 = '$code3'
+                    )
+                    WHERE tempalte <> '303'";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);

@@ -94,8 +94,8 @@ if (file_exists($logoPath)) {
         <tr>
             <!-- Logo -->
            <td colspan="2" 
-                style="width: 20%; height: 60px; text-align: left; vertical-align: middle;">
-                <img src="http://10.0.5.23/laborat1/login_assets/images/ITTI_Logo.png" 
+                style="width: 20%; height: 60px; text-align: center; vertical-align: middle;">
+                <img src="http://10.0.5.24/laborat1/login_assets/images/ITTI_Logo_.png" 
                     alt="Logo" 
                     style="width:60px; height:60px; object-fit:contain;">
             </td>

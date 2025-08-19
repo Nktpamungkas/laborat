@@ -287,7 +287,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             } else {
                                 $where_warehouse = "in('$_POST[warehouse]')";
                             }                                                      
-
+                        $warehouse1 = $_POST['warehouse'];
                             $Balance_stock = db2_exec($conn1, "SELECT 
                                             *,
                                            CASE 
@@ -369,8 +369,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.ITEMTYPECODE ='DYC'
                                             AND b.LOGICALWAREHOUSECODE $where_warehouse
                                             AND b.DETAILTYPE = 1
---                                            AND b.DECOSUBCODE01 = 'E' 
---                                            AND b.DECOSUBCODE02 = '4' 
+                                        --    AND b.DECOSUBCODE01 = 'D' 
+                                        --    AND b.DECOSUBCODE02 = '4' 
 --                                            AND b.DECOSUBCODE03 = '004' 
                                             GROUP BY
                                             b.ITEMTYPECODE,
@@ -407,7 +407,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         if ($_POST['warehouse'] == 'M510 dan M101') {
                                             echo "<th>Sisa PO</th>";
                                         } elseif ($_POST['warehouse'] == 'M101') {
-                                            echo "<th>Buka PO</th>";
+                                            echo "<th>Sisa PO</th>";
                                         }
                                         ?>
                                         <?php if ($_POST['warehouse'] == 'M510'||$_POST['warehouse'] == 'M101'): ?>
@@ -897,9 +897,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date = new DateTime($tgl1);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
-                          
+                                    // echo $tahunBulan2;
+                                    // echo $tahunBulan;
 
-                                    if($tahunBulan == '2025-07') {
+                                    if($tahunBulan2 == '2025-06') {
                                         $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
                                         SUBCODE01,
                                         SUBCODE02,
@@ -933,7 +934,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  $where_warehouse
-                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') = '$tahunBulan2'
+                                                AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
                                         )
                                     GROUP BY tgl_tutup, KODE_OBAT");                                        
                                     }                                
@@ -984,17 +985,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $pakai_ = isset($row_qty_pakai['AKTUAL_QTY_KELUAR']) ? (float) $row_qty_pakai['AKTUAL_QTY_KELUAR'] : 0;
                                     $transfer_ = isset($row_stock_transfer['QTY_TRANSFER']) ? (float) $row_stock_transfer['QTY_TRANSFER'] : 0;
 
-                                    if ($warehouse == "M510") {
+                                    if ($warehouse1 == "M510") {
                                         $stock_balance_future = ($qty_balance_ - $pakai_belum_timbang_);
-                                    } elseif ($warehouse == "M101") {
-                                        $stock_balance_future = ($qty_balance_ + $buka_po_qty_) - $pakai_belum_timbang_;
-                                    }
+                                    } elseif ($warehouse1 == "M101") {
+                                        $stock_balance_future_ = ($qty_balance_ + $buka_po_qty_) - $pakai_belum_timbang_;
+                                    }                                    
 
-                                    $sisa_stock_balance_future = (substr(number_format($stock_balance_future, 2), -3) == '.00')
-                                        ? number_format($stock_balance_future, 0)
-                                        : number_format($stock_balance_future, 2);                              
-
-                                    $stock_balance_future = ($qty_balance_ + $buka_po_qty_) - $pakai_belum_timbang_;  
+                                    $sisa_stock_balance_future = (substr(number_format($stock_balance_future_, 2), -3) == '.00')
+                                        ? number_format($stock_balance_future_, 0)
+                                        : number_format($stock_balance_future_, 2);
 
                                     $total_out = ($pakai_ + $transfer_);
                                     $qty_total_out = (substr(number_format($total_out, 2), -3) == '.00')
@@ -1004,7 +1003,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $totalTY_ = $qty_balance_ + $buka_po_qty_;
                                     $status = ($totalTY_ < $savetystock_)
                                         ? 'SEGERA ORDER'
-                                        : (($totalTY_ >= $savetystock_ && $totalTY_ == $SAFETYSTOCK_CHECK)
+                                        : (($totalTY_ >= $savetystock_ && $totalTY_ < $SAFETYSTOCK_CHECK)
                                             ? 'HITUNG KEBUTUHAN ORDER'
                                             : '');
                                     $style = '';
@@ -1076,7 +1075,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                                 '</a>
                                                     </td>';
                                             } elseif ($_POST['warehouse'] == 'M101') {
-                                                echo '<td>' . $qty_stock_buka_PO . '</td>';
+                                                echo '<td>
+                                                        <a width="100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail3" 
+                                                            data-code1="' . $code1 . '"
+                                                            data-code2="' . $code2 . '" 
+                                                            data-code3="' . $code3 . '" 
+                                                            data-tgl_sebelumnya="' . $tgl_sebelumnya . '" 
+                                                            data-tgl2="' . $tgl2 . '"
+                                                            data-warehouse="' . $warehouse . '" 
+                                                            data-toggle="modal" data-target="#detailModal_sisaPo">'
+                                                . $qty_stock_buka_PO .
+                                                '</a>
+                                                    </td>';
                                             }
                                         ?>                                        
                                         <?php if ($_POST['warehouse'] == 'M510'||$_POST['warehouse'] == 'M101'): ?>
