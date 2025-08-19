@@ -430,7 +430,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <?php
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
-                                    if ($_POST['warehouse'] == 'M510 dan M101') {
                                         $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
                                             DECOSUBCODE01,
@@ -532,54 +531,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
-                                            SATUAN_TRANSFER");
-                                    } else {
-                                        $stock_transfer = db2_exec($conn1, "SELECT 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
-                                        SATUAN_TRANSFER
-                                        FROM 
-                                        (SELECT
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
-                                            END AS QTY_TRANSFER,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                ELSE s.USERPRIMARYUOMCODE
-                                            END AS SATUAN_TRANSFER
-                                        FROM
-                                            STOCKTRANSACTION s
-                                        WHERE
-                                            s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE IN ('201','203','303')
-                                            AND s.LOGICALWAREHOUSECODE  $where_warehouse
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
-                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
-                                            s.USERPRIMARYUOMCODE)
-                                        GROUP BY 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        SATUAN_TRANSFER");
-                                    }                                   
+                                            SATUAN_TRANSFER");                                   
                                     $row_stock_transfer = db2_fetch_assoc($stock_transfer);
 
                                     $qty_pakai = db2_exec($conn1, "SELECT 
