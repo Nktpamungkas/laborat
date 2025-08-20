@@ -263,11 +263,15 @@
             }
             $dataTransaksiFilter=array();
             $ctFilter=0;
+            $tmp_lot=array();
             foreach($dataTransaksi as $idt => $rdt){
                 if(in_array($rdt['lot'],$all_lotcode )){
-                    $ctFilter++;
-                    $dataTransaksiFilter[$ctFilter]['kode_obat']=$rdt['kode_obat'];
-                    $dataTransaksiFilter[$ctFilter]['lot']=$rdt['lot'];
+                    if(!in_array($rdt['lot'],$tmp_lot)){
+                        $tmp_lot[]=$rdt['lot'];
+                        $ctFilter++;
+                        $dataTransaksiFilter[$ctFilter]['kode_obat']=$rdt['kode_obat'];
+                        $dataTransaksiFilter[$ctFilter]['lot']=$rdt['lot'];
+                    }
                 }
             }
             if($ctFilter>0){
