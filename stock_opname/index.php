@@ -189,7 +189,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                             <tr class="va-top">
                                 <td id="label_qty">Qty Dus</td>
                                 <td>: &nbsp;</td>
-                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus'  /></td>
+                                <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus' autocomplete="off" /></td>
                             </tr>
                             <tr class="va-top">
                                 <td>Standar packaging</td>

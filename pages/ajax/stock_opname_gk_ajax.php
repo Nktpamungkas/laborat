@@ -229,6 +229,8 @@
   if(isset($_SESSION['opname'])&&$_SESSION['opname']=="gk"){
     $id = intval($_POST['id_dt']);
     if($_POST['check']=="check_transaksi_multiple"){
+        $tgl_tutup = $_POST['tgl_tutup'];
+        $warehouse = $_POST['warehouse'];
         $prepare=db2_prepare ($conn1,"SELECT
                 DECOSUBCODE01,
                 DECOSUBCODE02,
@@ -248,10 +250,37 @@
             $dataTransaksi[$ct]['lot']=trim($rowdb["LOTCODE"]," ");
         }
         if($ct>0){
-            $response->setSuccess(true);
-            $response->addMessage("Berhasil Menampilkan Data Transaksi");
-            $response->addMessage($ct);
-            $response->setData($dataTransaksi);
+            $get_lotcode = mysqli_query($con,"SELECT DISTINCT LOTCODE AS LOTCODE
+                FROM tblopname_11 o
+                WHERE 
+                    tgl_tutup = '$tgl_tutup'
+                    AND LOGICALWAREHOUSECODE ='$warehouse'
+                    AND KODE_OBAT = '".$dataTransaksi[1]['kode_obat']."'
+                    AND not KODE_OBAT='E-1-000' ") ;
+            $all_lotcode=array();
+            while ($rowLotCode = mysqli_fetch_assoc($get_lotcode)) {
+                $all_lotcode[]=trim($rowLotCode['LOTCODE']," ");
+            }
+            $dataTransaksiFilter=array();
+            $ctFilter=0;
+            foreach($dataTransaksi as $idt => $rdt){
+                if(in_array($rdt['lot'],$all_lotcode )){
+                    $ctFilter++;
+                    $dataTransaksiFilter[$ctFilter]['kode_obat']=$rdt['kode_obat'];
+                    $dataTransaksiFilter[$ctFilter]['lot']=$rdt['lot'];
+                }
+            }
+            if($ctFilter>0){
+                $response->setSuccess(true);
+                $response->addMessage("Berhasil Menampilkan Data Transaksi");
+                $response->addMessage($ctFilter);
+                $response->setData($dataTransaksiFilter);
+            }else{
+                $response->setSuccess(false);
+                $response->addMessage("Data Transaksi Tidak Ditemukan");
+                $response->addMessage($all_lotcode);
+                $response->setData($dataTransaksi);
+            }
         }else{
             $response->setSuccess(false);
             $response->addMessage("Data Transaksi Tidak Ditemukan");

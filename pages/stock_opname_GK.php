@@ -351,7 +351,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tr class="va-top">
                                     <td  class="padTopBot5" id="label_qty">Qty Dus</td>
                                     <td>: &nbsp;</td>
-                                    <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus'  /></td>
+                                    <td id="opname_qty_dus_text"><input type="text" class='form-control qty_dus' inputmode="numeric"  id='opname_qty_dus' autocomplete="off" /></td>
                                 </tr>
                                 <tr class="va-top">
                                     <td class="padTopBot5">Standar packaging</td>
