@@ -25,21 +25,6 @@ $act  = isset($_GET['act']) ? $_GET['act'] : '';
 $id   = isset($_GET['id']) ? $_GET['id'] : '';
 $page = strtolower($page);
 
-// Hapus access.lock jika bukan di halaman Preliminary-Schedule
-if ($page !== 'preliminary-schedule') {
-    $lock_file = __DIR__ . '/pages/access.lock';
-
-    if (file_exists($lock_file)) {
-        $data = json_decode(file_get_contents($lock_file), true);
-        $session_user = $_SESSION['userLAB'] ?? '';
-        $lock_user = $data['username'] ?? '';
-
-        if ($lock_user === $session_user) {
-            unlink($lock_file);
-            unset($_SESSION['is_locked_owner']);
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>

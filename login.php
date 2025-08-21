@@ -41,23 +41,6 @@ if ($_POST) { //login user
 		echo "<script>alert('Login Gagal!! $username');window.location='index.php';</script>";
 	}
 } elseif ($_GET['act'] == "logout") { //logout user
-
-    $lock_path = realpath(__DIR__ . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR . 'access.lock');
-
-	if ($lock_path && file_exists($lock_path)) {
-		$data = json_decode(file_get_contents($lock_path), true);
-		
-		$lock_ip = $data['ip'] ?? '';
-		$lock_user = $data['username'] ?? '';
-		
-		$current_ip = $_SERVER['REMOTE_ADDR'] ?? '';
-		$current_user = $_SESSION['userLAB'] ?? '';
-
-		if ($lock_user === $current_user) {
-			unlink($lock_path);
-		}
-	}
-	
 	mysqli_query($con,"INSERT into tbl_log SET
 	`what` = 'Logout',
 	`what_do` = 'Logout from laborat',
