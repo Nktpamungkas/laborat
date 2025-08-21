@@ -993,13 +993,3 @@ session_start();
         }
     });
 </script>
-
-<script>
-    window.addEventListener('beforeunload', function() {
-        navigator.sendBeacon('pages/ajax/unlock_prelimSch.php');
-    });
-
-    setInterval(function() {
-        fetch('pages/ajax/refresh_lock_prelimSch.php');
-    }, 20000); // 20 detik
-</script>
