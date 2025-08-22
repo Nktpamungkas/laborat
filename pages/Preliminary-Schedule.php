@@ -29,7 +29,7 @@
     // --- Aturan akses diperbaiki:
     // - Jika belum ada data  → BOLEH
     // - Jika status terakhir = 'keluar dari halaman' → BOLEH
-    // - Jika pemegang = diri sendiri (apa pun statusnya) → BOLEH
+    // - Jika pemegang = diri sendiri (apa pun statusnya kecuali "keluar dari halaman") → BOLEH
     // - Selain itu → BLOKIR
     $bolehAkses = false;
     if (!$lastCekLog) {
