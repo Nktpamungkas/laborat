@@ -1,6 +1,81 @@
 <?php
-session_start();
+    session_start();
+    
 ?>
+<script>
+    // --- fungsi kirim status ke server
+    function updateStatus(status) {
+        console.log("Status:", status);
+        fetch("pages/ajax/update_status_preliminary.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "status=" + encodeURIComponent(status)
+        });
+    }
+
+    // === Status yang dipakai (Bahasa Indonesia) ===
+    // "aktif di tab ini"      : user aktif & tab terlihat
+    // "tidak di tab ini"      : tab tidak terlihat (pindah tab / jendela tersembunyi)
+    // "jendela diminimalkan"  : heuristic saat jendela diduga minimize (opsional, tidak selalu terdeteksi)
+    // "diam (idle)"           : tidak ada aktivitas > 5 menit
+    // "keluar dari halaman"   : halaman ditutup/refresh/navigasi
+
+    // --- deteksi tab terlihat / tidak terlihat
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+        updateStatus("tidak di tab ini"); // tab disembunyikan (bisa karena pindah tab / minimize)
+        } else {
+        updateStatus("aktif di tab ini"); // tab kembali terlihat
+        }
+    });
+
+    // --- deteksi aktivitas user di tab (reset idle)
+    let activityTimeout;
+    function userIsActive() {
+        clearTimeout(activityTimeout);
+        // Saat ada aktivitas, tandai aktif (kalau tab terlihat, ini yang paling relevan)
+        updateStatus("aktif di tab ini");
+
+        // Kalau 5 menit tidak ada aktivitas, ubah jadi idle
+        activityTimeout = setTimeout(() => {
+        updateStatus("diam (idle)");
+        }, 5 * 60 * 1000);
+    }
+
+    ["mousemove", "keydown", "click", "input", "wheel", "touchstart"].forEach(evt => {
+        document.addEventListener(evt, userIsActive, { passive: true });
+    });
+
+    // --- Heuristic: coba deteksi minimize (opsional, tidak selalu valid lintas browser)
+    // Beberapa browser akan memicu resize dengan ukuran sangat kecil/0 saat minimize.
+    // Jika tidak terjadi di browser-mu, event ini hanya akan terabaikan.
+    let minimizeTimer = null;
+    window.addEventListener("resize", () => {
+        clearTimeout(minimizeTimer);
+        minimizeTimer = setTimeout(() => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        // Ambang batas kecil → anggap diminimalkan
+        if (document.hidden && (w === 0 || h === 0 || (w < 10 && h < 10))) {
+            updateStatus("jendela diminimalkan");
+        }
+        }, 150);
+    });
+
+    // --- saat halaman ditutup/refresh/navigasi
+    window.addEventListener("pagehide", () => {
+        // Kirim status terakhir "keluar dari halaman"
+        // (Tidak pakai fetch async lama; biarkan server terima sinyal ini sebisa mungkin)
+        navigator.sendBeacon?.(
+        "pages/ajax/update_status_preliminary.php",
+        new Blob(["status=" + encodeURIComponent("keluar dari halaman")], { type: "application/x-www-form-urlencoded" })
+        ) || updateStatus("keluar dari halaman");
+    });
+
+    // --- jalankan pertama kali saat halaman dibuka
+    window.onload = userIsActive;
+</script>
+
 
 <style>
     input::placeholder {
@@ -46,6 +121,30 @@ session_start();
         z-index: 4;
     }
 </style>
+<?php
+    include "../koneksi.php";
+
+    // --- Ambil data terakhir dari log_preliminary
+    $sqlCekLog  = "SELECT * FROM log_preliminary ORDER BY id DESC LIMIT 1";
+    $resultCekLog = mysqli_query($con, $sqlCekLog);
+    if (!$resultCekLog) {
+        die("Query gagal: " . mysqli_error($conn));
+    }
+    $lastCekLog = mysqli_fetch_assoc($resultCekLog);
+    // Cek status terakhir
+    $lastStatusCekLog = strtolower(trim($lastCekLog['status']));
+    if ($lastStatusCekLog == 'keluar dari halaman') {
+        http_response_code(423); // Locked
+        $pemegang = htmlspecialchars($lastCekLog['username'] ?? '-', ENT_QUOTES);
+        $status   = htmlspecialchars($lastCekLog['status'] ?? '-', ENT_QUOTES);
+        $waktu    = htmlspecialchars($lastCekLog['creationdatetime'] ?? '-', ENT_QUOTES);
+
+        echo "<center><h3>Halaman sedang dipakai oleh <b>{$pemegang}</b>.</h3>
+            <p>Status terakhir: <b>{$status}</b> pada {$waktu}.</p>
+            <p>Silakan coba lagi nanti.</p></center>";
+        exit;
+    }
+?>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
         <div class="box-header with-border">
