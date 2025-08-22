@@ -1,15 +1,78 @@
+<?php session_start(); ?>
 <?php
-    session_start();
-    
+    include "../koneksi.php"; // pastikan $con adalah koneksi mysqli
+
+    // Ambil identitas user sekarang (sesuaikan sumbernya)
+    $meUser = $_SESSION['userLAB'] ?? ($_SESSION['userLAB'] ?? 'unknown');
+    $meIp   = $_SERVER['REMOTE_ADDR'] ?? '';
+
+    // --- Ambil data terakhir dari log_preliminary
+    $sqlCekLog   = "SELECT * FROM log_preliminary ORDER BY id DESC LIMIT 1";
+    $resultCekLog = mysqli_query($con, $sqlCekLog);
+    if (!$resultCekLog) {
+        die("Query gagal: " . mysqli_error($con));
+    }
+    $lastCekLog = mysqli_fetch_assoc($resultCekLog);
+
+    // Normalisasi status terakhir (jika ada)
+    $lastStatusCekLog = strtolower(trim($lastCekLog['status'] ?? ''));
+
+    // Apakah baris terakhir itu milik kita sendiri?
+    $isSelf = false;
+    if ($lastCekLog) {
+        $lastUser = strtolower(trim($lastCekLog['username'] ?? ''));
+        $thisUser = strtolower(trim($meUser));
+        $isSameIp = empty($lastCekLog['ip_comp']) ? true : ($lastCekLog['ip_comp'] === $meIp); // opsional
+        $isSelf   = ($lastUser === $thisUser) && $isSameIp;
+    }
+
+    // --- Aturan akses diperbaiki:
+    // - Jika belum ada data  → BOLEH
+    // - Jika status terakhir = 'keluar dari halaman' → BOLEH
+    // - Jika pemegang = diri sendiri (apa pun statusnya) → BOLEH
+    // - Selain itu → BLOKIR
+    $bolehAkses = false;
+    if (!$lastCekLog) {
+        $bolehAkses = true;
+    } elseif ($lastStatusCekLog === 'keluar dari halaman') {
+        $bolehAkses = true;
+    } elseif ($isSelf) {
+        $bolehAkses = true;
+    }
+
+    if (!$bolehAkses) {
+        http_response_code(423); // Locked
+        $pemegang = htmlspecialchars($lastCekLog['username'] ?? '-', ENT_QUOTES);
+        $status   = htmlspecialchars($lastCekLog['status'] ?? '-', ENT_QUOTES);
+        $waktu    = htmlspecialchars($lastCekLog['creationdatetime'] ?? '-', ENT_QUOTES);
+
+        echo "<center>
+                <h3>Halaman sedang dipakai oleh <b>{$pemegang}</b>.</h3>
+                <p>Status terakhir: <b>{$status}</b> pada {$waktu}.</p>
+                <p>Silakan coba lagi nanti.</p>
+                <h5>
+                    Jika anda yakin tidak ada yg akses halaman ini selain anda, silakan
+                    <a href='index1.php?p=clear_lock&confirm=yes' style='color:red;'>klik di sini</a>
+                    untuk menghapus Active Lock.
+                </h5>
+            </center>";
+        exit;
+    }
+
+    // --- Jika lolos sampai sini, boleh lanjut render halaman
 ?>
 <script>
     // --- fungsi kirim status ke server
+    let lastSent = 0;
     function updateStatus(status) {
         console.log("Status:", status);
+        const now = Date.now();
+        if (status === "aktif di tab ini" && now - lastSent < 1200) return;
+        lastSent = now;
         fetch("pages/ajax/update_status_preliminary.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "status=" + encodeURIComponent(status)
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "status=" + encodeURIComponent(status)
         });
     }
 
@@ -62,15 +125,45 @@
         }, 150);
     });
 
+    // --- EXIT HANDLING (lebih andal)
+    let exitSent = false;
+    function sendExit() {
+        if (exitSent) return;
+        exitSent = true;
+
+        // siapkan payload
+        const body = "status=" + encodeURIComponent("keluar dari halaman");
+
+        // 1) coba kirim via sendBeacon (paling stabil saat unload)
+        let ok = false;
+        try {
+            if (navigator.sendBeacon) {
+                const blob = new Blob([body], { type: "application/x-www-form-urlencoded" });
+                ok = navigator.sendBeacon("pages/ajax/update_status_preliminary.php", blob);
+            }
+        } catch (_) {}
+
+        // 2) fallback: fetch keepalive
+        if (!ok) {
+            try {
+                fetch("pages/ajax/update_status_preliminary.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body,
+                    keepalive: true
+                });
+            } catch (_) {}
+        }
+    }
+
     // --- saat halaman ditutup/refresh/navigasi
-    window.addEventListener("pagehide", () => {
-        // Kirim status terakhir "keluar dari halaman"
-        // (Tidak pakai fetch async lama; biarkan server terima sinyal ini sebisa mungkin)
-        navigator.sendBeacon?.(
-        "pages/ajax/update_status_preliminary.php",
-        new Blob(["status=" + encodeURIComponent("keluar dari halaman")], { type: "application/x-www-form-urlencoded" })
-        ) || updateStatus("keluar dari halaman");
+    // gunakan tiga jalur untuk keandalan lintas browser
+    window.addEventListener("pagehide", (e) => {
+        // jika masuk bfcache (persisted), jangan anggap benar-benar keluar
+        if (!e.persisted) sendExit();
     });
+    window.addEventListener("beforeunload", sendExit);
+    window.addEventListener("unload", sendExit);
 
     // --- jalankan pertama kali saat halaman dibuka
     window.onload = userIsActive;
@@ -121,30 +214,6 @@
         z-index: 4;
     }
 </style>
-<?php
-    include "../koneksi.php";
-
-    // --- Ambil data terakhir dari log_preliminary
-    $sqlCekLog  = "SELECT * FROM log_preliminary ORDER BY id DESC LIMIT 1";
-    $resultCekLog = mysqli_query($con, $sqlCekLog);
-    if (!$resultCekLog) {
-        die("Query gagal: " . mysqli_error($conn));
-    }
-    $lastCekLog = mysqli_fetch_assoc($resultCekLog);
-    // Cek status terakhir
-    $lastStatusCekLog = strtolower(trim($lastCekLog['status']));
-    if ($lastStatusCekLog == 'keluar dari halaman') {
-        http_response_code(423); // Locked
-        $pemegang = htmlspecialchars($lastCekLog['username'] ?? '-', ENT_QUOTES);
-        $status   = htmlspecialchars($lastCekLog['status'] ?? '-', ENT_QUOTES);
-        $waktu    = htmlspecialchars($lastCekLog['creationdatetime'] ?? '-', ENT_QUOTES);
-
-        echo "<center><h3>Halaman sedang dipakai oleh <b>{$pemegang}</b>.</h3>
-            <p>Status terakhir: <b>{$status}</b> pada {$waktu}.</p>
-            <p>Silakan coba lagi nanti.</p></center>";
-        exit;
-    }
-?>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
         <div class="box-header with-border">
