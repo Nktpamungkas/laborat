@@ -31,6 +31,10 @@ if ($id && $no_machine !== '') {
         if ($countOld === 0 && $countGroup > 0) {
             mysqli_query($con, "UPDATE tbl_preliminary_schedule SET is_old_data = 0 WHERE id = $id");
         }
+
+        if ($countOld > 0 && $countGroup > 0) {
+            mysqli_query($con, "UPDATE tbl_preliminary_schedule SET is_old_data = 0 WHERE id = $id");
+        }
     }
 
     $update = mysqli_query($con, "UPDATE tbl_preliminary_schedule SET no_machine = '$no_machine' WHERE id = $id");
