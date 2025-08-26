@@ -266,6 +266,8 @@
         </div>
     </form>
 </div>
+
+<?php if ($showButton): ?>
 <div class="row">
     <!-- Wrapper untuk tabel utama (Schedule) -->
     <div id="scheduleWrapper" class="col-xs-12">
@@ -334,6 +336,7 @@
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <?php
     include "../koneksi.php";
