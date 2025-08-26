@@ -162,6 +162,7 @@ if (isset($_POST['save'])) {
 						<option value="D">D</option>
 						<option value="E">E</option>
 						<option value="F">F</option>
+						<option value="N">non group</option>
 					</select>
 				</div>
 			</div>
