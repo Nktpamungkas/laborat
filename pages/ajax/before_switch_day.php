@@ -188,14 +188,26 @@ include '../../koneksi.php';
                                         echo $F_D; ?></td>
                     <td align="center"><?= $F_LD + $F_MU + $F_P + $F_D; ?></td>
                 </tr>
+                <tr>
+                    <td align="center">Non Group</td>
+                    <td align="center"><?php $N_LD = get_val('L/D', 'N') + get_val('LD NOW', 'N');
+                                        echo $N_LD; ?></td>
+                    <td align="center"><?php $N_MU = get_val('Matching Ulang', 'N') + get_val('Matching Ulang NOW', 'N');
+                                        echo $N_MU; ?></td>
+                    <td align="center"><?php $N_P = get_val('Perbaikan', 'N') + get_val('Perbaikan NOW', 'N');
+                                        echo $N_P; ?></td>
+                    <td align="center"><?php $N_D = get_val('Matching Development', 'N') + get_val('Matching Development NOW', 'N');
+                                        echo $N_D; ?></td>
+                    <td align="center"><?= $N_LD + $N_MU + $N_P + $N_D; ?></td>
+                </tr>
             </tbody>
             <tfoot>
                 <tr>
                     <th>SUB TOTAL</th>
-                    <th align="center"><?= $T_LD = $A_LD + $B_LD + $C_LD + $D_LD + $E_LD + $F_LD; ?></th>
-                    <th align="center"><?= $T_MU = $A_MU + $B_MU + $C_MU + $D_MU + $E_MU + $F_MU; ?></th>
-                    <th align="center"><?= $T_P  = $A_P + $B_P + $C_P + $D_P + $E_P + $F_P; ?></th>
-                    <th align="center"><?= $T_D  = $A_D + $B_D + $C_D + $D_D + $E_D + $F_D; ?></th>
+                    <th align="center"><?= $T_LD = $A_LD + $B_LD + $C_LD + $D_LD + $E_LD + $F_LD + $N_LD; ?></th>
+                    <th align="center"><?= $T_MU = $A_MU + $B_MU + $C_MU + $D_MU + $E_MU + $F_MU + $N_MU; ?></th>
+                    <th align="center"><?= $T_P  = $A_P + $B_P + $C_P + $D_P + $E_P + $F_P + $N_P; ?></th>
+                    <th align="center"><?= $T_D  = $A_D + $B_D + $C_D + $D_D + $E_D + $F_D + $N_D; ?></th>
                     <th align="center"><?= $T_LD + $T_MU + $T_P + $T_D; ?></th>
                 </tr>
             </tfoot>
