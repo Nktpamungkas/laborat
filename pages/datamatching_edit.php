@@ -38,6 +38,15 @@ while ($r = mysqli_fetch_array($modal)) {
                 <option value="F" <?php if ($r['grp'] == "F") {
                                     echo "SELECTED";
                                   } ?>>F</option>
+                <option value="SA" <?php if ($r['grp'] == "SA") {
+                                    echo "SELECTED";
+                                  } ?>>SA</option>
+                <option value="SB" <?php if ($r['grp'] == "SB") {
+                                    echo "SELECTED";
+                                  } ?>>SB</option>
+                <option value="SC" <?php if ($r['grp'] == "SC") {
+                                    echo "SELECTED";
+                                  } ?>>SC</option>
               </select>
               <span class="help-block with-errors"></span>
             </div>
