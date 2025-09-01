@@ -378,6 +378,51 @@ function grpF($jenis_matching)
  
     return $sql['count'];
 }
+function SA($jenis_matching)
+{
+    include "../../koneksi.php";
+	$tomrw = date('Y-m-d', strtotime("+1 days"));
+	$tody = date('Y-m-d');
+    $sql = mysqli_fetch_array(
+        mysqli_query($con,"SELECT count(a.id) as `count`
+        FROM tbl_status_matching a
+        JOIN tbl_matching b ON a.idm = b.no_resep
+        where a.status in ('buka', 'mulai', 'hold', 'revisi', 'tunggu') and a.grp = 'SA' and b.jenis_matching = '$jenis_matching'
+		")
+    );
+ 
+    return $sql['count'];
+}
+function SB($jenis_matching)
+{
+    include "../../koneksi.php";
+	$tomrw = date('Y-m-d', strtotime("+1 days"));
+	$tody = date('Y-m-d');
+    $sql = mysqli_fetch_array(
+        mysqli_query($con,"SELECT count(a.id) as `count`
+        FROM tbl_status_matching a
+        JOIN tbl_matching b ON a.idm = b.no_resep
+        where a.status in ('buka', 'mulai', 'hold', 'revisi', 'tunggu') and a.grp = 'SB' and b.jenis_matching = '$jenis_matching'
+		")
+    );
+ 
+    return $sql['count'];
+}
+function SC($jenis_matching)
+{
+    include "../../koneksi.php";
+	$tomrw = date('Y-m-d', strtotime("+1 days"));
+	$tody = date('Y-m-d');
+    $sql = mysqli_fetch_array(
+        mysqli_query($con,"SELECT count(a.id) as `count`
+        FROM tbl_status_matching a
+        JOIN tbl_matching b ON a.idm = b.no_resep
+        where a.status in ('buka', 'mulai', 'hold', 'revisi', 'tunggu') and a.grp = 'SC' and b.jenis_matching = '$jenis_matching'
+		")
+    );
+ 
+    return $sql['count'];
+}
 ?>
 <div class="col-md-6">
     <div class="box">
@@ -499,12 +544,51 @@ function grpF($jenis_matching)
                                             echo  $gf; ?></td>
                 </tr>
                 <tr>
+                    <td>SHIFT A</td>
+                    <td><?php $SA_LD = SA('L/D') + SA('LD NOW') ;
+                        echo $SA_LD ?></td>
+                    <td><?php $SA_MU = SA('Matching Ulang') + SA('Matching Ulang NOW');
+                        echo $SA_MU ?></td>
+                    <td><?php $SA_P = SA('Perbaikan') + SA('Perbaikan NOW');
+                        echo $SA_P ?></td>
+                    <td><?php $SA_MD = SA('Matching Development');
+                        echo $SA_MD ?></td>
+                    <td class="bg-purple"><?php $SA = $SA_LD +  $SA_MU + $SA_P + $SA_MD;
+                                            echo  $SA; ?></td>
+                </tr>
+                <tr>
+                    <td>SHIFT B</td>
+                    <td><?php $SB_LD = SB('L/D') + SB('LD NOW') ;
+                        echo $SB_LD ?></td>
+                    <td><?php $SB_MU = SB('Matching Ulang') + SB('Matching Ulang NOW');
+                        echo $SB_MU ?></td>
+                    <td><?php $SB_P = SB('Perbaikan') + SB('Perbaikan NOW');
+                        echo $SB_P ?></td>
+                    <td><?php $SB_MD = SB('Matching Development');
+                        echo $SB_MD ?></td>
+                    <td class="bg-purple"><?php $SB = $SB_LD +  $SB_MU + $SB_P + $SB_MD;
+                                            echo  $SB; ?></td>
+                </tr>
+                <tr>
+                    <td>SHIFT C</td>
+                    <td><?php $SC_LD = SC('L/D') + SC('LD NOW') ;
+                        echo $SC_LD ?></td>
+                    <td><?php $SC_MU = SC('Matching Ulang') + SC('Matching Ulang NOW');
+                        echo $SC_MU ?></td>
+                    <td><?php $SC_P = SC('Perbaikan') + SC('Perbaikan NOW');
+                        echo $SC_P ?></td>
+                    <td><?php $SC_MD = SC('Matching Development');
+                        echo $SC_MD ?></td>
+                    <td class="bg-purple"><?php $SC = $SC_LD +  $SC_MU + $SC_P + $SC_MD;
+                                            echo  $SC; ?></td>
+                </tr>
+                <tr>
                     <td>SUB TOTAL</td>
-                    <td class="text-center"><?php echo $gaLD + $gbLD + $gcLD + $gdLD + $geLD + $gfLD; ?></td>
-                    <td class="text-center"><?php echo $gaMU + $gbMU + $gcMU + $gdMU + $geMU + $gfMU; ?></td>
-                    <td class="text-center"><?php echo $gaP + $gbP + $gcP + $gdP + $geP + $gfP; ?></td>
-                    <td class="text-center"><?php echo $gaMD + $gbMD + $gcMD + $gdMD + $geMD + $gfMD; ?></td>
-                    <td class="bg-purple"><?php echo $ga + $gb + $gc + $gd + $ge + $gf; ?> *</td>
+                    <td class="text-center"><?php echo $gaLD + $gbLD + $gcLD + $gdLD + $geLD + $gfLD + $SA_LD + $SB_LD + $SC_LD; ?></td>
+                    <td class="text-center"><?php echo $gaMU + $gbMU + $gcMU + $gdMU + $geMU + $gfMU + $SA_MU + $SB_MU + $SC_MU; ?></td>
+                    <td class="text-center"><?php echo $gaP + $gbP + $gcP + $gdP + $geP + $gfP + $SA_P + $SB_P + $SC_P; ?></td>
+                    <td class="text-center"><?php echo $gaMD + $gbMD + $gcMD + $gdMD + $geMD + $gfMD + $SA_MD + $SB_MD + $SC_MD; ?></td>
+                    <td class="bg-purple"><?php echo $ga + $gb + $gc + $gd + $ge + $gf + $SA + $SB + $SC; ?> *</td>
                 </tr>
             </tbody>
         </table>
