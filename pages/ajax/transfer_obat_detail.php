@@ -103,7 +103,8 @@ $query = "SELECT
                     AND s.DECOSUBCODE02 = '$code2' 
                     AND s.DECOSUBCODE03 = '$code3'
                     )
-                    WHERE tempalte <> '303'";
+                    -- WHERE tempalte <> '303'
+                    ";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);
