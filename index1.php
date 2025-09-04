@@ -262,6 +262,28 @@ $page = strtolower($page);
                                         <a href="?p=Cycle-Time-Log"><i class="fa fa-pause-circle text-orange" aria-hidden="true"></i>
                                             <span>Cycle Time Log</span></a>
                                     </li>
+
+                                    <li class="divider"></li>
+
+                                    <li class="<?php if ($_GET['p'] == "Summary-Preliminary") echo "active"; ?>">
+                                        <a href="?p=Summary-Preliminary"><i class="fa fa-table text-green" aria-hidden="true"></i>
+                                            <span>Summary Preliminary</span></a>
+                                    </li>
+
+                                    <li class="<?php if ($_GET['p'] == "Summary-Dispensing") echo "active"; ?>">
+                                        <a href="?p=Summary-Dispensing"><i class="fa fa-table text-green" aria-hidden="true"></i>
+                                            <span>Summary Dispensing</span></a>
+                                    </li>
+
+                                    <li class="<?php if ($_GET['p'] == "Summary-Dyeing") echo "active"; ?>">
+                                        <a href="?p=Summary-Dyeing"><i class="fa fa-table text-green" aria-hidden="true"></i>
+                                            <span>Summary Dyeing</span></a>
+                                    </li>
+
+                                    <li class="<?php if ($_GET['p'] == "Summary-Darkroom") echo "active"; ?>">
+                                        <a href="?p=Summary-Darkroom"><i class="fa fa-table text-green" aria-hidden="true"></i>
+                                            <span>Summary Darkroom</span></a>
+                                    </li>
                                 </ul>
                             <?php endif; ?>
                             
