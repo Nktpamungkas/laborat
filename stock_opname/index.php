@@ -571,7 +571,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                         $("#opname_pakingan_standar").val($("#opname_bk").val());
                         ps=$("#opname_bk").val();
                     }
-                    total_stock=(Number(val)*1000)-ps;
+                    total_stock=Number(val)-ps;
                 }else if($("#formula").val()=="volume"){
                     $("#opname_pakingan_standar").val($("#opname_bj").val());
                     ps=$("#opname_bj").val();

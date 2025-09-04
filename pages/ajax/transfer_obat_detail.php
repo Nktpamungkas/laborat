@@ -13,6 +13,33 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
+
+//UNTUK WAREHOUSE 2
+if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
+    $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
+} else {
+    $warehouses = [$warehouse]; // fallback
+}
+
+if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
+    $warehouse_ = "";
+} else {
+    $warehouse_ = "NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND";
+}
+
+//UNTUK TEMPLATE
+if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
+    $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
+} else {
+    $warehouses = [$warehouse]; // fallback
+}
+
+if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
+    $wheretemplate = "";
+} else {
+    $wheretemplate = "WHERE TEMPLATE <> '303'";
+}
+
 $query = "SELECT 
                     *
                     from
@@ -21,7 +48,7 @@ $query = "SELECT
                     CASE 
                     	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                     	ELSE s.TEMPLATECODE
-                    END  as tempalte,
+                    END  as TEMPLATE,
                     s3.LOGICALWAREHOUSECODE,
                     s.LOTCODE,
                     s.ORDERCODE,
@@ -46,7 +73,7 @@ $query = "SELECT
                         ELSE s.USERPRIMARYUOMCODE
                     END AS SATUAN_TRANSFER,
                     CASE 
-	                    WHEN  s.TEMPLATECODE = '201' THEN s2.LONGDESCRIPTION 
+	                    WHEN  s.TEMPLATECODE = '201' THEN i.PROVISIONALCODE
                     	WHEN  s.TEMPLATECODE = '203' AND i2.DESTINATIONWAREHOUSECODE = 'M512' THEN 'Transfer ke Finishing'
                     	WHEN  s.TEMPLATECODE = '203' AND i2.DESTINATIONWAREHOUSECODE = 'P101' THEN 'Transfer ke YND'
                     	WHEN  s.TEMPLATECODE = '303' AND s3.LOGICALWAREHOUSECODE = 'M512' THEN 'Transfer ke Finishing'
@@ -63,7 +90,7 @@ $query = "SELECT
                 LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
                 LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
                 LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND $warehouse_ s3.DETAILTYPE = 2
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
@@ -103,8 +130,10 @@ $query = "SELECT
                     AND s.DECOSUBCODE02 = '$code2' 
                     AND s.DECOSUBCODE03 = '$code3'
                     )
-                    WHERE tempalte <> '303'";
-// echo "<pre>$query</pre>";
+                    $wheretemplate
+                    ";
+// echo "<pre> $wheretemplate</pre>";
+// echo "<pre> $warehouse</pre>";
 
 $stmt = db2_exec($conn1, $query);
 // if (!$stmt) {

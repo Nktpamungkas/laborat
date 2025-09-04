@@ -19,11 +19,31 @@ $warehouse = $_POST['warehouse'];
 //     $templateCodes = "'QCT','304','OPN','204'";
 // }
 
-// if ($warehouse == 'M101') {
-//     $detailtype = '2';
-// } else {
-//     $detailtype = '1';
-// }
+//UNTUK WAREHOUSE 2
+if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
+    $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
+} else {
+    $warehouses = [$warehouse]; // fallback
+}
+
+if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
+    $warehouse_ = "";
+} else {
+    $warehouse_ = "NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND";
+}
+
+//UNTUK TEMPLATE
+if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
+    $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
+} else {
+    $warehouses = [$warehouse]; // fallback
+}
+
+if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
+    $wheretemplate = "";
+} else {
+    $wheretemplate = "WHERE TEMPLATE <> '304'";
+}
 
 $query = "SELECT 
                                         *
@@ -33,7 +53,7 @@ s.TRANSACTIONNUMBER,
                     CASE 
                     	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                     	ELSE s.TEMPLATECODE
-                    END  as tempalte,
+                    END  AS TEMPLATE,
                     s3.LOGICALWAREHOUSECODE AS terimadarigd,
                     s.TEMPLATECODE,
                     s.ITEMTYPECODE,
@@ -73,7 +93,7 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
                 LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
                 LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
+                LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND  $warehouse_  s3.DETAILTYPE = 1
                 LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
                 WHERE
@@ -86,8 +106,9 @@ s.TRANSACTIONNUMBER,
                    AND s.DECOSUBCODE02 = '$code2' 
                    AND s.DECOSUBCODE03 = '$code3'
                     )
-                    WHERE tempalte <> '304'";
-// echo "<pre>$query</pre>";
+                   $wheretemplate
+                    ";
+
 
 $stmt = db2_exec($conn1, $query);
 if (!$stmt) {
