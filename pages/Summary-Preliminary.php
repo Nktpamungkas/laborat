@@ -99,57 +99,273 @@
   /* ===== editor overlay: date & time ===== */
   function overlayEditorFactory(inputType, minW){
     return function(cell, onRendered, success, cancel){
+      // --- wrapper floating ---
       var rect = cell.getElement().getBoundingClientRect();
       var wrap = document.createElement('div');
-      wrap.style.position = 'fixed';
-      wrap.style.left = rect.left + 'px';
-      wrap.style.top  = (rect.bottom + 2) + 'px';
-      wrap.style.zIndex = '99999';
+      wrap.style.position   = 'fixed';
+      wrap.style.left       = rect.left + 'px';
+      wrap.style.top        = (rect.bottom + 2) + 'px';
+      wrap.style.zIndex     = '99999';
       wrap.style.background = '#fff';
-      wrap.style.border = '1px solid #aaa';
-      wrap.style.boxShadow = '0 2px 8px rgba(0,0,0,.15)';
-      wrap.style.padding = '4px';
-      var input = document.createElement('input');
-      input.type = inputType;
-      if (inputType === 'time') input.step = '60';
-      input.value = cell.getValue() || '';
-      input.style.width = '100%';
+      wrap.style.border     = '1px solid #aaa';
+      wrap.style.boxShadow  = '0 2px 8px rgba(0,0,0,.15)';
+      wrap.style.padding    = '6px';
+
+      // --- input element ---
+      var isTime = (inputType === 'time');
+      var input  = document.createElement('input');
+
+      if (isTime){
+        // text + masker HH:MM agar konsisten untuk ketik manual
+        input.type = 'text';
+        input.placeholder = 'HH:MM';
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('maxlength', '5');
+        input.style.fontFamily = 'monospace';
+      } else {
+        input.type = inputType;
+        if (inputType === 'time') input.step = '60';
+      }
+
+      // NO DEFAULT VALUE (jika sel kosong, biarkan kosong)
+      var cellVal = cell.getValue();
+      if (cellVal) {
+        input.value = String(cellVal);
+      } else {
+        input.value = "";
+        input.removeAttribute("value");
+      }
+
+      input.style.width    = '100%';
       input.style.minWidth = (minW || 180) + 'px';
+
       wrap.appendChild(input);
+
+      // === PANEL JAM/MENIT (khusus time) ===
+      var panel = null;
+      if (isTime){
+        panel = document.createElement('div');
+        panel.style.display = 'grid';
+        panel.style.gridTemplateColumns = 'auto auto';
+        panel.style.gap = '6px';
+        panel.style.marginTop = '6px';
+
+        // Jam
+        var hoursBox = document.createElement('div');
+        hoursBox.style.maxHeight = '144px';
+        hoursBox.style.overflowY = 'auto';
+        hoursBox.style.border = '1px solid #ddd';
+        hoursBox.style.padding = '4px';
+        hoursBox.style.width = '92px';
+        var hTitle = document.createElement('div');
+        hTitle.textContent = 'Jam';
+        hTitle.style.fontSize = '12px';
+        hTitle.style.textAlign = 'center';
+        hTitle.style.marginBottom = '4px';
+        hoursBox.appendChild(hTitle);
+
+        for (let h=0; h<24; h++){
+          let btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = (h<10? '0'+h : ''+h);
+          btn.style.display = 'inline-block';
+          btn.style.width = '40px';
+          btn.style.margin = '2px';
+          btn.style.fontSize = '12px';
+          btn.addEventListener('click', function(ev){
+            ev.preventDefault();
+            ev.stopPropagation(); // penting: jangan kena handler klik luar
+            let cur = normalizeHHMMSoft(input.value);
+            let mm  = (cur.m == null ? '' : String(cur.m));
+            input.value = pad2(h) + ':' + mm;  // ganti jam saja
+            // tetap terbuka, fokus ke input
+            try { input.focus(); setCaretToEnd(input); } catch(e){}
+          });
+          hoursBox.appendChild(btn);
+        }
+
+        // Menit
+        var minsBox = document.createElement('div');
+        minsBox.style.maxHeight = '144px';
+        minsBox.style.overflowY = 'auto';
+        minsBox.style.border = '1px solid #ddd';
+        minsBox.style.padding = '4px';
+        minsBox.style.width = '188px';
+        var mTitle = document.createElement('div');
+        mTitle.textContent = 'Menit';
+        mTitle.style.fontSize = '12px';
+        mTitle.style.textAlign = 'center';
+        mTitle.style.marginBottom = '4px';
+        minsBox.appendChild(mTitle);
+
+        for (let m=0; m<60; m++){
+          let btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = pad2(m);
+          btn.style.display = 'inline-block';
+          btn.style.width = '40px';
+          btn.style.margin = '2px';
+          btn.style.fontSize = '12px';
+          btn.addEventListener('click', function(ev){
+            ev.preventDefault();
+            ev.stopPropagation(); // penting: jangan kena handler klik luar
+            let cur = normalizeHHMMSoft(input.value);
+            let h = (cur.h == null ? 0 : cur.h); // default 00 kalau belum ada jam
+            input.value = pad2(h) + ':' + pad2(m);
+            // commit & close
+            allowClose = true;
+            cleanup(true);
+          });
+          minsBox.appendChild(btn);
+        }
+
+        panel.appendChild(hoursBox);
+        panel.appendChild(minsBox);
+        wrap.appendChild(panel);
+      }
+
       document.body.appendChild(wrap);
-      // === tambahan supaya klik area kosong juga munculin picker ===
-      function openPicker(){
-        if (typeof input.showPicker === "function") {
-          try { input.showPicker(); } catch(e){}
+
+      // ---------- Utils ----------
+      function pad2(n){ n = parseInt(n,10); if (isNaN(n)) n = 0; return (n<10? '0'+n : ''+n); }
+      function clamp(x, lo, hi){ if (isNaN(x)) return x; return Math.max(lo, Math.min(hi, x)); }
+      function setCaretToEnd(el){ const v = el.value; try{ el.setSelectionRange(v.length, v.length); }catch(e){} }
+
+      // Normalisasi "lunak": boleh 1-2 digit jam, & 0-2 digit menit
+      function normalizeHHMMSoft(v){
+        v = (v || '').trim();
+        if (!v) return {h:null, m:null};
+        if (/^\d{1,2}:\d{0,2}$/.test(v)){
+          let [h,m] = v.split(':');
+          let H = (h===""? null : clamp(parseInt(h,10), 0, 23));
+          let M = (m===""? null : clamp(parseInt(m,10), 0, 59));
+          return {h: isNaN(H)? null:H, m: isNaN(M)? null:M};
+        }
+        // tanpa colon → pisahkan digit
+        let d = v.replace(/[^\d]/g,'').slice(0,4);
+        if (d.length <= 2){
+          let H = (d===""? null : clamp(parseInt(d,10),0,23));
+          return {h:isNaN(H)?null:H, m:null};
+        }else{
+          let H = clamp(parseInt(d.slice(0,2),10),0,23);
+          let M = clamp(parseInt(d.slice(2),10),0,59);
+          return {h:isNaN(H)?null:H, m:isNaN(M)?null:M};
         }
       }
-      input.addEventListener("click", openPicker);
-      wrap.addEventListener("click", function(e){
-        if (e.target === wrap) { 
-          input.focus();
-          openPicker();
-        }
-      });
-      // ===============================================
-      setTimeout(function(){ try{ input.focus(); if(input.select) input.select(); }catch(e){} }, 0);
+
+      // Finalisasi untuk commit (paksa HH:MM, menit kosong jadi 00)
+      function finalizeHHMM(v){
+        v = (v || '').trim();
+        if (!v) return ''; // izinkan kosong
+        const m = v.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+        if (!m) return null;
+        let h  = clamp(parseInt(m[1],10), 0, 23);
+        let mm = (m[2] !== undefined) ? clamp(parseInt(m[2],10), 0, 59) : 0;
+        if (isNaN(h) || isNaN(mm)) return null;
+        return pad2(h) + ':' + pad2(mm);
+      }
+
+      // ---------- Focus behavior ----------
+      setTimeout(function(){
+        try{
+          if (!isTime){
+            input.focus();
+            if (input.select) input.select();
+          }
+        }catch(e){}
+      }, 0);
+
+      // ---------- Lifecycle & cleanup ----------
+      let allowClose = !isTime; // time: tahan auto-close
       function cleanup(commit){
-        try{ if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); }catch(e){}
+        try { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); } catch(e){}
         window.removeEventListener('scroll', onScroll, true);
         document.removeEventListener('mousedown', onDown, true);
         document.removeEventListener('keydown', onKey, true);
-        commit ? success(input.value) : cancel();
+
+        if (commit){
+          if (isTime){
+            const fin = finalizeHHMM(input.value);
+            if (fin === null){ cancel(); return; }
+            success(fin);
+          } else {
+            success(input.value);
+          }
+        } else {
+          cancel();
+        }
       }
-      function onScroll(){ cleanup(true); }
-      function onDown(e){ if (!wrap.contains(e.target)) cleanup(true); }
-      function onKey(e){ if (e.key === 'Escape'){ e.preventDefault(); cleanup(false); } if (e.key === 'Enter'){ e.preventDefault(); cleanup(true); } }
-      input.addEventListener('change', function(){ cleanup(true); });
-      input.addEventListener('blur',   function(){ cleanup(true); });
+
+      function onScroll(){ if (allowClose) cleanup(true); }
+      function onDown(e){
+        if (!wrap.contains(e.target)){
+          if (allowClose) cleanup(true);
+        }
+      }
+      function onKey(e){
+        if (e.key === 'Enter'){
+          e.preventDefault();
+          allowClose = true;
+          if (isTime){
+            const fin = finalizeHHMM(input.value);
+            if (fin !== null){ input.value = fin; cleanup(true); }
+          } else {
+            cleanup(true);
+          }
+        } else if (e.key === 'Escape'){
+          e.preventDefault();
+          allowClose = true;
+          cleanup(false);
+        }
+      }
+
       window.addEventListener('scroll', onScroll, true);
       document.addEventListener('mousedown', onDown, true);
       document.addEventListener('keydown', onKey, true);
+
+      // ---------- Non-time fallbacks ----------
+      if (!isTime){
+        input.addEventListener('blur',   function(){ cleanup(true); });
+        input.addEventListener('change', function(){ cleanup(true); });
+      }
+
+      // ---------- Time: masker & input manual ----------
+      if (isTime){
+        // Batasi karakter: digit, colon, & kontrol umum
+        input.addEventListener('keydown', function(ev){
+          const k = ev.key;
+          const allow = (
+            (k >= '0' && k <= '9') ||
+            k === ':' ||
+            k === 'Backspace' || k === 'Delete' ||
+            k === 'ArrowLeft' || k === 'ArrowRight' || k === 'Home' || k === 'End' ||
+            k === 'Tab' || k === 'Enter' || k === 'Escape'
+          );
+          if (!allow) ev.preventDefault();
+        });
+
+        // Masker: 1-2 digit jam; 3 digit → HH:M (tanpa pad); 4 digit → HH:MM (clamp)
+        input.addEventListener('input', function(){
+          let raw = input.value.replace(/[^\d]/g,'').slice(0,4);
+          if (raw.length === 0){ input.value=''; return; }
+          if (raw.length <= 2){ input.value = raw; return; }
+
+          let hh = clamp(parseInt(raw.slice(0,2),10), 0, 23);
+          let mRaw = raw.slice(2); // '5' atau '59'
+          if (mRaw.length === 1){
+            input.value = pad2(hh) + ':' + mRaw;     // <-- tidak auto-pad "05"
+          }else{
+            let mm = clamp(parseInt(mRaw,10), 0, 59);
+            input.value = pad2(hh) + ':' + pad2(mm);
+          }
+        });
+      }
+
+      // Node dummy untuk Tabulator
       var dummy = document.createElement('span'); dummy.style.display = 'none'; return dummy;
     };
   }
+
   var dateEditor = overlayEditorFactory('date', 110);
   var timeEditor = overlayEditorFactory('time', 110);
 

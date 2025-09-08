@@ -39,14 +39,15 @@ $page = strtolower($page);
                             echo "Home";
                         } ?></title>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == 'Recap-Colorist' or $_GET['p'] == "Status-Matching-Ganti-Kain") { ?>
 
     <?php } else { ?>
         <link href="bower_components/xeditable/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="plugins/jquery-ui-1.12.1/jquery-ui.min.css">
+        <script src="plugins/jquery-ui-1.12.1/jquery-ui.min.js"></script>
     <?php } ?>
     <link href="bower_components/toastr/toastr.css" rel="stylesheet">
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
@@ -775,7 +776,7 @@ $page = strtolower($page);
 
 <?php } else { ?>
     <script type="text/javascript" src="bower_components/xeditable/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
-    <script src="plugins/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+    <!-- <script src="plugins/jquery-ui-1.12.1/jquery-ui.min.js"></script> -->
 <?php } ?>
 <script src="bower_components/jquery_validation/jquery.validate.min.js"></script>
 <!-- ////////////////////////////////////////////////////////////////////////////////////////////// -->
