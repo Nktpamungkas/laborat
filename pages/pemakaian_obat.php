@@ -333,9 +333,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 WHEN a.VALUESTRING = 2 THEN 'NON BV'
                                                 ELSE ''
                                             END CERTIFICATION,
-                                            a2.VALUESTRING AS NOTELAB,
-                                            a3.DATATYPE AS DATATYPE,
-                                            a3.VALUEBOOLEAN
+                                            a2.VALUESTRING AS NOTELAB
                                             FROM 
                                             BALANCE b 
                                             LEFT JOIN ITEMWAREHOUSELINK d ON 
@@ -369,9 +367,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.ITEMTYPECODE ='DYC'
                                             AND b.LOGICALWAREHOUSECODE $where_warehouse
                                             AND b.DETAILTYPE = 1
-                                        --    AND b.DECOSUBCODE01 = 'D' 
-                                        --    AND b.DECOSUBCODE02 = '4' 
---                                            AND b.DECOSUBCODE03 = '004' 
+                                           AND b.DECOSUBCODE01 = 'E' 
+                                           AND b.DECOSUBCODE02 = '3' 
+                                           AND b.DECOSUBCODE03 = '043' 
                                             GROUP BY
                                             b.ITEMTYPECODE,
                                             b.DECOSUBCODE01,
@@ -380,12 +378,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.BASEPRIMARYUNITCODE,
                                             p.LONGDESCRIPTION,
                                             d.SAFETYSTOCK,
-                                            a3.VALUEBOOLEAN,
-                                            a3.DATATYPE,
                                             a.VALUESTRING,
                                             a2.VALUESTRING,
                                             p.BASEPRIMARYUNITCODE)
-                                            WHERE DATATYPE = 2 AND VALUEBOOLEAN = 1
                                             ORDER BY KODE_OBAT ASC");
                                         
                                 ?>
@@ -428,6 +423,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 <tbody>
                                 <?php
+
+                                if (($_POST['warehouse'] === 'M101' || $_POST['warehouse'] === 'M510')) {
+                                    $wheretemplate = "";
+                                    $wheretemplate2 = "";
+                                } else {                                    
+                                    $wheretemplate = "WHERE template <> '303'";
+                                    $wheretemplate2 = "WHERE template <> '304'";
+                                }
+
+
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
                                         $stock_transfer = db2_exec($conn1, "  SELECT 
@@ -525,7 +530,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                             )  AS sub
-                                            WHERE TEMPLATE != '303'
+                                            $wheretemplate
                                             GROUP BY 
                                             ITEMTYPECODE,
                                             DECOSUBCODE01,
@@ -654,7 +659,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                                             )  AS sub
-                                                            WHERE TEMPLATE != '304'
+                                                            $wheretemplate2
                                                             GROUP BY 
                                                             ITEMTYPECODE,
                                                             DECOSUBCODE01,
