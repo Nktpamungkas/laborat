@@ -110,9 +110,44 @@
       wrap.style.border     = '1px solid #aaa';
       wrap.style.boxShadow  = '0 2px 8px rgba(0,0,0,.15)';
       wrap.style.padding    = '6px';
+      wrap.style.boxSizing  = 'border-box';
+      wrap.style.overflow   = 'visible'; // biar tombol bulat bisa keluar sedikit
+
+      // --- status editor ---
+      var isTime = (inputType === 'time');
+
+      // === Tombol close bulat (hanya untuk editor waktu) ===
+      // if (isTime){
+      //   var btnClose = document.createElement('button');
+      //   btnClose.type = 'button';
+      //   btnClose.innerHTML = '&times;'; // tanda ×
+      //   btnClose.setAttribute('aria-label','Close');
+      //   btnClose.style.position     = 'absolute';
+      //   btnClose.style.top          = '-10px';  // nempel pojok
+      //   btnClose.style.right        = '-10px';
+      //   btnClose.style.width        = '22px';
+      //   btnClose.style.height       = '22px';
+      //   btnClose.style.borderRadius = '50%';
+      //   btnClose.style.border       = '1px solid #bdbdbd';
+      //   btnClose.style.background   = '#ffffff';
+      //   btnClose.style.color        = '#444';
+      //   btnClose.style.fontSize     = '14px';
+      //   btnClose.style.lineHeight   = '20px';
+      //   btnClose.style.textAlign    = 'center';
+      //   btnClose.style.padding      = '0';
+      //   btnClose.style.cursor       = 'pointer';
+      //   btnClose.style.boxShadow    = '0 1px 3px rgba(0,0,0,.25)';
+      //   btnClose.style.zIndex       = '1';
+      //   btnClose.addEventListener('mouseenter', function(){ btnClose.style.background = '#f3f3f3'; btnClose.style.color = '#000'; });
+      //   btnClose.addEventListener('mouseleave', function(){ btnClose.style.background = '#fff'; btnClose.style.color = '#444'; });
+      //   btnClose.addEventListener('click', function(e){
+      //     e.preventDefault(); e.stopPropagation();
+      //     cleanup(false); // batal (tidak commit)
+      //   });
+      //   wrap.appendChild(btnClose);
+      // }
 
       // --- input element ---
-      var isTime = (inputType === 'time');
       var input  = document.createElement('input');
 
       if (isTime){
@@ -127,7 +162,7 @@
         if (inputType === 'time') input.step = '60';
       }
 
-      // NO DEFAULT VALUE (jika sel kosong, biarkan kosong)
+      // NO DEFAULT VALUE (kalau sel kosong, biarkan kosong)
       var cellVal = cell.getValue();
       if (cellVal) {
         input.value = String(cellVal);
@@ -174,11 +209,10 @@
           btn.style.fontSize = '12px';
           btn.addEventListener('click', function(ev){
             ev.preventDefault();
-            ev.stopPropagation(); // penting: jangan kena handler klik luar
+            ev.stopPropagation(); // jangan dianggap klik luar
             let cur = normalizeHHMMSoft(input.value);
             let mm  = (cur.m == null ? '' : String(cur.m));
             input.value = pad2(h) + ':' + mm;  // ganti jam saja
-            // tetap terbuka, fokus ke input
             try { input.focus(); setCaretToEnd(input); } catch(e){}
           });
           hoursBox.appendChild(btn);
@@ -208,13 +242,11 @@
           btn.style.fontSize = '12px';
           btn.addEventListener('click', function(ev){
             ev.preventDefault();
-            ev.stopPropagation(); // penting: jangan kena handler klik luar
+            ev.stopPropagation(); // jangan dianggap klik luar
             let cur = normalizeHHMMSoft(input.value);
             let h = (cur.h == null ? 0 : cur.h); // default 00 kalau belum ada jam
             input.value = pad2(h) + ':' + pad2(m);
-            // commit & close
-            allowClose = true;
-            cleanup(true);
+            cleanup(true); // commit & close
           });
           minsBox.appendChild(btn);
         }
@@ -276,7 +308,7 @@
       }, 0);
 
       // ---------- Lifecycle & cleanup ----------
-      let allowClose = !isTime; // time: tahan auto-close
+      let allowClose = !isTime; // non-time: boleh auto-close
       function cleanup(commit){
         try { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); } catch(e){}
         window.removeEventListener('scroll', onScroll, true);
@@ -286,7 +318,7 @@
         if (commit){
           if (isTime){
             const fin = finalizeHHMM(input.value);
-            if (fin === null){ cancel(); return; }
+            if (fin === null){ cancel(); return; } // invalid → batal
             success(fin);
           } else {
             success(input.value);
@@ -296,16 +328,25 @@
         }
       }
 
-      function onScroll(){ if (allowClose) cleanup(true); }
+      // --- Close rules ---
+      function onScroll(){
+        // jangan auto-close saat scroll untuk editor waktu
+        if (!isTime && allowClose) cleanup(true);
+      }
       function onDown(e){
         if (!wrap.contains(e.target)){
-          if (allowClose) cleanup(true);
+          if (isTime){
+            // KLIK LUAR → commit & close untuk editor waktu
+            cleanup(true);
+            // (kalau mau batal, ganti ke cleanup(false))
+          } else if (allowClose){
+            cleanup(true); // perilaku lama untuk tipe lain
+          }
         }
       }
       function onKey(e){
         if (e.key === 'Enter'){
           e.preventDefault();
-          allowClose = true;
           if (isTime){
             const fin = finalizeHHMM(input.value);
             if (fin !== null){ input.value = fin; cleanup(true); }
@@ -314,8 +355,7 @@
           }
         } else if (e.key === 'Escape'){
           e.preventDefault();
-          allowClose = true;
-          cleanup(false);
+          cleanup(false); // batal
         }
       }
 
