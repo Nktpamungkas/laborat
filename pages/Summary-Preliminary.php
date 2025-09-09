@@ -508,7 +508,7 @@
     buildNamePairCols('visual','RESEP VISUAL'),
     buildNamePairCols('color','RESEP DATA COLOR'),
 
-    { title:'RESEP<br>ASAL', field:'resep_asal', titleFormatter:"html", titleDownload:'Jenis Kain',
+    { title:'RESEP<br>ASAL', field:'resep_asal', titleFormatter:"html", titleDownload:'RESEP ASAL',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(110), hozAlign:'center', headerHozAlign:'center' },
 
@@ -516,23 +516,23 @@
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(80), hozAlign:'center', headerHozAlign:'center' },
 
-    { title:'T.<br>REPORT',  field:'t_report', titleFormatter:"html", titleDownload:'Jenis Kain',
+    { title:'T.<br>REPORT',  field:'t_report', titleFormatter:"html", titleDownload:'T. REPORT',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(110), hozAlign:'center', headerHozAlign:'center' },
 
-    { title:'T.<br>ULANG',   field:'t_ulang', titleDownload:'Jenis Kain',
+    { title:'T.<br>ULANG',   field:'t_ulang', titleDownload:'T. ULANG',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(100), hozAlign:'center', headerHozAlign:'center' },
 
-    { title:'T.<br>GABUNG',  field:'t_gabung', titleFormatter:"html", titleDownload:'Jenis Kain',
+    { title:'T.<br>GABUNG',  field:'t_gabung', titleFormatter:"html", titleDownload:'T. GABUNG',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(110), hozAlign:'center', headerHozAlign:'center' },
 
-    { title:'WARNA<br>CTRL', field:'warna_ctrl', titleFormatter:"html", titleDownload:'Jenis Kain',
+    { title:'WARNA<br>CTRL', field:'warna_ctrl', titleFormatter:"html", titleDownload:'WARNA CTRL',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(120), hozAlign:'center', headerHozAlign:'center' },
 
-    { title:'RESEP<br>LAIN', field:'resep_lain', titleFormatter:"html", titleDownload:'Jenis Kain',
+    { title:'RESEP<br>LAIN', field:'resep_lain', titleFormatter:"html", titleDownload:'RESEP LAIN',
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(110), hozAlign:'center', headerHozAlign:'center' },
 
