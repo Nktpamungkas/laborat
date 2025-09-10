@@ -1,7 +1,6 @@
 <?php
 ini_set("error_reporting", 1);
 session_start();
-include 'home_function.php';
 ?>
 
 <?php
@@ -310,10 +309,14 @@ $page  = strtolower($page);
     <!-- chart -->
     <div class="row">
       <div class="col-md-8" id="container">
-
+        <div class="col-md-12 box text-center">
+          <p class="loader text-center">&nbsp;</p>
+        </div>
       </div>
       <div class="col-md-4" id="pie_chart">
-
+        <div class="col-md-12 box text-center">
+          <p class="loader text-center">&nbsp;</p>
+        </div>
       </div>
     </div>
     <!-- 2 Table Matching X GROUP X JENIS -->
@@ -326,11 +329,15 @@ $page  = strtolower($page);
 
     <!-- table 23 -->
     <div class="row" style="margin-top: 10px;" id="before_switch_day">
-
+      <div class="col-md-12 box text-center">
+        <p class="loader text-center">&nbsp;</p>
+      </div>
     </div>
 
     <div class="row" style="margin-top: 10px;" id="rekap_bon_order">
-
+      <div class="col-md-12 box text-center">
+        <p class="loader text-center">&nbsp;</p>
+      </div>
     </div>
 
     <!-- MATCHER -->
@@ -352,168 +359,193 @@ $page  = strtolower($page);
 </body>
 <script>
   $(document).ready(function() {
-    Highcharts.chart('container', {
-      chart: {
-        type: 'column'
-      },
-      title: {
-        text: 'Persentase Status Akhir Resep -12 Hari'
-      },
-      subtitle: {
-        text: 'Source: DB 10.0.0.10/laborat'
-      },
-      xAxis: {
-        categories: <?php echo $data_hari ?>,
-        crosshair: true
-      },
-      yAxis: {
-        min: 0,
+    async function loadAllAjax() {
+      await $.ajax({
+        url: "pages/ajax/home_chart_data.php",
+        type: "GET",
+        data: {
+          days: 12
+        }, // samakan dengan kebutuhan
+        dataType: 'json',
+        cache: false,
+        success: renderCharts,
+        error: function(xhr, status, err) {
+          console.error('Gagal load chart data:', status, err, xhr.responseText);
+        }
+      });
+
+      await $.ajax({
+        url: "pages/ajax/tbl_sum_matching.php",
+        type: "GET",
+        success: function(ajaxData) {
+          setTimeout(function() {
+            $("#table_matching").html(ajaxData);
+          }, 1000);
+        }
+      });
+
+      await $.ajax({
+        url: "pages/ajax/before_switch_day.php",
+        type: "GET",
+        success: function(ajaxData) {
+          $("#before_switch_day").html(ajaxData);
+        }
+      });
+
+      await $.ajax({
+        url: "pages/ajax/rekap_bon_order.php",
+        type: "GET",
+        success: function(ajaxData) {
+          $("#rekap_bon_order").html(ajaxData);
+        }
+      });
+
+      // TABLE MATCHER
+      // await $.ajax({
+      //   url: "pages/ajax/tbl_sum_matcher.php",
+      //   type: "GET",
+      //   success: function(ajaxData) {
+      //     $("#table_matcher").html(ajaxData);
+      //   }
+      // });
+
+      // TABLE COLORIST
+      // await $.ajax({
+      //   url: "pages/ajax/tbl_sum_colorist.php",
+      //   type: "GET",
+      //   success: function(ajaxData) {
+      //     $("#table_colorist").html(ajaxData);
+      //   }
+      // });
+    }
+    
+    function renderCharts(d) {
+      // Column chart (timeline)
+      Highcharts.chart('container', {
+        chart: {
+          type: 'column'
+        },
         title: {
-          text: 'Data Resep'
-        }
-      },
-      tooltip: {
-        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-          '<td style="padding:0"><b>{point.y:.1f} Rcode</b></td></tr>',
-        footerFormat: '</table>',
-        shared: true,
-        useHTML: true
-      },
-      plotOptions: {
-        column: {
-          pointPadding: 0.2,
-          borderWidth: 0
-        }
-      },
-      series: [{
-        name: 'Approved',
-        data: <?php echo $_selesai ?>
-      }, {
-        name: 'Rejected',
-        data: <?php echo $_closed ?>,
-        color: '#d9534f '
-      }, {
-        name: 'Arsip',
-        data: <?php echo $_arsip ?>,
-        color: 'Orange'
-      }]
-    });
-
-    // pie
-    // Radialize the colors
-    Highcharts.setOptions({
-      colors: Highcharts.map(Highcharts.getOptions().colors, function(color) {
-        return {
-          radialGradient: {
-            cx: 0.5,
-            cy: 0.3,
-            r: 0.7
-          },
-          stops: [
-            [0, color],
-            [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
-          ]
-        };
-      })
-    });
-
-    // Build the pie chart
-    Highcharts.chart('pie_chart', {
-      chart: {
-        plotBackgroundColor: null,
-        plotBorderWidth: null,
-        plotShadow: false,
-        type: 'pie'
-      },
-      title: {
-        text: 'Persentase Status Resep Laborat'
-      },
-      tooltip: {
-        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-      },
-      accessibility: {
-        point: {
-          valueSuffix: '%'
-        }
-      },
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: {
-            enabled: true,
-            format: '<b>{point.name}</b>: {point.y:.1f} .',
-            connectorColor: 'silver'
+          text: 'Persentase Status Akhir Resep -12 Hari'
+        },
+        subtitle: {
+          text: 'Source: DB 10.0.0.10/laborat'
+        },
+        xAxis: {
+          categories: d.xCategories,
+          crosshair: true
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Data Resep'
           }
-        }
-      },
-      series: [{
-        name: 'Resep',
-        data: [{
-            name: 'Aktif',
-            y: <?php echo $row_selesai; ?>
+        },
+        tooltip: {
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} Rcode</b></td></tr>',
+          footerFormat: '</table>',
+          shared: true,
+          useHTML: true
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+            name: 'Approved',
+            data: d.series.selesai
           },
           {
             name: 'Rejected',
-            y: <?php echo $row_tutup; ?>,
-            color: 'red',
+            data: d.series.closed,
+            color: '#d9534f'
           },
           {
             name: 'Arsip',
-            y: <?php echo $row_arsip; ?>,
-            // color: 'orange',
+            data: d.series.arsip,
+            color: 'Orange'
           }
         ]
-      }]
-    });
+      });
 
-    $.ajax({
-      url: "pages/ajax/tbl_sum_matching.php",
-      type: "GET",
-      success: function(ajaxData) {
-        setTimeout(function() {
-          $("#table_matching").html(ajaxData);
-        }, 1000);
-      }
-    });
+      // Pie color radialize (tetap sama seperti kode lama)
+      Highcharts.setOptions({
+        colors: Highcharts.map(Highcharts.getOptions().colors, function(color) {
+          return {
+            radialGradient: {
+              cx: 0.5,
+              cy: 0.3,
+              r: 0.7
+            },
+            stops: [
+              [0, color],
+              [1, Highcharts.color(color).brighten(-0.3).get('rgb')]
+            ]
+          };
+        })
+      });
 
-    $.ajax({
-      url: "pages/ajax/tbl_sum_matcher.php",
-      type: "GET",
-      success: function(ajaxData) {
-        $("#table_matcher").html(ajaxData);
-      }
-    });
+      // Pie chart (pakai data dari AJAX)
+      Highcharts.chart('pie_chart', {
+        chart: {
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
+          type: 'pie'
+        },
+        title: {
+          text: 'Persentase Status Resep Laborat'
+        },
+        tooltip: {
+          pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        accessibility: {
+          point: {
+            valueSuffix: '%'
+          }
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+              enabled: true,
+              format: '<b>{point.name}</b>: {point.y:.1f} .',
+              connectorColor: 'silver'
+            }
+          }
+        },
+        series: [{
+          name: 'Resep',
+          data: [{
+              name: 'Aktif',
+              y: d.pie.aktif
+            },
+            {
+              name: 'Rejected',
+              y: d.pie.rejected,
+              color: 'red'
+            },
+            {
+              name: 'Arsip',
+              y: d.pie.arsip
+            }
+          ]
+        }]
+      });
+    }
 
-    $.ajax({
-      url: "pages/ajax/before_switch_day.php",
-      type: "GET",
-      success: function(ajaxData) {
-        $("#before_switch_day").html(ajaxData);
-      }
-    });
-
-    $.ajax({
-      url: "pages/ajax/rekap_bon_order.php",
-      type: "GET",
-      success: function(ajaxData) {
-        $("#rekap_bon_order").html(ajaxData);
-      }
-    });
-
-    $.ajax({
-      url: "pages/ajax/tbl_sum_colorist.php",
-      type: "GET",
-      success: function(ajaxData) {
-        $("#table_colorist").html(ajaxData);
-      }
-    });
+    setTimeout(function() {
+      loadAllAjax();
+    }, 2000); // 2 Seconds after all contents loaded
 
     setTimeout(function() {
       window.location.reload(1);
     }, 600000);
-
   })
 </script>
 
