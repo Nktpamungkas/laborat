@@ -163,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         echo $_POST['tgl'];
                                     } ?>"
                                     required>
-                                <!-- <input name="time" type="text" class="form-control" id="time"
+                                <input name="time" type="text" class="form-control" id="time"
                                     placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
                                     title=" e.g 14:25" onkeyup="
                                                         var time = this.value;
@@ -174,7 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         }" value="<?php if (isset($_POST['submit'])) {
                                                             echo $_POST['time'];
                                                         } ?>" size="5" maxlength="5"
-                                    required> -->
+                                    required>
                             </div>
                             <div class="col-sm-2" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" required
@@ -183,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         echo $_POST['tgl2'];
                                     } ?>"
                                     required>
-                                <!-- <input name="time2" type="text" class="form-control" id="time2"
+                                <input name="time2" type="text" class="form-control" id="time2"
                                     placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
                                     title=" e.g 14:25" onkeyup="
                                                         var time = this.value;
@@ -194,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         }" value="<?php if (isset($_POST['submit'])) {
                                                             echo $_POST['time2'];
                                                         } ?>" size="5" maxlength="5"
-                                    required> -->
+                                    required>
                             </div>
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
@@ -288,7 +288,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $where_warehouse = "in('$_POST[warehouse]')";
                             }                                                      
                         $warehouse1 = $_POST['warehouse'];
-                            $Balance_stock = db2_exec($conn1, "SELECT 
+
+                            if ($_POST['warehouse'] == 'M510 dan M101'||$_POST['warehouse'] == 'M510') {
+                                $Balance_stock = db2_exec($conn1, "SELECT 
                                             *,
                                            CASE 
                                             	WHEN STOCK_BALANCE < SAFETYSTOCK THEN 'SEGERA ORDER'
@@ -382,6 +384,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             a2.VALUESTRING,
                                             p.BASEPRIMARYUNITCODE)
                                             ORDER BY KODE_OBAT ASC");
+                            } else {
+                                $Balance_stock = db2_exec($conn1, " SELECT 
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        KODE_OBAT,
+                                        LONGDESCRIPTION
+                                    FROM 
+                                    (
+                                    SELECT           
+                                        s.DECOSUBCODE01,
+                                        s.DECOSUBCODE02,
+                                        s.DECOSUBCODE03,
+                                        TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,                                        
+                                        p.LONGDESCRIPTION,
+                                        s.TEMPLATECODE
+                                    FROM
+                                        STOCKTRANSACTION s
+                                    LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
+                                        AND p.SUBCODE01 = s.DECOSUBCODE01
+                                        AND p.SUBCODE02 = s.DECOSUBCODE02
+                                        AND p.SUBCODE03 = s.DECOSUBCODE03  
+                                WHERE  
+                                    s.ITEMTYPECODE = 'DYC'
+                                    AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                    AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
+                                    AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
+                                    AND  s.DECOSUBCODE01 = 'E' 
+                                    AND  s.DECOSUBCODE02 = '3'
+                                    AND  s.DECOSUBCODE03  = '043'
+                                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
+                                    )
+                                    GROUP BY 
+                                    DECOSUBCODE01,
+                                    DECOSUBCODE02,
+                                    DECOSUBCODE03,
+                                    KODE_OBAT,
+                                    LONGDESCRIPTION
+                                    ORDER BY KODE_OBAT ASC ");
+                            }
+
+                           
                                         
                                 ?>
                                 
@@ -435,6 +479,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
+
+                                    $Balance_stock_gd_pisah = db2_exec($conn1, "SELECT 
+                                            b.ITEMTYPECODE,
+                                            b.DECOSUBCODE01,
+                                            b.DECOSUBCODE02,
+                                            b.DECOSUBCODE03,
+                                            CASE 
+                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000
+                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000000
+                                                ELSE sum(b.BASEPRIMARYQUANTITYUNIT)
+                                            END  AS STOCK_BALANCE,
+                                            CASE 
+                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
+                                                ELSE b.BASEPRIMARYUNITCODE
+                                            END  AS BASEPRIMARYUNITCODE
+                                            FROM 
+                                            BALANCE b 
+                                            WHERE 
+                                            ITEMTYPECODE ='DYC'
+                                            AND LOGICALWAREHOUSECODE $where_warehouse
+                                            AND DETAILTYPE = 1
+                                            AND DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                            AND DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
+                                            AND DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
+                                            GROUP BY 
+                                            ITEMTYPECODE,
+                                            b.DECOSUBCODE01,
+                                            b.DECOSUBCODE02,
+                                            b.DECOSUBCODE03,
+                                            b.BASEPRIMARYUNITCODE");
+                                    $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah);
+
                                         $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
                                             DECOSUBCODE01,
@@ -567,7 +644,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 STOCKTRANSACTION s
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
-                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('120','098')
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
                                                 and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
@@ -592,6 +670,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $row_qty_pakai = db2_fetch_assoc($qty_pakai);
 
                                         $warehouse = $_POST['warehouse'] ?? '';
+                                        $tgl_input1 = $_POST['tgl2']; 
+                                        $tgl_filter_masuk = date('Y-m-d', strtotime($tgl_input1 . ' -1 months'));
 
                                         if ($_POST['warehouse'] == 'M510 dan M101') {
                                             $stock_masuk = db2_exec($conn1, " SELECT 
@@ -651,7 +731,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                            AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                         AND s.LOGICALWAREHOUSECODE $where_warehouse
                                                             and s.CREATIONUSER != 'MT_STI'
@@ -694,7 +774,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 STOCKTRANSACTION s
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
-                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                -- AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl_filter_masuk $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                 and s.CREATIONUSER != 'MT_STI'
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -843,6 +924,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $code = $row['KODE_OBAT'];
                                     $tgl1 = $_POST['tgl'];
                                     $tgl2 = $_POST['tgl2'];
+                                    $time = $_POST['time'];
+                                    $time2 = $_POST['time2'];
                                     $warehouse =  $where_warehouse;
                                     $code1 = $row['DECOSUBCODE01'];
                                     $code2 = $row['DECOSUBCODE02'];
@@ -854,8 +937,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date = new DateTime($tgl1);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
-                                    // echo $tahunBulan2;
-                                    // echo $tahunBulan;
+                                    // echo $time;
+                                    // echo $time2;
 
                                     if($tahunBulan2 == '2025-06') {
                                         $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
@@ -919,6 +1002,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($row['STOCK_BALANCE'], 0)
                                         : number_format($row['STOCK_BALANCE'], 2);
 
+                                    $qty_Balance_stock_gd_pisah = (substr(number_format($row_Balance_stock_gd_pisah['STOCK_BALANCE'], 2), -3) == '.00')
+                                        ? number_format($row_Balance_stock_gd_pisah['STOCK_BALANCE'], 0)
+                                        : number_format($row_Balance_stock_gd_pisah['STOCK_BALANCE'], 2);
+
                                     $qty_stock_minimum = (substr(number_format($row['SAFETYSTOCK'], 2), -3) == '.00')
                                         ? number_format($row['SAFETYSTOCK'], 0)
                                         : number_format($row['SAFETYSTOCK'], 2);
@@ -980,8 +1067,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             data-code1="<?= $code1 ?>" 
                                             data-code2="<?= $code2 ?>"                                                
                                             data-code3="<?= $code3 ?>" 
-                                            data-tgl1="<?= $tgl1 ?>" 
+                                            data-tgl1="<?= $tgl1 ?>"
+                                            data-tgl_filter_masuk="<?= $tgl_filter_masuk ?>" 
                                             data-tgl2="<?= $tgl2 ?>" 
+                                            data-time="<?= $time ?>" 
+                                            data-time2="<?= $time2 ?>" 
                                             data-warehouse="<?= $warehouse ?>"
                                                 data-toggle="modal" data-target="#detailModal_masuk">
                                                 <?= $qty_masuk ?>
@@ -994,6 +1084,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             data-code3="<?= $code3 ?>" 
                                             data-tgl1="<?= $tgl1 ?>"
                                             data-tgl2="<?= $tgl2 ?>" 
+                                            data-time="<?= $time ?>" 
+                                            data-time2="<?= $time2 ?>" 
                                             data-warehouse="<?= $warehouse ?>" 
                                             data-toggle="modal" data-target="#detailModal_pakai">
                                             <?= $qty_Keluar ?>
@@ -1015,7 +1107,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                          <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
                                         <td><?php echo $qty_total_out ?></td>
                                         <?php endif; ?>
-                                        <td><?php echo $qty_stock_balance ?></td>
+                                        <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
+                                            <td><?php echo $qty_stock_balance ?></td>
+                                        <?php else: ?>
+                                            <td><?php echo $qty_Balance_stock_gd_pisah; ?></td>
+                                        <?php endif; ?>
                                         <td><?php echo $qty_stock_minimum ?></td>
                                         <?php
                                             if ($_POST['warehouse'] == 'M510 dan M101') {
@@ -1047,7 +1143,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             }
                                         ?>                                        
                                         <?php if ($_POST['warehouse'] == 'M510'||$_POST['warehouse'] == 'M101'): ?>
-                                        <td><?php echo $qty_stock_pakai_belum_timbang ?></td>
+                                            <td>
+                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail4" 
+                                            data-code1="<?= $code1 ?>"
+                                                    data-code2="<?= $code2 ?>" 
+                                                    data-code3="<?= $code3 ?>" 
+                                                    data-tgl1="<?= $tgl1 ?>"
+                                                    data-tgl2="<?= $tgl2 ?>" 
+                                                    data-time="<?= $time ?>"
+                                                    data-time2="<?= $time2 ?>" 
+                                                    data-warehouse="<?= $warehouse ?>" 
+                                                    data-toggle="modal"
+                                                    data-target="#detailModal_qty_blm_timbang">
+                                                    <?= $qty_stock_pakai_belum_timbang ?>
+                                                </a>
+                                            </td>
                                         <td><?php echo $sisa_stock_balance_future ?></td>
                                         <?php endif; ?>
                                         <?php if ($_POST['warehouse'] == 'M510 dan M101'||$_POST['warehouse'] == 'M101'): ?>
@@ -1241,6 +1351,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
+<!-- Modal qty belumtimbang-->
+<div id="detailModal_qty_blm_timbang" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-custom">
+        <div class="modal-content">
+        
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Detail QTY Belum Timbang</h4>
+        </div>
+        
+        <div class="modal-body" id="modal-content_qty_blm_timbang">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="detailpakaibelumtimbang">
+                <p>Loading data...</p>
+                </table>
+            </div>            
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
+
 </html>
 <script>
   $(document).ready(function () {
@@ -1260,6 +1396,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         var code3 = $(this).data('code3');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
+        var tgl_filter_masuk = $(this).data('tgl_filter_masuk');
+        var time = $(this).data('time');
+        var time2 = $(this).data('time2');
         var warehouse = $(this).data('warehouse');
 
         $('#modal-content_pakai').html('<p>Loading data...</p>');
@@ -1267,7 +1406,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
         url: 'pages/ajax/Pemakaian_obat_detail.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2,tgl_filter_masuk:tgl_filter_masuk,time:time, time2:time2,  warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content_pakai').html(response);
@@ -1332,6 +1471,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         var code3 = $(this).data('code3');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
+        var tgl_filter_masuk = $(this).data('tgl_filter_masuk');
+        var time = $(this).data('time');
+        var time2 = $(this).data('time2');
         var warehouse = $(this).data('warehouse');
 
         $('#modal-content_masuk').html('<p>Loading data...</p>');
@@ -1339,7 +1481,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
         url: 'pages/ajax/Masuk_obat_detail.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2,tgl_filter_masuk: tgl_filter_masuk, time: time, time2: time2, warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content_masuk').html(response);
@@ -1361,6 +1503,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         });
     });
+    
 
 
 $(document).on('click', '.open-detail3', function() {
@@ -1404,6 +1547,47 @@ $(document).on('click', '.open-detail3', function() {
     });
 });
 
+$(document).on('click', '.open-detail4', function() {
+    var code1 = $(this).data('code1');
+    var code2 = $(this).data('code2');
+    var code3 = $(this).data('code3');
+    var tgl1 = $(this).data('tgl1');
+    var tgl2 = $(this).data('tgl2');
+    var time = $(this).data('time');
+    var time2 = $(this).data('time2');
+    var warehouse = $(this).data('warehouse');
 
+    console.log('Kirim data ke AJAX:', { code1, code2, code3, tgl1, tgl2, time, time2, warehouse });
+
+    $('#modal-content_qty_blm_timbang').html('<p>Loading data...</p>');
+
+    $.ajax({
+        url: 'pages/ajax/pakai_obat_belum_timbang_detail.php',
+        type: 'POST',
+        data: { code1, code2, code3, tgl1, tgl2, time, time2, warehouse },
+        success: function(response) {
+            console.log('Response dari server:', response);
+            $('#modal-content_qty_blm_timbang').html(response);
+
+            // Pastikan DataTable diinisialisasi setelah modal selesai terbuka
+            $('#detailModal_qty_blm_timbang').off('shown.bs.modal').on('shown.bs.modal', function () {
+                if ($.fn.DataTable.isDataTable('#detailpakaibelumtimbang')) {
+                    $('#detailpakaibelumtimbang').DataTable().destroy();
+                }
+                $('#detailpakaibelumtimbang').DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    order: [[0, 'asc']]
+                });
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response Text:', xhr.responseText);
+            $('#modal-content_qty_blm_timbang').html('<p class="text-danger">Gagal memuat data: ' + error + '</p>');
+        }
+    });
+});
 
 </script>

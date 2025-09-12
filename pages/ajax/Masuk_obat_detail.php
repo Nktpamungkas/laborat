@@ -7,6 +7,9 @@ $code2 = $_POST['code2'];
 $code3 = $_POST['code3'];
 $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
+$tgl_filter_masuk = $_POST['tgl_filter_masuk'];
+$time = $_POST['time'];
+$time2 = $_POST['time2'];
 $warehouse = $_POST['warehouse'];
 
 // echo "<pre>";
@@ -98,7 +101,8 @@ s.TRANSACTIONNUMBER,
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    -- AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl_filter_masuk $time:00' AND '$tgl2 $time2:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                    AND s.LOGICALWAREHOUSECODE $warehouse
                     and s.CREATIONUSER != 'MT_STI'

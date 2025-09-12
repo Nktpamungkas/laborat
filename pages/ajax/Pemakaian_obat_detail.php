@@ -7,6 +7,8 @@ $code2 = $_POST['code2'];
 $code3 = $_POST['code3'];
 $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
+$time = $_POST['time'];
+$time2 = $_POST['time2'];
 $warehouse = $_POST['warehouse'];
 
 // echo "<pre>";
@@ -106,7 +108,8 @@ FROM (
                             AND n2.GROUPLINE = s.ORDERLINE
             WHERE
                 s.ITEMTYPECODE = 'DYC'
-                AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
+                -- AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
+                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                 AND s.TEMPLATECODE IN ('120')
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE $warehouse
