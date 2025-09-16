@@ -75,7 +75,7 @@ SELECT
         p2.LONGDESCRIPTION AS NAMA_OBAT,
         v.GROUPLINE,
         v.ITEMTYPEAFICODE AS ITEMTYPECODE,
-        v.SCHEDULEDISSUEDATE AS DUEDATE,
+        v.ISSUEDATE AS DUEDATE,
         v.SUBCODE01 AS DECOSUBCODE01,
         v.SUBCODE02 AS DECOSUBCODE02,
         v.SUBCODE03 AS DECOSUBCODE03,
@@ -104,7 +104,7 @@ SELECT
             AND v.SUBCODE01 = '$code1' 
             AND v.SUBCODE02 = '$code2' 
             AND v.SUBCODE03 = '$code3'
-            AND v.SCHEDULEDISSUEDATE BETWEEN '$tgl1 ' AND '$tgl2'
+            AND v.ISSUEDATE BETWEEN '$tgl1 ' AND '$tgl2'
             )
             GROUP BY 
            LOGICALWAREHOUSECODE,

@@ -884,7 +884,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                     p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
                                                                                     v.PRODUCTIONORDERCODE AS ISTANCECODE,
                                                                                     v.ITEMTYPEAFICODE AS ITEMTYPECODE,
-                                                                                    v.SCHEDULEDISSUEDATE AS DUEDATE,
+                                                                                    v.ISSUEDATE AS DUEDATE,
                                                                                     v.SUBCODE01 AS DECOSUBCODE01,
                                                                                     v.SUBCODE02 AS DECOSUBCODE02,
                                                                                     v.SUBCODE03 AS DECOSUBCODE03,
@@ -908,7 +908,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                                                         AND v.SUBCODE01 = '$row[DECOSUBCODE01]' 
                                                                                         AND v.SUBCODE02 = '$row[DECOSUBCODE02]' 
                                                                                         AND v.SUBCODE03 = '$row[DECOSUBCODE03]' 
-                                                                                        AND v.SCHEDULEDISSUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
+                                                                                        AND v.ISSUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]')
                                                                                 GROUP BY 
                                                                                     LOGICALWAREHOUSECODE,
                                                                                     COUNTERCODE,
