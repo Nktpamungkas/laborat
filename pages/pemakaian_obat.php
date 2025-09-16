@@ -369,9 +369,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.ITEMTYPECODE ='DYC'
                                             AND b.LOGICALWAREHOUSECODE $where_warehouse
                                             AND b.DETAILTYPE = 1
-                                           AND b.DECOSUBCODE01 = 'E' 
-                                           AND b.DECOSUBCODE02 = '3' 
-                                           AND b.DECOSUBCODE03 = '043' 
+                                            -- AND b.DECOSUBCODE01 = 'D' 
+                                            -- AND b.DECOSUBCODE02 = '2' 
+                                            -- AND b.DECOSUBCODE03 = '013' 
                                             GROUP BY
                                             b.ITEMTYPECODE,
                                             b.DECOSUBCODE01,
@@ -411,9 +411,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    AND  s.DECOSUBCODE01 = 'E' 
-                                    AND  s.DECOSUBCODE02 = '3'
-                                    AND  s.DECOSUBCODE03  = '043'
+                                    -- AND  s.DECOSUBCODE01 = 'D' 
+                                    -- AND  s.DECOSUBCODE02 = '2'
+                                    -- AND  s.DECOSUBCODE03  = '013'
                                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
                                     )
                                     GROUP BY 
@@ -1030,9 +1030,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $transfer_ = isset($row_stock_transfer['QTY_TRANSFER']) ? (float) $row_stock_transfer['QTY_TRANSFER'] : 0;
 
                                     if ($warehouse1 == "M510") {
-                                        $stock_balance_future = ($qty_balance_ - $pakai_belum_timbang_);
+                                        $stock_balance_future_ = (((float) $row['STOCK_BALANCE']) - (isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0));
                                     } elseif ($warehouse1 == "M101") {
-                                        $stock_balance_future_ = ($qty_balance_ + $buka_po_qty_) - $pakai_belum_timbang_;
+                                        $stock_balance_future_ = (((float) $row_Balance_stock_gd_pisah['STOCK_BALANCE']) + (isset($row_buka_po['QTY']) ? (float) $row_buka_po['QTY'] : 0)) - (isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0);
                                     }                                    
 
                                     $sisa_stock_balance_future = (substr(number_format($stock_balance_future_, 2), -3) == '.00')
@@ -1098,6 +1098,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             data-code3="<?= $code3 ?>"  
                                             data-tgl1="<?= $tgl1 ?>" 
                                             data-tgl2="<?= $tgl2 ?>"
+                                            data-time="<?= $time ?>" 
+                                            data-time2="<?= $time2 ?>" 
                                             data-warehouse = "<?= $warehouse ?>"
                                             data-toggle="modal"
                                             data-target="#detailModal_transfer">
@@ -1435,6 +1437,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         var code3 = $(this).data('code3');
         var tgl1 = $(this).data('tgl1');
         var tgl2 = $(this).data('tgl2');
+        var time = $(this).data('time');
+        var time2 = $(this).data('time2');
         var warehouse = $(this).data('warehouse');
 
         $('#modal-content').html('<p>Loading data...</p>');
@@ -1442,7 +1446,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
         url: 'pages/ajax/transfer_obat_detail.php',
         type: 'POST',
-        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, warehouse: warehouse },
+        data: { code1: code1, code2: code2, code3: code3, tgl1: tgl1, tgl2: tgl2, time: time, time2: time2, warehouse: warehouse },
         success: function(response) {
             console.log('Response received');
             $('#modal-content').html(response);

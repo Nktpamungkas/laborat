@@ -7,6 +7,8 @@ $code2 = $_POST['code2'];
 $code3 = $_POST['code3'];
 $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
+$time = $_POST['time'];
+$time2 = $_POST['time2'];
 $warehouse = $_POST['warehouse'];
 
 // echo "<pre>";
@@ -44,6 +46,7 @@ $query = "SELECT
                     *
                     from
                     (SELECT s.TRANSACTIONDATE,
+                    VARCHAR_FORMAT(TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME), 'YYYY-MM-DD HH24:MI:SS') AS TGL_WAKTU,
 					s.TRANSACTIONNUMBER,
                     CASE 
                     	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -123,7 +126,8 @@ $query = "SELECT
                 AND i2.SUBCODE03 = s.DECOSUBCODE03
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    -- AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                     AND s.TEMPLATECODE IN ('201','203','303')
                     AND s.LOGICALWAREHOUSECODE $warehouse
                     AND s.DECOSUBCODE01 = '$code1' 
@@ -167,7 +171,7 @@ echo "<tbody>";
 foreach ($rows2 as $row) {
     echo "<tr>";
     echo "<td>" . $no++ . "</td>";
-    echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";    
+    echo "<td>" . htmlspecialchars($row['TGL_WAKTU'] ?? '') . "</td>";    
     echo "<td>" . number_format((float) ($row['QTY_TRANSFER'] ?? 0), 2) . "</td>";
     echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
     echo "<td>" . htmlspecialchars($row['LOTCODE'] ?? '') . "</td>";

@@ -17,6 +17,7 @@ $warehouse = $_POST['warehouse'];
 
 $query = "SELECT 
     TRANSACTIONDATE,
+    TGL_WAKTU,
     DECOSUBCODE01,
     DECOSUBCODE02,
     DECOSUBCODE03,
@@ -29,6 +30,7 @@ $query = "SELECT
 FROM (
   SELECT 
                 TRANSACTIONDATE,
+                TGL_WAKTU,
                 DECOSUBCODE01,
                 DECOSUBCODE02,
                 DECOSUBCODE03,
@@ -47,6 +49,7 @@ FROM (
             FROM 
             (SELECT
                 s.TRANSACTIONDATE,
+                VARCHAR_FORMAT(TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME), 'YYYY-MM-DD HH24:MI:SS') AS TGL_WAKTU,
                 s.DECOSUBCODE01,
                 s.DECOSUBCODE02,
                 s.DECOSUBCODE03,
@@ -120,6 +123,7 @@ FROM (
                 s.PRODUCTIONORDERCODE ASC)                
                 GROUP BY 
                 TRANSACTIONDATE,
+                TGL_WAKTU,
                 DECOSUBCODE01,               
                 DECOSUBCODE02,
                 DECOSUBCODE03,
@@ -132,6 +136,7 @@ FROM (
 ) AS sub
 GROUP BY 
     TRANSACTIONDATE,
+    TGL_WAKTU,
     DECOSUBCODE01,
     DECOSUBCODE02,
     DECOSUBCODE03,
@@ -172,7 +177,7 @@ echo "<tbody>";
 foreach ($rows2 as $row) {
     echo "<tr>";
     echo "<td>" . $no++ . "</td>";
-    echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
+    echo "<td>" . htmlspecialchars($row['TGL_WAKTU'] ?? '') . "</td>";
     echo "<td>" . number_format((float) ($row['NORMAL_QTY'] ?? 0), 2) . "</td>";
     echo "<td>" . number_format((float) ($row['TAMBAH_OBAT_QTY'] ?? 0), 2) . "</td>";
     echo "<td>" . number_format((float) ($row['ADITIONAL_QTY'] ?? 0), 2) . "</td>";

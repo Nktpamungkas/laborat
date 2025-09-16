@@ -52,6 +52,7 @@ $query = "SELECT
                                         *
                                         FROM 
                                         (SELECT    s.TRANSACTIONDATE,
+                                        VARCHAR_FORMAT(TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME), 'YYYY-MM-DD HH24:MI:SS') as TGL_WAKTU,
 s.TRANSACTIONNUMBER,
                     CASE 
                     	WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -145,7 +146,7 @@ echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialch
         foreach ($rows2 as $row) {
             echo "<tr>";
             echo "<td>" . $no++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['TRANSACTIONDATE'] ?? '') . "</td>";
+            echo "<td>" . htmlspecialchars($row['TGL_WAKTU'] ?? '') . "</td>";
             echo "<td>" . number_format((float) ($row['QTY_MASUK'] ?? 0), 2) . "</td>";
             echo "<td>" . htmlspecialchars($row['TEMPLATECODE'] ?? '') . "</td>";
             echo "<td>" . htmlspecialchars($row['KETERANGAN'] ?? '') . "</td>";
