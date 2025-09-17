@@ -369,9 +369,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.ITEMTYPECODE ='DYC'
                                             AND b.LOGICALWAREHOUSECODE $where_warehouse
                                             AND b.DETAILTYPE = 1
-                                            -- AND b.DECOSUBCODE01 = 'D' 
-                                            -- AND b.DECOSUBCODE02 = '2' 
-                                            -- AND b.DECOSUBCODE03 = '013' 
+                                            -- AND b.DECOSUBCODE01 = 'R' 
+                                            -- AND b.DECOSUBCODE02 = '4' 
+                                            -- AND b.DECOSUBCODE03 = '044' 
                                             GROUP BY
                                             b.ITEMTYPECODE,
                                             b.DECOSUBCODE01,
@@ -411,9 +411,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
-                                    -- AND  s.DECOSUBCODE01 = 'D' 
-                                    -- AND  s.DECOSUBCODE02 = '2'
-                                    -- AND  s.DECOSUBCODE03  = '013'
+                                    -- AND  s.DECOSUBCODE01 = 'R' 
+                                    -- AND  s.DECOSUBCODE02 = '4'
+                                    -- AND  s.DECOSUBCODE03  = '044'
                                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
                                     )
                                     GROUP BY 
@@ -480,7 +480,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
 
-                                    $Balance_stock_gd_pisah = db2_exec($conn1, "SELECT 
+                                    
+                                        $Balance_stock_gd_pisah = db2_exec($conn1, "SELECT 
                                             b.ITEMTYPECODE,
                                             b.DECOSUBCODE01,
                                             b.DECOSUBCODE02,
@@ -495,22 +496,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
                                                 ELSE b.BASEPRIMARYUNITCODE
                                             END  AS BASEPRIMARYUNITCODE
-                                            FROM 
+                                        FROM 
                                             BALANCE b 
-                                            WHERE 
+                                        WHERE 
                                             ITEMTYPECODE ='DYC'
                                             AND LOGICALWAREHOUSECODE $where_warehouse
                                             AND DETAILTYPE = 1
-                                            AND DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                            AND DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
-                                            AND DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                            GROUP BY 
+                                            AND DECOSUBCODE01 = '{$row['DECOSUBCODE01']}' 
+                                            AND DECOSUBCODE02 = '{$row['DECOSUBCODE02']}' 
+                                            AND DECOSUBCODE03 = '{$row['DECOSUBCODE03']}' 
+                                        GROUP BY 
                                             ITEMTYPECODE,
                                             b.DECOSUBCODE01,
                                             b.DECOSUBCODE02,
                                             b.DECOSUBCODE03,
                                             b.BASEPRIMARYUNITCODE");
-                                    $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah);
+
+                                        $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah);
+                                  
 
                                         $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
@@ -731,7 +734,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
+                                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                         AND s.LOGICALWAREHOUSECODE $where_warehouse
                                                             and s.CREATIONUSER != 'MT_STI'
@@ -775,7 +778,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
-                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl_filter_masuk $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                 and s.CREATIONUSER != 'MT_STI'
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -1358,27 +1361,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="modal-dialog modal-custom">
         <div class="modal-content">
         
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Detail QTY Belum Timbang</h4>
-        </div>
-        
-        <div class="modal-body" id="modal-content_qty_blm_timbang">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="detailpakaibelumtimbang">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Detail QTY Belum Timbang</h4>
+            </div>
+            
+            <div class="modal-body" id="modal-content_qty_blm_timbang">
                 <p>Loading data...</p>
-                </table>
-            </div>            
-        </div>
-        
-        <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
-        </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+            </div>
         
         </div>
     </div>
 </div>
-
 </html>
 <script>
   $(document).ready(function () {
