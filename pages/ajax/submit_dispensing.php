@@ -13,6 +13,14 @@ mysqli_query($con, $isScheduling);
 $data = json_decode(file_get_contents('php://input'), true);
 $userScheduled = $_SESSION['userLAB'] ?? '';
 
+if (!$userScheduled) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Session telah habis, silahkan login ulang terlebih dahulu!'
+    ]);
+    exit;
+}
+
 if (isset($data['assignments']) && is_array($data['assignments'])) {
     $submitted_ids = [];
     

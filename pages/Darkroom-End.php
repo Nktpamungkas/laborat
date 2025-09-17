@@ -291,25 +291,39 @@
                         method: 'POST',
                         data: JSON.stringify(payload),
                         contentType: 'application/json',
-                        success: function () {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: 'Semua data berhasil dikirim.',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            repeatList = [];
-                            endList = [];
-                            holdList = [];
-                            renderSelectedList();
-                            loadData();
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: res.message || 'Semua data berhasil dikirim.',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                repeatList = [];
+                                endList = [];
+                                holdList = [];
+                                renderSelectedList();
+                                loadData();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: res.message || 'Terjadi kesalahan saat mengirim data.',
+                                });
+
+                                if (/session/i.test(res.message)) {
+                                    window.location.href = "/laborat/login";
+                                }
+                            }
                         },
-                        error: function () {
+                        error: function (xhr) {
+                            console.log(xhr.responseText);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat mengirim data.',
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan jaringan / server.',
                             });
                         }
                     });

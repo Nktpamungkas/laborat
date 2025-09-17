@@ -46,20 +46,10 @@
   .tabulator .tabulator-frozen-left .tabulator-col:last-child,
   .tabulator .tabulator-frozen-left .tabulator-cell:last-child{ border-right:0 !important; }
 
-  /* baris terpilih & hover */
-  /* .tabulator .tabulator-row:hover{ background:#f3f9ff !important; }
-  .tabulator .tabulator-row.tabulator-selected{ background:#fff4bf !important; outline:2px solid #f6c744; }
-  .tabulator .tabulator-row.tabulator-selected .tabulator-cell{ background:transparent !important; } */
-
   /* sembunyikan panah sort */
   .tabulator .tabulator-col .tabulator-arrow{ display:none !important; }
   .tabulator .tabulator-col{ cursor: default !important; }
 
-  /* editor kecil & spinner number dikecilkan */
-  /* .tabulator .tabulator-cell input,
-  .tabulator .tabulator-cell select{ height:22px; line-height:22px; text-align:center; padding:1px 4px; font-size:11px; }
-  .tabulator .tabulator-cell input[type=number]::-webkit-outer-spin-button,
-  .tabulator .tabulator-cell input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: inner-spin-button; transform: scale(0.75); margin:0; } */
   /* number spinner hilang */
   .tabulator .tabulator-cell input[type=number]::-webkit-outer-spin-button,
   .tabulator .tabulator-cell input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
@@ -67,21 +57,27 @@
 
   /* header boleh multi-baris */
   .tabulator .tabulator-col .tabulator-col-title{
-    white-space: normal;       /* allow wrap */
+    white-space: normal;
     word-break: break-word;
   }
   .tabulator .tabulator-header .tabulator-col { justify-content: center; }
+
+  /* === highlight sel error required === */
+  .tabulator .cell-error{
+    background: #ffecec !important;
+  }
 </style>
 
 <h4 class="summary-title" style="text-align: center; font-weight:700; margin:4px 0 6px;">SUMMARY PRELIMINARY</h4>
 <div class="toolbar">
   <button id="addRow" class="btn btn-primary">+ Tambah Baris</button>
-  <!-- <button id="delSelected" class="btn btn-danger">Hapus Baris Terpilih</button>
-  <button id="clearAll" class="btn btn-default">Bersihkan Semua</button>
-  <button id="reload" class="btn btn-default">Muat Ulang</button> -->
+
   <input type="date" id="fromDate" class="form-control" style="height:24px;padding:2px 6px;font-size:12px;">
+  <input type="time" id="fromTime" class="form-control" style="height:24px;padding:2px 6px;font-size:12px;" placeholder="HH:MM">
   <span style="align-self:center;">s/d</span>
   <input type="date" id="toDate"   class="form-control" style="height:24px;padding:2px 6px;font-size:12px;">
+  <input type="time" id="toTime"   class="form-control" style="height:24px;padding:2px 6px;font-size:12px;" placeholder="HH:MM">
+
   <button id="applyFilter" class="btn btn-default">Filter</button>
   <button id="resetFilter" class="btn btn-default">Reset</button>
 
@@ -99,7 +95,6 @@
   /* ===== editor overlay: date & time ===== */
   function overlayEditorFactory(inputType, minW){
     return function(cell, onRendered, success, cancel){
-      // --- wrapper floating ---
       var rect = cell.getElement().getBoundingClientRect();
       var wrap = document.createElement('div');
       wrap.style.position   = 'fixed';
@@ -111,47 +106,12 @@
       wrap.style.boxShadow  = '0 2px 8px rgba(0,0,0,.15)';
       wrap.style.padding    = '6px';
       wrap.style.boxSizing  = 'border-box';
-      wrap.style.overflow   = 'visible'; // biar tombol bulat bisa keluar sedikit
+      wrap.style.overflow   = 'visible';
 
-      // --- status editor ---
       var isTime = (inputType === 'time');
 
-      // === Tombol close bulat (hanya untuk editor waktu) ===
-      // if (isTime){
-      //   var btnClose = document.createElement('button');
-      //   btnClose.type = 'button';
-      //   btnClose.innerHTML = '&times;'; // tanda ×
-      //   btnClose.setAttribute('aria-label','Close');
-      //   btnClose.style.position     = 'absolute';
-      //   btnClose.style.top          = '-10px';  // nempel pojok
-      //   btnClose.style.right        = '-10px';
-      //   btnClose.style.width        = '22px';
-      //   btnClose.style.height       = '22px';
-      //   btnClose.style.borderRadius = '50%';
-      //   btnClose.style.border       = '1px solid #bdbdbd';
-      //   btnClose.style.background   = '#ffffff';
-      //   btnClose.style.color        = '#444';
-      //   btnClose.style.fontSize     = '14px';
-      //   btnClose.style.lineHeight   = '20px';
-      //   btnClose.style.textAlign    = 'center';
-      //   btnClose.style.padding      = '0';
-      //   btnClose.style.cursor       = 'pointer';
-      //   btnClose.style.boxShadow    = '0 1px 3px rgba(0,0,0,.25)';
-      //   btnClose.style.zIndex       = '1';
-      //   btnClose.addEventListener('mouseenter', function(){ btnClose.style.background = '#f3f3f3'; btnClose.style.color = '#000'; });
-      //   btnClose.addEventListener('mouseleave', function(){ btnClose.style.background = '#fff'; btnClose.style.color = '#444'; });
-      //   btnClose.addEventListener('click', function(e){
-      //     e.preventDefault(); e.stopPropagation();
-      //     cleanup(false); // batal (tidak commit)
-      //   });
-      //   wrap.appendChild(btnClose);
-      // }
-
-      // --- input element ---
       var input  = document.createElement('input');
-
       if (isTime){
-        // text + masker HH:MM agar konsisten untuk ketik manual
         input.type = 'text';
         input.placeholder = 'HH:MM';
         input.setAttribute('inputmode', 'numeric');
@@ -162,21 +122,12 @@
         if (inputType === 'time') input.step = '60';
       }
 
-      // NO DEFAULT VALUE (kalau sel kosong, biarkan kosong)
       var cellVal = cell.getValue();
-      if (cellVal) {
-        input.value = String(cellVal);
-      } else {
-        input.value = "";
-        input.removeAttribute("value");
-      }
-
+      if (cellVal) { input.value = String(cellVal); } else { input.value = ""; input.removeAttribute("value"); }
       input.style.width    = '100%';
       input.style.minWidth = (minW || 180) + 'px';
-
       wrap.appendChild(input);
 
-      // === PANEL JAM/MENIT (khusus time) ===
       var panel = null;
       if (isTime){
         panel = document.createElement('div');
@@ -185,11 +136,10 @@
         panel.style.gap = '6px';
         panel.style.marginTop = '6px';
 
-        // Jam
         var hoursBox = document.createElement('div');
         hoursBox.style.maxHeight = '144px';
         hoursBox.style.overflowY = 'auto';
-        hoursBox.style.border = '1px solid #ddd';
+        hoursBox.style.border = '1px solid ' + '#ddd';
         hoursBox.style.padding = '4px';
         hoursBox.style.width = '92px';
         var hTitle = document.createElement('div');
@@ -208,17 +158,15 @@
           btn.style.margin = '2px';
           btn.style.fontSize = '12px';
           btn.addEventListener('click', function(ev){
-            ev.preventDefault();
-            ev.stopPropagation(); // jangan dianggap klik luar
+            ev.preventDefault(); ev.stopPropagation();
             let cur = normalizeHHMMSoft(input.value);
             let mm  = (cur.m == null ? '' : String(cur.m));
-            input.value = pad2(h) + ':' + mm;  // ganti jam saja
+            input.value = pad2(h) + ':' + mm;
             try { input.focus(); setCaretToEnd(input); } catch(e){}
           });
           hoursBox.appendChild(btn);
         }
 
-        // Menit
         var minsBox = document.createElement('div');
         minsBox.style.maxHeight = '144px';
         minsBox.style.overflowY = 'auto';
@@ -241,12 +189,11 @@
           btn.style.margin = '2px';
           btn.style.fontSize = '12px';
           btn.addEventListener('click', function(ev){
-            ev.preventDefault();
-            ev.stopPropagation(); // jangan dianggap klik luar
+            ev.preventDefault(); ev.stopPropagation();
             let cur = normalizeHHMMSoft(input.value);
-            let h = (cur.h == null ? 0 : cur.h); // default 00 kalau belum ada jam
+            let h = (cur.h == null ? 0 : cur.h);
             input.value = pad2(h) + ':' + pad2(m);
-            cleanup(true); // commit & close
+            cleanup(true);
           });
           minsBox.appendChild(btn);
         }
@@ -258,12 +205,10 @@
 
       document.body.appendChild(wrap);
 
-      // ---------- Utils ----------
       function pad2(n){ n = parseInt(n,10); if (isNaN(n)) n = 0; return (n<10? '0'+n : ''+n); }
       function clamp(x, lo, hi){ if (isNaN(x)) return x; return Math.max(lo, Math.min(hi, x)); }
       function setCaretToEnd(el){ const v = el.value; try{ el.setSelectionRange(v.length, v.length); }catch(e){} }
 
-      // Normalisasi "lunak": boleh 1-2 digit jam, & 0-2 digit menit
       function normalizeHHMMSoft(v){
         v = (v || '').trim();
         if (!v) return {h:null, m:null};
@@ -273,7 +218,6 @@
           let M = (m===""? null : clamp(parseInt(m,10), 0, 59));
           return {h: isNaN(H)? null:H, m: isNaN(M)? null:M};
         }
-        // tanpa colon → pisahkan digit
         let d = v.replace(/[^\d]/g,'').slice(0,4);
         if (d.length <= 2){
           let H = (d===""? null : clamp(parseInt(d,10),0,23));
@@ -285,10 +229,9 @@
         }
       }
 
-      // Finalisasi untuk commit (paksa HH:MM, menit kosong jadi 00)
       function finalizeHHMM(v){
         v = (v || '').trim();
-        if (!v) return ''; // izinkan kosong
+        if (!v) return '';
         const m = v.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
         if (!m) return null;
         let h  = clamp(parseInt(m[1],10), 0, 23);
@@ -297,18 +240,9 @@
         return pad2(h) + ':' + pad2(mm);
       }
 
-      // ---------- Focus behavior ----------
-      setTimeout(function(){
-        try{
-          if (!isTime){
-            input.focus();
-            if (input.select) input.select();
-          }
-        }catch(e){}
-      }, 0);
+      setTimeout(function(){ try{ if (!isTime){ input.focus(); if (input.select) input.select(); } }catch(e){} }, 0);
 
-      // ---------- Lifecycle & cleanup ----------
-      let allowClose = !isTime; // non-time: boleh auto-close
+      let allowClose = !isTime;
       function cleanup(commit){
         try { if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap); } catch(e){}
         window.removeEventListener('scroll', onScroll, true);
@@ -318,30 +252,17 @@
         if (commit){
           if (isTime){
             const fin = finalizeHHMM(input.value);
-            if (fin === null){ cancel(); return; } // invalid → batal
+            if (fin === null){ cancel(); return; }
             success(fin);
-          } else {
-            success(input.value);
-          }
-        } else {
-          cancel();
-        }
+          } else { success(input.value); }
+        } else { cancel(); }
       }
 
-      // --- Close rules ---
-      function onScroll(){
-        // jangan auto-close saat scroll untuk editor waktu
-        if (!isTime && allowClose) cleanup(true);
-      }
+      function onScroll(){ if (!isTime && allowClose) cleanup(true); }
       function onDown(e){
         if (!wrap.contains(e.target)){
-          if (isTime){
-            // KLIK LUAR → commit & close untuk editor waktu
-            cleanup(true);
-            // (kalau mau batal, ganti ke cleanup(false))
-          } else if (allowClose){
-            cleanup(true); // perilaku lama untuk tipe lain
-          }
+          if (isTime){ cleanup(true); }
+          else if (allowClose){ cleanup(true); }
         }
       }
       function onKey(e){
@@ -350,33 +271,24 @@
           if (isTime){
             const fin = finalizeHHMM(input.value);
             if (fin !== null){ input.value = fin; cleanup(true); }
-          } else {
-            cleanup(true);
-          }
-        } else if (e.key === 'Escape'){
-          e.preventDefault();
-          cleanup(false); // batal
-        }
+          } else { cleanup(true); }
+        } else if (e.key === 'Escape'){ e.preventDefault(); cleanup(false); }
       }
 
       window.addEventListener('scroll', onScroll, true);
       document.addEventListener('mousedown', onDown, true);
       document.addEventListener('keydown', onKey, true);
 
-      // ---------- Non-time fallbacks ----------
       if (!isTime){
         input.addEventListener('blur',   function(){ cleanup(true); });
         input.addEventListener('change', function(){ cleanup(true); });
       }
 
-      // ---------- Time: masker & input manual ----------
       if (isTime){
-        // Batasi karakter: digit, colon, & kontrol umum
         input.addEventListener('keydown', function(ev){
           const k = ev.key;
           const allow = (
-            (k >= '0' && k <= '9') ||
-            k === ':' ||
+            (k >= '0' && k <= '9') || k === ':' ||
             k === 'Backspace' || k === 'Delete' ||
             k === 'ArrowLeft' || k === 'ArrowRight' || k === 'Home' || k === 'End' ||
             k === 'Tab' || k === 'Enter' || k === 'Escape'
@@ -384,24 +296,21 @@
           if (!allow) ev.preventDefault();
         });
 
-        // Masker: 1-2 digit jam; 3 digit → HH:M (tanpa pad); 4 digit → HH:MM (clamp)
         input.addEventListener('input', function(){
           let raw = input.value.replace(/[^\d]/g,'').slice(0,4);
           if (raw.length === 0){ input.value=''; return; }
           if (raw.length <= 2){ input.value = raw; return; }
 
           let hh = clamp(parseInt(raw.slice(0,2),10), 0, 23);
-          let mRaw = raw.slice(2); // '5' atau '59'
-          if (mRaw.length === 1){
-            input.value = pad2(hh) + ':' + mRaw;     // <-- tidak auto-pad "05"
-          }else{
+          let mRaw = raw.slice(2);
+          if (mRaw.length === 1){ input.value = pad2(hh) + ':' + mRaw; }
+          else{
             let mm = clamp(parseInt(mRaw,10), 0, 59);
             input.value = pad2(hh) + ':' + pad2(mm);
           }
         });
       }
 
-      // Node dummy untuk Tabulator
       var dummy = document.createElement('span'); dummy.style.display = 'none'; return dummy;
     };
   }
@@ -409,30 +318,24 @@
   var dateEditor = overlayEditorFactory('date', 110);
   var timeEditor = overlayEditorFactory('time', 110);
 
-  /* ===== helper width 50% ===== */
   function w(px){ var s = Math.round(px * 0.5); return (s < 40 ? 40 : s); }
 
-  /* ===== validator integer ===== */
   function intValidator(cell){
     var v = cell.getValue();
     if (v === null || v === '' || typeof v === 'undefined') return true;
     return (/^-?\d+$/).test(String(v));
   }
 
-  /* ===== helper angka & JML ===== */
   function toInt(x){ var n = parseInt(x,10); return isNaN(n) ? 0 : n; }
 
-  // ambil data baris AKTIF (terfilter). fallback ke semua data bila tidak ada filter
   function getActiveData(){
     var actRows = table.getRows('active');
     if (actRows && actRows.length) return actRows.map(r => r.getData());
     return table.getData();
   }
 
-  // kolom tail yg ikut JML
   var JML_TAIL_FIELDS = ['resep_asal','x6','t_report','t_ulang','t_gabung','warna_ctrl','resep_lain'];
 
-  // daftar nama tetap
   var N = ['hendrik','gunawan','ferdinan','gugum','ganang','citra','joni'];
 
   function allLdBulkFields(){
@@ -454,15 +357,13 @@
     return total;
   }
 
-  // tampilkan kosong kalau 0 (untuk LD/BULK & tail)
   function zeroBlankFormatter(cell){
     var v = cell.getValue();
     return (v === 0 || v === '0') ? '' : v;
   }
-  // saat export excel, juga kosongkan 0
   function zeroBlankDownload(value){ return (value===0 || value==='0') ? '' : value; }
 
-  /* ===== opsi kain ===== */
+  /* ===== opsi Jenis Celup ===== */
   var kainValues = { 'POLY':'POLY', 'COTTON':'COTTON', 'WHITE':'WHITE' };
 
   function buildNamePairCols(prefix, titleGroup){
@@ -475,10 +376,10 @@
         columns: [
           { title:'LD',   field: prefix+'_'+name+'_ld',   width:w(80), editor:'number',
             headerHozAlign:'center', hozAlign:'center', validator:intValidator,
-            formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload }, // <<<
+            formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload },
           { title:'BULK', field: prefix+'_'+name+'_bulk', width:w(80), editor:'number',
             headerHozAlign:'center', hozAlign:'center', validator:intValidator,
-            formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload }  // <<<
+            formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload }
         ]
       });
     }
@@ -487,23 +388,25 @@
 
   /* ===== definisi kolom ===== */
   var columns = [
-    { title:'ID', field:'id', visible:false, download:false }, // jangan ikut export
+    { title:'ID', field:'id', visible:false, download:false },
 
-    /* Freeze kolom-kolom ini */
     { title:'TGL',        field:'tgl',        editor:dateEditor,  width:w(120), headerHozAlign:'center' },
     { title:'JAM',        field:'jam',        editor:timeEditor,  width:w(100), headerHozAlign:'center' },
-    // { title:'SHIFT',      field:'shift',      editor:'input',     width:w(100), headerHozAlign:'center' },
-    { 
+    {
       title:'SHIFT',
       field:'shift',
       editor:'select',
       editorParams:{ values:{ "1":"1", "2":"2", "3":"3" } },
-      width:w(100),  
+      width:w(100),
       headerHozAlign:'center'
     },
 
     { title:'KLOTER',     field:'kloter',     editor:'number', validator:intValidator, width:w(90),  hozAlign:'center', headerHozAlign:'center' },
-    { title:'Jenis<br>Kain', field:'jenis_kain', editor:'select', editorParams:{values:kainValues}, titleFormatter:"html", titleDownload:'Jenis Kain', width:w(120), headerHozAlign:'center' },
+
+    /* ganti label ke "Jenis Celup" (field tetap jenis_kain) */
+    { title:'Jenis<br>Celup', field:'jenis_kain', editor:'select',
+      editorParams:{values:kainValues}, titleFormatter:"html", titleDownload:'Jenis Celup',
+      width:w(120), headerHozAlign:'center' },
 
     buildNamePairCols('visual','RESEP VISUAL'),
     buildNamePairCols('color','RESEP DATA COLOR'),
@@ -536,14 +439,12 @@
       editor:'number', validator:intValidator, formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload,
       width:w(110), hozAlign:'center', headerHozAlign:'center' },
 
-    // JML otomatis (tidak bisa diketik)
     { title:'JML', field:'jml',
       editor:false, width:w(90), hozAlign:'center', headerHozAlign:'center' },
 
-    /* Kolom AKSI: tombol per-baris */
     { title:'Aksi', field:'_aksi',
       headerSort:false, headerHozAlign:'center', hozAlign:'center',
-      width:87, minWidth:87, download:false, /* exclude dari export */       // <<<
+      width:87, minWidth:87, download:false,
       formatter:function(cell){
         return '<div class="btn-group btn-group-xs">' +
                  '<button class="btn btn-primary btn-xs act-save"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>' +
@@ -561,7 +462,6 @@
     }
   ];
 
-  /* ===== matikan sorting di semua kolom & sub-kolom ===== */
   function disableSorting(cols){
     for (var i=0;i<cols.length;i++){
       cols[i].headerSort = false;
@@ -572,13 +472,13 @@
   }
   columns = disableSorting(columns);
 
-  /* ===== init tabel ===== */
   var table = new Tabulator('#grid', {
     layout:'fitData',
     columnMinWidth:40,
     headerSort:false,
     columnDefaults: { vertAlign:'middle', hozAlign:'center' },
     reactiveData:true,
+    addRowPos: "top",
     movableColumns:true,
     resizableRows:false,
     columns:columns,
@@ -586,101 +486,110 @@
     clipboardPasteAction:'insert',
     selectable:true,
     placeholder:'',
-
-    // --- pagination ---
     pagination: "local",
     paginationSize: 20,
     paginationSizeSelector: [10,20,50,100,true],
   });
   setTimeout(function(){ table.redraw(true); }, 0);
   window.addEventListener('resize', function(){ table.redraw(true); });
-  
-  table.on('pageLoaded', function(){
-    requestAnimationFrame(function(){ table.redraw(true); });
-  });
+
+  table.on('pageLoaded', function(){ requestAnimationFrame(function(){ table.redraw(true); }); });
   table.on('columnResized',  ()=> table.redraw(true));
   table.on('columnMoved',    ()=> table.redraw(true));
 
   (function(tbl){
     var last = window.devicePixelRatio || 1;
     var mq = window.matchMedia('(resolution: ' + last + 'dppx)');
-
     function onChange(){
       requestAnimationFrame(function(){ tbl.redraw(true); });
-      // re-subscribe ke DPI terbaru
       try { mq.removeEventListener('change', onChange); } catch(e){ if (mq.removeListener) mq.removeListener(onChange); }
       last = window.devicePixelRatio || 1;
       mq = window.matchMedia('(resolution: ' + last + 'dppx)');
       try { mq.addEventListener('change', onChange); } catch(e){ if (mq.addListener) mq.addListener(onChange); }
     }
-
     try { mq.addEventListener('change', onChange); } catch(e){ if (mq.addListener) mq.addListener(onChange); }
-
-    // fallback polling kalau event di atas tidak nembak
     var iv = setInterval(function(){
       var cur = window.devicePixelRatio || 1;
       if (Math.abs(cur - last) > 0.001){
-        last = cur;
-        tbl.redraw(true);
+        last = cur; tbl.redraw(true);
       }
     }, 400);
-
-    // optional: bersihkan interval saat pindah halaman
     window.addEventListener('beforeunload', function(){ clearInterval(iv); });
   })(table);
 
-  function normRange(){
-    var f = document.getElementById('fromDate').value || '';
-    var t = document.getElementById('toDate').value   || '';
-    if (f && t && f > t){ var tmp=f; f=t; t=tmp; } // tukar kalau terbalik
-    return {from:f, to:t};
+  /* ====== FILTER RANGE TANGGAL+JAM ====== */
+  function pad2(n){ n = parseInt(n,10); if (isNaN(n)) n = 0; return (n<10? '0'+n : ''+n); }
+
+  // Gabung tanggal+jam; kalau jam kosong kita pakai default.
+  function joinDateTime(d, t, isEnd){ // isEnd=true untuk batas akhir
+    if (!d && !t) return '';
+    if (!d) return '';
+    if (!t){
+      return d + (isEnd ? 'T23:59' : 'T00:00'); // <— ini kuncinya: tanggal saja = full day
+    }
+    const m = String(t).match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+    if (!m) return d + (isEnd ? 'T23:59' : 'T00:00');
+    const hh = pad2(Math.min(23, Math.max(0, parseInt(m[1],10))));
+    const mm = pad2(Math.min(59, Math.max(0, parseInt(m[2] || '0',10))));
+    return d + 'T' + hh + ':' + mm;
+  }
+
+  function normRangeDT(){
+    let fd = document.getElementById('fromDate').value || '';
+    let ft = document.getElementById('fromTime').value || '';
+    let td = document.getElementById('toDate').value   || '';
+    let tt = document.getElementById('toTime').value   || '';
+
+    // Tukar jika tanggal terbalik
+    if (fd && td && fd > td){ let _d=fd; fd=td; td=_d; let _t=ft; ft=tt; tt=_t; }
+
+    // Kalau jam kosong: from=00:00, to=23:59
+    const fromDT = joinDateTime(fd, ft, /*isEnd=*/false);
+    const toDT   = joinDateTime(td, tt, /*isEnd=*/true);
+
+    return { fd, ft, td, tt, fromDT, toDT };
   }
 
   document.getElementById('applyFilter').addEventListener('click', function(){
-    var r = normRange();
-    loadData(r.from, r.to);
+    var r = normRangeDT();
+    // backend: tetap kirim tanggal saja
+    loadData(r.fd || '', r.td || '');
   });
 
   document.getElementById('resetFilter').addEventListener('click', function(){
     document.getElementById('fromDate').value = '';
     document.getElementById('toDate').value   = '';
+    document.getElementById('fromTime').value = '';
+    document.getElementById('toTime').value   = '';
     loadData();
   });
 
+  // Enter di time langsung apply
+  ['fromTime','toTime'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el){
+      el.addEventListener('keydown', function(e){
+        if (e.key === 'Enter'){ document.getElementById('applyFilter').click(); }
+      });
+    }
+  });
 
-  /* ===== tombol toolbar ===== */
-  document.getElementById('addRow').addEventListener('click', function(){ table.addRow({}); });
-  //   document.getElementById('delSelected').addEventListener('click', function(){
-  //     var rows = table.getSelectedRows(); if (!rows.length){ alert('Pilih minimal satu baris.'); return; }
-  //     for (var i=0;i<rows.length;i++){ rows[i].delete(); }
-  //   });
-  //   document.getElementById('clearAll').addEventListener('click', function(){ table.clearData(); });
-  //   document.getElementById('reload').addEventListener('click', loadData);
+  document.getElementById('addRow').addEventListener('click', function(){
+    table.setPage(1);
+    table.addRow({}, true);
+  });
 
-  // EXPORT EXCEL
-//   document.getElementById('exportXls').addEventListener('click', function(){
-//     // pastikan JML up-to-date & nol jadi kosong saat export
-//     var rows = table.getData();
-//     rows.forEach(function(r){ r.jml = computeJml(r); });
-//     table.updateData(rows); // refresh tampilan JML (tidak wajib, tapi aman)
-
-//     table.download("xlsx", "Summary-Preliminary.xlsx", {sheetName:"Summary"});
-//   });
-    document.getElementById('exportXls').addEventListener('click', function(){
-        // pastikan JML up-to-date utk baris aktif
-        var rows = getActiveData();
-        rows.forEach(function(r){ r.jml = computeJml(r); });
-        // (opsional) sync tampilan JML pada baris yang terlihat
-        table.getRows('active').forEach(function(r){ r.update({ jml: computeJml(r.getData()) }); });
-
-        table.download("xlsx", "Summary-Preliminary.xlsx", {
-            sheetName: "Summary",
-            columnGroups: true,
-            rowRange: "active"
-        });
+  document.getElementById('exportXls').addEventListener('click', function(){
+    var rows = getActiveData();
+    rows.forEach(function(r){ r.jml = computeJml(r); });
+    table.getRows('active').forEach(function(r){ r.update({ jml: computeJml(r.getData()) }); });
+    table.download("xlsx", "Summary-Preliminary.xlsx", {
+      sheetName: "Summary",
+      columnGroups: true,
+      rowRange: "active"
     });
+  });
 
-  /* ===== validasi integer ===== */
   var N_OP = ['hendrik','gunawan','ferdinan','gugum','ganang','citra','joni'];
   function buildIntKeys(){
     var keys = ['kloter','resep_asal','x6','t_report','t_ulang','t_gabung','warna_ctrl','resep_lain','jml'];
@@ -701,6 +610,75 @@
     return true;
   }
 
+  /* ===== REQUIRED FIELDS: TGL, JAM, SHIFT, KLOTER, Jenis Celup ===== */
+  var REQUIRED_FIELDS = [
+    { field: 'tgl',        label: 'TGL' },
+    { field: 'jam',        label: 'JAM' },
+    { field: 'shift',      label: 'SHIFT' },
+    { field: 'kloter',     label: 'KLOTER' },
+    { field: 'jenis_kain', label: 'Jenis Celup' },
+  ];
+  function clearRowErrors(row){
+    REQUIRED_FIELDS.forEach(function(req){
+      var c = row.getCell(req.field);
+      if (c){
+        var el = c.getElement();
+        el.classList.remove('cell-error');
+        el.removeAttribute('title');
+      }
+    });
+  }
+  function markCellError(row, field, msg){
+    var cell = row.getCell(field);
+    if (!cell) return;
+    var el = cell.getElement();
+    el.classList.add('cell-error');
+    if (msg) el.title = msg;
+  }
+  function validateRequiredRow(row){
+    clearRowErrors(row);
+    var d = row.getData();
+    var missing = [];
+
+    REQUIRED_FIELDS.forEach(function(req){
+      var v = d[req.field];
+      if (v === null || typeof v === 'undefined' || String(v).trim() === ''){
+        missing.push(req.label);
+        markCellError(row, req.field, req.label + ' wajib diisi');
+      }
+    });
+
+    // Validasi format JAM 24 jam
+    if (!missing.includes('JAM')) {
+      var vjam = String((d.jam || '')).trim();
+      var timeOk = /^([01]\d|2[0-3]):[0-5]\d$/.test(vjam);
+      if (!timeOk){
+        missing.push('JAM (format HH:MM)');
+        markCellError(row, 'jam', 'Format JAM harus HH:MM, contoh 07:30 atau 16:05');
+      }
+    }
+
+    // Validasi nilai sah untuk SHIFT
+    if (!missing.includes('SHIFT')){
+      var allowedShift = { "1":true, "2":true, "3":true };
+      if (!allowedShift[String((d.shift||'')).trim()]){
+        missing.push('SHIFT (hanya 1/2/3)');
+        markCellError(row, 'shift', 'SHIFT hanya boleh 1/2/3');
+      }
+    }
+
+    // Validasi pilihan Jenis Celup
+    if (!missing.includes('Jenis Celup') && d.jenis_kain){
+      var allowedKain = { "POLY":true, "COTTON":true, "WHITE":true };
+      if (!allowedKain[String(d.jenis_kain).trim().toUpperCase()]){
+        missing.push('Jenis Celup (nilai tidak dikenal)');
+        markCellError(row, 'jenis_kain', 'Pilih nilai yang tersedia');
+      }
+    }
+
+    return { ok: missing.length === 0, missing: missing };
+  }
+
   /* ===== helper HTTP & tombol spinner ===== */
   function rowToParams(rowData){
     var p = new URLSearchParams();
@@ -718,7 +696,7 @@
     if (!icon) return;
     if (on){
       icon.setAttribute('data-prev', icon.className || 'fa fa-spinner');
-      icon.className = 'fa fa-spinner fa-spin';   /* FA4 */
+      icon.className = 'fa fa-spinner fa-spin';
     }else{
       var prev = icon.getAttribute('data-prev') || 'fa fa-floppy-o';
       icon.className = prev;
@@ -730,7 +708,20 @@
   async function saveRow(row, clickedBtn){
     var data = row.getData();
 
-    // hitung JML dari semua LD/BULK + tail  // <<<
+    var req = validateRequiredRow(row);
+    if (!req.ok){
+      try{
+        table.scrollToRow(row, "center", false);
+        for (var i=0;i<REQUIRED_FIELDS.length;i++){
+          var f = REQUIRED_FIELDS[i].field;
+          var c = row.getCell(f);
+          if (c && c.getElement().classList.contains('cell-error')){ c.edit(); break; }
+        }
+      }catch(e){}
+      alert('Kolom "' + req.missing.join(', ') + '" WAJIB DI ISI!');
+      return;
+    }
+
     data.jml = computeJml(data);
     row.update({ jml: data.jml });
 
@@ -744,13 +735,10 @@
 
     var resp = await postForm(url, rowToParams(data));
 
-    /* spinner OFF */
     if (clickedBtn){ setBtnSpinner(clickedBtn, false); clickedBtn.disabled = false; }
 
-    /* notifikasi */
     alert((resp && resp.message) ? resp.message : (isUpdate ? 'Update selesai' : 'Tersimpan'));
 
-    /* efek check 600ms */
     if (clickedBtn && resp && resp.ok){
       var icon = clickedBtn.querySelector('i');
       if (icon){
@@ -760,7 +748,6 @@
       }
     }
 
-    /* jika INSERT, set id baru & refresh tombol (jadi Update) */
     if (!isUpdate && resp && resp.ok && resp.id){
       row.update({ id: resp.id });
       row.reformat();
@@ -780,13 +767,12 @@
 
       if (!resp || !resp.ok){ alert((resp && resp.message) ? resp.message : 'Gagal hapus di DB'); return; }
 
-      /* efek check 600ms di tombol hapus */
       if (clickedBtn){
         var icon = clickedBtn.querySelector('i');
         if (icon){
           var prev = icon.className;
           icon.className = 'fa fa-check';
-          setTimeout(function(){ /* row akan dihapus */ }, 600);
+          setTimeout(function(){}, 600);
         }
       }
     }
@@ -794,41 +780,61 @@
   }
 
   /* ===== muat data tersimpan ===== */
-    async function loadData(from, to){
-        try{
-            // bangun query ke server (kalau backend support, dia akan filter di SQL)
-            var qs = [];
-            if (from) qs.push('from='+encodeURIComponent(from));
-            if (to)   qs.push('to='+encodeURIComponent(to));
-            var url = 'pages/ajax/get_summary_preliminary.php' + (qs.length ? ('?'+qs.join('&')) : '');
+  async function loadData(from, to){
+    try{
+      var qs = [];
+      if (from) qs.push('from='+encodeURIComponent(from));
+      if (to)   qs.push('to='+encodeURIComponent(to));
+      var url = 'pages/ajax/get_summary_preliminary.php' + (qs.length ? ('?'+qs.join('&')) : '');
 
-            var res = await fetch(url);
-            var json = await res.json();
-            if (json && json.ok){
-            var rows = json.data || [];
-            // hitung JML utk setiap row
-            for (var i=0;i<rows.length;i++){ rows[i].jml = computeJml(rows[i]); }
-            table.setData(rows);
+      var res = await fetch(url);
+      var json = await res.json();
+      if (json && json.ok){
+        var rows = json.data || [];
+        for (var i=0;i<rows.length;i++){ rows[i].jml = computeJml(rows[i]); }
+        table.setData(rows);
 
-            // Fallback filter sisi-klien jika backend belum terapkan ?from/&to
-            table.clearFilter(true);
-            if (from || to){
-                table.setFilter(function(data){
-                var t = data.tgl || '';
-                return (!from || t >= from) && (!to || t <= to);
-                });
+        table.clearFilter(true);
+
+        // === FILTER KLIEN: tanggal & jam ===
+        var r = normRangeDT();
+        if (r.fd || r.td || r.ft || r.tt){
+          table.setFilter(function(data){
+            var d = (data.tgl || '').trim();   // "YYYY-MM-DD"
+            var t = (data.jam || '').trim();   // "HH:MM"
+
+            if (t && !/^([01]\d|2[0-3]):[0-5]\d$/.test(t)) return false;
+
+            // filter tanggal kasar
+            if (r.fd && d && d < r.fd) return false;
+            if (r.td && d && d > r.td) return false;
+
+            // jam saja (tanpa tanggal)
+            if (!r.fd && !r.td && (r.ft || r.tt)){
+              if (r.ft && t && t < r.ft) return false;
+              if (r.tt && t && t > r.tt) return false;
+              return true;
             }
 
-            if (!rows.length) table.addRow({});
-            }else{
-            table.clearData(); table.addRow({}); alert(json && json.message ? json.message : 'Gagal ambil data');
-            }
-        }catch(e){
-            table.clearData(); table.addRow({}); alert('Gagal ambil data');
+            // gabungan tanggal+jam
+            var curDT = (d ? (d + 'T' + (t || '00:00')) : '');
+            if (r.fromDT && curDT && curDT < r.fromDT) return false;
+            if (r.toDT   && curDT && curDT > r.toDT)   return false;
+
+            return true;
+          });
         }
-    }
 
-  /* Recompute JML setiap selesai edit kolom pemicu */ // <<<
+        if (!rows.length) { table.addRow({}, true); table.setPage(1); }
+      }else{
+        table.clearData(); table.addRow({}); alert(json && json.message ? json.message : 'Gagal ambil data');
+      }
+    }catch(e){
+      table.clearData(); table.addRow({}); alert('Gagal ambil data');
+    }
+  }
+
+  /* Recompute JML & bersihkan error required saat edit */
   table.on('cellEdited', function(cell){
     var f = cell.getField();
     if (JML_TRIGGERS.indexOf(f) !== -1){
@@ -836,166 +842,144 @@
       var d = row.getData();
       row.update({ jml: computeJml(d) });
     }
+    if (['tgl','jam','shift','kloter','jenis_kain'].includes(f)){
+      var el = cell.getElement();
+      el.classList.remove('cell-error');
+      el.removeAttribute('title');
+    }
   });
 
   /* pertama kali: muat data */
   loadData();
 </script>
+
 <script>
-    document.getElementById('exportPdf').addEventListener('click', function(){
-        // --- setup data & helper ---
-        const { jsPDF } = window.jspdf;
-        var N = ['hendrik','gunawan','ferdinan','gugum','ganang','citra','joni'];
-        var N_UP = N.map(n=>n.toUpperCase());
+  document.getElementById('exportPdf').addEventListener('click', function(){
+    const { jsPDF } = window.jspdf;
+    var N = ['hendrik','gunawan','ferdinan','gugum','ganang','citra','joni'];
+    var N_UP = N.map(n=>n.toUpperCase());
 
-        function toInt(x){ var n=parseInt(x,10); return isNaN(n)?0:n; }
-        var TAIL = ['resep_asal','x6','t_report','t_ulang','t_gabung','warna_ctrl','resep_lain'];
-        function computeJmlLocal(d){
-            var tot = 0;
-            N.forEach(function(n){
-            tot += toInt(d['visual_'+n+'_ld']);  tot += toInt(d['visual_'+n+'_bulk']);
-            tot += toInt(d['color_'+n+'_ld']);   tot += toInt(d['color_'+n+'_bulk']);
-            });
-            TAIL.forEach(f=> tot += toInt(d[f]));
-            return tot;
+    function toInt(x){ var n=parseInt(x,10); return isNaN(n)?0:n; }
+    var TAIL = ['resep_asal','x6','t_report','t_ulang','t_gabung','warna_ctrl','resep_lain'];
+    function computeJmlLocal(d){
+      var tot = 0;
+      N.forEach(function(n){
+        tot += toInt(d['visual_'+n+'_ld']);  tot += toInt(d['visual_'+n+'_bulk']);
+        tot += toInt(d['color_'+n+'_ld']);   tot += toInt(d['color_'+n+'_bulk']);
+      });
+      TAIL.forEach(f=> tot += toInt(d[f]));
+      return tot;
+    }
+
+    var zeroFields = new Set();
+    N.forEach(function(n){
+      zeroFields.add('visual_'+n+'_ld'); zeroFields.add('visual_'+n+'_bulk');
+      zeroFields.add('color_'+n+'_ld');  zeroFields.add('color_'+n+'_bulk');
+    });
+    TAIL.forEach(f=>zeroFields.add(f));
+
+    /* label kiri pakai "Jenis Celup" */
+    var leftCols = [
+      {field:'tgl',        title:'TGL'},
+      {field:'jam',        title:'JAM'},
+      {field:'shift',      title:'SHIFT'},
+      {field:'kloter',     title:'KLOTER'},
+      {field:'jenis_kain', title:'Jenis Celup'}
+    ];
+    var tailCols = [
+      {field:'resep_asal', title:'RESEP ASAL'},
+      {field:'x6',         title:'X6'},
+      {field:'t_report',   title:'T. REPORT'},
+      {field:'t_ulang',    title:'T. ULANG'},
+      {field:'t_gabung',   title:'T. GABUNG'},
+      {field:'warna_ctrl', title:'WARNA CTRL'},
+      {field:'resep_lain', title:'RESEP LAIN'},
+      {field:'jml',        title:'JML'}
+    ];
+
+    var row1 = [], row2 = [], row3 = [];
+    leftCols.forEach(c => row1.push({content:c.title, rowSpan:3, styles:{halign:'center', valign:'middle'}}));
+    row1.push({content:'RESEP VISUAL',     colSpan:N.length*2, styles:{halign:'center'}});
+    row1.push({content:'RESEP DATA COLOR', colSpan:N.length*2, styles:{halign:'center'}});
+    tailCols.forEach(c => row1.push({content:c.title, rowSpan:3, styles:{halign:'center', valign:'middle'}}));
+    N_UP.forEach(n => row2.push({content:n, colSpan:2, styles:{halign:'center'}}));
+    N_UP.forEach(n => row2.push({content:n, colSpan:2, styles:{halign:'center'}}));
+    for (var pass=0; pass<2; pass++){
+      for (var i=0;i<N.length;i++){
+        row3.push({content:'LD',   styles:{halign:'center'}});
+        row3.push({content:'BULK', styles:{halign:'center'}});
+      }
+    }
+
+    var rows = (function(){
+      var actRows = table.getRows('active'); // mengikuti filter
+      if (actRows && actRows.length) return actRows.map(r => r.getData());
+      return table.getData();
+    })();
+
+    var body = rows.map(function(r){
+      r.jml = computeJmlLocal(r);
+      var line = [];
+      leftCols.forEach(c => line.push(r[c.field] ?? ''));
+      N.forEach(function(n){
+        var f1='visual_'+n+'_ld', f2='visual_'+n+'_bulk';
+        var v1=r[f1], v2=r[f2];
+        if (zeroFields.has(f1) && (v1===0 || v1==='0' || v1==null)) v1='';
+        if (zeroFields.has(f2) && (v2===0 || v2==='0' || v2==null)) v2='';
+        line.push(v1==null?'':v1); line.push(v2==null?'':v2);
+      });
+      N.forEach(function(n){
+        var f1='color_'+n+'_ld', f2='color_'+n+'_bulk';
+        var v1=r[f1], v2=r[f2];
+        if (zeroFields.has(f1) && (v1===0 || v1==='0' || v1==null)) v1='';
+        if (zeroFields.has(f2) && (v2===0 || v2==='0' || v2==null)) v2='';
+        line.push(v1==null?'':v1); line.push(v2==null?'':v2);
+      });
+      tailCols.forEach(function(c){
+        var v = (c.field==='jml') ? r.jml : r[c.field];
+        if (c.field!=='jml' && zeroFields.has(c.field) && (v===0 || v==='0' || v==null)) v='';
+        line.push(v==null?'':v);
+      });
+      return line;
+    });
+
+    var doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a2' });
+    doc.setFontSize(16); doc.setFont(undefined,'bold');
+    doc.text('SUMMARY PRELIMINARY', 40, 40);
+
+    var r = (function(){
+      var f = document.getElementById('fromDate').value || '';
+      var t = document.getElementById('toDate').value   || '';
+      if (f && t && f > t){ var tmp=f; f=t; t=tmp; }
+      return {from:f, to:t};
+    })();
+    var period = (r.from || r.to) ? ('Periode: ' + (r.from || '–') + ' s/d ' + (r.to || '–')) : '';
+    if (period){
+      doc.setFontSize(11); doc.setFont(undefined,'normal');
+      doc.text(period, 40, 56);
+    }
+
+    doc.setFontSize(8); doc.setFont(undefined,'normal');
+    doc.autoTable({
+      startY: 60,
+      head: [row1, row2, row3],
+      body: body,
+      styles: { fontSize: 9, halign: 'center', valign: 'middle', lineWidth: 0.3, lineColor: [170,170,170] },
+      headStyles: { fillColor: [224,232,241], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.6, lineColor: [120,120,120] },
+      alternateRowStyles: { fillColor: [248,250,252] },
+      tableLineWidth: 0.8, tableLineColor: [120,120,120],
+      margin: { left: 40, right: 40 },
+      tableWidth: 'auto',
+      rowPageBreak: 'auto',
+      didParseCell: function (data) {
+        if (data.section === 'head') {
+          if (data.row.index === 0) data.cell.styles.fillColor = [200,200,200];
+          else if (data.row.index === 1) data.cell.styles.fillColor = [220,220,220];
+          else data.cell.styles.fillColor = [235,235,235];
         }
-        // kolom yg nol kita kosongkan saat export
-        var zeroFields = new Set();
-        N.forEach(function(n){
-            zeroFields.add('visual_'+n+'_ld'); zeroFields.add('visual_'+n+'_bulk');
-            zeroFields.add('color_'+n+'_ld');  zeroFields.add('color_'+n+'_bulk');
-        });
-        TAIL.forEach(f=>zeroFields.add(f));
+      }
+    });
 
-        // urutan kolom seperti di grid:
-        var leftCols = [
-            {field:'tgl',        title:'TGL'},
-            {field:'jam',        title:'JAM'},
-            {field:'shift',      title:'SHIFT'},
-            {field:'kloter',     title:'KLOTER'},
-            {field:'jenis_kain', title:'Jenis Kain'}
-        ];
-        var tailCols = [
-            {field:'resep_asal', title:'RESEP ASAL'},
-            {field:'x6',         title:'X6'},
-            {field:'t_report',   title:'T. REPORT'},
-            {field:'t_ulang',    title:'T. ULANG'},
-            {field:'t_gabung',   title:'T. GABUNG'},
-            {field:'warna_ctrl', title:'WARNA CTRL'},
-            {field:'resep_lain', title:'RESEP LAIN'},
-            {field:'jml',        title:'JML'}
-        ];
-
-        // --- bangun 3 baris header ---
-        var row1 = [], row2 = [], row3 = [];
-        // kiri (rowSpan 3)
-        leftCols.forEach(c => row1.push({content:c.title, rowSpan:3, styles:{halign:'center', valign:'middle'}}));
-        // grup besar
-        row1.push({content:'RESEP VISUAL',     colSpan:N.length*2, styles:{halign:'center'}});
-        row1.push({content:'RESEP DATA COLOR', colSpan:N.length*2, styles:{halign:'center'}});
-        // tail (rowSpan 3)
-        tailCols.forEach(c => row1.push({content:c.title, rowSpan:3, styles:{halign:'center', valign:'middle'}}));
-        // baris-2: nama (masing2 colSpan 2), dua kali (visual & color)
-        N_UP.forEach(n => row2.push({content:n, colSpan:2, styles:{halign:'center'}}));
-        N_UP.forEach(n => row2.push({content:n, colSpan:2, styles:{halign:'center'}}));
-        // baris-3: LD, BULK per nama x2 (visual & color)
-        for (var pass=0; pass<2; pass++){
-            for (var i=0;i<N.length;i++){
-            row3.push({content:'LD',   styles:{halign:'center'}});
-            row3.push({content:'BULK', styles:{halign:'center'}});
-            }
-        }
-
-        // --- body sesuai urutan header di atas ---
-        // var rows = table.getData();
-        var rows = getActiveData();
-        var body = rows.map(function(r){
-            r.jml = computeJmlLocal(r); // pastikan terbaru
-            var line = [];
-            // kiri
-            leftCols.forEach(c => line.push(r[c.field] ?? ''));
-            // visual (LD,BULK) per nama
-            N.forEach(function(n){
-            var f1='visual_'+n+'_ld', f2='visual_'+n+'_bulk';
-            var v1=r[f1], v2=r[f2];
-            if (zeroFields.has(f1) && (v1===0 || v1==='0' || v1==null)) v1='';
-            if (zeroFields.has(f2) && (v2===0 || v2==='0' || v2==null)) v2='';
-            line.push(v1==null?'':v1); line.push(v2==null?'':v2);
-            });
-            // color (LD,BULK) per nama
-            N.forEach(function(n){
-            var f1='color_'+n+'_ld', f2='color_'+n+'_bulk';
-            var v1=r[f1], v2=r[f2];
-            if (zeroFields.has(f1) && (v1===0 || v1==='0' || v1==null)) v1='';
-            if (zeroFields.has(f2) && (v2===0 || v2==='0' || v2==null)) v2='';
-            line.push(v1==null?'':v1); line.push(v2==null?'':v2);
-            });
-            // tail + JML
-            tailCols.forEach(function(c){
-            var v = (c.field==='jml') ? r.jml : r[c.field];
-            if (c.field!=='jml' && zeroFields.has(c.field) && (v===0 || v==='0' || v==null)) v='';
-            line.push(v==null?'':v);
-            });
-            return line;
-        });
-
-        // --- render PDF ---
-        var doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a2' });
-        doc.setFontSize(16); doc.setFont(undefined,'bold');
-        doc.text('SUMMARY PRELIMINARY', 40, 40);
-
-        var r = normRange();
-        var period = (r.from || r.to) ? ('Periode: ' + (r.from || '–') + ' s/d ' + (r.to || '–')) : '';
-        if (period){
-            doc.setFontSize(11); doc.setFont(undefined,'normal');
-            doc.text(period, 40, 56);
-        }
-
-        doc.setFontSize(8); doc.setFont(undefined,'normal');
-        doc.autoTable({
-            startY: 60,
-            head: [row1, row2, row3],
-            body: body,
-
-            // garis & teks lebih jelas
-            styles: {
-                fontSize: 9,
-                halign: 'center',
-                valign: 'middle',
-                lineWidth: 0.3,
-                lineColor: [170,170,170]
-            },
-
-            // header lebih kontras
-            headStyles: {
-                fillColor: [224,232,241],   // biru-abu terang
-                textColor: [0,0,0],
-                fontStyle: 'bold',
-                lineWidth: 0.6,
-                lineColor: [120,120,120]
-            },
-
-            // zebra row supaya body kebaca
-            alternateRowStyles: { fillColor: [248,250,252] },
-
-            // bingkai tabel tebal
-            tableLineWidth: 0.8,
-            tableLineColor: [120,120,120],
-
-            margin: { left: 40, right: 40 },
-            tableWidth: 'auto',
-            rowPageBreak: 'auto',
-
-            // beda shading untuk 3 baris header (lebih kentara)
-            didParseCell: function (data) {
-                if (data.section === 'head') {
-                if (data.row.index === 0) data.cell.styles.fillColor = [200,200,200]; // baris 1
-                else if (data.row.index === 1) data.cell.styles.fillColor = [220,220,220]; // baris 2
-                else data.cell.styles.fillColor = [235,235,235]; // baris 3
-                }
-            }
-        });
-
-        doc.save('Summary-Preliminary.pdf');
-        });
+    doc.save('Summary-Preliminary.pdf');
+  });
 </script>

@@ -44,7 +44,7 @@ $sql = "SELECT * FROM summary_preliminary";
 if (!empty($where)){
   $sql .= " WHERE ".implode(" AND ", $where);
 }
-$sql .= " ORDER BY tgl ASC, jam ASC, id ASC";
+$sql .= " ORDER BY tgl DESC, jam DESC, id DESC";
 
 $stmt = $con->prepare($sql);
 if (!$stmt){

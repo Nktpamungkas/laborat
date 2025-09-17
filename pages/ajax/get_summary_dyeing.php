@@ -23,7 +23,7 @@ $sql = "SELECT id,tgl,shift,
                suffix, botol
         FROM summary_dyeing".
         ($where? " WHERE ".implode(" AND ",$where):"").
-        " ORDER BY tgl ASC, id ASC";
+        " ORDER BY tgl DESC, id DESC";
 
 $stmt = $con->prepare($sql);
 if(!$stmt){ echo json_encode(["ok"=>false,"message"=>$con->error]); exit; }

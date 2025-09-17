@@ -182,6 +182,10 @@
                             title: 'Gagal',
                             text: response.message
                         });
+
+                        if (/session/i.test(response.message)) {
+                            window.location.href = "/laborat/login";
+                        }
                     }
                 } catch (err) {
                     console.error("Parse error:", err);

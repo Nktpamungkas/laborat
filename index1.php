@@ -515,6 +515,10 @@ $page = strtolower($page);
                                                     echo "active"; ?>">
                                                     <a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
                                                 </li>
+                                                <li class="<?php if ($_GET['p'] == "Approval-Revisi-Bon-Order")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=Approval-Revisi-Bon-Order"><i class="fa fa-list-alt"></i> <span>Approval Revisi Bon Order</span></a>
+                                                </li>
                                                 <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order")
                                                     echo "active"; ?>">
                                                     <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon
@@ -673,6 +677,11 @@ $page = strtolower($page);
                                     <li class="header">
                                         <a href="/laborat/index1.php?p=Approval-Bon-Order" style="display: block; color: inherit; text-decoration: none;">
                                             <strong><span id="notifTBOText"></span></strong> bon order siap approved
+                                        </a>
+                                    </li>
+                                    <li class="header">
+                                        <a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order" style="display: block; color: inherit; text-decoration: none;">
+                                            <strong><span id="notifTBOText_revisi"></span></strong> bon order revisi siap approved
                                         </a>
                                     </li>
                                 </ul>
@@ -1064,17 +1073,67 @@ $(document).ready(function() {
 </html>
 <script>
     $(document).ready(function() {
+        let tboCount = 0;
+        let tboRevisiCount = 0;
+
+        // helper parsing angka aman
+        function toInt(x) {
+            try {
+                if (typeof x === 'string' && x.trim().startsWith('{')) {
+                    const obj = JSON.parse(x);
+                    for (const k in obj) {
+                        if (Object.hasOwn(obj, k) && !isNaN(parseInt(obj[k], 10))) {
+                            return parseInt(obj[k], 10);
+                        }
+                    }
+                }
+            } catch(e) {}
+            // fallback: ambil digit saja
+            const n = parseInt(String(x).replace(/[^\d-]/g, ''), 10);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function updateBadge() {
+            const total = tboCount + tboRevisiCount;
+            // badge pada icon (gabungan)
+            $('#notifTBO').text(total);
+
+            $('#notifTBOText').text(tboCount);
+            $('#notifTBOText_revisi').text(tboRevisiCount);
+        }
+
         function refreshTBOCount() {
             $.ajax({
                 url: 'pages/ajax/get_total_tbo.php',
                 method: 'GET',
-                success: function(data) {
-                    $('#notifTBO').text(data);
-                    $('#notifTBOText').text(data);
+                success: function (data) {
+                    tboCount = toInt(data);
+                    updateBadge();
+                },
+                error: function () {
+                    tboCount = 0;
+                    updateBadge();
                 }
             });
         }
+
+        function refreshTBORCount() {
+            $.ajax({
+                url: 'pages/ajax/get_total_tbo_revisi.php',
+                method: 'GET',
+                success: function (data) {
+                    tboRevisiCount = toInt(data);
+                    updateBadge();
+                },
+                error: function () {
+                    tboRevisiCount = 0;
+                    updateBadge();
+                }
+            });
+        }
+
         refreshTBOCount();
+        refreshTBORCount();
 
         $("#logout").click(function() {
             Swal.fire({

@@ -251,27 +251,40 @@
             $.ajax({
                 url: 'pages/ajax/scan_dispensing_update_status.php',
                 method: 'POST',
+                dataType: 'json',
                 data: {
                     no_resep: noResep,
                     dispensing_code: dispensingCode
                 },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    fetchAndRenderDataOnly();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
+                success: function (res) {
+                    if (res.success) {
+                        console.log("Update sukses:", res);
+                        fetchAndRenderDataOnly();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Status Diperbarui!',
+                            text: `No. Resep ${noResep} telah diproses.`,
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: res.message || res.error || 'Terjadi kesalahan saat memperbarui status.',
+                        });
+                        
+                        if (/session/i.test(res.message)) {
+                            window.location.href = "/laborat/login";
+                        }
+                    }
                 },
                 error: function (xhr, status, error) {
-                    console.log(xhr.responseText);
+                    console.error("AJAX error:", xhr.responseText);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status.',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan jaringan / server.',
                     });
                 }
             });

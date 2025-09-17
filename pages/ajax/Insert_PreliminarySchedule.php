@@ -9,7 +9,15 @@ $bottle_qty_1   = (int) $_POST['bottle_qty_1'];
 $bottle_qty_2   = (int) $_POST['bottle_qty_2'];
 $temp_1         = trim(htmlspecialchars($_POST['temp_1'])); 
 $temp_2         = trim(htmlspecialchars($_POST['temp_2']));
-$username       = $_SESSION['userLAB'];
+$username       = $_SESSION['userLAB'] ?? null;
+
+if (!$username) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Session telah habis, silahkan login ulang terlebih dahulu!'
+    ]);
+    exit;
+}
 
 $checkReady = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'ready'");
 $dataReady = mysqli_fetch_assoc($checkReady);
