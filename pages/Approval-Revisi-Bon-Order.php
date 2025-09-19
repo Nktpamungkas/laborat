@@ -857,8 +857,8 @@ $(document).ready(function(){
             Swal.fire({icon:'success', title:'Berhasil', text:resp});
             reloadTboTable();
             reloadApprovedTable(1);
-            if (typeof refreshTBOCount === 'function') refreshTBOCount();
-            if (typeof refreshTBORCount === 'function') refreshTBORCount();
+            // if (typeof refreshTBOCount === 'function') refreshTBOCount();
+            // if (typeof refreshTBORCount === 'function') refreshTBORCount();
           }).fail(function(){
             Swal.fire({icon:'error', title:'Gagal', text:'Terjadi kesalahan saat menyimpan data.'});
             buttons.prop('disabled', false);
@@ -874,6 +874,6 @@ $(document).ready(function(){
   $('#tboTable tbody').on('click', '.approve-btn', function(){ submitApproval($(this).data('code'), 'Approved'); });
   $('#tboTable tbody').on('click', '.reject-btn',  function(){ submitApproval($(this).data('code'), 'Rejected'); });
 
-  refreshTBOCount();
+  // refreshTBOCount();
 });
 </script>

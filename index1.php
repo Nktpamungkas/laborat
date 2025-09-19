@@ -695,7 +695,7 @@ $page = strtolower($page);
                                             </a>
                                     </li>
                                     <li class="menu">
-                                    
+                                        <ul id="notifList" class="menu-list" style="max-height:320px;overflow:auto;margin:0;padding:0;list-style:none;"></ul>
                                     </li>
                                 </ul>
                             </li>
@@ -1106,48 +1106,37 @@ $(document).ready(function() {
             return isNaN(n) ? 0 : n;
         }
 
-        function updateBadge() {
-            const total = tboCount + tboRevisiCount;
-            // badge pada icon (gabungan)
-            $('#notifTBO').text(total);
+        // function updateBadge() {
+        //     const total = tboCount + tboRevisiCount;
+        //     // badge pada icon (gabungan)
+        //     $('#notifTBO').text(total);
 
-            $('#notifTBOText').text(tboCount);
-            $('#notifTBOText_revisi').text(tboRevisiCount);
-        }
+        //     $('#notifTBOText').text(tboCount);
+        //     $('#notifTBOText_revisi').text(tboRevisiCount);
+        // }
 
-        function refreshTBOCount() {
-            $.ajax({
-                url: 'pages/ajax/get_total_tbo.php',
-                method: 'GET',
-                success: function (data) {
-                    tboCount = toInt(data);
-                    updateBadge();
-                },
-                error: function () {
-                    tboCount = 0;
-                    updateBadge();
-                }
+        function refreshNotif() {
+            $.getJSON('pages/ajax/get_notif_tbo.php', function(resp) {
+                const tboCount = resp.new.count;
+                const tboRevisiCount = resp.revisi.count;
+
+                $('#notifTBO').text(resp.total);
+                $('#notifTBOText').text(tboCount);
+                $('#notifTBOText_revisi').text(tboRevisiCount);
+
+                const $list = $('#notifList').empty();
+                resp.new.codes.forEach(code => $list.append(
+                    `<li style="padding:6px 12px;"><a href="/laborat/index1.php?p=Approval-Bon-Order&code=${encodeURIComponent(code)}">Bon Order Baru ${code}</a></li>`
+                ));
+                resp.revisi.codes.forEach(code => $list.append(
+                    `<li style="padding:6px 12px;"><a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order&code=${encodeURIComponent(code)}">Revisi Bon Order ${code}</a></li>`
+                ));
             });
         }
 
-        function refreshTBORCount() {
-            $.ajax({
-                url: 'pages/ajax/get_total_tbo_revisi.php',
-                method: 'GET',
-                success: function (data) {
-                    tboRevisiCount = toInt(data);
-                    updateBadge();
-                },
-                error: function () {
-                    tboRevisiCount = 0;
-                    updateBadge();
-                }
-            });
-        }
-
-        refreshTBOCount();
-        refreshTBORCount();
-
+        refreshNotif();
+        setInterval(refreshNotif, 10000);
+        
         $("#logout").click(function() {
             Swal.fire({
                 title: 'Are you sure?',

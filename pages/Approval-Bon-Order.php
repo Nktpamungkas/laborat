@@ -281,8 +281,8 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                         // Refresh tabel, tombol akan hilang karena data berubah
                         reloadApprovedTable();
                         reloadTboTable();
-                        refreshTBOCount();
-                        refreshTBORCount();
+                        // refreshTBOCount();
+                        // refreshTBORCount();
                     }).fail(function () {
                         Swal.fire({
                             icon: 'error',
@@ -361,46 +361,46 @@ $resultApproved = mysqli_query($con, $sqlApproved);
             return isNaN(n) ? 0 : n;
         }
 
-        function updateBadge() {
-            const total = tboCount + tboRevisiCount;
-            // badge pada icon (gabungan)
-            $('#notifTBO').text(total);
+        // function updateBadge() {
+        //     const total = tboCount + tboRevisiCount;
+        //     // badge pada icon (gabungan)
+        //     $('#notifTBO').text(total);
 
-            $('#notifTBOText').text(tboCount);
-            $('#notifTBOText_revisi').text(tboRevisiCount);
-        }
+        //     $('#notifTBOText').text(tboCount);
+        //     $('#notifTBOText_revisi').text(tboRevisiCount);
+        // }
 
-        function refreshTBOCount() {
-            $.ajax({
-                url: 'pages/ajax/get_total_tbo.php',
-                method: 'GET',
-                success: function (data) {
-                    tboCount = toInt(data);
-                    updateBadge();
-                },
-                error: function () {
-                    tboCount = 0;
-                    updateBadge();
-                }
-            });
-        }
+        // function refreshTBOCount() {
+        //     $.ajax({
+        //         url: 'pages/ajax/get_total_tbo.php',
+        //         method: 'GET',
+        //         success: function (data) {
+        //             tboCount = toInt(data);
+        //             updateBadge();
+        //         },
+        //         error: function () {
+        //             tboCount = 0;
+        //             updateBadge();
+        //         }
+        //     });
+        // }
 
-        function refreshTBORCount() {
-            $.ajax({
-                url: 'pages/ajax/get_total_tbo_revisi.php',
-                method: 'GET',
-                success: function (data) {
-                    tboRevisiCount = toInt(data);
-                    updateBadge();
-                },
-                error: function () {
-                    tboRevisiCount = 0;
-                    updateBadge();
-                }
-            });
-        }
+        // function refreshTBORCount() {
+        //     $.ajax({
+        //         url: 'pages/ajax/get_total_tbo_revisi.php',
+        //         method: 'GET',
+        //         success: function (data) {
+        //             tboRevisiCount = toInt(data);
+        //             updateBadge();
+        //         },
+        //         error: function () {
+        //             tboRevisiCount = 0;
+        //             updateBadge();
+        //         }
+        //     });
+        // }
 
-        refreshTBOCount();
-        refreshTBORCount();
+        // refreshTBOCount();
+        // refreshTBORCount();
     });
 </script>
