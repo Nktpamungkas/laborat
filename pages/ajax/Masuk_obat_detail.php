@@ -103,7 +103,7 @@ s.TRANSACTIONNUMBER,
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
                     -- AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
-                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl_filter_masuk $time:00' AND '$tgl2 $time2:00'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                    AND s.LOGICALWAREHOUSECODE $warehouse
                     and s.CREATIONUSER != 'MT_STI'

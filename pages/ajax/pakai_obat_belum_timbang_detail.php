@@ -15,12 +15,6 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-// if ($warehouse == 'M101') {
-//     $templateCodes = "'QCT','OPN','204'";
-// } else {
-//     $templateCodes = "'QCT','304','OPN','204'";
-// }
-
 //UNTUK WAREHOUSE 2
 if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
     $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
@@ -34,39 +28,7 @@ if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
     $warehouse_ = "NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND";
 }
 
-//UNTUK TEMPLATE
-if (preg_match_all("/'([^']+)'/", $warehouse, $matches)) {
-    $warehouses = $matches[1]; // hasil array: ['M510', 'M101']
-} else {
-    $warehouses = [$warehouse]; // fallback
-}
-
-if (count($warehouses) === 1 && in_array($warehouses[0], ['M101', 'M510'])) {
-    $wheretemplate = "";
-} else {
-    $wheretemplate = "WHERE TEMPLATE <> '304'";
-}
-
 $query = "SELECT 
-LOGICALWAREHOUSECODE,
-ISTANCECODE,
-COUNTERCODE,
-NOMOR_RESEP,
-KODE_OBAT,
-NAMA_OBAT,
-GROUPLINE,
-ITEMTYPECODE,
-DUEDATE,
-DECOSUBCODE01,
-DECOSUBCODE02,
-DECOSUBCODE03,
-STATUS,
-PRODUCTIONORDER_STATUS,
-BASEPRIMARYUNITCODE,
-sum(BASEPRIMARYQUANTITY) AS BASEPRIMARYQUANTITY
-FROM 
-(
-SELECT 
         v.WAREHOUSECODE AS LOGICALWAREHOUSECODE,
         p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
         v.PRODUCTIONORDERCODE AS ISTANCECODE,
@@ -105,25 +67,7 @@ SELECT
             AND v.SUBCODE02 = '$code2' 
             AND v.SUBCODE03 = '$code3'
             AND v.ISSUEDATE BETWEEN '$tgl1 ' AND '$tgl2'
-            )
-            GROUP BY 
-           LOGICALWAREHOUSECODE,
-	ISTANCECODE,
-	COUNTERCODE,
-	NOMOR_RESEP,
-	NAMA_OBAT,
-	KODE_OBAT,
-	GROUPLINE,
-	ITEMTYPECODE,
-	DUEDATE,
-	DECOSUBCODE01,
-	DECOSUBCODE02,
-	DECOSUBCODE03,
-	STATUS,
-	PRODUCTIONORDER_STATUS,
-	BASEPRIMARYUNITCODE 
-    ORDER BY 
-	DUEDATE DESC";
+                    ";
 
 
 $stmt = db2_exec($conn1, $query);
@@ -134,7 +78,7 @@ if (!$stmt) {
 $no = 1;
 $kode_obat_label = '';
 $nama_obat_label = '';
-$rows2=[];
+$rows2 = [];
 while ($row2 = db2_fetch_assoc($stmt)) {
     $rows2[] = $row2;
 }
@@ -143,29 +87,29 @@ $nama_obat_label = $rows2[0]['NAMA_OBAT'] ?? '';
 
 echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialchars($nama_obat_label) . "</strong></h4>";
 // if ($stmt) { 
-        echo "<table class='table table-bordered table-striped' id='detailpakaibelumtimbang'>";
-        echo "<thead>
-                <tr>
-                    <th>No</th>
-                    <th>Tanggal</th>
-                    <th>No Bon Resep</th>
-                    <th>QTY (gr)</th>              
-                </tr>
-            </thead>";
-        echo "<tbody>";
-        foreach ($rows2 as $row) {
-            echo "<tr>";
-            echo "<td>" . $no++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['DUEDATE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['NOMOR_RESEP'] ?? '') . "</td>";
-            echo "<td>" . number_format((float) ($row['BASEPRIMARYQUANTITY'] ?? 0), 2) . "</td>";           
-            echo "</tr>";
-        }
+echo "<table class='table table-bordered table-striped' id='detailpakaibelumtimbang'>";
+echo "<thead>
+            <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>No Bon Resep</th>
+                <th>QTY (gr)</th>              
+            </tr>
+        </thead>";
+echo "<tbody>";
+foreach ($rows2 as $row) {
+    echo "<tr>";
+    echo "<td>" . $no++ . "</td>";
+    echo "<td>" . htmlspecialchars($row['DUEDATE'] ?? '') . "</td>";
+    echo "<td>" . htmlspecialchars($row['NOMOR_RESEP'] ?? '') . "</td>";
+    echo "<td>" . number_format((float) ($row['BASEPRIMARYQUANTITY'] ?? 0), 2) . "</td>";
+    echo "</tr>";
+}
 
-        echo "</tbody></table>";
-    // } else {
-    //     echo "<p class='text-warning'>Tidak ada data untuk ditampilkan.</p>";
-    // }
+echo "</tbody></table>";
+// } else {
+//     echo "<p class='text-warning'>Tidak ada data untuk ditampilkan.</p>";
+// }
 
 
 ?>

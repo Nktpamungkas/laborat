@@ -27,27 +27,7 @@ $query = "SELECT
     SUM(CASE WHEN KET_STEPTYPE = 'Normal' THEN USED_QTY ELSE 0 END) AS NORMAL_QTY,
     SUM(CASE WHEN KET_STEPTYPE = 'Additional' THEN USED_QTY ELSE 0 END) AS ADITIONAL_QTY,
     SUM(CASE WHEN KET_STEPTYPE = 'Tambah Obat' THEN USED_QTY ELSE 0 END) AS TAMBAH_OBAT_QTY
-FROM (
-  SELECT 
-                TRANSACTIONDATE,
-                TGL_WAKTU,
-                DECOSUBCODE01,
-                DECOSUBCODE02,
-                DECOSUBCODE03,
-                KODE_OBAT,
-                LONGDESCRIPTION As NAMA_OBAT,
-                DESC_USERGENERIC,
-                sum(USED_QTY) AS USED_QTY,
-                TEMPLATECODE,
-                KETERANGAN,
-                CASE 
-                	WHEN KETERANGAN = 'Tambah Obat' AND  KET_STEPTYPE IS NULL THEN 'Tambah Obat'
-                	WHEN KETERANGAN = 'Perbaikan' AND  KET_STEPTYPE IS NULL THEN 'Additional'
-                	WHEN KETERANGAN NOT IN ('Perbaikan','Tambah Obat') AND  KET_STEPTYPE IS NULL THEN 'Normal'
-                	ELSE KET_STEPTYPE
-                END AS KET_STEPTYPE   
-            FROM 
-            (SELECT
+FROM ( SELECT
                 s.TRANSACTIONDATE,
                 VARCHAR_FORMAT(TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME), 'YYYY-MM-DD HH24:MI:SS') AS TGL_WAKTU,
                 s.DECOSUBCODE01,
@@ -66,16 +46,19 @@ FROM (
                 END AS SATUAN,
                  u.LONGDESCRIPTION AS DESC_USERGENERIC,
                 s.LOGICALWAREHOUSECODE,
-                p.LONGDESCRIPTION,
+                p.LONGDESCRIPTION As NAMA_OBAT,
                 s.TEMPLATECODE,
-                n2.KETERANGAN,
-                n2.STEPTYPE,
                 CASE 
-                	WHEN n2.STEPTYPE = 0 THEN 'Normal'
-                	WHEN n2.STEPTYPE = 1 THEN 'Additional'
---                	WHEN n2.STEPTYPE = 2 THEN 'Normal'/
-                	WHEN n2.STEPTYPE = 3 THEN 'Tambah Obat'
-                END AS KET_STEPTYPE
+				    WHEN n2.KETERANGAN = 'Tambah Obat' AND n2.STEPTYPE IS NULL THEN 'Tambah Obat'
+				    WHEN n2.KETERANGAN = 'Perbaikan' AND n2.STEPTYPE IS NULL THEN 'Additional'
+				    WHEN n2.KETERANGAN NOT IN ('Perbaikan', 'Tambah Obat') AND n2.STEPTYPE IS NULL THEN 'Normal'
+				    ELSE 
+				        CASE 
+				            WHEN n2.STEPTYPE = 0 THEN 'Normal'
+				            WHEN n2.STEPTYPE = 1 THEN 'Additional'
+				            WHEN n2.STEPTYPE = 3 THEN 'Tambah Obat'
+				        END
+				END AS KET_STEPTYPE
             FROM
                 STOCKTRANSACTION s
             LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
@@ -120,19 +103,7 @@ FROM (
             s.DECOSUBCODE02 = '$code2' AND
             s.DECOSUBCODE03 = '$code3'
             ORDER BY
-                s.PRODUCTIONORDERCODE ASC)                
-                GROUP BY 
-                TRANSACTIONDATE,
-                TGL_WAKTU,
-                DECOSUBCODE01,               
-                DECOSUBCODE02,
-                DECOSUBCODE03,
-                LONGDESCRIPTION,
-                DESC_USERGENERIC,
-                KODE_OBAT,
-                TEMPLATECODE,
-                KETERANGAN,
-                KET_STEPTYPE     
+                s.PRODUCTIONORDERCODE ASC
 ) AS sub
 GROUP BY 
     TRANSACTIONDATE,
