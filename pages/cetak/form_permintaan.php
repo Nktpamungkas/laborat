@@ -93,6 +93,11 @@ $rows = mysqli_fetch_all($sql, MYSQLI_ASSOC);
 							</tr>
 							<tr>
 								<td colspan="3" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; border-left:0px #000000 solid; border-right:0px #000000 solid;">
+									<div style="font-size: 8px;">SUFFIX : <?php echo isset($rows[$i]['suffix']) ? $rows[$i]['suffix'] : ''; ?></div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="3" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; border-left:0px #000000 solid; border-right:0px #000000 solid;">
 									<div style="font-size: 8px;">PERM TESTING : <?php echo isset($rows[$i]['permintaan_testing']) && ($rows[$i]['permintaan_testing'] == null || $rows[$i]['permintaan_testing'] == '') ? "FULL TEST" : $rows[$i]['permintaan_testing']; ?></div>
 								</td>
 							</tr>
