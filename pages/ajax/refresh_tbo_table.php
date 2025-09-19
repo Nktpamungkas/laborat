@@ -2,7 +2,7 @@
 include "../../koneksi.php";
 
 $approvedCodes = [];
-$res = mysqli_query($con, "SELECT code FROM approval_bon_order");
+$res = mysqli_query($con, "SELECT code FROM approval_bon_order WHERE is_revision = 0");
 while ($r = mysqli_fetch_assoc($res)) {
     $approvedCodes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
 }

@@ -6,12 +6,20 @@ header('Content-Type: application/json');
 
 $userDarkroomStart = $_SESSION['userLAB'] ?? '';
 
+if (!$userDarkroomStart) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Session telah habis, silahkan login ulang terlebih dahulu!'
+    ]);
+    exit;
+}
+
 $rawData = file_get_contents("php://input");
 $data = json_decode($rawData, true);
 
 if (!is_array($data)) {
     http_response_code(400);
-    echo json_encode(["success" => false, "error" => "Data tidak valid."]);
+    echo json_encode(["success" => false, "message" => "Data tidak valid."]);
     exit;
 }
 
@@ -23,7 +31,7 @@ $allNoResep = array_merge(
 
 if (empty($allNoResep)) {
     http_response_code(400);
-    echo json_encode(["success" => false, "error" => "Tidak ada data yang dikirim."]);
+    echo json_encode(["success" => false, "message" => "Tidak ada data yang dikirim."]);
     exit;
 }
 
@@ -53,7 +61,7 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "error" => "Gagal memproses batch: " . $e->getMessage()
+        "message" => "Gagal memproses batch: " . $e->getMessage()
     ]);
 }
 

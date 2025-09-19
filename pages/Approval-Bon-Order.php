@@ -2,7 +2,7 @@
 include "koneksi.php";
 
 $approvedCodes = [];
-$res = mysqli_query($con, "SELECT code FROM approval_bon_order");
+$res = mysqli_query($con, "SELECT code FROM approval_bon_order WHERE is_revision = 0");
 while ($r = mysqli_fetch_assoc($res)) {
     $approvedCodes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
 }
@@ -18,7 +18,7 @@ $sqlTBO = "SELECT DISTINCT
         FROM
             ITXVIEW_SALESORDER_APPROVED isa 
         LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
-        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
+        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE
         WHERE 
             isa.APPROVEDRMP IS NOT NULL
             AND CAST(s.CREATIONDATETIME AS DATE) > '2025-06-01'
@@ -31,7 +31,7 @@ if (!empty($codeList)) {
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
 // Ambil data yang sudah pernah di-approve
-$sqlApproved = "SELECT * FROM approval_bon_order ORDER BY id DESC";
+$sqlApproved = "SELECT * FROM approval_bon_order WHERE is_revision = 0 ORDER BY id DESC";
 $resultApproved = mysqli_query($con, $sqlApproved);
 ?>
 
@@ -282,6 +282,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                         reloadApprovedTable();
                         reloadTboTable();
                         refreshTBOCount();
+                        refreshTBORCount();
                     }).fail(function () {
                         Swal.fire({
                             icon: 'error',
@@ -326,17 +327,6 @@ $resultApproved = mysqli_query($con, $sqlApproved);
             });
         }
 
-        function refreshTBOCount() {
-            $.ajax({
-                url: 'pages/ajax/get_total_tbo.php',
-                method: 'GET',
-                success: function(data) {
-                    $('#notifTBO').text(data);
-                    $('#notifTBOText').text(data);
-                }
-            });
-        }
-
         // ✅ Gunakan event delegation agar tetap berfungsi setelah redraw (pengganti bindApproveRejectButtons())
         $('#tboTable tbody').on('click', '.approve-btn', function () {
             const code = $(this).data('code');
@@ -350,6 +340,67 @@ $resultApproved = mysqli_query($con, $sqlApproved);
 
         // Bind tombol awal saat halaman pertama kali diload
         // bindApproveRejectButtons();
+        
+        let tboCount = 0;
+        let tboRevisiCount = 0;
+
+        // helper parsing angka aman
+        function toInt(x) {
+            try {
+                if (typeof x === 'string' && x.trim().startsWith('{')) {
+                    const obj = JSON.parse(x);
+                    for (const k in obj) {
+                        if (Object.hasOwn(obj, k) && !isNaN(parseInt(obj[k], 10))) {
+                            return parseInt(obj[k], 10);
+                        }
+                    }
+                }
+            } catch(e) {}
+            // fallback: ambil digit saja
+            const n = parseInt(String(x).replace(/[^\d-]/g, ''), 10);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function updateBadge() {
+            const total = tboCount + tboRevisiCount;
+            // badge pada icon (gabungan)
+            $('#notifTBO').text(total);
+
+            $('#notifTBOText').text(tboCount);
+            $('#notifTBOText_revisi').text(tboRevisiCount);
+        }
+
+        function refreshTBOCount() {
+            $.ajax({
+                url: 'pages/ajax/get_total_tbo.php',
+                method: 'GET',
+                success: function (data) {
+                    tboCount = toInt(data);
+                    updateBadge();
+                },
+                error: function () {
+                    tboCount = 0;
+                    updateBadge();
+                }
+            });
+        }
+
+        function refreshTBORCount() {
+            $.ajax({
+                url: 'pages/ajax/get_total_tbo_revisi.php',
+                method: 'GET',
+                success: function (data) {
+                    tboRevisiCount = toInt(data);
+                    updateBadge();
+                },
+                error: function () {
+                    tboRevisiCount = 0;
+                    updateBadge();
+                }
+            });
+        }
+
         refreshTBOCount();
+        refreshTBORCount();
     });
 </script>

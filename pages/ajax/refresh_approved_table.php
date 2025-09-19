@@ -1,7 +1,9 @@
 <?php
 include "../../koneksi.php";
 
-$sqlApproved = "SELECT * FROM approval_bon_order ORDER BY id DESC";
+$is_revision = isset($_GET['is_revision']) ? (int)$_GET['is_revision'] : 0;
+
+$sqlApproved = "SELECT * FROM approval_bon_order WHERE is_revision = $is_revision ORDER BY id DESC";
 $resultApproved = mysqli_query($con, $sqlApproved);
 
 while ($row = mysqli_fetch_assoc($resultApproved)) {

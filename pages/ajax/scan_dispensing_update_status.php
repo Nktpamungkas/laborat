@@ -12,6 +12,14 @@ $no_resep = $_POST['no_resep'];
 $dispensing_code = $_POST['dispensing_code'] ?? '';
 $userDispensing = $_SESSION['userLAB'] ?? '';
 
+if (!$userDispensing) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Session telah habis, silahkan login ulang terlebih dahulu!'
+    ]);
+    exit;
+}
+
 try {
     // Ambil semua data yang masih belum selesai berdasarkan dispensing_code
     $query = "

@@ -26,7 +26,7 @@
   .tabulator .tabulator-col .tabulator-arrow{ display:none !important; }
   .tabulator .tabulator-col{ cursor: default !important; }
 
-  /* Modal sederhana (detail tabel) */
+  /* Modal sederhana */
   .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:100000; display:none; }
   .modal-shell{ position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
     width:min(820px,94vw); max-height:86vh; overflow:auto; background:#fff; border:1px solid #d0d0d0;
@@ -34,10 +34,6 @@
   .modal-header{ padding:12px 16px; border-bottom:1px solid #eee; font-weight:700; }
   .modal-body{ padding:12px 16px; }
   .modal-footer{ padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
-
-  /* Grid 2 kolom */
-  .detail-grid{ display:flex; gap:16px; align-items:flex-start; }
-  .detail-col{ flex:1 1 0; min-width:260px; }
 
   /* Tabel Bootstrap 3 */
   .table th, .table td{ vertical-align:middle !important; }
@@ -49,7 +45,9 @@
     background:#f5f7fa; border-bottom:1px solid #e5e7eb; padding:6px 10px; font-weight:600; text-transform:capitalize; text-align:center;
   }
   .panel-like .panel-body{ padding:6px; }
-  .text-muted-small{ color:#888; font-size:12px; }
+
+  /* Highlight sel error required */
+  .tabulator .cell-error{ background:#ffecec !important; }
 </style>
 
 <h4 class="summary-title" style="text-align:center;font-weight:700;margin:4px 0 6px;">SUMMARY DYEING</h4>
@@ -74,9 +72,9 @@
   <div class="modal-header" id="dyeTitle">Detail SUFFIX</div>
   <div class="modal-body">
     <div class="text-muted-small" id="dyeRange"></div>
-    <div class="detail-grid" style="margin-top:8px;">
+    <div class="detail-grid" style="display:flex;gap:16px;align-items:flex-start;margin-top:8px;">
       <!-- POLY -->
-      <div class="detail-col panel-like">
+      <div class="detail-col panel-like" style="flex:1 1 0;min-width:260px;">
         <div class="panel-head">poly</div>
         <div class="panel-body">
           <table class="table table-bordered table-condensed" id="tblPoly">
@@ -101,7 +99,7 @@
       </div>
 
       <!-- COTTON -->
-      <div class="detail-col panel-like">
+      <div class="detail-col panel-like" style="flex:1 1 0;min-width:260px;">
         <div class="panel-head">cotton</div>
         <div class="panel-body">
           <table class="table table-bordered table-condensed" id="tblCotton">
@@ -124,6 +122,7 @@
           </table>
         </div>
       </div>
+
     </div>
   </div>
   <div class="modal-footer">
@@ -132,6 +131,25 @@
 </div>
 
 <script>
+  /* ===== Helpers ===== */
+  function intValidator(cell){
+    var v = cell.getValue();
+    if (v === null || v === '' || typeof v === 'undefined') return true;
+    return (/^-?\d+$/).test(String(v));
+  }
+  function w(px){ return px; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // 0 → kosong
+  function zeroBlankFormatter(cell){
+    var v = cell.getValue();
+    return (v === 0 || v === '0') ? '' : v;
+  }
+  function zeroBlankDownload(value){
+    return (value === 0 || value === '0') ? '' : value;
+  }
+  function _zb(v){ return (v === 0 || v === '0') ? '' : (v ?? ''); }
+
   /* ===== Overlay editor: tanggal ===== */
   function overlayEditorFactory(inputType, minW){
     return function(cell, onRendered, success, cancel){
@@ -173,26 +191,8 @@
   }
   var dateEditor = overlayEditorFactory('date', 110);
 
-  /* ===== Helpers ===== */
-  function intValidator(cell){
-    var v = cell.getValue();
-    if (v === null || v === '' || typeof v === 'undefined') return true;
-    return (/^-?\d+$/).test(String(v));
-  }
-  function w(px){ return px; } // lebar apa adanya
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
   /* ===== Kolom ===== */
-  function suffixCount2(d){
-    var f = function(x){ return x? String(x).split(/[,\s;]+/).map(s=>s.trim()).filter(Boolean).length : 0; };
-    return f(d.suffix_poly)+f(d.suffix_cotton);
-  }
-  function suffixCellFormatter(cell){
-    var d = cell.getRow().getData();
-    var n = suffixCount2(d);
-    // return '<button class="btn btn-info btn-xs">Detail'+(n? ' ('+n+')' : '')+'</button>';
-    return '<button class="btn btn-info btn-xs">Detail</button>';
-  }
+  function suffixCellFormatter(cell){ return '<button class="btn btn-info btn-xs">Detail</button>'; }
 
   var columnsDye = [
     { title:"ID", field:"id", visible:false, download:false },
@@ -202,8 +202,10 @@
       width:w(120), headerHozAlign:"center"
     },
     { title:"TOTAL KLOTER", headerHozAlign:"center", columns:[
-      { title:"POLY",   field:"ttl_kloter_poly",   editor:"number", validator:intValidator, width:w(160) },
-      { title:"COTTON", field:"ttl_kloter_cotton", editor:"number", validator:intValidator, width:w(160) }
+      { title:"POLY",   field:"ttl_kloter_poly",   editor:"number", validator:intValidator, width:w(160),
+        formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload },
+      { title:"COTTON", field:"ttl_kloter_cotton", editor:"number", validator:intValidator, width:w(160),
+        formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload }
     ]},
     { title:"SUFFIX", field:"_suffix_btn", width:w(160), headerSort:false, hozAlign:"center",
       formatter: suffixCellFormatter,
@@ -216,7 +218,8 @@
     { title:"BOTOL", field:"botol",
       editor:"number",
       validator:function(cell){ var v=cell.getValue(); if (v==null||v==='') return true; return (/^\d+$/).test(String(v)); },
-      width:w(140), hozAlign:"center"
+      width:w(140), hozAlign:"center",
+      formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload
     },
 
     { title:"Aksi", field:"_aksi", width:w(120), headerSort:false, headerHozAlign:"center", hozAlign:"center",
@@ -245,6 +248,7 @@
     columnDefaults:{ hozAlign:'center', vertAlign:'middle' },
     headerSort:false,
     reactiveData:true,
+    addRowPos:"top",
     movableColumns:true,
     resizableRows:false,
     columns:columnsDye,
@@ -262,7 +266,7 @@
   var dyeModal    = document.getElementById('dyeModal');
   var dyeRangeEl  = document.getElementById('dyeRange');
   function onEscClose(e){ if (e.key === 'Escape'){ e.preventDefault(); closeDyeModal(); } }
-  function showDyeModal(){ dyeBackdrop.style.display='block'; dyeModal.style.display='block'; }
+  function showDyeModal(){ dyeBackdrop.style.display='block'; dyeModal.style.display='block'; document.addEventListener('keydown', onEscClose, true); }
   function closeDyeModal(){ dyeBackdrop.style.display='none'; dyeModal.style.display='none'; document.removeEventListener('keydown', onEscClose, true); }
   document.getElementById('dyeClose').addEventListener('click', closeDyeModal);
   dyeBackdrop.addEventListener('click', closeDyeModal);
@@ -306,11 +310,63 @@
       renderDetailBlock(det.cotton, 'tbodyCotton', 'totalCotton');
 
       showDyeModal();
-      document.addEventListener('keydown', onEscClose, true);
     }catch(e){
       alert('Gagal memuat detail.');
     }
   }
+
+  /* ===== Required validation: TGL & SHIFT ===== */
+  var REQUIRED_FIELDS = [
+    { field:'tgl',   label:'TGL' },
+    { field:'shift', label:'SHIFT' },
+  ];
+  function clearRowErrors(row){
+    REQUIRED_FIELDS.forEach(function(req){
+      var c = row.getCell(req.field);
+      if (c){
+        var el = c.getElement();
+        el.classList.remove('cell-error');
+        el.removeAttribute('title');
+      }
+    });
+  }
+  function markCellError(row, field, msg){
+    var cell = row.getCell(field);
+    if (!cell) return;
+    var el = cell.getElement();
+    el.classList.add('cell-error');
+    if (msg) el.title = msg;
+  }
+  function validateRequiredRow(row){
+    clearRowErrors(row);
+    var d = row.getData();
+    var missing = [];
+
+    REQUIRED_FIELDS.forEach(function(req){
+      var v = d[req.field];
+      if (v === null || typeof v === 'undefined' || String(v).trim() === ''){
+        missing.push(req.label);
+        markCellError(row, req.field, req.label + ' wajib diisi');
+      }
+    });
+
+    if (!missing.includes('SHIFT')){
+      var s = String(d.shift||'').trim();
+      if (!/^[123]$/.test(s)){
+        missing.push('SHIFT (hanya 1/2/3)');
+        markCellError(row, 'shift', 'SHIFT hanya boleh 1/2/3');
+      }
+    }
+
+    return { ok: missing.length === 0, missing: missing };
+  }
+
+  tableDye.on('cellEdited', function(cell){
+    var f = cell.getField();
+    if (f === 'tgl' || f === 'shift'){
+      var el = cell.getElement(); el.classList.remove('cell-error'); el.removeAttribute('title');
+    }
+  });
 
   /* ===== Toolbar ===== */
   function normRange(){
@@ -319,7 +375,10 @@
     if (f && t && f > t){ var x=f; f=t; t=x; }
     return {from:f,to:t};
   }
-  document.getElementById('addRowDye').addEventListener('click', function(){ tableDye.addRow({}); });
+  document.getElementById('addRowDye').addEventListener('click', function(){
+    tableDye.setPage(1);
+    requestAnimationFrame(function(){ tableDye.addRow({}, true); });
+  });
   document.getElementById('applyFilter').addEventListener('click', function(){ var r=normRange(); loadData(r.from, r.to); });
   document.getElementById('resetFilter').addEventListener('click', function(){
     document.getElementById('fromDate').value=''; document.getElementById('toDate').value=''; loadData();
@@ -329,13 +388,8 @@
   function setBtnSpinner(btn, on){
     if (!btn) return;
     var icon = btn.querySelector('i'); if (!icon) return;
-    if (on){
-      icon.setAttribute('data-prev', icon.className || 'fa fa-spinner');
-      icon.className = 'fa fa-spinner fa-spin'; btn.disabled = true;
-    }else{
-      var prev = icon.getAttribute('data-prev') || 'fa fa-floppy-o';
-      icon.className = prev; icon.removeAttribute('data-prev'); btn.disabled = false;
-    }
+    if (on){ icon.setAttribute('data-prev', icon.className || 'fa fa-spinner'); icon.className='fa fa-spinner fa-spin'; btn.disabled=true; }
+    else   { var p=icon.getAttribute('data-prev')||'fa fa-floppy-o'; icon.className=p; icon.removeAttribute('data-prev'); btn.disabled=false; }
   }
 
   /* ===== AJAX helpers ===== */
@@ -386,8 +440,6 @@
     });
     row.reformat();
   }
-
-  /* Trigger suggest saat TGL/SHIFT diubah */
   tableDye.on('cellEdited', function(cell){
     var f = cell.getField();
     if (f === 'tgl' || f === 'shift'){ suggestForRow(cell.getRow()); }
@@ -395,6 +447,20 @@
 
   /* ===== Save / Delete ===== */
   async function saveRowDye(row, btn){
+    var req = validateRequiredRow(row);
+    if (!req.ok){
+      try{
+        tableDye.scrollToRow(row, "center", false);
+        for (var i=0;i<REQUIRED_FIELDS.length;i++){
+          var f = REQUIRED_FIELDS[i].field;
+          var c = row.getCell(f);
+          if (c && c.getElement().classList.contains('cell-error')){ c.edit(); break; }
+        }
+      }catch(e){}
+      alert('Kolom "' + req.missing.join(', ') + '" WAJIB DI ISI!');
+      return;
+    }
+
     var data = row.getData();
     var isUpdate = !!data.id;
     var url = isUpdate ? 'pages/ajax/update_row_summary_dyeing.php'
@@ -438,18 +504,18 @@
             return (!from || t >= from) && (!to || t <= to);
           });
         }
-        if (!rows.length) tableDye.addRow({});
+        if (!rows.length){ tableDye.addRow({}, true); tableDye.setPage(1); }
       }else{
-        tableDye.clearData(); tableDye.addRow({});
+        tableDye.clearData(); tableDye.addRow({}, true); tableDye.setPage(1);
         alert(json && json.message ? json.message : 'Gagal ambil data');
       }
     }catch(e){
-      tableDye.clearData(); tableDye.addRow({});
+      tableDye.clearData(); tableDye.addRow({}, true); tableDye.setPage(1);
       alert('Gagal ambil data');
     }
   }
 
-  /* ===== Export Excel: header bertingkat (2 kolom kloter) ===== */
+  /* ===== Export Excel (0 → kosong) ===== */
   document.getElementById('exportXlsDye').addEventListener('click', function () {
     var rows = tableDye.getRows('active').map(r => r.getData());
     function _len(t){ return t ? String(t).split(/[,\s;]+/).map(s=>s.trim()).filter(Boolean).length : 0; }
@@ -461,10 +527,10 @@
       return [
         r.tgl || '',
         r.shift || '',
-        r.ttl_kloter_poly || '',
-        r.ttl_kloter_cotton || '',
+        _zb(r.ttl_kloter_poly),
+        _zb(r.ttl_kloter_cotton),
         (_len(r.suffix_poly)+_len(r.suffix_cotton)) || '',
-        r.botol || ''
+        _zb(r.botol)
       ];
     });
 
@@ -485,7 +551,7 @@
     XLSX.writeFile(wb, 'Summary-Dyeing.xlsx');
   });
 
-  /* ===== Export PDF: header bertingkat (2 kolom kloter) ===== */
+  /* ===== Export PDF (0 → kosong) ===== */
   document.getElementById('exportPdfDye').addEventListener('click', function(){
     const { jsPDF } = window.jspdf;
     var doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
@@ -513,10 +579,10 @@
       return [
         r.tgl || '',
         r.shift || '',
-        r.ttl_kloter_poly || '',
-        r.ttl_kloter_cotton || '',
+        _zb(r.ttl_kloter_poly),
+        _zb(r.ttl_kloter_cotton),
         (_len(r.suffix_poly)+_len(r.suffix_cotton)) || '',
-        r.botol || ''
+        _zb(r.botol)
       ];
     });
 

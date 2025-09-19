@@ -535,6 +535,9 @@
                         window.location.href = 'index1.php?p=Dispensing-List';
                     } else {
                         alert('Terjadi kesalahan saat menyimpan');
+                        if (/session/i.test(data.message)) {
+                            window.location.href = "/laborat/login";
+                        }
                     }
                 })
                 .catch(err => {
@@ -777,7 +780,7 @@
 
             // Kirim data ke server menggunakan AJAX
             $.ajax({
-                dataType: 'json', // ✅ Tambahkan ini!
+                dataType: 'json',
                 type: 'POST',
                 url: "pages/ajax/Insert_PreliminarySchedule.php",
                 data: {
@@ -804,6 +807,9 @@
                         toastr.error(response.message);
                         if (response.errors) {
                             console.error("Detail error:", response.errors);
+                        }
+                        if (/session/i.test(response.message)) {
+                            window.location.href = "/laborat/login";
                         }
                     }
                 },

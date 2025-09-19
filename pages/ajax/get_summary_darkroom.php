@@ -18,7 +18,7 @@ if ($from === '' || !$valid($from) || $to === '' || !$valid($to)){
 $sql = "SELECT id,tgl,shift,jumlah,suffix,ket
         FROM summary_darkroom
         WHERE tgl BETWEEN ? AND ?
-        ORDER BY tgl ASC, id ASC";
+        ORDER BY tgl DESC, id DESC";
 
 $stmt = $con->prepare($sql);
 if (!$stmt){ echo json_encode(["ok"=>false,"message"=>$con->error]); exit; }

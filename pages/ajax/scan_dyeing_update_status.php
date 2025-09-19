@@ -7,6 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $userDyeing = $_SESSION['userLAB'] ?? '';
     $isForceStop = isset($_POST['force_stop']) && $_POST['force_stop'] === 'true';
 
+    if (!$userDyeing) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Session telah habis, silahkan login ulang terlebih dahulu!'
+        ]);
+        exit;
+    }
+    
     if ($isForceStop) {
         $stmtSD = $con->prepare("
             UPDATE tbl_preliminary_schedule 
@@ -19,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
             echo json_encode(["success" => true, "new_status" => 'stop_dyeing']);
         } else {
             http_response_code(500);
-            echo json_encode(["success" => false, "error" => $stmt->error]);
+            echo json_encode(["success" => false, "error" => $stmtSD->error]);
         }
 
         $stmtSD->close();

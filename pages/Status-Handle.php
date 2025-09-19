@@ -98,6 +98,15 @@ $_SESSION['jenis_matching'] = $ldorno;
     }
 </style>
 
+<style>
+    .invalid-feedback {
+        display: none; /* sembunyi default */
+    }
+    .is-invalid ~ .invalid-feedback {
+        display: block; /* muncul kalau select diberi class .is-invalid */
+    }
+</style>
+
 <body>
     <div class="container col-md-12">
         <button class="btn btn-xs pull-right" style="background-color: grey; color: white; margin-bottom: 10px;"><?php echo $data['idm']; ?> </button>
@@ -520,11 +529,11 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1">
+                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1" required>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2">
+                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2" required>
                                         </select>
                                     </div>
                                 </div>
@@ -537,6 +546,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="koreksi_4" id="koreksi_4">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -548,6 +558,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="koreksi_6" id="koreksi_6">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -559,6 +570,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="koreksi_8" id="koreksi_8">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
 
@@ -566,11 +578,11 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist 1</label>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1">
+                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1" required>
                                         </select>
                                     </div>
                                     <div class="col-sm-4">
-                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2">
+                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2" required>
                                         </select>
                                     </div>
                                 </div>
@@ -584,6 +596,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="colorist_4" id="colorist_4">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -595,6 +608,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="colorist_6" id="colorist_6">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -606,6 +620,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                                     <div class="col-sm-4">
                                         <select class="form-control select_Koreksi" name="colorist_8" id="colorist_8">
                                         </select>
+                                        <div class="invalid-feedback">Wajib diisi kalau pasangannya dipilih</div>
                                     </div>
                                 </div>
                             <?php } else { ?>
@@ -636,24 +651,24 @@ $_SESSION['jenis_matching'] = $ldorno;
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1">
+                                        <select class="form-control select_Koreksi" name="koreksi_1" id="koreksi_1" required>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Koreksi Resep 2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2">
+                                        <select class="form-control select_Koreksi" name="koreksi_2" id="koreksi_2" required>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist1</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1">
+                                        <select class="form-control select_Koreksi" name="colorist_1" id="colorist_1" required>
                                         </select>
                                     </div>
                                     <label for="Done_Matching" class="col-sm-2 control-label">Colorist2</label>
                                     <div class="col-sm-3">
-                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2">
+                                        <select class="form-control select_Koreksi" name="colorist_2" id="colorist_2" required>
                                         </select>
                                     </div>
                                 </div>
@@ -3577,3 +3592,37 @@ $_SESSION['jenis_matching'] = $ldorno;
         });
     });
 </script>
+
+<!-- logika koreksi resep & colorist -->
+<script>
+$(document).ready(function () {
+    function setRequired(pair1, pair2) {
+        $("#" + pair1).on("change", function () {
+            if ($(this).val()) {
+                $("#" + pair2).attr("required", true).addClass("is-invalid");
+            } else {
+                $("#" + pair2).removeAttr("required").removeClass("is-invalid");
+            }
+        });
+
+        $("#" + pair2).on("change", function () {
+            if ($(this).val()) {
+                $("#" + pair1).attr("required", true).addClass("is-invalid");
+            } else {
+                $("#" + pair1).removeAttr("required").removeClass("is-invalid");
+            }
+        });
+    }
+
+    // Pasangan Koreksi
+    setRequired("koreksi_3", "koreksi_4");
+    setRequired("koreksi_5", "koreksi_6");
+    setRequired("koreksi_7", "koreksi_8");
+
+    // Pasangan Colorist
+    setRequired("colorist_3", "colorist_4");
+    setRequired("colorist_5", "colorist_6");
+    setRequired("colorist_7", "colorist_8");
+});
+</script>
+<!-- logika koreksi resep & colorist -->

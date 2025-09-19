@@ -26,30 +26,32 @@
   .tabulator .tabulator-col .tabulator-arrow{ display:none !important; }
   .tabulator .tabulator-col{ cursor: default !important; }
 
-  /* Modal sederhana (detail tabel) */
+   /* Modal sederhana */
   .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:100000; display:none; }
   .modal-shell{ position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:min(1000px,94vw); max-height:86vh; overflow:auto; background:#fff; border:1px solid #d0d0d0;
+    width:min(900px,92vw); max-height:85vh; overflow:auto; background:#fff; border:1px solid #d0d0d0;
     border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); z-index:100001; display:none; }
   .modal-header{ padding:12px 16px; border-bottom:1px solid #eee; font-weight:700; }
   .modal-body{ padding:12px 16px; }
   .modal-footer{ padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
 
-  /* Grid 3 kolom */
-  .detail-grid{ display:flex; gap:16px; align-items:flex-start; }
-  .detail-col{ flex:1 1 0; min-width:260px; }
+  .suffix-grid{ display:grid; grid-template-columns:110px 1fr; gap:10px 12px; align-items:start; }
+  .suffix-grid label{ font-weight:600; align-self:center; }
 
-  /* Tabel Bootstrap 3 */
-  .table th, .table td{ vertical-align:middle !important; }
-  .table thead th{ text-align:center; }
-  .table tfoot th{ font-weight:700; }
-  .suffix-cell{ max-width: 220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .panel-like{ border:1px solid #dcdcdc; border-radius:6px; overflow:hidden; }
-  .panel-like .panel-head{
-    background:#f5f7fa; border-bottom:1px solid #e5e7eb; padding:6px 10px; font-weight:600; text-transform:capitalize; text-align:center;
+  /* Contenteditable “textarea” dengan badge (Bootstrap 3 .label) */
+  .token-area{
+    border:1px solid #d0d0d0; border-radius:6px; min-height:90px; padding:6px 8px;
+    font-size:12px; line-height:1.35; cursor:text; background:#fff;
   }
-  .panel-like .panel-body{ padding:6px; }
-  .text-muted-small{ color:#888; font-size:12px; }
+  .token-area:focus{ outline:none; border-color:#80bdff; box-shadow:0 0 4px rgba(0,123,255,.25); }
+  .token-area .label{ display:inline-block; margin:2px 3px; }
+  .token-area [data-token]{ -webkit-user-select:none; user-select:none; }
+  .token-area .token-x{ margin-left:4px; cursor:pointer; font-weight:bold; }
+  .token-placeholder{ color:#999; }
+  .hint{ font-size:12px; color:#666; margin-top:4px; }
+
+  /* Highlight sel error required */
+  .tabulator .cell-error{ background:#ffecec !important; }
 </style>
 
 <h4 class="summary-title" style="text-align:center;font-weight:700;margin:4px 0 6px;">SUMMARY DISPENSING</h4>
@@ -69,16 +71,16 @@
 <div id="gridDisp"></div>
 
 <!-- Modal DETAIL SUFFIX (3 tabel) -->
-<div id="suffixModalBackdrop" class="modal-backdrop"></div>
-<div id="suffixModal" class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="suffixTitle">
+<div id="suffixModalBackdrop" class="modal-backdrop" style="display:none;"></div>
+<div id="suffixModal" class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="suffixTitle" style="display:none;">
   <div class="modal-header" id="suffixTitle">Detail SUFFIX</div>
   <div class="modal-body">
     <div class="text-muted-small" id="suffixRange"></div>
-    <div class="detail-grid" style="margin-top:8px;">
+    <div class="detail-grid" style="display:flex;gap:16px;align-items:flex-start;margin-top:8px;">
       <!-- POLY -->
-      <div class="detail-col panel-like">
-        <div class="panel-head">poly</div>
-        <div class="panel-body">
+      <div class="detail-col panel-like" style="flex:1 1 0;min-width:260px;border:1px solid #dcdcdc;border-radius:6px;overflow:hidden;">
+        <div class="panel-head" style="background:#f5f7fa;border-bottom:1px solid #e5e7eb;padding:6px 10px;font-weight:600;text-transform:capitalize;text-align:center;">poly</div>
+        <div class="panel-body" style="padding:6px;">
           <table class="table table-bordered table-condensed" id="tblPoly">
             <thead>
               <tr>
@@ -101,9 +103,9 @@
       </div>
 
       <!-- COTTON -->
-      <div class="detail-col panel-like">
-        <div class="panel-head">cotton</div>
-        <div class="panel-body">
+      <div class="detail-col panel-like" style="flex:1 1 0;min-width:260px;border:1px solid #dcdcdc;border-radius:6px;overflow:hidden;">
+        <div class="panel-head" style="background:#f5f7fa;border-bottom:1px solid #e5e7eb;padding:6px 10px;font-weight:600;text-transform:capitalize;text-align:center;">cotton</div>
+        <div class="panel-body" style="padding:6px;">
           <table class="table table-bordered table-condensed" id="tblCotton">
             <thead>
               <tr>
@@ -126,9 +128,9 @@
       </div>
 
       <!-- WHITE -->
-      <div class="detail-col panel-like">
-        <div class="panel-head">white</div>
-        <div class="panel-body">
+      <div class="detail-col panel-like" style="flex:1 1 0;min-width:260px;border:1px solid #dcdcdc;border-radius:6px;overflow:hidden;">
+        <div class="panel-head" style="background:#f5f7fa;border-bottom:1px solid #e5e7eb;padding:6px 10px;font-weight:600;text-transform:capitalize;text-align:center;">white</div>
+        <div class="panel-body" style="padding:6px;">
           <table class="table table-bordered table-condensed" id="tblWhite">
             <thead>
               <tr>
@@ -149,15 +151,35 @@
           </table>
         </div>
       </div>
+
     </div>
   </div>
-  <div class="modal-footer">
+  <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid #eee;">
     <button id="suffixClose" class="btn btn-default">Tutup</button>
   </div>
 </div>
 
 <script>
-  /* ===== Overlay editor tanggal (dropdown editor SHIFT sudah native Tabulator) ===== */
+  /* ===== Helpers ===== */
+  function intValidator(cell){
+    var v = cell.getValue();
+    if (v === null || v === '' || typeof v === 'undefined') return true;
+    return (/^-?\d+$/).test(String(v));
+  }
+  function w(px){ return px; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // 0 → tampil kosong (grid & export)
+  function zeroBlankFormatter(cell){
+    var v = cell.getValue();
+    return (v === 0 || v === '0') ? '' : v;
+  }
+  function zeroBlankDownload(value){
+    return (value === 0 || value === '0') ? '' : value;
+  }
+  function _zb(v){ return (v === 0 || v === '0') ? '' : (v ?? ''); }
+
+  /* ===== Overlay editor tanggal ===== */
   function overlayEditorFactory(inputType, minW){
     return function(cell, onRendered, success, cancel){
       var rect = cell.getElement().getBoundingClientRect();
@@ -198,15 +220,6 @@
   }
   var dateEditor = overlayEditorFactory('date', 110);
 
-  /* ===== Helpers ===== */
-  function intValidator(cell){
-    var v = cell.getValue();
-    if (v === null || v === '' || typeof v === 'undefined') return true;
-    return (/^-?\d+$/).test(String(v));
-  }
-  function w(px){ return px; } // lebar apa adanya
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
   /* ===== Kolom ===== */
   function suffixCellFormatter(){ return '<button class="btn btn-info btn-xs">Detail</button>'; }
 
@@ -218,16 +231,18 @@
       width:w(120), headerHozAlign:"center"
     },
     { title:"TOTAL KLOTER", headerHozAlign:"center", columns:[
-      { title:"POLY",   field:"ttl_kloter_poly",   editor:"number", validator:intValidator, width:w(140) },
-      { title:"COTTON", field:"ttl_kloter_cotton", editor:"number", validator:intValidator, width:w(140) },
-      { title:"WHITE",  field:"ttl_kloter_white",  editor:"number", validator:intValidator, width:w(140) }
+      { title:"POLY",   field:"ttl_kloter_poly",   editor:"number", validator:intValidator, width:w(140),
+        formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload },
+      { title:"COTTON", field:"ttl_kloter_cotton", editor:"number", validator:intValidator, width:w(140),
+        formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload },
+      { title:"WHITE",  field:"ttl_kloter_white",  editor:"number", validator:intValidator, width:w(140),
+        formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload }
     ]},
     { title:"SUFFIX", field:"_suffix_btn", width:w(160), headerSort:false, hozAlign:"center",
       formatter: suffixCellFormatter,
       cellClick: function(e, cell){ openSuffixModal(cell.getRow()); },
       download:false
     },
-    /* Tiga field ini tetap disimpan (hidden) supaya bisa diexport & disimpan */
     { title:"suffix_poly",   field:"suffix_poly",   visible:false, download:false },
     { title:"suffix_cotton", field:"suffix_cotton", visible:false, download:false },
     { title:"suffix_white",  field:"suffix_white",  visible:false, download:false },
@@ -235,7 +250,8 @@
     { title:"BOTOL", field:"botol",
       editor:"number",
       validator:function(cell){ var v=cell.getValue(); if (v==null||v==='') return true; return (/^\d+$/).test(String(v)); },
-      width:w(140), hozAlign:"center"
+      width:w(140), hozAlign:"center",
+      formatter:zeroBlankFormatter, accessorDownload:zeroBlankDownload
     },
 
     { title:"Aksi", field:"_aksi", width:w(120), headerSort:false, headerHozAlign:"center", hozAlign:"center",
@@ -264,6 +280,7 @@
     columnDefaults:{ hozAlign:'center', vertAlign:'middle' },
     headerSort:false,
     reactiveData:true,
+    addRowPos:"top",
     movableColumns:true,
     resizableRows:false,
     columns:columnsDisp,
@@ -281,18 +298,9 @@
   var suffixModal         = document.getElementById('suffixModal');
   var suffixRangeEl       = document.getElementById('suffixRange');
   function onEscClose(e){ if (e.key === 'Escape'){ e.preventDefault(); closeSuffixModal(); } }
-  function closeSuffixModal(){
-    suffixBackdropHide();
-    document.removeEventListener('keydown', onEscClose, true);
-  }
-  function suffixBackdropShow(){
-    suffixModalBackdrop.style.display = 'block';
-    suffixModal.style.display = 'block';
-  }
-  function suffixBackdropHide(){
-    suffixModalBackdrop.style.display = 'none';
-    suffixModal.style.display = 'none';
-  }
+  function closeSuffixModal(){ suffixBackdropHide(); document.removeEventListener('keydown', onEscClose, true); }
+  function suffixBackdropShow(){ suffixModalBackdrop.style.display='block'; suffixModal.style.display='block'; }
+  function suffixBackdropHide(){ suffixModalBackdrop.style.display='none'; suffixModal.style.display='none'; }
   document.getElementById('suffixClose').addEventListener('click', closeSuffixModal);
   suffixModalBackdrop.addEventListener('click', closeSuffixModal);
 
@@ -327,10 +335,7 @@
                 + encodeURIComponent(d.tgl) + '&shift=' + encodeURIComponent(d.shift);
       var res = await fetch(url);
       var json = await res.json();
-      if (!json || !json.ok){
-        alert(json && json.message ? json.message : 'Gagal mengambil detail');
-        return;
-      }
+      if (!json || !json.ok){ alert(json && json.message ? json.message : 'Gagal mengambil detail'); return; }
 
       suffixRangeEl.textContent = 'Periode: ' + json.range_start + ' s/d ' + json.range_end;
       var det = json.detail || {poly:[], cotton:[], white:[]};
@@ -345,6 +350,59 @@
     }
   }
 
+  /* ===== Required validation: TGL & SHIFT ===== */
+  var REQUIRED_FIELDS = [
+    { field:'tgl',   label:'TGL' },
+    { field:'shift', label:'SHIFT' },
+  ];
+  function clearRowErrors(row){
+    REQUIRED_FIELDS.forEach(function(req){
+      var c = row.getCell(req.field);
+      if (c){
+        var el = c.getElement();
+        el.classList.remove('cell-error');
+        el.removeAttribute('title');
+      }
+    });
+  }
+  function markCellError(row, field, msg){
+    var cell = row.getCell(field);
+    if (!cell) return;
+    var el = cell.getElement();
+    el.classList.add('cell-error');
+    if (msg) el.title = msg;
+  }
+  function validateRequiredRow(row){
+    clearRowErrors(row);
+    var d = row.getData();
+    var missing = [];
+
+    REQUIRED_FIELDS.forEach(function(req){
+      var v = d[req.field];
+      if (v === null || typeof v === 'undefined' || String(v).trim() === ''){
+        missing.push(req.label);
+        markCellError(row, req.field, req.label + ' wajib diisi');
+      }
+    });
+
+    if (!missing.includes('SHIFT')){
+      var s = String(d.shift||'').trim();
+      if (!/^[123]$/.test(s)){
+        missing.push('SHIFT (hanya 1/2/3)');
+        markCellError(row, 'shift', 'SHIFT hanya boleh 1/2/3');
+      }
+    }
+
+    return { ok: missing.length === 0, missing: missing };
+  }
+
+  tableDisp.on('cellEdited', function(cell){
+    var f = cell.getField();
+    if (f === 'tgl' || f === 'shift'){
+      var el = cell.getElement(); el.classList.remove('cell-error'); el.removeAttribute('title');
+    }
+  });
+
   /* ===== Toolbar ===== */
   function normRange(){
     var f = document.getElementById('fromDate').value || '';
@@ -352,7 +410,10 @@
     if (f && t && f > t){ var x=f; f=t; t=x; }
     return {from:f,to:t};
   }
-  document.getElementById('addRowDisp').addEventListener('click', function(){ tableDisp.addRow({}); });
+  document.getElementById('addRowDisp').addEventListener('click', function(){
+    tableDisp.setPage(1);
+    requestAnimationFrame(function(){ tableDisp.addRow({}, true); });
+  });
   document.getElementById('applyFilter').addEventListener('click', function(){ var r=normRange(); loadData(r.from, r.to); });
   document.getElementById('resetFilter').addEventListener('click', function(){
     document.getElementById('fromDate').value=''; document.getElementById('toDate').value=''; loadData();
@@ -362,13 +423,8 @@
   function setBtnSpinner(btn, on){
     if (!btn) return;
     var icon = btn.querySelector('i'); if (!icon) return;
-    if (on){
-      icon.setAttribute('data-prev', icon.className || 'fa fa-spinner');
-      icon.className = 'fa fa-spinner fa-spin'; btn.disabled = true;
-    }else{
-      var prev = icon.getAttribute('data-prev') || 'fa fa-floppy-o';
-      icon.className = prev; icon.removeAttribute('data-prev'); btn.disabled = false;
-    }
+    if (on){ icon.setAttribute('data-prev', icon.className || 'fa fa-spinner'); icon.className='fa fa-spinner fa-spin'; btn.disabled=true; }
+    else   { var p=icon.getAttribute('data-prev')||'fa fa-floppy-o'; icon.className=p; icon.removeAttribute('data-prev'); btn.disabled=false; }
   }
 
   /* ===== AJAX helpers ===== */
@@ -420,8 +476,6 @@
     });
     row.reformat();
   }
-
-  /* Trigger suggest saat TGL/SHIFT diubah */
   tableDisp.on('cellEdited', function(cell){
     var f = cell.getField();
     if (f === 'tgl' || f === 'shift'){ suggestForRow(cell.getRow()); }
@@ -429,6 +483,20 @@
 
   /* ===== Save / Delete ===== */
   async function saveRowDisp(row, btn){
+    var req = validateRequiredRow(row);
+    if (!req.ok){
+      try{
+        tableDisp.scrollToRow(row, "center", false);
+        for (var i=0;i<REQUIRED_FIELDS.length;i++){
+          var f = REQUIRED_FIELDS[i].field;
+          var c = row.getCell(f);
+          if (c && c.getElement().classList.contains('cell-error')){ c.edit(); break; }
+        }
+      }catch(e){}
+      alert('Kolom "' + req.missing.join(', ') + '" WAJIB DI ISI!');
+      return;
+    }
+
     var data = row.getData();
     var isUpdate = !!data.id;
     var url = isUpdate ? 'pages/ajax/update_row_summary_dispensing.php'
@@ -472,18 +540,18 @@
             return (!from || t >= from) && (!to || t <= to);
           });
         }
-        if (!rows.length) tableDisp.addRow({});
+        if (!rows.length){ tableDisp.addRow({}, true); tableDisp.setPage(1); }
       }else{
-        tableDisp.clearData(); tableDisp.addRow({});
+        tableDisp.clearData(); tableDisp.addRow({}, true); tableDisp.setPage(1);
         alert(json && json.message ? json.message : 'Gagal ambil data');
       }
     }catch(e){
-      tableDisp.clearData(); tableDisp.addRow({});
+      tableDisp.clearData(); tableDisp.addRow({}, true); tableDisp.setPage(1);
       alert('Gagal ambil data');
     }
   }
 
-  /* ===== Export Excel: header bertingkat ===== */
+  /* ===== Export Excel (0 → kosong) ===== */
   document.getElementById('exportXlsDisp').addEventListener('click', function () {
     var rows = tableDisp.getRows('active').map(r => r.getData());
     function _len(t){ return t ? String(t).split(/[,\s;]+/).map(s=>s.trim()).filter(Boolean).length : 0; }
@@ -495,11 +563,11 @@
       return [
         r.tgl || '',
         r.shift || '',
-        r.ttl_kloter_poly || '',
-        r.ttl_kloter_cotton || '',
-        r.ttl_kloter_white || '',
+        _zb(r.ttl_kloter_poly),
+        _zb(r.ttl_kloter_cotton),
+        _zb(r.ttl_kloter_white),
         (_len(r.suffix_poly)+_len(r.suffix_cotton)+_len(r.suffix_white)) || '',
-        r.botol || ''
+        _zb(r.botol)
       ];
     });
 
@@ -520,7 +588,7 @@
     XLSX.writeFile(wb, 'Summary-Dispensing.xlsx');
   });
 
-  /* ===== Export PDF: header bertingkat ===== */
+  /* ===== Export PDF (0 → kosong) ===== */
   document.getElementById('exportPdfDisp').addEventListener('click', function(){
     const { jsPDF } = window.jspdf;
     var doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
@@ -549,11 +617,11 @@
       return [
         r.tgl || '',
         r.shift || '',
-        r.ttl_kloter_poly || '',
-        r.ttl_kloter_cotton || '',
-        r.ttl_kloter_white || '',
+        _zb(r.ttl_kloter_poly),
+        _zb(r.ttl_kloter_cotton),
+        _zb(r.ttl_kloter_white),
         (_len(r.suffix_poly)+_len(r.suffix_cotton)+_len(r.suffix_white)) || '',
-        r.botol || ''
+        _zb(r.botol)
       ];
     });
 

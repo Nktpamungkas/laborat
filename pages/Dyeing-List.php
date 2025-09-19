@@ -278,6 +278,10 @@
                     timer: 1200,
                     showConfirmButton: false
                 });
+
+                if (/session/i.test(response.message)) {
+                    window.location.href = "/laborat/login";
+                }
             },
             error: function (xhr, status, error) {
                 console.log(xhr.responseText);

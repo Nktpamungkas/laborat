@@ -46,6 +46,7 @@ $query = "SELECT * FROM(SELECT
                 WHEN v.BASEPRIMARYUNITCODE = 't' THEN 'g'
                 else v.BASEPRIMARYUNITCODE
             END AS BASEPRIMARYUNITCODE,
+            VARCHAR_FORMAT(p.CREATIONDATETIME, 'YYYY-MM-DD HH24:MI:SS') AS TGL_WAKTU,
             date(p.CREATIONDATETIME) AS PO_DATE,
             p.CREATIONDATETIME AS CREATIONDATE_PO,
                 date(r.CREATIONDATETIME) AS CREATIONDATE_PR
@@ -116,7 +117,7 @@ echo "<h4><strong>" . htmlspecialchars($kode_obat_label) . " - " . htmlspecialch
         foreach ($rows2 as $row) {
             echo "<tr>";
             echo "<td>" . $no++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['PO_DATE'] ?? '') . "</td>";
+            echo "<td>" . htmlspecialchars($row['TGL_WAKTU'] ?? '') . "</td>";
             echo "<td>" . htmlspecialchars($row['ISTANCECODE'] ?? '') . "</td>";
             echo "<td>" . number_format((float) ($row['QTY'] ?? 0), 2) . "</td>";
             echo "<td>" . htmlspecialchars($row['PR_CODE'] ?? '') . "</td>";
