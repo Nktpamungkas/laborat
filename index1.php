@@ -673,7 +673,7 @@ $page = strtolower($page);
                                     <span class="label label-success" id="notifTBO"></span>
                                 </a>
 
-                                <ul class="dropdown-menu">
+                                <!-- <ul class="dropdown-menu">
                                     <li class="header">
                                         <a href="/laborat/index1.php?p=Approval-Bon-Order" style="display: block; color: inherit; text-decoration: none;">
                                             <strong><span id="notifTBOText"></span></strong> bon order siap approved
@@ -683,6 +683,19 @@ $page = strtolower($page);
                                         <a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order" style="display: block; color: inherit; text-decoration: none;">
                                             <strong><span id="notifTBOText_revisi"></span></strong> bon order revisi siap approved
                                         </a>
+                                    </li>
+                                </ul> -->
+                                <ul class="dropdown-menu">
+                                    <li class="header">
+                                        Ada <a href="/laborat/index1.php?p=Approval-Bon-Order" style="display: inline; padding: 3px 3px; font-weight: 700;">
+                                                <span id="notifTBOText" style="color:#FF0007;"></span> Bon Order Baru
+                                            </a> dan 
+                                            <a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order" style="display: inline; padding: 3px 3px; font-weight: 700;">
+                                                <span id="notifTBOText_revisi" style="color:#FF0007;"></span> Revisi Bon Order
+                                            </a>
+                                    </li>
+                                    <li class="menu">
+                                    
                                     </li>
                                 </ul>
                             </li>

@@ -16,11 +16,11 @@ $query = "SELECT DISTINCT
                     MAX(RevisiC2) AS RevisiC2,
                     MAX(RevisiC3) AS RevisiC3,
                     MAX(RevisiC4) AS RevisiC4,
-                    MAX(Revisid1) AS Revisid1,
                     MAX(Revisid)  AS Revisid,
-                    MAX(Revisid2) AS Revisid2,
-                    MAX(Revisid3) AS Revisid3,
-                    MAX(Revisid4) AS Revisid4,
+                    MAX(Revisi2) AS Revisi2,
+                    MAX(Revisi3) AS Revisi3,
+                    MAX(Revisi4) AS Revisi4,
+                    MAX(Revisi5) AS Revisi5,
                     MAX(Revisi1Date) AS Revisi1Date,
                     MAX(Revisi2Date) AS Revisi2Date,
                     MAX(Revisi3Date) AS Revisi3Date,
@@ -49,31 +49,31 @@ $query = "SELECT DISTINCT
                       THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc.VALUESTRING || '=([^;]*)',1,1,'',1)
                     END AS RevisiC,
                     CASE
-                      WHEN sc1.VALUESTRING IS NOT NULL AND adC1.OPTIONS IS NOT NULL
-                        AND REGEXP_LIKE(adC1.OPTIONS, '(?:^|;)' || sc1.VALUESTRING || '=')
-                      THEN REGEXP_SUBSTR(adC1.OPTIONS,'(?:^|;)' || sc1.VALUESTRING || '=([^;]*)',1,1,'',1)
+                      WHEN sc1.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                        AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc1.VALUESTRING || '=')
+                      THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc1.VALUESTRING || '=([^;]*)',1,1,'',1)
                     END AS RevisiC1,
                     CASE
-                      WHEN sc2.VALUESTRING IS NOT NULL AND adC2.OPTIONS IS NOT NULL
-                        AND REGEXP_LIKE(adC2.OPTIONS, '(?:^|;)' || sc2.VALUESTRING || '=')
-                      THEN REGEXP_SUBSTR(adC2.OPTIONS,'(?:^|;)' || sc2.VALUESTRING || '=([^;]*)',1,1,'',1)
+                      WHEN sc2.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                        AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc2.VALUESTRING || '=')
+                      THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc2.VALUESTRING || '=([^;]*)',1,1,'',1)
                     END AS RevisiC2,
                     CASE
-                      WHEN sc3.VALUESTRING IS NOT NULL AND adC3.OPTIONS IS NOT NULL
-                        AND REGEXP_LIKE(adC3.OPTIONS, '(?:^|;)' || sc3.VALUESTRING || '=')
-                      THEN REGEXP_SUBSTR(adC3.OPTIONS,'(?:^|;)' || sc3.VALUESTRING || '=([^;]*)',1,1,'',1)
+                      WHEN sc3.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                        AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc3.VALUESTRING || '=')
+                      THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc3.VALUESTRING || '=([^;]*)',1,1,'',1)
                     END AS RevisiC3,
                     CASE
-                      WHEN sc4.VALUESTRING IS NOT NULL AND adC4.OPTIONS IS NOT NULL
-                        AND REGEXP_LIKE(adC4.OPTIONS, '(?:^|;)' || sc4.VALUESTRING || '=')
-                      THEN REGEXP_SUBSTR(adC4.OPTIONS,'(?:^|;)' || sc4.VALUESTRING || '=([^;]*)',1,1,'',1)
+                      WHEN sc4.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                        AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc4.VALUESTRING || '=')
+                      THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc4.VALUESTRING || '=([^;]*)',1,1,'',1)
                     END AS RevisiC4,
                     /* Revisi detail (D-group) langsung valuestring */
                     sd.VALUESTRING  AS Revisid,
-                    sd1.VALUESTRING AS Revisid1,
-                    sd2.VALUESTRING AS Revisid2,
-                    sd3.VALUESTRING AS Revisid3,
-                    sd4.VALUESTRING AS Revisid4,
+                    sd1.VALUESTRING AS Revisi2,
+                    sd2.VALUESTRING AS Revisi3,
+                    sd3.VALUESTRING AS Revisi4,
+                    sd4.VALUESTRING AS Revisi5,
 
                     sdt1.VALUEDATE AS Revisi1Date,
                     sdt2.VALUEDATE AS Revisi2Date,
@@ -141,10 +141,10 @@ $query = "SELECT DISTINCT
                 LEFT JOIN ADSTORAGE sc4  ON sc4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sc4.FIELDNAME = 'RevisiC4'
                 LEFT JOIN ADADDITIONALDATA adC4 ON adC4.NAME = sc4.FIELDNAME
                 LEFT JOIN ADSTORAGE sd   ON sd.UNIQUEID  = i.ABSUNIQUEID_SALESORDERLINE AND sd.FIELDNAME  = 'Revisid'
-                LEFT JOIN ADSTORAGE sd1  ON sd1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd1.FIELDNAME = 'Revisid1'
-                LEFT JOIN ADSTORAGE sd2  ON sd2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd2.FIELDNAME = 'Revisid2'
-                LEFT JOIN ADSTORAGE sd3  ON sd3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd3.FIELDNAME = 'Revisid3'
-                LEFT JOIN ADSTORAGE sd4  ON sd4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd4.FIELDNAME = 'Revisid4'
+                LEFT JOIN ADSTORAGE sd1  ON sd1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd1.FIELDNAME = 'Revisi2'
+                LEFT JOIN ADSTORAGE sd2  ON sd2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd2.FIELDNAME = 'Revisi3'
+                LEFT JOIN ADSTORAGE sd3  ON sd3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd3.FIELDNAME = 'Revisi4'
+                LEFT JOIN ADSTORAGE sd4  ON sd4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd4.FIELDNAME = 'Revisi5'
 
                 LEFT JOIN ADSTORAGE sdt1 ON sdt1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt1.FIELDNAME = 'Revisi1Date'
                 LEFT JOIN ADSTORAGE sdt2 ON sdt2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt2.FIELDNAME = 'Revisi2Date'
@@ -309,10 +309,10 @@ if ($stmt) {
             trim((string)($row['REVISIC']  ?? '')),
         ];
         $revD_candidates = [
-            trim((string)($row['REVISID4'] ?? '')),
-            trim((string)($row['REVISID3'] ?? '')),
-            trim((string)($row['REVISID2'] ?? '')),
-            trim((string)($row['REVISID1'] ?? '')),
+            trim((string)($row['REVISI5'] ?? '')),
+            trim((string)($row['REVISI4'] ?? '')),
+            trim((string)($row['REVISI3'] ?? '')),
+            trim((string)($row['REVISI2'] ?? '')),
             trim((string)($row['REVISID']  ?? '')),
         ];
 
@@ -350,7 +350,7 @@ if ($stmt) {
             // Data-attributes untuk tombol Detail Revisi (modal)
             $dataAttrs = sprintf(
                 'data-revisic="%s" data-revisic1="%s" data-revisic2="%s" data-revisic3="%s" data-revisic4="%s" ' .
-                'data-revisid="%s" data-revisid1="%s" data-revisid2="%s" data-revisid3="%s" data-revisid4="%s" ' .
+                'data-revisid="%s" data-revisi2="%s" data-revisi3="%s" data-revisi4="%s" data-revisi5="%s" ' .
                 'data-revisi1date="%s" data-revisi2date="%s" data-revisi3date="%s" data-revisi4date="%s" data-revisi5date="%s"',
                 htmlspecialchars((string)($row['REVISIC']   ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISIC1']  ?? ''), ENT_QUOTES, 'UTF-8'),
@@ -358,10 +358,10 @@ if ($stmt) {
                 htmlspecialchars((string)($row['REVISIC3']  ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISIC4']  ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISID']   ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISID1']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISID2']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISID3']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISID4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string)($row['REVISI2']  ?? ''), ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string)($row['REVISI3']  ?? ''), ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string)($row['REVISI4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars((string)($row['REVISI5']  ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISI1DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISI2DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
                 htmlspecialchars((string)($row['REVISI3DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),

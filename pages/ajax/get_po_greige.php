@@ -22,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         MAX(RevisiC3) AS RevisiC3,
         MAX(RevisiC4) AS RevisiC4,
         MAX(Revisid)  AS Revisid,
-        MAX(Revisid1) AS Revisid1,
-        MAX(Revisid2) AS Revisid2,
-        MAX(Revisid3) AS Revisid3,
-        MAX(Revisid4) AS Revisid4,
+        MAX(Revisi2) AS Revisi2,
+        MAX(Revisi3) AS Revisi3,
+        MAX(Revisi4) AS Revisi4,
+        MAX(Revisi5) AS Revisi5,
         MAX(Revisi1Date) AS Revisi1Date,
         MAX(Revisi2Date) AS Revisi2Date,
         MAX(Revisi3Date) AS Revisi3Date,
@@ -89,10 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 
             /* Revisi detail (D*) langsung VALUESTRING */
             sd.VALUESTRING  AS Revisid,
-            sd1.VALUESTRING AS Revisid1,
-            sd2.VALUESTRING AS Revisid2,
-            sd3.VALUESTRING AS Revisid3,
-            sd4.VALUESTRING AS Revisid4,
+            sd1.VALUESTRING AS Revisi2,
+            sd2.VALUESTRING AS Revisi3,
+            sd3.VALUESTRING AS Revisi4,
+            sd4.VALUESTRING AS Revisi5,
 
             sdt1.VALUEDATE AS Revisi1Date,
             sdt2.VALUEDATE AS Revisi2Date,
@@ -131,10 +131,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         LEFT JOIN ADADDITIONALDATA adC4 ON adC4.NAME = sc4.FIELDNAME
 
         LEFT JOIN ADSTORAGE sd  ON sd.UNIQUEID  = i.ABSUNIQUEID_SALESORDERLINE AND sd.FIELDNAME  = 'Revisid'
-        LEFT JOIN ADSTORAGE sd1 ON sd1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd1.FIELDNAME = 'Revisid1'
-        LEFT JOIN ADSTORAGE sd2 ON sd2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd2.FIELDNAME = 'Revisid2'
-        LEFT JOIN ADSTORAGE sd3 ON sd3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd3.FIELDNAME = 'Revisid3'
-        LEFT JOIN ADSTORAGE sd4 ON sd4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd4.FIELDNAME = 'Revisid4'
+        LEFT JOIN ADSTORAGE sd1 ON sd1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd1.FIELDNAME = 'Revisi2'
+        LEFT JOIN ADSTORAGE sd2 ON sd2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd2.FIELDNAME = 'Revisi3'
+        LEFT JOIN ADSTORAGE sd3 ON sd3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd3.FIELDNAME = 'Revisi4'
+        LEFT JOIN ADSTORAGE sd4 ON sd4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd4.FIELDNAME = 'Revisi5'
 
         LEFT JOIN ADSTORAGE sdt1 ON sdt1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt1.FIELDNAME = 'Revisi1Date'
         LEFT JOIN ADSTORAGE sdt2 ON sdt2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt2.FIELDNAME = 'Revisi2Date'
@@ -266,10 +266,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
             trim((string)($row['REVISIC']  ?? '')),
         ];
         $revD_candidates = [
-            trim((string)($row['REVISID4'] ?? '')),
-            trim((string)($row['REVISID3'] ?? '')),
-            trim((string)($row['REVISID2'] ?? '')),
-            trim((string)($row['REVISID1'] ?? '')),
+            trim((string)($row['REVISI5'] ?? '')),
+            trim((string)($row['REVISI4'] ?? '')),
+            trim((string)($row['REVISI3'] ?? '')),
+            trim((string)($row['REVISI2'] ?? '')),
             trim((string)($row['REVISID']  ?? '')),
         ];
         $lastC = ''; foreach ($revC_candidates as $v) { if ($v !== '') { $lastC = $v; break; } }
@@ -287,10 +287,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
             htmlspecialchars((string)($row['REVISIC4']  ?? $row['RevisiC4']  ?? ''), ENT_QUOTES, 'UTF-8'),
 
             htmlspecialchars((string)($row['REVISID']   ?? $row['Revisid']   ?? ''), ENT_QUOTES, 'UTF-8'),
-            htmlspecialchars((string)($row['REVISID1']  ?? $row['Revisid1']  ?? ''), ENT_QUOTES, 'UTF-8'),
-            htmlspecialchars((string)($row['REVISID2']  ?? $row['Revisid2']  ?? ''), ENT_QUOTES, 'UTF-8'),
-            htmlspecialchars((string)($row['REVISID3']  ?? $row['Revisid3']  ?? ''), ENT_QUOTES, 'UTF-8'),
-            htmlspecialchars((string)($row['REVISID4']  ?? $row['Revisid4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string)($row['REVISI2']  ?? $row['Revisi2']  ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string)($row['REVISI3']  ?? $row['Revisi3']  ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string)($row['REVISI4']  ?? $row['Revisi4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string)($row['REVISI5']  ?? $row['Revisi5']  ?? ''), ENT_QUOTES, 'UTF-8'),
 
             htmlspecialchars((string)($row['REVISI1DATE'] ?? $row['Revisi1Date'] ?? ''), ENT_QUOTES, 'UTF-8'),
             htmlspecialchars((string)($row['REVISI2DATE'] ?? $row['Revisi2Date'] ?? ''), ENT_QUOTES, 'UTF-8'),

@@ -1,8 +1,207 @@
 <?php
 include "koneksi.php";
-require_once __DIR__."/lib/revisi_compare.php";
+require_once __DIR__ . "/lib/revisi_compare.php";
 
-/* 1)  */
+/**
+ * Toggle: ikutkan perbandingan LINE (orderline).
+ * TRUE = selain header, cek snapshot line juga
+ */
+$ENABLE_LINE_DIFF = true;
+
+/**
+ * Helper ambil revisi per ORDERLINE dari DB2 (SESUAI Approved_get_order_detail_revision_json.php)
+ * return: [ orderline => [revisic,revisi2..5,revisin,drevisi2..5,revisi1date..5date] ]
+ */
+function get_db2_lines($conn1, $codeUpper) {
+    $sql = "
+    SELECT
+        ORDERLINE,
+        MAX(RevisiC)     AS RevisiC,
+        MAX(RevisiC1)    AS RevisiC1,
+        MAX(RevisiC2)    AS RevisiC2,
+        MAX(RevisiC3)    AS RevisiC3,
+        MAX(RevisiC4)    AS RevisiC4,
+        MAX(Revisid)     AS Revisid,
+        MAX(Revisi2)    AS Revisi2,
+        MAX(Revisi3)    AS Revisi3,
+        MAX(Revisi4)    AS Revisi4,
+        MAX(Revisi5)    AS Revisi5,
+        MAX(Revisi1Date) AS Revisi1Date,
+        MAX(Revisi2Date) AS Revisi2Date,
+        MAX(Revisi3Date) AS Revisi3Date,
+        MAX(Revisi4Date) AS Revisi4Date,
+        MAX(Revisi5Date) AS Revisi5Date
+    FROM (
+        SELECT
+            i.SALESORDERCODE,
+            i.ORDERLINE,
+            CASE
+              WHEN sc.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                   AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc.VALUESTRING || '=')
+              THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc.VALUESTRING || '=([^;]*)',1,1,'',1)
+            END AS RevisiC,
+            CASE
+              WHEN sc1.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                   AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc1.VALUESTRING || '=')
+              THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc1.VALUESTRING || '=([^;]*)',1,1,'',1)
+            END AS RevisiC1,
+            CASE
+              WHEN sc2.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                   AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc2.VALUESTRING || '=')
+              THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc2.VALUESTRING || '=([^;]*)',1,1,'',1)
+            END AS RevisiC2,
+            CASE
+              WHEN sc3.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                   AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc3.VALUESTRING || '=')
+              THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc3.VALUESTRING || '=([^;]*)',1,1,'',1)
+            END AS RevisiC3,
+            CASE
+              WHEN sc4.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+                   AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || sc4.VALUESTRING || '=')
+              THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || sc4.VALUESTRING || '=([^;]*)',1,1,'',1)
+            END AS RevisiC4,
+
+            sd.VALUESTRING  AS Revisid,
+            sd1.VALUESTRING AS Revisi2,
+            sd2.VALUESTRING AS Revisi3,
+            sd3.VALUESTRING AS Revisi4,
+            sd4.VALUESTRING AS Revisi5,
+
+            sdt1.VALUEDATE AS Revisi1Date,
+            sdt2.VALUEDATE AS Revisi2Date,
+            sdt3.VALUEDATE AS Revisi3Date,
+            sdt4.VALUEDATE AS Revisi4Date,
+            sdt5.VALUEDATE AS Revisi5Date
+
+        FROM ITXVIEWBONORDER i
+        LEFT JOIN ADSTORAGE sc   ON sc.UNIQUEID  = i.ABSUNIQUEID_SALESORDERLINE AND sc.FIELDNAME  = 'RevisiC'
+        LEFT JOIN ADADDITIONALDATA adC  ON adC.NAME  = sc.FIELDNAME
+        LEFT JOIN ADSTORAGE sc1  ON sc1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sc1.FIELDNAME = 'RevisiC1'
+        LEFT JOIN ADADDITIONALDATA adC1 ON adC1.NAME = sc1.FIELDNAME
+        LEFT JOIN ADSTORAGE sc2  ON sc2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sc2.FIELDNAME = 'RevisiC2'
+        LEFT JOIN ADADDITIONALDATA adC2 ON adC2.NAME = sc2.FIELDNAME
+        LEFT JOIN ADSTORAGE sc3  ON sc3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sc3.FIELDNAME = 'RevisiC3'
+        LEFT JOIN ADADDITIONALDATA adC3 ON adC3.NAME = sc3.FIELDNAME
+        LEFT JOIN ADSTORAGE sc4  ON sc4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sc4.FIELDNAME = 'RevisiC4'
+        LEFT JOIN ADADDITIONALDATA adC4 ON adC4.NAME = sc4.FIELDNAME
+
+        LEFT JOIN ADSTORAGE sd   ON sd.UNIQUEID  = i.ABSUNIQUEID_SALESORDERLINE AND sd.FIELDNAME  = 'Revisid'
+        LEFT JOIN ADSTORAGE sd1  ON sd1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd1.FIELDNAME = 'Revisi2'
+        LEFT JOIN ADSTORAGE sd2  ON sd2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd2.FIELDNAME = 'Revisi3'
+        LEFT JOIN ADSTORAGE sd3  ON sd3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd3.FIELDNAME = 'Revisi4'
+        LEFT JOIN ADSTORAGE sd4  ON sd4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sd4.FIELDNAME = 'Revisi5'
+
+        LEFT JOIN ADSTORAGE sdt1 ON sdt1.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt1.FIELDNAME = 'Revisi1Date'
+        LEFT JOIN ADSTORAGE sdt2 ON sdt2.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt2.FIELDNAME = 'Revisi2Date'
+        LEFT JOIN ADSTORAGE sdt3 ON sdt3.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt3.FIELDNAME = 'Revisi3Date'
+        LEFT JOIN ADSTORAGE sdt4 ON sdt4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt4.FIELDNAME = 'Revisi4Date'
+        LEFT JOIN ADSTORAGE sdt5 ON sdt5.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt5.FIELDNAME = 'Revisi5Date'
+
+        WHERE i.SALESORDERCODE = ?
+    ) X
+    GROUP BY ORDERLINE
+    HAVING COALESCE(
+        NULLIF(TRIM(MAX(RevisiC)) , ''),
+        NULLIF(TRIM(MAX(RevisiC1)), ''),
+        NULLIF(TRIM(MAX(RevisiC2)), ''),
+        NULLIF(TRIM(MAX(RevisiC3)), ''),
+        NULLIF(TRIM(MAX(RevisiC4)), ''),
+        NULLIF(TRIM(MAX(Revisid)) , ''),
+        NULLIF(TRIM(MAX(Revisi2)), ''),
+        NULLIF(TRIM(MAX(Revisi3)), ''),
+        NULLIF(TRIM(MAX(Revisi4)), ''),
+        NULLIF(TRIM(MAX(Revisi5)), '')
+    ) IS NOT NULL
+    ORDER BY ORDERLINE
+    ";
+
+    $stmt = db2_prepare($conn1, $sql);
+    $codeVar = $codeUpper;
+    db2_bind_param($stmt, 1, "codeVar", DB2_PARAM_IN);
+    $ok = db2_execute($stmt);
+
+    // $out = [];
+    // if ($ok) {
+    //     while ($r = db2_fetch_assoc($stmt)) {
+    //         $ol = (string)($r['ORDERLINE'] ?? '');
+    //         $out[$ol] = [
+    //             'revisic'     => (string)($r['REVISIC']  ?? ''),
+    //             'revisi2'     => (string)($r['REVISIC1'] ?? ''),
+    //             'revisi3'     => (string)($r['REVISIC2'] ?? ''),
+    //             'revisi4'     => (string)($r['REVISIC3'] ?? ''),
+    //             'revisi5'     => (string)($r['REVISIC4'] ?? ''),
+    //             'revisin'     => (string)($r['REVISID']  ?? ''),
+    //             'drevisi2'    => (string)($r['REVISI2'] ?? ''),
+    //             'drevisi3'    => (string)($r['REVISI3'] ?? ''),
+    //             'drevisi4'    => (string)($r['REVISI4'] ?? ''),
+    //             'drevisi5'    => (string)($r['REVISI5'] ?? ''),
+    //             'revisi1date' => (string)($r['REVISI1DATE'] ?? ''),
+    //             'revisi2date' => (string)($r['REVISI2DATE'] ?? ''),
+    //             'revisi3date' => (string)($r['REVISI3DATE'] ?? ''),
+    //             'revisi4date' => (string)($r['REVISI4DATE'] ?? ''),
+    //             'revisi5date' => (string)($r['REVISI5DATE'] ?? ''),
+    //         ];
+    //     }
+    // }
+    // return $out;
+
+    $lines = [];
+    if ($ok) {
+        while ($r = db2_fetch_assoc($stmt)) {
+            $lines[] = [
+                'orderline'   => (string)($r['ORDERLINE'] ?? ''),
+                'revisic'     => (string)($r['REVISIC']  ?? ''),
+                'revisic1'    => (string)($r['REVISIC1'] ?? ''),
+                'revisic2'    => (string)($r['REVISIC2'] ?? ''),
+                'revisic3'    => (string)($r['REVISIC3'] ?? ''),
+                'revisic4'    => (string)($r['REVISIC4'] ?? ''),
+
+                'revisid'     => (string)($r['REVISID']  ?? ''),
+                'revisi2'    => (string)($r['REVISI2'] ?? ''),
+                'revisi3'    => (string)($r['REVISI3'] ?? ''),
+                'revisi4'    => (string)($r['REVISI4'] ?? ''),
+                'revisi5'    => (string)($r['REVISI5'] ?? ''),
+
+                'revisi1date' => (string)($r['REVISI1DATE'] ?? ''),
+                'revisi2date' => (string)($r['REVISI2DATE'] ?? ''),
+                'revisi3date' => (string)($r['REVISI3DATE'] ?? ''),
+                'revisi4date' => (string)($r['REVISI4DATE'] ?? ''),
+                'revisi5date' => (string)($r['REVISI5DATE'] ?? ''),
+            ];
+        }
+    }
+    return $lines;
+}
+
+/** Wrapper opsional biar “kayak versi lama” */
+function has_line_diff($conn1, $con, $codeUpper) {
+    $db2Lines = get_db2_lines($conn1, $codeUpper);
+
+    // ambil snapshot line MySQL utk code tsb (terakhir per line)
+    $codeEsc = mysqli_real_escape_string($con, $codeUpper);
+    $res = mysqli_query($con, "
+        SELECT lr.*
+        FROM line_revision lr
+        JOIN approval_bon_order a ON a.id = lr.approval_id
+        JOIN (
+          SELECT code, MAX(id) AS max_id
+          FROM approval_bon_order
+          WHERE is_revision = 1
+          GROUP BY code
+        ) m ON m.max_id = a.id
+        WHERE a.is_revision = 1 AND UPPER(lr.code) = '{$codeEsc}'
+        ORDER BY lr.orderline
+    ");
+    $mysqlLines = [];
+    if ($res) while ($r = mysqli_fetch_assoc($res)) $mysqlLines[] = $r;
+
+    // aturan: kalau MySQL belum punya snapshot line utk code ini -> JANGAN dianggap beda
+    if (empty($mysqlLines)) return false;
+
+    return linesDiffer($db2Lines, $mysqlLines);
+}
+
+/* --------------- 1) Snapshot MySQL (header terakhir per code) --------------- */
 $sqlSnap = "
 SELECT a.*
 FROM approval_bon_order a
@@ -15,6 +214,7 @@ JOIN (
 WHERE a.is_revision = 1
 ";
 $resSnap = mysqli_query($con, $sqlSnap);
+
 $lastMySQLByCode = [];
 if ($resSnap) {
     while ($r = mysqli_fetch_assoc($resSnap)) {
@@ -22,7 +222,30 @@ if ($resSnap) {
     }
 }
 
-/* 2) */
+/* --------------- (opsional) siapkan snapshot line utk approvedTable (riwayat) --------------- */
+$lastLinesByCode = [];
+$qLines = mysqli_query($con, "
+SELECT lr.*
+FROM line_revision lr
+JOIN approval_bon_order a ON a.id = lr.approval_id
+JOIN (
+  SELECT code, MAX(id) AS max_id
+  FROM approval_bon_order
+  WHERE is_revision = 1
+  GROUP BY code
+) m ON m.max_id = a.id
+WHERE a.is_revision = 1
+ORDER BY lr.code, lr.orderline
+");
+if ($qLines) {
+    while ($r = mysqli_fetch_assoc($qLines)) {
+        $codeKey = strtoupper(trim($r['code']));
+        if (!isset($lastLinesByCode[$codeKey])) $lastLinesByCode[$codeKey] = [];
+        $lastLinesByCode[$codeKey][] = $r;
+    }
+}
+
+/* --------------- 2) Ambil kandidat “siap approval” dari DB2 (header) --------------- */
 $sqlTBO = "
 WITH base AS (
     SELECT
@@ -60,6 +283,7 @@ WITH base AS (
 
     FROM ITXVIEW_SALESORDER_APPROVED isa
     LEFT JOIN SALESORDER s ON s.CODE = isa.CODE
+
     LEFT JOIN ADSTORAGE aC  ON aC.UNIQUEID = s.ABSUNIQUEID AND aC.FIELDNAME = 'RevisiC'
     LEFT JOIN ADADDITIONALDATA adC ON adC.NAME = aC.FIELDNAME
     LEFT JOIN ADSTORAGE a2  ON a2.UNIQUEID = s.ABSUNIQUEID AND a2.FIELDNAME = 'Revisi2'
@@ -70,17 +294,21 @@ WITH base AS (
     LEFT JOIN ADADDITIONALDATA ad4 ON ad4.NAME = a4.FIELDNAME
     LEFT JOIN ADSTORAGE a5  ON a5.UNIQUEID = s.ABSUNIQUEID AND a5.FIELDNAME = 'Revisi5'
     LEFT JOIN ADADDITIONALDATA ad5 ON ad5.NAME = a5.FIELDNAME
+
     LEFT JOIN ADSTORAGE n1 ON n1.UNIQUEID = s.ABSUNIQUEID AND n1.FIELDNAME = 'RevisiN'
     LEFT JOIN ADSTORAGE n2 ON n2.UNIQUEID = s.ABSUNIQUEID AND n2.FIELDNAME = 'DRevisi2'
     LEFT JOIN ADSTORAGE n3 ON n3.UNIQUEID = s.ABSUNIQUEID AND n3.FIELDNAME = 'DRevisi3'
     LEFT JOIN ADSTORAGE n4 ON n4.UNIQUEID = s.ABSUNIQUEID AND n4.FIELDNAME = 'DRevisi4'
     LEFT JOIN ADSTORAGE n5 ON n5.UNIQUEID = s.ABSUNIQUEID AND n5.FIELDNAME = 'DRevisi5'
+
     LEFT JOIN ADSTORAGE dt1 ON dt1.UNIQUEID = s.ABSUNIQUEID AND dt1.FIELDNAME = 'Revisi1Date'
     LEFT JOIN ADSTORAGE dt2 ON dt2.UNIQUEID = s.ABSUNIQUEID AND dt2.FIELDNAME = 'Revisi2Date'
     LEFT JOIN ADSTORAGE dt3 ON dt3.UNIQUEID = s.ABSUNIQUEID AND dt3.FIELDNAME = 'Revisi3Date'
     LEFT JOIN ADSTORAGE dt4 ON dt4.UNIQUEID = s.ABSUNIQUEID AND dt4.FIELDNAME = 'Revisi4Date'
     LEFT JOIN ADSTORAGE dt5 ON dt5.UNIQUEID = s.ABSUNIQUEID AND dt5.FIELDNAME = 'Revisi5Date'
+
     LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE
+
     WHERE isa.APPROVEDRMP IS NOT NULL
       AND DATE(s.CREATIONDATETIME) > DATE('2025-06-01')
 ),
@@ -103,14 +331,24 @@ WHERE rn = 1
 ";
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
+/* --------------- 3) Tentukan yang pending (TBO) --------------- */
 $tboRows = [];
 while ($row = db2_fetch_assoc($resultTBO)) {
-    $code = strtoupper(trim($row['CODE']));
-    $snap = $lastMySQLByCode[$code] ?? null;
-    if ($snap === null || revisionsDiffer($row, $snap)) $tboRows[] = $row;
+    $codeUpper = strtoupper(trim($row['CODE']));
+    $snap = $lastMySQLByCode[$codeUpper] ?? null;
+
+    $need = false;
+    if ($snap === null) {
+        $need = true; // data baru
+    } else {
+        $headerDiff = revisionsDiffer($row, $snap); // ABAIKAN tanggal
+        $lineDiff   = $ENABLE_LINE_DIFF ? has_line_diff($conn1, $con, $codeUpper) : false;
+        if ($headerDiff || $lineDiff) $need = true;
+    }
+    if ($need) $tboRows[] = $row;
 }
 
-/* 3) Build exclude list*/
+/* --------------- 4) Approved (riwayat): exclude yang lagi pending --------------- */
 $excludeList = "";
 if (!empty($tboRows)) {
     $codes = [];
@@ -120,7 +358,6 @@ if (!empty($tboRows)) {
     $excludeList = " AND UPPER(a.code) NOT IN (" . implode(",", $codes) . ") ";
 }
 
-/* 4) Data untuk approvedTable*/
 $sqlApproved = "
 SELECT a.*
 FROM approval_bon_order a
@@ -137,16 +374,32 @@ ORDER BY a.id DESC
 $resultApproved = mysqli_query($con, $sqlApproved);
 ?>
 <style>
-.modal-full { width:98%; max-width:98%; }
-.btn-outline-purple { background:transparent; color:#6f42c1; border:1px solid #6f42c1; }
-.btn-outline-purple:hover,.btn-outline-purple:focus { background:#6f42c1; color:#fff; }
+.modal-full{width:98%;max-width:98%}
+.btn-outline-purple{background:transparent;color:#6f42c1;border:1px solid #6f42c1}
+.btn-outline-purple:hover,.btn-outline-purple:focus{background:#6f42c1;color:#fff}
+
+#detailModal .modal-body{
+  max-height: 90vh;
+  overflow-y: auto;
+}
+#detailModal .table-responsive{
+  overflow-x: auto;
+}
+#detailApprovedTable thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 2; 
+    /* border: 0.5px solid #ddd; */
+    padding: 8px;
+  }
 </style>
 
 <div class="row">
   <div class="col-xs-12">
+    <!-- ========== TABEL 1: Data Siap Approval ========== -->
     <div class="box">
       <div class="box-body">
-        <!-- ✅ TABEL 1: Data Siap Approval -->
         <div class="card mb-4">
           <div class="card-header text-white"><h3 class="card-title">Data Siap Approval</h3></div>
           <div class="card-body">
@@ -154,16 +407,16 @@ $resultApproved = mysqli_query($con, $sqlApproved);
               <thead class="bg-primary text-white">
                 <tr>
                   <th>Customer</th>
-                  <th>Nomer Bon Order</th>
+                  <th>No Bon Order</th>
                   <th>Tgl Approved RMP</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
               <?php foreach ($tboRows as $row):
-                  $code = strtoupper(trim($row['CODE']));
-                  $customer = trim($row['CUSTOMER']);
-                  $tgl = trim($row['TGL_APPROVE_RMP']);
+                $code = strtoupper(trim($row['CODE']));
+                $customer = trim($row['CUSTOMER']);
+                $tgl = trim($row['TGL_APPROVE_RMP']);
               ?>
                 <tr>
                   <td style="padding:4px 8px;">
@@ -174,24 +427,26 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                     </div>
                   </td>
                   <td>
-                    <a href="#" class="btn btn-primary btn-sm open-detail" data-code="<?= $code ?>" data-toggle="modal" data-target="#detailModal"><?= $code ?></a>
+                    <!-- Klik dari TBO: tampilkan kondisi DB2 terkini -->
+                    <a href="#" class="btn btn-primary btn-sm open-detail"
+                       data-code="<?= $code ?>" data-toggle="modal" data-target="#detailModal">
+                      <?= $code ?>
+                    </a>
                   </td>
                   <td><?= htmlspecialchars($tgl) ?></td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
                       <select class="form-control form-control-sm pic-select" data-code="<?= $code ?>">
                         <option value="">-- Pilih PIC --</option>
-                        <?php $resultPIC = mysqli_query($con, "SELECT * FROM tbl_user WHERE pic_bonorder = 1 ORDER BY id ASC");
-                        while ($rowPIC = mysqli_fetch_assoc($resultPIC)) : ?>
+                        <?php $resultPIC = mysqli_query($con,"SELECT * FROM tbl_user WHERE pic_bonorder=1 ORDER BY id ASC");
+                        while ($rowPIC = mysqli_fetch_assoc($resultPIC)): ?>
                           <option value="<?= htmlspecialchars($rowPIC['username']) ?>"><?= htmlspecialchars($rowPIC['username']) ?></option>
                         <?php endwhile; ?>
                       </select>
-
                       <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
                       <button class="btn btn-danger btn-sm reject-btn"  data-code="<?= $code ?>">Reject</button>
 
-                      <button
-                        class="btn btn-outline-purple btn-sm revisi-btn"
+                      <button class="btn btn-outline-purple btn-sm revisi-btn"
                         data-code="<?= $code ?>"
                         data-revisic="<?= htmlspecialchars($row['REVISIC']  ?? '', ENT_QUOTES) ?>"
                         data-revisi2="<?= htmlspecialchars($row['REVISI2']  ?? '', ENT_QUOTES) ?>"
@@ -221,6 +476,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
       </div>
     </div>
 
+    <!-- ========== TABEL 2: Riwayat Approval (exclude pending) ========== -->
     <div class="box">
       <div class="box-body">
         <div class="card">
@@ -241,9 +497,11 @@ $resultApproved = mysqli_query($con, $sqlApproved);
               </thead>
               <tbody>
               <?php while ($row = mysqli_fetch_assoc($resultApproved)):
-                    $codeApp = strtoupper(trim($row['code']));
-                    $reviN_last = first_non_empty([$row['drevisi5'],$row['drevisi4'],$row['drevisi3'],$row['drevisi2'],$row['revisin']]);
-                    $reviC_last = first_non_empty([$row['revisi5'],$row['revisi4'],$row['revisi3'],$row['revisi2'],$row['revisic']]);
+                $codeApp   = strtoupper(trim($row['code']));
+                $reviN_last = first_non_empty([$row['drevisi5'],$row['drevisi4'],$row['drevisi3'],$row['drevisi2'],$row['revisin']]);
+                $reviC_last = first_non_empty([$row['revisi5'],$row['revisi4'],$row['revisi3'],$row['revisi2'],$row['revisic']]);
+                $linesSnap  = $lastLinesByCode[$codeApp] ?? [];
+                $linesJsonAttr = htmlspecialchars(json_encode($linesSnap), ENT_QUOTES);
               ?>
                 <tr>
                   <td style="display:none;"><?= (int)$row['id'] ?></td>
@@ -255,7 +513,13 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                     </div>
                   </td>
                   <td>
-                    <a href="#" class="btn btn-primary btn-sm open-detail" data-code="<?= htmlspecialchars($row['code']) ?>" data-toggle="modal" data-target="#detailModal"><?= htmlspecialchars($row['code']) ?></a>
+                    <!-- Klik dari APPROVED -->
+                    <a href="#"
+                      class="btn btn-primary btn-sm open-detail"
+                      data-code="<?= htmlspecialchars($row['code']) ?>"
+                      data-toggle="modal" data-target="#detailModal">
+                      <?= htmlspecialchars($row['code']) ?>
+                    </a>
                   </td>
                   <td><?= htmlspecialchars($row['tgl_approve_rmp']) ?></td>
                   <td><?= htmlspecialchars($row['tgl_approve_lab']) ?></td>
@@ -296,7 +560,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
   </div>
 </div>
 
-<!-- Modal Detail Order -->
+<!-- ========== Modal Detail Order ========== -->
 <div id="detailModal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-full">
     <div class="modal-content">
@@ -307,7 +571,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
   </div>
 </div>
 
-<!-- Modal Detail Revisi -->
+<!-- ========== Modal Detail Revisi (Header) ========== -->
 <div id="revisiModal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-md">
     <div class="modal-content">
@@ -324,28 +588,195 @@ $resultApproved = mysqli_query($con, $sqlApproved);
 </div>
 
 <script>
-// ========== Modal Detail Order ==========
-$(document).on('click', '.open-detail', function() {
+// ==== Modal Detail (Approved vs TBO) ====
+// $(document).on('click', '.open-detail', function(e){
+//   e.preventDefault();
+//   var code = $(this).data('code');
+//   var $btn = $(this);
+//   $('#modal-content').html('<p>Loading data...</p>');
+
+//   // dari approvedTable -> render dari snapshot MySQL (data attribute)
+//   var raw = $btn.attr('data-linesjson');
+//   if (typeof raw !== 'undefined') {
+//     try {
+//       var rows = raw ? JSON.parse(raw) : [];
+//       renderDetailTableFromLines(rows, 'Snapshot Line (MySQL) — ' + code);
+
+//     } catch (err) {
+//       $('#modal-content').html('<p class="text-danger">Gagal membaca snapshot line.</p>');
+//     }
+//     return;
+//   }
+
+//   // dari tboTable -> ambil HTML dari endpoint lama
+//   $.ajax({
+//     url: 'pages/ajax/Approved_get_order_detail_revision.php',
+//     type: 'POST',
+//     data: { code: code },
+//     success: function(res){
+//       $('#modal-content').html(res);
+//       if ($.fn.DataTable.isDataTable('#detailApprovedTable')) $('#detailApprovedTable').DataTable().destroy();
+//       $('#detailApprovedTable').DataTable({ paging:true, searching:true, ordering:true, order:[[0,'asc']] });
+//     },
+//     error: function(){ $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>'); }
+//   });
+// });
+// ==== Modal Detail Order (load HTML dari server) ====
+// ==== Modal Detail Order (load HTML dari server) ====
+$(document).on('click', '.open-detail', function(e){
+  e.preventDefault();
   var code = $(this).data('code');
+
   $('#modal-content').html('<p>Loading data...</p>');
+
   $.ajax({
     url: 'pages/ajax/Approved_get_order_detail_revision.php',
     type: 'POST',
     data: { code: code },
-    success: function(response) {
-      $('#modal-content').html(response);
-      if ($.fn.DataTable.isDataTable('#detailApprovedTable')) $('#detailApprovedTable').DataTable().destroy();
-      $('#detailApprovedTable').DataTable({ paging:true, searching:true, ordering:true, order:[[0,'asc']] });
+    success: function(res){
+      $('#modal-content').html(res);
+
+      // pastikan bersih
+      if ($.fn.DataTable.isDataTable('#detailApprovedTable')) {
+        $('#detailApprovedTable').DataTable().destroy();
+      }
+
+      // init DataTable (stabil di modal)
+      var dt = $('#detailApprovedTable').DataTable({
+        destroy: true,
+        deferRender: true,
+        autoWidth: false,
+        scrollX: true,                // tabel lebar aman di modal
+        paging: true,
+        searching: true,
+        ordering: true,
+        order: [[0, 'asc']],          // kolom 1 = orderline
+        columnDefs: [
+          { targets: 0, type: 'num' },  // sorting numerik utk orderline
+          { targets: '_all', defaultContent: '' }
+        ]
+      });
+
+      // adjust kolom setelah modal benar2 tampil (biar header/width rapi)
+      $('#detailModal')
+        .off('shown.bs.modal.dtfix')
+        .on('shown.bs.modal.dtfix', function(){ dt.columns.adjust().draw(false); })
+        .modal('show');
     },
-    error: function() { $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>'); }
+    error: function(){
+      $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
+    }
   });
 });
 
+// optional: bersihkan saat modal ditutup (hindari “Cannot reinitialise”/leak)
+$('#detailModal').on('hidden.bs.modal', function(){
+  if ($.fn.DataTable.isDataTable('#detailApprovedTable')) {
+    $('#detailApprovedTable').DataTable().destroy();
+  }
+  $('#modal-content').empty();
+});
+
+
+// tombol Detail Revisi di tabel dalam modal (pakai nama kolom baru)
+$(document).on('click', '#detailApprovedTable .revisi-btn', function(){
+  var rows = [
+    { cat: String($(this).data('revisic') || ''),  det: String($(this).data('revisid')  || ''), dt: $(this).data('revisi1date') || '' },
+    { cat: String($(this).data('revisic1')|| ''),  det: String($(this).data('revisi2') || ''), dt: $(this).data('revisi2date') || '' },
+    { cat: String($(this).data('revisic2')|| ''),  det: String($(this).data('revisi3') || ''), dt: $(this).data('revisi3date') || '' },
+    { cat: String($(this).data('revisic3')|| ''),  det: String($(this).data('revisi4') || ''), dt: $(this).data('revisi4date') || '' },
+    { cat: String($(this).data('revisic4')|| ''),  det: String($(this).data('revisi5') || ''), dt: $(this).data('revisi5date') || '' }
+  ];
+  var $tbody = $('#revisionTable tbody'); $tbody.empty();
+  rows.forEach(function(r){
+    var d = String(r.det||'').trim(); if(!d) return;
+    var $tr=$('<tr/>');
+    $tr.append($('<td/>').text(String(r.cat||'').trim() || '-'));
+    $tr.append($('<td/>').text(d));
+    $tr.append($('<td/>').text(String(r.dt||'').trim()));
+    $tbody.append($tr);
+  });
+  if ($tbody.children().length===0){
+    $tbody.append($('<tr/>').append($('<td colspan="3" class="text-center text-muted"/>').text('Tidak ada detail revisi yang terisi.')));
+  }
+  $('#revisiModal').modal('show');
+});
+
+function renderDetailTableFromLines(rows, title){
+  var html = '';
+  html += '<h4 style="margin-top:0;">'+ (title||'Detail Line') +'</h4>';
+  html += '<div class="table-responsive">';
+  html += '<table class="table table-bordered table-striped table-condensed" id="detailApprovedTable">';
+  html += '<thead><tr>';
+  html += '<th>Order Line</th><th>RevisiC</th><th>RevisiC1</th><th>RevisiC2</th><th>RevisiC3</th><th>RevisiC4</th>';
+  html += '<th>Revisid</th><th>Revisi2</th><th>Revisi3</th><th>Revisi4</th><th>Revisi5</th>';
+  html += '<th>Rev1 Date</th><th>Rev2 Date</th><th>Rev3 Date</th><th>Rev4 Date</th><th>Rev5 Date</th>';
+  html += '</tr></thead><tbody>';
+
+  (rows||[]).forEach(function(r){
+    html += '<tr>';
+    html += '<td>'+ esc(r.orderline) +'</td>';
+    html += '<td>'+ esc(r.revisic)  +'</td>';
+    html += '<td>'+ esc(r.revisic1) +'</td>';
+    html += '<td>'+ esc(r.revisic2) +'</td>';
+    html += '<td>'+ esc(r.revisic3) +'</td>';
+    html += '<td>'+ esc(r.revisic4) +'</td>';
+
+    html += '<td>'+ esc(r.revisid)  +'</td>';
+    html += '<td>'+ esc(r.revisi2) +'</td>';
+    html += '<td>'+ esc(r.revisi3) +'</td>';
+    html += '<td>'+ esc(r.revisi4) +'</td>';
+    html += '<td>'+ esc(r.revisi5) +'</td>';
+
+    html += '<td>'+ esc(r.revisi1date) +'</td>';
+    html += '<td>'+ esc(r.revisi2date) +'</td>';
+    html += '<td>'+ esc(r.revisi3date) +'</td>';
+    html += '<td>'+ esc(r.revisi4date) +'</td>';
+    html += '<td>'+ esc(r.revisi5date) +'</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  $('#modal-content').html(html);
+  if ($.fn.DataTable.isDataTable('#detailApprovedTable')) $('#detailApprovedTable').DataTable().destroy();
+  $('#detailApprovedTable').DataTable({ paging:true, searching:true, ordering:true, order:[[0,'asc']] });
+}
+
+function esc(x){ return $('<div/>').text(x==null?'':String(x)).html(); }
+
+// ==== Modal Detail Revisi (header-only) ====
+function openRevisionModalFromBtn($btn){
+  var rows = [
+    { cat: $btn.data('revisic')  || '', det: $btn.data('revisin')  || '', dt: $btn.data('revisi1date') || '' },
+    { cat: $btn.data('revisi2')  || '', det: $btn.data('drevisi2') || '', dt: $btn.data('revisi2date') || '' },
+    { cat: $btn.data('revisi3')  || '', det: $btn.data('drevisi3') || '', dt: $btn.data('revisi3date') || '' },
+    { cat: $btn.data('revisi4')  || '', det: $btn.data('drevisi4') || '', dt: $btn.data('revisi4date') || '' },
+    { cat: $btn.data('revisi5')  || '', det: $btn.data('drevisi5') || '', dt: $btn.data('revisi5date') || '' }
+  ];
+  var $tbody = $('#revisionTable tbody'); $tbody.empty();
+  rows.forEach(function(r){
+    var det = String(r.det||'').trim(); if(det==='') return;
+    var $tr = $('<tr/>');
+    $tr.append($('<td/>').text(String(r.cat||'').trim() || '-'));
+    $tr.append($('<td/>').text(det));
+    $tr.append($('<td/>').text(String(r.dt||'').trim()));
+    $tbody.append($tr);
+  });
+  if ($tbody.children().length===0){
+    $tbody.append($('<tr/>').append($('<td colspan="3" class="text-center text-muted"/>').text('Tidak ada detail revisi yang terisi.')));
+  }
+  $('#revisiModal').modal('show');
+}
+$(document).on('click', '#approvedTable tbody .revisi-btn', function(e){ e.preventDefault(); e.stopPropagation(); openRevisionModalFromBtn($(this)); });
+$(document).on('click', '#tboTable tbody .revisi-btn',      function(e){ e.preventDefault(); e.stopPropagation(); openRevisionModalFromBtn($(this)); });
+</script>
+
+<script>
 $(document).ready(function(){
   const tboTable = $('#tboTable').DataTable();
   const approvedTable = $('#approvedTable').DataTable({
-    "order":[[0,"desc"]],
-    "columnDefs":[{ "targets":0, "visible":false }]
+    order: [[0,'desc']],
+    columnDefs: [{ targets:0, visible:false }]
   });
 
   function getPIC(code){ return $("select.pic-select[data-code='"+code+"']").val(); }
@@ -358,16 +789,25 @@ $(document).ready(function(){
       tboTable.clear();
       if ($rows.length) tboTable.rows.add($rows);
       tboTable.draw(false);
+      tboTable.columns.adjust().draw(false);
     });
   }
+
   function reloadApprovedTable(isRevision=1){
     $.get("pages/ajax/refresh_approved_table_revisi.php", { is_revision:isRevision }, function (html) {
       const $rows = $($.parseHTML(html)).filter('tr');
       approvedTable.clear();
       if ($rows.length) approvedTable.rows.add($rows);
-      approvedTable.draw(false);
+      // kembalikan ke state awal: kolom 0 hidden & sort desc id
+      approvedTable.order([0,'desc']).draw(false);
+      approvedTable.columns.adjust().draw(false);
     });
   }
+
+  // (opsional) badge counter existing
+  function toInt(x){ try{ if(typeof x==='string'&&x.trim().startsWith('{')){const o=JSON.parse(x);for(const k in o){if(Object.hasOwn(o,k)&&!isNaN(parseInt(o[k],10))) return parseInt(o[k],10);}} }catch(e){} const n=parseInt(String(x).replace(/[^\d-]/g,''),10); return isNaN(n)?0:n; }
+  function updateBadge(tboCount, tboRevisiCount){ const total=tboCount+tboRevisiCount; $('#notifTBO').text(total); $('#notifTBOText').text(tboCount); $('#notifTBOText_revisi').text(tboRevisiCount); }
+  function refreshTBOCount(){ $.get('pages/ajax/get_total_tbo.php', function(d1){ $.get('pages/ajax/get_total_tbo_revisi.php', function(d2){ updateBadge(toInt(d1), toInt(d2)); }); }); }
 
   function submitApproval(code, action){
     const pic = getPIC(code);
@@ -405,18 +845,27 @@ $(document).ready(function(){
       .then((result)=>{
         if(!result.isConfirmed){ buttons.prop('disabled', false); return; }
         Swal.fire({title:'Memproses...', text:'Mohon tunggu sebentar.', didOpen:()=>Swal.showLoading(), allowOutsideClick:false});
-        $.post("pages/ajax/approve_bon_order_lab.php", {
-          code, customer, tgl_approve_rmp, pic_lab:pic, status:action, is_revision:1, ...revisiPayload
-        }, function(resp){
-          Swal.fire({icon:'success', title:'Berhasil', text:resp});
-          // Urutan: refresh pending dulu -> lalu approved (agar yg pending tidak tampil di approved)
-          reloadTboTable();
-          reloadApprovedTable(1);
-          // (opsional) refresh badge jika ada
-          if (typeof refreshTBOCount === 'function') refreshTBOCount();
-          if (typeof refreshTBORCount === 'function') refreshTBORCount();
+
+        // ambil snapshot line CURRENT (DB2) untuk disimpan saat approve
+        $.getJSON('pages/ajax/Approved_get_order_detail_revision_json.php', { code }, function(payload){
+          const lines_json = JSON.stringify(payload.lines || []);
+
+          $.post("pages/ajax/approve_bon_order_lab.php", {
+            code, customer, tgl_approve_rmp, pic_lab:pic, status:action, is_revision:1,
+            ...revisiPayload, lines_json
+          }, function(resp){
+            Swal.fire({icon:'success', title:'Berhasil', text:resp});
+            reloadTboTable();
+            reloadApprovedTable(1);
+            if (typeof refreshTBOCount === 'function') refreshTBOCount();
+            if (typeof refreshTBORCount === 'function') refreshTBORCount();
+          }).fail(function(){
+            Swal.fire({icon:'error', title:'Gagal', text:'Terjadi kesalahan saat menyimpan data.'});
+            buttons.prop('disabled', false);
+          });
+
         }).fail(function(){
-          Swal.fire({icon:'error', title:'Gagal', text:'Terjadi kesalahan saat menyimpan data.'});
+          Swal.fire({icon:'error', title:'Gagal', text:'Tidak bisa mengambil detail line (DB2).'});
           buttons.prop('disabled', false);
         });
       });
@@ -424,50 +873,7 @@ $(document).ready(function(){
 
   $('#tboTable tbody').on('click', '.approve-btn', function(){ submitApproval($(this).data('code'), 'Approved'); });
   $('#tboTable tbody').on('click', '.reject-btn',  function(){ submitApproval($(this).data('code'), 'Rejected'); });
-});
 
-// ===== Modal Detail Revisi (umum) =====
-function openRevisionModalFromBtn($btn){
-  var rows = [
-    { cat: $btn.data('revisic')  || '', det: $btn.data('revisin')  || '', dt: $btn.data('revisi1date') || '' },
-    { cat: $btn.data('revisi2')  || '', det: $btn.data('drevisi2') || '', dt: $btn.data('revisi2date') || '' },
-    { cat: $btn.data('revisi3')  || '', det: $btn.data('drevisi3') || '', dt: $btn.data('revisi3date') || '' },
-    { cat: $btn.data('revisi4')  || '', det: $btn.data('drevisi4') || '', dt: $btn.data('revisi4date') || '' },
-    { cat: $btn.data('revisi5')  || '', det: $btn.data('drevisi5') || '', dt: $btn.data('revisi5date') || '' }
-  ];
-  var $tbody = $('#revisionTable tbody'); $tbody.empty();
-  rows.forEach(function(r){
-    var det = String(r.det||'').trim(); if(det==='') return;
-    var $tr = $('<tr/>');
-    $tr.append($('<td/>').text(String(r.cat||'').trim() || '-'));
-    $tr.append($('<td/>').text(det));
-    $tr.append($('<td/>').text(String(r.dt||'').trim()));
-    $tbody.append($tr);
-  });
-  if ($tbody.children().length===0){
-    $tbody.append($('<tr/>').append($('<td colspan="3" class="text-center text-muted"/>').text('Tidak ada detail revisi yang terisi.')));
-  }
-  $('#revisiModal').modal('show');
-}
-$(document).on('click', '#approvedTable tbody .revisi-btn', function(e){ e.preventDefault(); e.stopPropagation(); openRevisionModalFromBtn($(this)); });
-$(document).on('click', '#tboTable tbody .revisi-btn',      function(e){ e.preventDefault(); e.stopPropagation(); openRevisionModalFromBtn($(this)); });
-
-// ===== Modal Detail (table dalam modal) - handler Revisi spesifik dari detailApprovedTable =====
-$(document).on('click', '#detailApprovedTable .revisi-btn', function(){
-  var rows = [
-    { cat: String($(this).data('revisic')||''),  det: String($(this).data('revisid') ||''), dt: $(this).data('revisi1date')||'' },
-    { cat: String($(this).data('revisic1')||''), det: String($(this).data('revisid1')||''), dt: $(this).data('revisi2date')||'' },
-    { cat: String($(this).data('revisic2')||''), det: String($(this).data('revisid2')||''), dt: $(this).data('revisi3date')||'' },
-    { cat: String($(this).data('revisic3')||''), det: String($(this).data('revisid3')||''), dt: $(this).data('revisi4date')||'' },
-    { cat: String($(this).data('revisic4')||''), det: String($(this).data('revisid4')||''), dt: $(this).data('revisi5date')||'' }
-  ];
-  var $tbody = $('#revisionTable tbody'); $tbody.empty();
-  rows.forEach(function(r){ var d=String(r.det||'').trim(); if(d==='')return;
-    var $tr=$('<tr/>'); $tr.append($('<td/>').text(String(r.cat||'').trim()||'-')); $tr.append($('<td/>').text(d)); $tr.append($('<td/>').text(String(r.dt||'').trim())); $tbody.append($tr);
-  });
-  if ($tbody.children().length===0){
-    $tbody.append($('<tr/>').append($('<td colspan="3" class="text-center text-muted"/>').text('Tidak ada detail revisi yang terisi.')));
-  }
-  $('#revisiModal').modal('show');
+  refreshTBOCount();
 });
 </script>
