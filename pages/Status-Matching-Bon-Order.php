@@ -66,10 +66,14 @@ if ($rsMy) {
         if (!isset($tempMap[$code])) {
             $tempMap[$code] = $r;
         } else {
-            // bandingkan tgl_approve_lab, ambil yang terbaru
-            $existing = $tempMap[$code];
-            if (strtotime($r['tgl_approve_lab']) > strtotime($existing['tgl_approve_lab'])) {
+            if ((int)$r['is_revision'] === 1 && (int)$existing['is_revision'] === 0) {
+                // utamakan revisi
                 $tempMap[$code] = $r;
+            } elseif ((int)$r['is_revision'] === (int)$existing['is_revision']) {
+                // kalau sama-sama revisi / sama-sama bukan revisi → pilih yang tanggal lab terbaru
+                if (strtotime($r['tgl_approve_lab']) > strtotime($existing['tgl_approve_lab'])) {
+                    $tempMap[$code] = $r;
+                }
             }
         }
     }

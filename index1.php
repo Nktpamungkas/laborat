@@ -1106,15 +1106,6 @@ $(document).ready(function() {
             return isNaN(n) ? 0 : n;
         }
 
-        // function updateBadge() {
-        //     const total = tboCount + tboRevisiCount;
-        //     // badge pada icon (gabungan)
-        //     $('#notifTBO').text(total);
-
-        //     $('#notifTBOText').text(tboCount);
-        //     $('#notifTBOText_revisi').text(tboRevisiCount);
-        // }
-
         function refreshNotif() {
             $.getJSON('pages/ajax/get_notif_tbo.php', function(resp) {
                 const tboCount = resp.new.count;
