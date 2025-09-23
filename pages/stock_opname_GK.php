@@ -410,7 +410,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $.ajax({
             url: 'pages/ajax/stock_opname_gk_detail.php',
             type: 'POST',
-            data: { tgl_tutup: tgl_tutup, warehouse: warehouse },
+            data: { tgl_tutup: tgl_tutup, warehouse: warehouse , akses: '<?=$_SESSION['jabatanLAB']?>'},
             success: function(response) {
                 $('#tabelDetail').html(response);
                 if ($.fn.DataTable.isDataTable('#detailmasukTable')) {
@@ -773,6 +773,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             success: function(response) {
                 if(response.success){ 
                     let row="";
+                    let akses = '<?=$_SESSION['jabatanLAB']?>';
                     $.each( response.data, function( key, value ) {
                         row+=`
                         <tr>
@@ -781,8 +782,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <td>`+value.kategori+`</td>
                         <td>`+value.pakingan_standar+`</td>
                         <td>`+value.total_stock+`</td>
-                        <td><button class='btn btn-success btn-sm edit_scan_opname' title='Edit' data-toggle='tooltip' data-id='`+value.id+`' data-time='`+value.time+`' ><i class='fa fa-pencil-square-o '></i></button> </td>
-                        </tr>
+                        `;
+                        if(akses!='QAI'){
+                            row+=`<td><button class='btn btn-success btn-sm edit_scan_opname' title='Edit' data-toggle='tooltip' data-id='`+value.id+`' data-time='`+value.time+`' ><i class='fa fa-pencil-square-o '></i></button></td> `;
+                        }else{
+                           row+=`<td></td> `;
+                        }
+                        row+=`</tr>
                         `;
                     });
                     if(row==""){
@@ -858,7 +864,7 @@ function checkData(){
         $.ajax({
             url: 'pages/ajax/stock_opname_gk_ajax.php',
             type: 'POST',
-            data: {status:sts, tgl_tutup: tgl_tutup, warehouse: warehouse },
+            data: {status:sts, tgl_tutup: tgl_tutup, warehouse: warehouse, akses: '<?=$_SESSION['jabatanLAB']?>' },
             success: function(response) {
                 if(response.success){
                     $.each( response.data, function( key, value ) {

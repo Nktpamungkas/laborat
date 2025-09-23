@@ -62,7 +62,10 @@
                         if($rowOpname['konfirmasi']){
                             $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
                         }else{
-                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
+                            if($_POST['akses']!="QAI"){
+                            $tmp_data['konfirm'].="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                            }
                         }
                         $dataOpname[]=$tmp_data;
                     }
@@ -104,7 +107,10 @@
                         if($rowOpname['konfirmasi']){
                             $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
                         }else{
-                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
+                            if($_POST['akses']!="QAI"){
+                            $tmp_data['konfirm'].="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                            }
                         }
                         $dataOpname[]=$tmp_data;
                     }
