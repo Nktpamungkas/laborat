@@ -234,78 +234,194 @@ function get_revisi_codes($conn1, $con) {
     $sqlTBO = "
     WITH base AS (
         SELECT
-            isa.CODE                                AS CODE,
-            ip.LANGGANAN || ip.BUYER                AS CUSTOMER,
-            isa.TGL_APPROVEDRMP                     AS TGL_APPROVE_RMP,
-
-            CASE WHEN aC.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
-                 AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || aC.VALUESTRING || '=')
-                 THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || aC.VALUESTRING || '=([^;]*)',1,1,'',1) END AS RevisiC,
-            CASE WHEN a2.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
-                 AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a2.VALUESTRING || '=')
-                 THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a2.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi2,
-            CASE WHEN a3.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
-                 AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a3.VALUESTRING || '=')
-                 THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a3.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi3,
-            CASE WHEN a4.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
-                 AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a4.VALUESTRING || '=')
-                 THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a4.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi4,
-            CASE WHEN a5.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
-                 AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a5.VALUESTRING || '=')
-                 THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a5.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi5,
-
-            n1.VALUESTRING AS RevisiN,
-            n2.VALUESTRING AS DRevisi2,
-            n3.VALUESTRING AS DRevisi3,
-            n4.VALUESTRING AS DRevisi4,
-            n5.VALUESTRING AS DRevisi5,
-
-            dt1.VALUEDATE AS Revisi1Date,
-            dt2.VALUEDATE AS Revisi2Date,
-            dt3.VALUEDATE AS Revisi3Date,
-            dt4.VALUEDATE AS Revisi4Date,
-            dt5.VALUEDATE AS Revisi5Date
-
-        FROM ITXVIEW_SALESORDER_APPROVED isa
-        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE
-        LEFT JOIN ADSTORAGE aC  ON aC.UNIQUEID = s.ABSUNIQUEID AND aC.FIELDNAME = 'RevisiC'
-        LEFT JOIN ADADDITIONALDATA adC ON adC.NAME = aC.FIELDNAME
-        LEFT JOIN ADSTORAGE a2  ON a2.UNIQUEID = s.ABSUNIQUEID AND a2.FIELDNAME = 'Revisi2'
-        LEFT JOIN ADADDITIONALDATA ad2 ON ad2.NAME = a2.FIELDNAME
-        LEFT JOIN ADSTORAGE a3  ON a3.UNIQUEID = s.ABSUNIQUEID AND a3.FIELDNAME = 'Revisi3'
-        LEFT JOIN ADADDITIONALDATA ad3 ON ad3.NAME = a3.FIELDNAME
-        LEFT JOIN ADSTORAGE a4  ON a4.UNIQUEID = s.ABSUNIQUEID AND a4.FIELDNAME = 'Revisi4'
-        LEFT JOIN ADADDITIONALDATA ad4 ON ad4.NAME = a4.FIELDNAME
-        LEFT JOIN ADSTORAGE a5  ON a5.UNIQUEID = s.ABSUNIQUEID AND a5.FIELDNAME = 'Revisi5'
-        LEFT JOIN ADADDITIONALDATA ad5 ON ad5.NAME = a5.FIELDNAME
-        LEFT JOIN ADSTORAGE n1 ON n1.UNIQUEID = s.ABSUNIQUEID AND n1.FIELDNAME = 'RevisiN'
-        LEFT JOIN ADSTORAGE n2 ON n2.UNIQUEID = s.ABSUNIQUEID AND n2.FIELDNAME = 'DRevisi2'
-        LEFT JOIN ADSTORAGE n3 ON n3.UNIQUEID = s.ABSUNIQUEID AND n3.FIELDNAME = 'DRevisi3'
-        LEFT JOIN ADSTORAGE n4 ON n4.UNIQUEID = s.ABSUNIQUEID AND n4.FIELDNAME = 'DRevisi4'
-        LEFT JOIN ADSTORAGE n5 ON n5.UNIQUEID = s.ABSUNIQUEID AND n5.FIELDNAME = 'DRevisi5'
-        LEFT JOIN ADSTORAGE dt1 ON dt1.UNIQUEID = s.ABSUNIQUEID AND dt1.FIELDNAME = 'Revisi1Date'
-        LEFT JOIN ADSTORAGE dt2 ON dt2.UNIQUEID = s.ABSUNIQUEID AND dt2.FIELDNAME = 'Revisi2Date'
-        LEFT JOIN ADSTORAGE dt3 ON dt3.UNIQUEID = s.ABSUNIQUEID AND dt3.FIELDNAME = 'Revisi3Date'
-        LEFT JOIN ADSTORAGE dt4 ON dt4.UNIQUEID = s.ABSUNIQUEID AND dt4.FIELDNAME = 'Revisi4Date'
-        LEFT JOIN ADSTORAGE dt5 ON dt5.UNIQUEID = s.ABSUNIQUEID AND dt5.FIELDNAME = 'Revisi5Date'
-        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE
-        WHERE isa.APPROVEDRMP IS NOT NULL
-          AND DATE(s.CREATIONDATETIME) > DATE('2025-06-01')
+      s.SALESORDERCODE                 AS CODE,
+      ip.LANGGANAN || ip.BUYER         AS CUSTOMER,
+      a.VALUEDATE                      AS TGL_APPROVE_RMP,
+      
+      CASE WHEN a10.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+          AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a10.VALUESTRING || '=')
+          THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a10.VALUESTRING || '=([^;]*)',1,1,'',1) END AS RevisiC,
+      CASE WHEN a11.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+          AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a11.VALUESTRING || '=')
+          THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a11.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi2,
+      CASE WHEN a12.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+          AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a12.VALUESTRING || '=')
+          THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a12.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi3,
+      CASE WHEN a13.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+          AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a13.VALUESTRING || '=')
+          THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a13.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi4,
+      CASE WHEN a14.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
+          AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a14.VALUESTRING || '=')
+          THEN REGEXP_SUBSTR(adC.OPTIONS,'(?:^|;)' || a14.VALUESTRING || '=([^;]*)',1,1,'',1) END AS Revisi5,
+      
+      a15.VALUESTRING AS RevisiN,
+      a16.VALUESTRING AS DRevisi2,
+      a17.VALUESTRING AS DRevisi3,
+      a18.VALUESTRING AS DRevisi4,
+      a19.VALUESTRING AS DRevisi5,
+      
+      dt1.VALUEDATE AS Revisi1Date,
+      dt2.VALUEDATE AS Revisi2Date,
+      dt3.VALUEDATE AS Revisi3Date,
+      dt4.VALUEDATE AS Revisi4Date,
+      dt5.VALUEDATE AS Revisi5Date
+      
+      FROM
+          SALESORDERLINE s
+      LEFT JOIN SALESORDER s2 ON
+          s2.CODE = s.SALESORDERCODE
+      LEFT JOIN ADSTORAGE a ON
+              s2.ABSUNIQUEID = a.UNIQUEID
+              AND a.FIELDNAME = 'ApprovalDate'     
+      LEFT JOIN ADSTORAGE a10 ON s2.ABSUNIQUEID = a10.UNIQUEID AND a10.FIELDNAME = 'RevisiC'
+      LEFT JOIN ADADDITIONALDATA adC ON adC.NAME = a10.FIELDNAME
+      LEFT JOIN ADSTORAGE a11 ON s2.ABSUNIQUEID = a11.UNIQUEID AND a11.FIELDNAME = 'Revisi2'
+      LEFT JOIN ADSTORAGE a12 ON s2.ABSUNIQUEID = a12.UNIQUEID AND a12.FIELDNAME = 'Revisi3'
+      LEFT JOIN ADSTORAGE a13 ON s2.ABSUNIQUEID = a13.UNIQUEID AND a13.FIELDNAME = 'Revisi4'
+      LEFT JOIN ADSTORAGE a14 ON s2.ABSUNIQUEID = a14.UNIQUEID AND a14.FIELDNAME = 'Revisi5'
+      LEFT JOIN ADSTORAGE a15 ON s2.ABSUNIQUEID = a15.UNIQUEID AND a15.FIELDNAME = 'RevisiN'
+      LEFT JOIN ADSTORAGE a16 ON s2.ABSUNIQUEID = a16.UNIQUEID AND a16.FIELDNAME = 'DRevisi2'
+      LEFT JOIN ADSTORAGE a17 ON s2.ABSUNIQUEID = a17.UNIQUEID AND a17.FIELDNAME = 'DRevisi3'
+      LEFT JOIN ADSTORAGE a18 ON s2.ABSUNIQUEID = a18.UNIQUEID AND a18.FIELDNAME = 'DRevisi4'
+      LEFT JOIN ADSTORAGE a19 ON s2.ABSUNIQUEID = a19.UNIQUEID AND a19.FIELDNAME = 'DRevisi5'
+      LEFT JOIN ADSTORAGE dt1 ON dt1.UNIQUEID = s2.ABSUNIQUEID AND dt1.FIELDNAME = 'Revisi1Date'
+      LEFT JOIN ADSTORAGE dt2 ON dt2.UNIQUEID = s2.ABSUNIQUEID AND dt2.FIELDNAME = 'Revisi2Date'
+      LEFT JOIN ADSTORAGE dt3 ON dt3.UNIQUEID = s2.ABSUNIQUEID AND dt3.FIELDNAME = 'Revisi3Date'
+      LEFT JOIN ADSTORAGE dt4 ON dt4.UNIQUEID = s2.ABSUNIQUEID AND dt4.FIELDNAME = 'Revisi4Date'
+      LEFT JOIN ADSTORAGE dt5 ON dt5.UNIQUEID = s2.ABSUNIQUEID AND dt5.FIELDNAME = 'Revisi5Date'  
+      LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s2.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s2.CODE
+      
+      WHERE a.VALUEDATE IS NOT NULL
+            AND DATE(s2.CREATIONDATETIME) > DATE('2025-06-01')
     ),
     ranked AS (
         SELECT b.*, ROW_NUMBER() OVER
           (PARTITION BY b.CODE ORDER BY (b.TGL_APPROVE_RMP IS NULL) ASC, b.TGL_APPROVE_RMP DESC) AS rn
         FROM base b
+    ),
+    line_revisi AS (
+        SELECT 
+            *
+        FROM
+            (
+            SELECT
+                DISTINCT 
+                s.SALESORDERCODE AS CODE,
+                s.LINESTATUS,
+                CASE
+                    WHEN a5.VALUESTRING <> '0'
+                    OR a.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a6.VALUESTRING <> '0'
+                    OR a1.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a7.VALUESTRING <> '0'
+                    OR a2.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a8.VALUESTRING <> '0'
+                    OR a3.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a9.VALUESTRING <> '0'
+                    OR a4.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    ELSE NULL
+                END AS REVISI_LINE,
+                CASE
+                    WHEN a10.VALUESTRING <> '0'
+                    OR a15.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a11.VALUESTRING <> '0'
+                    OR a16.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a12.VALUESTRING <> '0'
+                    OR a17.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a13.VALUESTRING <> '0'
+                    OR a18.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    WHEN a14.VALUESTRING <> '0'
+                    OR a19.VALUESTRING IS NOT NULL THEN 'REVISI'
+                    ELSE NULL
+                END AS REVISI_HEADER
+            FROM
+                SALESORDERLINE s
+            LEFT JOIN SALESORDER s2 ON
+                s2.CODE = s.SALESORDERCODE
+            LEFT JOIN ADSTORAGE a ON
+                s.ABSUNIQUEID = a.UNIQUEID
+                AND a.FIELDNAME = 'Revisid'
+            LEFT JOIN ADSTORAGE a1 ON
+                s.ABSUNIQUEID = a1.UNIQUEID
+                AND a1.FIELDNAME = 'Revisi2'
+            LEFT JOIN ADSTORAGE a2 ON
+                s.ABSUNIQUEID = a2.UNIQUEID
+                AND a2.FIELDNAME = 'Revisi3'
+            LEFT JOIN ADSTORAGE a3 ON
+                s.ABSUNIQUEID = a3.UNIQUEID
+                AND a3.FIELDNAME = 'Revisi4'
+            LEFT JOIN ADSTORAGE a4 ON
+                s.ABSUNIQUEID = a4.UNIQUEID
+                AND a4.FIELDNAME = 'Revisi5'
+            LEFT JOIN ADSTORAGE a5 ON
+                s.ABSUNIQUEID = a5.UNIQUEID
+                AND a5.FIELDNAME = 'RevisiC'
+            LEFT JOIN ADSTORAGE a6 ON
+                s.ABSUNIQUEID = a6.UNIQUEID
+                AND a6.FIELDNAME = 'RevisiC1'
+            LEFT JOIN ADSTORAGE a7 ON
+                s.ABSUNIQUEID = a7.UNIQUEID
+                AND a7.FIELDNAME = 'RevisiC2'
+            LEFT JOIN ADSTORAGE a8 ON
+                s.ABSUNIQUEID = a8.UNIQUEID
+                AND a8.FIELDNAME = 'RevisiC3'
+            LEFT JOIN ADSTORAGE a9 ON
+                s.ABSUNIQUEID = a9.UNIQUEID
+                AND a9.FIELDNAME = 'RevisiC4'
+            LEFT JOIN ADSTORAGE a10 ON
+                s2.ABSUNIQUEID = a10.UNIQUEID
+                AND a10.FIELDNAME = 'RevisiC'
+            LEFT JOIN ADSTORAGE a11 ON
+                s2.ABSUNIQUEID = a11.UNIQUEID
+                AND a11.FIELDNAME = 'Revisi2'
+            LEFT JOIN ADSTORAGE a12 ON
+                s2.ABSUNIQUEID = a12.UNIQUEID
+                AND a12.FIELDNAME = 'Revisi3'
+            LEFT JOIN ADSTORAGE a13 ON
+                s2.ABSUNIQUEID = a13.UNIQUEID
+                AND a13.FIELDNAME = 'Revisi4'
+            LEFT JOIN ADSTORAGE a14 ON
+                s2.ABSUNIQUEID = a14.UNIQUEID
+                AND a14.FIELDNAME = 'Revisi5'
+            LEFT JOIN ADSTORAGE a15 ON
+                s2.ABSUNIQUEID = a15.UNIQUEID
+                AND a15.FIELDNAME = 'RevisiN'
+            LEFT JOIN ADSTORAGE a16 ON
+                s2.ABSUNIQUEID = a16.UNIQUEID
+                AND a16.FIELDNAME = 'DRevisi2'
+            LEFT JOIN ADSTORAGE a17 ON
+                s2.ABSUNIQUEID = a17.UNIQUEID
+                AND a17.FIELDNAME = 'DRevisi3'
+            LEFT JOIN ADSTORAGE a18 ON
+                s2.ABSUNIQUEID = a18.UNIQUEID
+                AND a18.FIELDNAME = 'DRevisi4'
+            LEFT JOIN ADSTORAGE a19 ON
+                s2.ABSUNIQUEID = a19.UNIQUEID
+                AND a19.FIELDNAME = 'DRevisi5'
+        ) s
+        WHERE
+            s.REVISI_HEADER IS NULL
+            AND s.REVISI_LINE IS NOT NULL
+            AND s.LINESTATUS = 1
     )
+
     SELECT
-        CODE, CUSTOMER, TGL_APPROVE_RMP,
-        RevisiC, Revisi2, Revisi3, Revisi4, Revisi5,
-        RevisiN, DRevisi2, DRevisi3, DRevisi4, DRevisi5,
-        Revisi1Date, Revisi2Date, Revisi3Date, Revisi4Date, Revisi5Date
-    FROM ranked
-    WHERE rn = 1
-      AND COALESCE(NULLIF(TRIM(RevisiC),''),NULLIF(TRIM(Revisi2),''),NULLIF(TRIM(Revisi3),''),NULLIF(TRIM(Revisi4),''),NULLIF(TRIM(Revisi5),'')) IS NOT NULL
-      AND COALESCE(NULLIF(TRIM(RevisiN),''),NULLIF(TRIM(DRevisi2),''),NULLIF(TRIM(DRevisi3),''),NULLIF(TRIM(DRevisi4),''),NULLIF(TRIM(DRevisi5),'')) IS NOT NULL
+        r.CODE, r.CUSTOMER, r.TGL_APPROVE_RMP,
+        r.RevisiC, r.Revisi2, r.Revisi3, r.Revisi4, r.Revisi5,
+        r.RevisiN, r.DRevisi2, r.DRevisi3, r.DRevisi4, r.DRevisi5,
+        r.Revisi1Date, r.Revisi2Date, r.Revisi3Date, r.Revisi4Date, r.Revisi5Date
+    FROM ranked r
+    WHERE r.rn = 1
+    AND (
+            (
+            COALESCE(NULLIF(TRIM(r.RevisiC),''),NULLIF(TRIM(r.Revisi2),''),NULLIF(TRIM(r.Revisi3),''),NULLIF(TRIM(r.Revisi4),''),NULLIF(TRIM(r.Revisi5),'')) IS NOT NULL
+            AND
+            COALESCE(NULLIF(TRIM(r.RevisiN),''),NULLIF(TRIM(r.DRevisi2),''),NULLIF(TRIM(r.DRevisi3),''),NULLIF(TRIM(r.DRevisi4),''),NULLIF(TRIM(r.DRevisi5),'')) IS NOT NULL
+            )
+            OR
+            r.CODE IN (SELECT CODE FROM line_revisi)
+        )
+    WITH UR
     ";
 
     $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
