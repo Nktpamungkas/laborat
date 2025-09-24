@@ -1128,10 +1128,10 @@ $(document).ready(function() {
 
                 const $list = $('#notifList').empty();
                 resp.new.codes.forEach(code => $list.append(
-                    `<li style="padding:6px 12px;"><a href="/laborat/index1.php?p=Approval-Bon-Order&code=${encodeURIComponent(code)}">Bon Order Baru ${code}</a></li>`
+                    `<li style="padding:6px 12px; background-color: rgb(220, 220, 220);"><a href="/laborat/index1.php?p=Approval-Bon-Order&code=${encodeURIComponent(code)}">Bon Order Baru ${code}</a></li>`
                 ));
                 resp.revisi.codes.forEach(code => $list.append(
-                    `<li style="padding:6px 12px;"><a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order&code=${encodeURIComponent(code)}">Revisi Bon Order ${code}</a></li>`
+                    `<li style="padding:6px 12px; background-color: rgb(250, 235, 215);"><a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order&code=${encodeURIComponent(code)}">Revisi Bon Order ${code}</a></li>`
                 ));
             });
         }
