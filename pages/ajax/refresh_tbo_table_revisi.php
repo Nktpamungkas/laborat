@@ -428,8 +428,13 @@ while ($row = db2_fetch_assoc($resultTBO)) {
       <td style="padding:4px 8px;">
         <div style="margin-bottom:2px; word-break:break-word;"><?= htmlspecialchars($customer) ?></div>
         <div style="display:flex; align-items:center; font-weight:700;">
-          <span style="flex:1 1 auto; min-width:0; word-break:break-word;"><?= htmlspecialchars($row['REVISIN_LAST']) ?></span>
-          <span style="flex:0 0 auto; margin-left:auto;"><?= htmlspecialchars($row['REVISIC_LAST']) ?></span>
+          <span style="flex:1 1 auto; min-width:0; word-break:break-word;">
+            <?= htmlspecialchars($row['REVISIN_LAST'] ?? '') ?>
+          </span>
+          <span style="flex:0 0 auto; margin-left:auto;">
+            <?= htmlspecialchars($row['REVISIC_LAST'] ?? '') ?>
+          </span>
+
         </div>
       </td>
       <td>
