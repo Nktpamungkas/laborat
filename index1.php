@@ -305,7 +305,7 @@ $page = strtolower($page);
                                 </li>
                             <?php endif; ?>
 
-
+                            <?php if ($_SESSION['jabatanLAB'] != "QAI") { ?>
                             <!-- DATA BASE RESEP GROUP -->
                             <li class="dropdown <?php if ($_GET['p'] == "Today-Approved" or $_GET['p'] == 'Detail-status-approved' or $_GET['p'] 
                             == "Today-Rejected" or $_GET['p'] == 'Detail-status-rejected' or $_GET['p'] == "Report-Matching" or $_GET['p'] 
@@ -379,7 +379,7 @@ $page = strtolower($page);
                                     </svg>
                                     <span></span></a>
                             </li>
-
+                            <?php } ?>
 
                             <!-- Modifikasi Data -->
                             <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Colorist' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Other'): ?>
@@ -574,10 +574,21 @@ $page = strtolower($page);
                                                     echo "active"; ?>">
                                                     <a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a>
                                                 </li>
+                                                <li class="<?php if ($_GET['p'] == "stock_opname_GK_rekap")
+                                                    echo "active"; ?>">
+                                                    <a href="?p=stock_opname_GK_rekap"><i class="fa fa-tasks"></i> <span>Rekap Stock Opname GK</span></a>
+                                                </li>
                                             </ul>
                                         </li>
                                     
                                     </ul>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php if ($_SESSION['jabatanLAB'] == 'QAI'): ?>
+                                <li class="<?php if ($_GET['p'] == "stock_opname_GK") {
+                                                echo "active";
+                                            } ?>"><a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a></i>
                                 </li>
                             <?php endif; ?>
 

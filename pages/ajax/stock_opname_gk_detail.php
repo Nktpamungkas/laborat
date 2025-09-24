@@ -77,7 +77,10 @@ if(trim($warehouse," ")=="M101"){
                 $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }else{
-                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o'></i></button>";
+                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
+                if($_POST['akses']!="TIDAKJADI"){
+                    $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o'></i></button>";
+                }
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }
             echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
@@ -135,7 +138,10 @@ else if(trim($warehouse," ")=="M510"){
             if($row['konfirmasi']){
                 $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
             }else{
-                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
+                if($_POST['akses']!="TIDAKJADI"){
+                    $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+                }
             }
             echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
                     <td class='text-center'>{$no}</td>
