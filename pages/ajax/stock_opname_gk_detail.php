@@ -78,7 +78,7 @@ if(trim($warehouse," ")=="M101"){
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }else{
                 $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                if($_POST['akses']!="QAI"){
+                if($_POST['akses']!="TIDAKJADI"){
                     $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o'></i></button>";
                 }
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
@@ -139,7 +139,7 @@ else if(trim($warehouse," ")=="M510"){
                 $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
             }else{
                 $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                if($_POST['akses']!="QAI"){
+                if($_POST['akses']!="TIDAKJADI"){
                     $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
                 }
             }
