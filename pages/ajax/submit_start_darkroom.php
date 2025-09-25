@@ -85,23 +85,16 @@ function processUpdate($con, $no_resep, $expected_statuses, $new_status, $userDa
 
     $stmt->close();
 
-    // Update berdasarkan jenis transisi status
     if ($update_end_time) {
         $update = $con->prepare("
             UPDATE tbl_preliminary_schedule 
-            SET status = ?, sekali_celup = NOW(), user_darkroom_end = ?
-            WHERE no_resep = ? AND is_old_cycle = 0
-        ");
-    } elseif ($new_status === 'in_progress_darkroom') {
-        $update = $con->prepare("
-            UPDATE tbl_preliminary_schedule 
-            SET status = ?, darkroom_start = NOW(), user_darkroom_start = ?
+            SET status = ?, sekali_celup = NOW(), darkroom_start = NOW(), user_darkroom_start = ?
             WHERE no_resep = ? AND is_old_cycle = 0
         ");
     } else {
         $update = $con->prepare("
             UPDATE tbl_preliminary_schedule 
-            SET status = ?, user_darkroom_start = ?
+            SET status = ?, darkroom_start = NOW(), user_darkroom_start = ?
             WHERE no_resep = ? AND is_old_cycle = 0
         ");
     }

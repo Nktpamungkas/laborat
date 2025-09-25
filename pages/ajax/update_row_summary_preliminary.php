@@ -9,7 +9,7 @@ if (!isset($_POST['id']) || $_POST['id']===''){ echo json_encode(["ok"=>false,"m
 $id = (int)$_POST['id'];
 
 $sql = "UPDATE summary_preliminary SET
-  tgl=?, jam=?, shift=?, kloter=?, jenis_kain=?,
+  tgl=?, jam=?, shift=?, kloter=?, jenis_kain=?, status=?,
 
   visual_hendrik_ld=?, visual_hendrik_bulk=?,
   visual_gunawan_ld=?, visual_gunawan_bulk=?,
@@ -34,7 +34,7 @@ $stmt = $con->prepare($sql);
 if(!$stmt){ echo json_encode(["ok"=>false,"message"=>$con->error]); exit; }
 
 $vals = [
-  S('tgl'), S('jam'), S('shift'), I('kloter'), S('jenis_kain'),
+  S('tgl'), S('jam'), S('shift'), I('kloter'), S('jenis_kain'), S('status'),
   I('visual_hendrik_ld'), I('visual_hendrik_bulk'),
   I('visual_gunawan_ld'), I('visual_gunawan_bulk'),
   I('visual_ferdinan_ld'), I('visual_ferdinan_bulk'),
@@ -53,7 +53,8 @@ $vals = [
   I('t_gabung'), I('warna_ctrl'), I('resep_lain'), I('jml'),
   $id
 ];
-$types = 'sss' . 'i' . 's' . str_repeat('i', 14) . str_repeat('i', 14) . str_repeat('i', 8) . 'i';
+$types = 'sss' . 'i' . 's' . 's' .
+          str_repeat('i', 14) . str_repeat('i', 14) . str_repeat('i', 8) . 'i';
 
 $stmt->bind_param($types, ...$vals);
 if(!$stmt->execute()){ echo json_encode(["ok"=>false,"message"=>$stmt->error]); exit; }

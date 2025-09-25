@@ -469,9 +469,13 @@ while ($row = mysqli_fetch_assoc($resultApproved)) {
       <td>
         <div style="margin-bottom:2px; word-break:break-word;"><?= htmlspecialchars($row['customer']) ?></div>
         <div style="display:flex; align-items:center; font-weight:700;">
-          <span style="flex:1 1 auto; min-width:0; word-break:break-word;"><?= htmlspecialchars($reviN_last) ?></span>
-          <span style="flex:0 0 auto; margin-left:auto;"><?= htmlspecialchars($reviC_last) ?></span>
-        </div>
+          <span style="flex:1 1 auto; min-width:0; word-break:break-word;">
+            <?= htmlspecialchars($reviN_last ?? '', ENT_QUOTES, 'UTF-8') ?>
+          </span>
+          <span style="flex:0 0 auto; margin-left:auto;">
+            <?= htmlspecialchars($reviC_last ?? '', ENT_QUOTES, 'UTF-8') ?>
+          </span>
+      </div>
       </td>
       <td>
         <a href="#"

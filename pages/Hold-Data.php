@@ -100,6 +100,7 @@
                                     <th><div align="center">Group</div></th>
                                     <th><div align="center">Temp</div></th>
                                     <th><div align="center">Status</div></th>
+                                    <th><div align="center">Info</div></th>
                                 </tr>
                             </thead>
                             <tbody id="dataBodyCombined"></tbody>
@@ -173,6 +174,7 @@
                         <td align="center">${item.grp}</td>
                         <td align="center">${item.product_name}</td>
                         <td align="center">${item.status}</td>
+                        <td align="center">${item.info}</td>
                     </tr>`;
                     tbodyCombined.innerHTML += row;
                 });

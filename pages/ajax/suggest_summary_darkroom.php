@@ -30,7 +30,7 @@ if ($shift === '1'){
 
 $sql = "SELECT DISTINCT s.no_resep
         FROM tbl_preliminary_schedule s
-        WHERE s.darkroom_start BETWEEN ? AND ?
+        WHERE s.darkroom_end BETWEEN ? AND ?
           AND s.no_resep IS NOT NULL AND s.no_resep <> ''";
 
 $stmt = $con->prepare($sql);

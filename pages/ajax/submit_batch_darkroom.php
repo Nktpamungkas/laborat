@@ -94,7 +94,7 @@ function processUpdate($con, $no_resep, $expected_status, $new_status, $update_e
     } else {
         $update = $con->prepare("
             UPDATE tbl_preliminary_schedule 
-            SET status = ?, user_darkroom_end = ?
+            SET status = ?, darkroom_end = NOW(), user_darkroom_end = ?
             WHERE no_resep = ? AND is_old_cycle = 0
         ");
         $update->bind_param("sss", $new_status, $userDarkroomEnd, $no_resep);

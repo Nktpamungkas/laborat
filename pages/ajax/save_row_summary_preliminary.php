@@ -6,7 +6,7 @@ function I($k){ return isset($_POST[$k]) && $_POST[$k]!=='' ? (int)$_POST[$k] : 
 function S($k){ return isset($_POST[$k]) && $_POST[$k]!=='' ? $_POST[$k] : null; }
 
 $cols = "
-  tgl,jam,shift,kloter,jenis_kain,
+  tgl,jam,shift,kloter,jenis_kain,status,
   visual_hendrik_ld,visual_hendrik_bulk,
   visual_gunawan_ld,visual_gunawan_bulk,
   visual_ferdinan_ld,visual_ferdinan_bulk,
@@ -23,14 +23,14 @@ $cols = "
   color_joni_ld,color_joni_bulk,
   resep_asal,x6,t_report,t_ulang,t_gabung,warna_ctrl,resep_lain,jml
 ";
-$placeholders = implode(',', array_fill(0, 5 + 14 + 14 + 8, '?'));
+$placeholders = implode(',', array_fill(0, 6 + 14 + 14 + 8, '?'));
 
 $sql = "INSERT INTO summary_preliminary ($cols) VALUES ($placeholders)";
 $stmt = $con->prepare($sql);
 if(!$stmt){ echo json_encode(["ok"=>false,"message"=>$con->error]); exit; }
 
 $vals = [
-  S('tgl'), S('jam'), S('shift'), I('kloter'), S('jenis_kain'),
+  S('tgl'), S('jam'), S('shift'), I('kloter'), S('jenis_kain'), S('status'),
   I('visual_hendrik_ld'), I('visual_hendrik_bulk'),
   I('visual_gunawan_ld'), I('visual_gunawan_bulk'),
   I('visual_ferdinan_ld'), I('visual_ferdinan_bulk'),
@@ -48,7 +48,7 @@ $vals = [
   I('resep_asal'), I('x6'), I('t_report'), I('t_ulang'),
   I('t_gabung'), I('warna_ctrl'), I('resep_lain'), I('jml')
 ];
-$types = 'sss' . 'i' . 's' . str_repeat('i', 14) . str_repeat('i', 14) . str_repeat('i', 8);
+$types = 'sss' . 'i' . 's' . 's' . str_repeat('i', 14) . str_repeat('i', 14) . str_repeat('i', 8);
 
 $stmt->bind_param($types, ...$vals);
 if(!$stmt->execute()){ echo json_encode(["ok"=>false,"message"=>$stmt->error]); exit; }

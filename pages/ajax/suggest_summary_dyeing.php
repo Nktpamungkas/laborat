@@ -47,7 +47,7 @@ if ($shift === '1'){
 $sql = "SELECT s.no_resep, ms.code, ms.dyeing AS dy
         FROM tbl_preliminary_schedule s
         LEFT JOIN master_suhu ms ON ms.code = s.code
-        WHERE s.creationdatetime BETWEEN ? AND ?
+        WHERE s.dyeing_start BETWEEN ? AND ?
           AND s.no_resep IS NOT NULL AND s.no_resep <> ''";
 
 $stmt = $con->prepare($sql);

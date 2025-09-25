@@ -408,6 +408,14 @@
       editorParams:{values:kainValues}, titleFormatter:"html", titleDownload:'Jenis Celup',
       width:w(120), headerHozAlign:'center' },
 
+    { title:'STATUS', field:'status',
+      editor:'select',
+      editorParams:{ values:{ "NORMAL":"NORMAL", "URGENT":"URGENT" } },
+      // normalisasi tampilan jadi UPPERCASE
+      mutator:function(v){ return (v==null || v==='') ? '' : String(v).trim().toUpperCase(); },
+      width:w(110), headerHozAlign:'center', titleDownload:'STATUS'
+    },
+
     buildNamePairCols('visual','RESEP VISUAL'),
     buildNamePairCols('color','RESEP DATA COLOR'),
 
@@ -617,6 +625,7 @@
     { field: 'shift',      label: 'SHIFT' },
     { field: 'kloter',     label: 'KLOTER' },
     { field: 'jenis_kain', label: 'Jenis Celup' },
+    { field: 'status',     label: 'STATUS' },
   ];
   function clearRowErrors(row){
     REQUIRED_FIELDS.forEach(function(req){
@@ -673,6 +682,15 @@
       if (!allowedKain[String(d.jenis_kain).trim().toUpperCase()]){
         missing.push('Jenis Celup (nilai tidak dikenal)');
         markCellError(row, 'jenis_kain', 'Pilih nilai yang tersedia');
+      }
+    }
+
+    // Validasi pilihan STATUS
+    if (!missing.includes('STATUS') && d.status){
+      var allowedStatus = { "NORMAL":true, "URGENT":true };
+      if (!allowedStatus[String(d.status).trim().toUpperCase()]){
+        missing.push('STATUS (hanya NORMAL/URGENT)');
+        markCellError(row, 'status', 'Pilih NORMAL atau URGENT');
       }
     }
 
@@ -842,7 +860,7 @@
       var d = row.getData();
       row.update({ jml: computeJml(d) });
     }
-    if (['tgl','jam','shift','kloter','jenis_kain'].includes(f)){
+    if (['tgl','jam','shift','kloter','jenis_kain', 'status'].includes(f)){
       var el = cell.getElement();
       el.classList.remove('cell-error');
       el.removeAttribute('title');
@@ -884,7 +902,8 @@
       {field:'jam',        title:'JAM'},
       {field:'shift',      title:'SHIFT'},
       {field:'kloter',     title:'KLOTER'},
-      {field:'jenis_kain', title:'Jenis Celup'}
+      {field:'jenis_kain', title:'Jenis Celup'},
+      {field:'status',     title:'STATUS'}
     ];
     var tailCols = [
       {field:'resep_asal', title:'RESEP ASAL'},
