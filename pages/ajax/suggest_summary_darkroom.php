@@ -28,9 +28,17 @@ if ($shift === '1'){
   $end   = $next . ' 06:59:59';
 }
 
+$cutoff = '2025-09-25';
+
+if ($date <= $cutoff) {
+  $time_column = 'darkroom_start';
+} else {
+  $time_column = 'darkroom_end';
+}
+
 $sql = "SELECT DISTINCT s.no_resep
         FROM tbl_preliminary_schedule s
-        WHERE s.darkroom_end BETWEEN ? AND ?
+        WHERE s.$time_column BETWEEN ? AND ?
           AND s.no_resep IS NOT NULL AND s.no_resep <> ''";
 
 $stmt = $con->prepare($sql);
