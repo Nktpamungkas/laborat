@@ -30,7 +30,7 @@ if ($shift === '1'){
 
 $cutoff = '2025-09-26';
 
-if ($date <= $cutoff) {
+if ($date < $cutoff) {
   $time_column = 'darkroom_start';
 } else {
   $time_column = 'darkroom_end';
