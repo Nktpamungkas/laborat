@@ -92,44 +92,66 @@ try {
     }
 
     // Insert data untuk bottle_qty_1
-    for ($i = 0; $i < $bottle_qty_1; $i++) {
-        $query1 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
-        if (!$query1) {
-            $success = false;
-            $errorMessages[] = "Prepare failed: " . $con->error;
-            continue;
-        }
+    // for ($i = 0; $i < $bottle_qty_1; $i++) {
+    //     $query1 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
+    //     if (!$query1) {
+    //         $success = false;
+    //         $errorMessages[] = "Prepare failed: " . $con->error;
+    //         continue;
+    //     }
 
-        $query1->bind_param("sss", $no_resep, $temp_1, $username);
-        if ($query1->execute()) {
-            $insertedCount++;
-        } else {
-            $errorMessages[] = $query1->error;
-        }
-    }
+    //     $query1->bind_param("sss", $no_resep, $temp_1, $username);
+    //     if ($query1->execute()) {
+    //         $insertedCount++;
+    //     } else {
+    //         $errorMessages[] = $query1->error;
+    //     }
+    // }
 
     // Insert data untuk bottle_qty_2
-    for ($i = 0; $i < $bottle_qty_2; $i++) {
-        $query2 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
-        if (!$query2) {
-            $success = false;
-            $errorMessages[] = "Prepare failed: " . $con->error;
-            continue;
-        }
+    // for ($i = 0; $i < $bottle_qty_2; $i++) {
+    //     $query2 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
+    //     if (!$query2) {
+    //         $success = false;
+    //         $errorMessages[] = "Prepare failed: " . $con->error;
+    //         continue;
+    //     }
 
-        $query2->bind_param("sss", $no_resep, $temp_2, $username);
-        if ($query2->execute()) {
-            $insertedCount++;
+    //     $query2->bind_param("sss", $no_resep, $temp_2, $username);
+    //     if ($query2->execute()) {
+    //         $insertedCount++;
+    //     } else {
+    //         $errorMessages[] = $query2->error;
+    //     }
+    // }
+
+    //  INSERT MODEL BARU
+    $values = [];
+    $insertedCount = 0;
+    $errorMessages = [];
+
+    $no_resep_esc = $con->real_escape_string($no_resep);
+    $temp_1_esc = $con->real_escape_string($temp_1);
+    $username_esc = $con->real_escape_string($username);
+
+    for ($i = 0; $i < $bottle_qty_1; $i++) {
+        $values[] = "('$no_resep_esc', '$temp_1_esc', '$username_esc')";
+    }
+
+    if (!empty($values)) {
+        $values_str = implode(',', $values);
+        $sql = "INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES $values_str";
+
+        if ($con->query($sql)) {
+            $insertedCount = $bottle_qty_1;
         } else {
-            $errorMessages[] = $query2->error;
+            $errorMessages[] = "Insert failed: " . $con->error;
         }
     }
 
     // Jika ada data yang berhasil diinsert
     if ($insertedCount > 0) {
         $con->commit();
-
-        // logResepHistory($no_resep, 1, 'ready', 'Preliminary scheduled', $insertedCount);
 
         $success = true;
         echo json_encode([
