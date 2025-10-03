@@ -103,7 +103,7 @@ $act = $_GET['g'];
         <td width="40" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">L</strong>ANGGANAN</td>
         <td width="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td width="200" style="border-left:0px #000000 solid;"><strong style="font-size: 8px;"><?Php echo $data['langganan']; ?></strong></td>
-        <td width="400" style="border-bottom:0px #000000 solid;"></td>
+        <td width="400" style="border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">M</strong>ATCHER</td>
@@ -121,7 +121,7 @@ $act = $_GET['g'];
         </td>
         <td style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['proses']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">T</strong>IME <strong style="font-size: 14px;">I</strong>N</td>
@@ -141,11 +141,11 @@ $act = $_GET['g'];
         <td rowspan="2" style="border-right:0px #000000 solid;">STD COCOK WARNA </td>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;"></td>
         <td style="border-left:0px #000000 solid;">1. <strong><?Php echo $data['cocok_warna']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td style="border-left:0px #000000 solid;">2.</td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">D</strong>ELIVERY</td>
@@ -167,7 +167,7 @@ $act = $_GET['g'];
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">W</strong>ARNA</td>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td rowspan="2" style="border-left:0px #000000 solid;"><strong style="font-size: 9px;"><?Php echo $data['warna']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <?php
         // Ambil data suhu pertama
@@ -203,7 +203,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
                 <td colspan="2" align="center"><?= $product_name2; ?></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
             </tr>
             <?php
         } elseif ($prefix1 === 'R' || $prefix2 === 'OB') {
@@ -211,7 +211,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"></td>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
             </tr>
             <?php
         } elseif ($prefix1 === 'A' || $prefix1 === 'D' || $prefix2 === 'CD') {
@@ -219,7 +219,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
                 <td colspan="2" align="center"></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
             </tr>
             <?php
         }
@@ -276,14 +276,14 @@ $act = $_GET['g'];
         <td rowspan="2" style="border-left:0px #000000 solid;">
           <strong><?Php echo $data['no_warna']; ?></strong>
         </td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td style="border-right:0px #000000 solid;">RC/Bleaching</td>
         <td style="border-left:0px #000000 solid;">:</td>
         <td style="border-right:0px #000000 solid;">Soaping</td>
         <td style="border-left:0px #000000 solid;"> :</td>
-        <td width="268" style="border-top:0px #000000 solid;"></td>
+        <td width="268" style="border-top:0px #000000 solid; height: 20px;"></td>
       </tr>
     </tbody>
   </table>
