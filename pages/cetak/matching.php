@@ -103,7 +103,7 @@ $act = $_GET['g'];
         <td width="40" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">L</strong>ANGGANAN</td>
         <td width="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td width="200" style="border-left:0px #000000 solid;"><strong style="font-size: 8px;"><?Php echo $data['langganan']; ?></strong></td>
-        <td width="400" style="border-bottom:0px #000000 solid; height: 20px;"></td>
+        <td width="400" rowspan="8" style="background-color: #f0f0f0; font-size: 20px; text-align:center; vertical-align:middle;"><strong style="opacity:0.4;">FOR RFID LABEL</strong></td>
       </tr>
       <tr>
         <td style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">M</strong>ATCHER</td>
@@ -121,7 +121,6 @@ $act = $_GET['g'];
         </td>
         <td style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td style="border-left:0px #000000 solid;"><strong><?Php echo $data['proses']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">T</strong>IME <strong style="font-size: 14px;">I</strong>N</td>
@@ -134,18 +133,16 @@ $act = $_GET['g'];
                                                                                                             } else {
                                                                                                               echo $data['jenis_kain'];
                                                                                                             } ?></strong></td>
-        <td width="70" rowspan="2">Recipe Code</td>
+        <td width="40" rowspan="2">Recipe Code</td>
         <td colspan="2" rowspan="2" style="border-right:0px #000000 solid;"><strong><?Php echo $data['recipe_code']; ?></strong></td>
-        <td width="67" rowspan="2">Color Code</td>
+        <td width="40" rowspan="2">Color Code</td>
         <td colspan="2" rowspan="2" style="border-right:0px #000000 solid;"><?Php echo $data['color_code']; ?></strong></td>
         <td rowspan="2" style="border-right:0px #000000 solid;">STD COCOK WARNA </td>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;"></td>
         <td style="border-left:0px #000000 solid;">1. <strong><?Php echo $data['cocok_warna']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td style="border-left:0px #000000 solid;">2.</td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">D</strong>ELIVERY</td>
@@ -159,15 +156,14 @@ $act = $_GET['g'];
                                                                                                               echo $data['benang'];
                                                                                                             } ?></strong></td>
         <td rowspan="4">T-Side</td>
-        <td width="40" style="border-right:0px #000000 solid;">L : R </td>
-        <td width="40" style="border-left:0px #000000 solid;">:</td>
+        <td width="20" style="border-right:0px #000000 solid;">L : R </td>
+        <td width="60" style="border-left:0px #000000 solid;">:</td>
         <td rowspan="4">C-Side</td>
-        <td width="40" style="border-right:0px #000000 solid;">L : R </td>
-        <td width="40" style="border-left:0px #000000 solid;">:</td>
+        <td width="20" style="border-right:0px #000000 solid;">L : R </td>
+        <td width="60" style="border-left:0px #000000 solid;">:</td>
         <td rowspan="2" style="border-right:0px #000000 solid;"><strong style="font-size: 14px;">W</strong>ARNA</td>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
         <td rowspan="2" style="border-left:0px #000000 solid;"><strong style="font-size: 9px;"><?Php echo $data['warna']; ?></strong></td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <?php
         // Ambil data suhu pertama
@@ -203,7 +199,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
                 <td colspan="2" align="center"><?= $product_name2; ?></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
+      
             </tr>
             <?php
         } elseif ($prefix1 === 'R' || $prefix2 === 'OB') {
@@ -211,7 +207,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"></td>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
+      
             </tr>
             <?php
         } elseif ($prefix1 === 'A' || $prefix1 === 'D' || $prefix2 === 'CD') {
@@ -219,7 +215,7 @@ $act = $_GET['g'];
             <tr>
                 <td colspan="2" align="center"><?= $product_name1; ?></td>
                 <td colspan="2" align="center"></td>
-                <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
+      
             </tr>
             <?php
         }
@@ -239,11 +235,12 @@ $act = $_GET['g'];
         $row_ci_y = mysqli_fetch_assoc($sql_ci_y);
         ?>
         <td rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">:</td>
-        <td width="86" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
+        <td width="33" rowspan="3" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">&nbsp;</td>
+        <td width="70" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
           <span style="border-left:0px #000000 solid;">
             <span style="border-right:0px #000000 solid;">
-              <strong style="font-size: 14px;">C</strong>IE
-              <strong style="font-size: 14px;">W</strong>I
+              <strong style="font-size: 11px;">C</strong>IE
+              <strong style="font-size: 11px;">W</strong>I
             </span>
           </span> : <?= $row_ci_y['cie_wi']; ?>
         </td>
@@ -251,19 +248,19 @@ $act = $_GET['g'];
         <td width="85" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
           <span style="border-left:0px #000000 solid;">
             <strong style="font-size: 8px;">
-              <strong style="font-size: 14px;">C</strong>IE
-              <strong style="font-size: 14px;">T</strong>INT
+              <strong style="font-size: 11px;">C</strong>IE
+              <strong style="font-size: 11px;">T</strong>INT
             </strong>
           </span> : <?= $row_ci_y['cie_tint']; ?>
         </td>
-        <td width="32" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
+        <td width="35" rowspan="2" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">
           <span style="border-left:0px #000000 solid;">
             <strong style="font-size: 8px;">
-              <strong style="font-size: 14px;">Y</strong>Ness
+              <strong style="font-size: 11px;">Y</strong>Ness
             </strong>
           </span> : <?= $row_ci_y['yellowness']; ?>
         </td>
-        <td width="33" rowspan="3" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">&nbsp;</td>
+        <!-- <td width="33" rowspan="3" style="border-right:0px #000000 solid; border-left:0px #000000 solid;">&nbsp;</td> -->
         <td style="border-right:0px #000000 solid;">PH </td>
         <td style="border-left:0px #000000 solid;">:</td>
         <td colspan="2">&nbsp;</td>
@@ -276,14 +273,12 @@ $act = $_GET['g'];
         <td rowspan="2" style="border-left:0px #000000 solid;">
           <strong><?Php echo $data['no_warna']; ?></strong>
         </td>
-        <td width="268" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; height: 20px;"></td>
       </tr>
       <tr>
-        <td style="border-right:0px #000000 solid;">RC/Bleaching</td>
+        <td style="border-right:0px #000000 solid;">RC/Blc</td>
         <td style="border-left:0px #000000 solid;">:</td>
         <td style="border-right:0px #000000 solid;">Soaping</td>
         <td style="border-left:0px #000000 solid;"> :</td>
-        <td width="268" style="border-top:0px #000000 solid; height: 20px;"></td>
       </tr>
     </tbody>
   </table>
@@ -454,10 +449,10 @@ $act = $_GET['g'];
           <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
             <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
           </td>
-          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br></td>
+          <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 100px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br></td>
           <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <?php else: ?>
-          <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
+          <td colspan="5" align="left" style="border-bottom:5px solid black !important; height: 100px; border-bottom: double;">Comment Colorist<br><br><br><br><br></td>
           <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
         <?php endif; ?>
 
@@ -585,7 +580,7 @@ $act = $_GET['g'];
         <td align="center" colspan="2" rowspan="2">
           <img src="<?php echo (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR') ? $fileqrB : $fileqr; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
         </td>
-        <td align="left" colspan="3" style="height: 50px;">Comment Colorist<br><br><br><br><br></td>
+        <td align="left" colspan="3" style="height: 60px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
         <td align="center">&nbsp;</td>
