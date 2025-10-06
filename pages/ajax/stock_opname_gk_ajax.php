@@ -8,6 +8,9 @@
   $username = $_SESSION['userLAB'];
   $tanggal=date('Y-m-d H:i:s');
 
+  $sudahKonfirm="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button> <span style='margin-left:5px;min-width:35px'><i class='fa fa-check' aria-hidden='true'></i> OK</span>";
+  $belumKonfirm="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button> <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+
   $response = new Response();
   $response->setHTTPStatusCode(201);
   if (isset($_SESSION['userLAB'])) {
@@ -26,6 +29,7 @@
                 $response->setSuccess(true);
                 $response->addMessage("Berhasil Konfirmasi Stock Opname");
                 $response->addMessage($id);
+                $response->addMessage($sudahKonfirm);
                 $response->send();
             }
             else {
@@ -60,12 +64,9 @@
                         $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
                         $tmp_data['pakingan_standar']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
                         if($rowOpname['konfirmasi']){
-                            $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                            $tmp_data['konfirm']=$sudahKonfirm;
                         }else{
-                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                            if($_POST['akses']!="TIDAKJADI"){
-                            $tmp_data['konfirm'].="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
-                            }
+                            $tmp_data['konfirm']=$belumKonfirm;
                         }
                         $dataOpname[]=$tmp_data;
                     }
@@ -105,12 +106,9 @@
                         $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);
                         $tmp_data['pakingan_standar']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
                         if($rowOpname['konfirmasi']){
-                            $tmp_data['konfirm']="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                            $tmp_data['konfirm']=$sudahKonfirm;
                         }else{
-                            $tmp_data['konfirm']="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                            if($_POST['akses']!="TIDAKJADI"){
-                            $tmp_data['konfirm'].="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
-                            }
+                            $tmp_data['konfirm']=$belumKonfirm;
                         }
                         $dataOpname[]=$tmp_data;
                     }
@@ -126,14 +124,18 @@
         }
         else if($_POST['status']=="get_scan_opname" && $id != 0){
             $scan=array();
-            $prepareScan=mysqli_prepare( $con, "SELECT * from tbl_scan_stock_opname_gk where id_dt = ? " );
+            $prepareScan=mysqli_prepare( $con, "SELECT s.*,o.konfirmasi FROM tbl_scan_stock_opname_gk s
+            LEFT JOIN tbl_stock_opname_gk o on s.id_dt=o.id WHERE s.id_dt = ? " );
             mysqli_stmt_bind_param($prepareScan, "s", $id );
             mysqli_stmt_execute($prepareScan);
             $scanData = mysqli_stmt_get_result($prepareScan);
             while ($rowScan = mysqli_fetch_assoc($scanData)) {
                 $tmp_data['qty_dus']=Penomoran_helper::nilaiKeRibuan($rowScan['qty_dus']);
                 $tmp_data['kategori']=ucfirst($rowScan['kategori']);
+                $tmp_data['kategoriText']=ucfirst($rowScan['kategori']). ($rowScan['kategori']=="utuhan"?"":" (Bukaan)");
                 $tmp_data['pakingan_standar']=Penomoran_helper::nilaiKeRibuan(doubleval($rowScan['pakingan_standar']));
+                $tmp_data['konfirmasi']=$rowScan['konfirmasi'];
+                $tmp_data['username']=strtoupper($username);
                 $tmp_data['total_stock']=Penomoran_helper::nilaiKeRibuan($rowScan['total_stock']);
                 $tmp_data['id']=$rowScan['id'];
                 $db = $rowScan['time'];
@@ -147,7 +149,8 @@
             $response->send();
         }
         else if($_POST['status']=="edit_scan_opname" && $id != 0){
-            $prepareEdit=mysqli_prepare( $con, "SELECT * from tbl_scan_stock_opname_gk where id = ? " );
+            $prepareEdit=mysqli_prepare( $con, "SELECT s.*,o.konfirmasi  FROM tbl_scan_stock_opname_gk s
+            LEFT JOIN tbl_stock_opname_gk o on s.id_dt=o.id WHERE s.id = ? " );
             mysqli_stmt_bind_param($prepareEdit, "s", $id );
             mysqli_stmt_execute($prepareEdit);
             $editData = mysqli_stmt_get_result($prepareEdit);
@@ -162,6 +165,8 @@
                     $dataEdit['pakingan_standar']=$row['pakingan_standar'];
                     $dataEdit['total_stock']=$row['total_stock'];
                     $dataEdit['kategori']=$row['kategori'];
+                    $dataEdit['konfirmasi']=$row['konfirmasi'];
+                    $dataEdit['username']=strtoupper($username);
                             
                     $dataEdit['qty_dus_text']=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
                     $dataEdit['pakingan_standar_text']=Penomoran_helper::nilaiKeRibuan($row['pakingan_standar']);

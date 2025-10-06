@@ -6,6 +6,9 @@ include "../../includes/Penomoran_helper.php";
 $tgl_tutup = $_POST['tgl_tutup'];
 $warehouse = $_POST['warehouse'];
 
+$sudahKonfirm="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button> <span style='margin-left:5px;min-width:35px'><i class='fa fa-check' aria-hidden='true'></i> OK</span>";
+$belumKonfirm="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button> <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
+
 //cek apakah data sudah di migrasi ke tabel stock opname
 $check = mysqli_query($con,"select id from tbl_stock_opname_gk 
             WHERE 
@@ -74,13 +77,10 @@ if(trim($warehouse," ")=="M101"){
 
         while ($row = mysqli_fetch_assoc($stmt)) {
             if($row['konfirmasi']){
-                $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                $btn=$sudahKonfirm;
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }else{
-                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                if($_POST['akses']!="TIDAKJADI"){
-                    $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o'></i></button>";
-                }
+                $btn=$belumKonfirm;
                 $dus=Penomoran_helper::nilaiKeRibuan($row['qty_dus']);
             }
             echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
@@ -136,12 +136,9 @@ else if(trim($warehouse," ")=="M510"){
 
         while ($row = mysqli_fetch_assoc($stmt)) {
             if($row['konfirmasi']){
-                $btn="<i class='fa fa-check' aria-hidden='true'></i> OK";
+                $btn=$sudahKonfirm;
             }else{
-                $btn="<button class='btn btn-warning btn-sm detail' title='Detail' data-toggle='tooltip' ><i class='fa fa-info'></i></button>";
-                if($_POST['akses']!="TIDAKJADI"){
-                    $btn.="  <button class='btn btn-primary btn-sm confirm' title='Confirm' data-toggle='tooltip' ><i class='fa fa-check-square-o' aria-hidden='true'></i></button>";
-                }
+                $btn=$belumKonfirm;
             }
             echo "<tr data-id='".$row['id']."' data-ps='".doubleval($row['pakingan_standar'])."' data-ts='".$row['total_stock']."' data-ko='".htmlspecialchars($row['KODE_OBAT'])."'>
                     <td class='text-center'>{$no}</td>

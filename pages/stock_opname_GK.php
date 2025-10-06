@@ -399,12 +399,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 text: 'Silahkan Isi Tanggal Tutup Buku',
                 icon: 'warning'
             })
+            return true;
         }else if(warehouse==""){
             Swal.fire({
                 title: 'Form Tidak Lengkap',
                 text: 'Silahkan Pilih Warehouse',
                 icon: 'warning'
             })
+            return true;
         }
         $('#tabelDetail').html('<p>Loading data...</p>');
         $.ajax({
@@ -445,7 +447,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             success: function(response) {
                 if(response.success){ 
                     let idconfirm=response.messages[1];
-                    $("#confirm_"+idconfirm).html("<i class='fa fa-check' aria-hidden='true'></i> OK");
+                    $("#confirm_"+idconfirm).html(response.messages[2]);
                     Swal.fire({
                         title: 'Saved',
                         text: 'Berhasil Konfirmasi',
@@ -484,6 +486,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         lihat_detail=true;   
     });
     $(document).on('click', '.edit_scan_opname', function() {
+        $("#m-content").hide();
         let id = $(this).data('id');
         let time = $(this).data('time'); 
         $(".WAREHOUSE_ALL").hide();          
@@ -538,7 +541,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     
                     $("#opname_total_stock_text").html(response.data.total_stock_text);
                     hitungTotal();
-                    $("#m-content").show("slide", { direction: "left" }, 1000); 
+                    if(response.data.konfirmasi==0){
+                        $("#m-content").show("slide", { direction: "left" }, 1000); 
+                    }
+                    else{
+                        if(response.data.username==='INDAH'){  
+                            $(".WAREHOUSE_ALL").hide();
+                            $("#m-content").show("slide", { direction: "left" }, 1000); 
+                        }
+                    }
                 }else{
                     alert("Terjadi Error Update, mohon hubungi DIT");
                 }
@@ -779,11 +790,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <tr>
                         <td>`+value.time+`</td>
                         <td>`+value.qty_dus+`</td>
-                        <td>`+value.kategori+`</td>
+                        <td>`+value.kategoriText+`</td>
                         <td>`+value.pakingan_standar+`</td>
                         <td>`+value.total_stock+`</td>
                         `;
+                        let editdata=false;
                         if(akses!='QAI'){
+                            if(value.username==='INDAH'){
+                                editdata=true;
+                            }else if(value.konfirmasi==0){
+                                editdata=true;
+                            }
+                        }
+                        if(editdata){
                             row+=`<td><button class='btn btn-success btn-sm edit_scan_opname' title='Edit' data-toggle='tooltip' data-id='`+value.id+`' data-time='`+value.time+`' ><i class='fa fa-pencil-square-o '></i></button></td> `;
                         }else{
                            row+=`<td></td> `;
