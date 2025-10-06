@@ -225,9 +225,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <button type="submit" name="submit"
                                 class="btn btn-primary btn-sm"><i
                                     class="icofont icofont-search-alt-1"></i> Cari data</button>
-                            </div>                            
+                            </div>                                                       
                         </div>
-                    </div>                    
+                    </div>                                     
                 </form>
                 <?php
                 include 'koneksi.php'; // koneksi ke MySQL
@@ -263,6 +263,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                 }
                 ?>
+                <div class="box-body">
+                    <div class="form-group">
+                        <?php
+                            if (isset($_POST['warehouse'])) {
+                                if ($_POST['warehouse'] == 'M510 dan M101' || $_POST['warehouse'] == 'M510') {
+                                    ?>
+                            <div class="col-sm-12">
+                                                <strong><h4 style="margin-bottom: 0;">Note :</h4></strong>
+                                                <h5 style="margin-top: 0;">Data List semua obat yang di Checklist pada Product</h5>
+                                            </div>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <div class="col-sm-12">
+                                        <strong><h4 style="margin-bottom: 0;">Note :</h4></strong>
+                                                <h5 style="margin-top: 0;">Data List penggunaan obat yang ada transaksi saja</h5>
+                                            </div>
+                                    <?php
+                                }
+                            }
+                            ?>
+                        </div>
+                    </div>
+
 
             </div>
         </div>
@@ -337,7 +361,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             END CERTIFICATION,
                                             a2.VALUESTRING AS NOTELAB
                                             FROM 
-                                            BALANCE b 
+                                           BALANCE b
+                                            LEFT JOIN PRODUCT p  ON p.ITEMTYPECODE = b.ITEMTYPECODE 
+	                                            AND p.SUBCODE01 = b.DECOSUBCODE01
+	                                            AND p.SUBCODE02 = b.DECOSUBCODE02 
+	                                            AND p.SUBCODE03 = b.DECOSUBCODE03 
+	                                            AND p.SUBCODE04 = b.DECOSUBCODE04 
+	                                            AND p.SUBCODE05 = b.DECOSUBCODE05 
+	                                            AND p.SUBCODE06 = b.DECOSUBCODE06 
+	                                            AND p.SUBCODE07 = b.DECOSUBCODE07 
+	                                            AND p.SUBCODE08 = b.DECOSUBCODE08 
+	                                            AND p.SUBCODE09 = b.DECOSUBCODE09 
+	                                            AND p.SUBCODE10 = b.DECOSUBCODE10
                                             LEFT JOIN ITEMWAREHOUSELINK d ON 
                                             d.ITEMTYPECODE = b.ITEMTYPECODE 
                                             AND d.LOGICALWAREHOUSECODE = b.LOGICALWAREHOUSECODE
@@ -350,18 +385,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	                                            AND d.SUBCODE07 = b.DECOSUBCODE07 
 	                                            AND d.SUBCODE08 = b.DECOSUBCODE08 
 	                                            AND d.SUBCODE09 = b.DECOSUBCODE09 
-	                                            AND d.SUBCODE10 = b.DECOSUBCODE10 
-	                                        LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = b.ITEMTYPECODE 
-	                                            AND p.SUBCODE01 = b.DECOSUBCODE01
-	                                            AND p.SUBCODE02 = b.DECOSUBCODE02 
-	                                            AND p.SUBCODE03 = b.DECOSUBCODE03 
-	                                            AND p.SUBCODE04 = b.DECOSUBCODE04 
-	                                            AND p.SUBCODE05 = b.DECOSUBCODE05 
-	                                            AND p.SUBCODE06 = b.DECOSUBCODE06 
-	                                            AND p.SUBCODE07 = b.DECOSUBCODE07 
-	                                            AND p.SUBCODE08 = b.DECOSUBCODE08 
-	                                            AND p.SUBCODE09 = b.DECOSUBCODE09 
-	                                            AND p.SUBCODE10 = b.DECOSUBCODE10
+	                                            AND d.SUBCODE10 = b.DECOSUBCODE10 	                                        
                                             LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
                                 			LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab' 
                                 			LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'                                			
@@ -369,6 +393,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             b.ITEMTYPECODE ='DYC'
                                             AND b.LOGICALWAREHOUSECODE $where_warehouse
                                             AND b.DETAILTYPE = 1
+                                            AND a3.VALUEBOOLEAN = 1
                                             -- AND b.DECOSUBCODE01 = 'R' 
                                             -- AND b.DECOSUBCODE02 = '4' 
                                             -- AND b.DECOSUBCODE03 = '044' 
@@ -383,14 +408,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             a.VALUESTRING,
                                             a2.VALUESTRING,
                                             p.BASEPRIMARYUNITCODE)
+                                            -- WHERE KODE_OBAT <>  'E-1-000'
                                             ORDER BY KODE_OBAT ASC");
                             } else {
-                                $Balance_stock = db2_exec($conn1, " SELECT 
+                                $Balance_stock = db2_exec($conn1, " SELECT DISTINCT
                                         DECOSUBCODE01,
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         KODE_OBAT,
-                                        LONGDESCRIPTION
+                                        LONGDESCRIPTION,
+                                        SAFETYSTOCK,
+                                        SAFETYSTOCK_CHECK
                                     FROM 
                                     (
                                     SELECT           
@@ -399,29 +427,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         s.DECOSUBCODE03,
                                         TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,                                        
                                         p.LONGDESCRIPTION,
-                                        s.TEMPLATECODE
+                                        s.TEMPLATECODE,
+                                        CASE 
+                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN d.SAFETYSTOCK *1000000
+                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN d.SAFETYSTOCK *1000
+                                                ELSE d.SAFETYSTOCK
+                                            END AS SAFETYSTOCK,
+                                            CASE 
+                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN (d.SAFETYSTOCK *1000000)+(d.SAFETYSTOCK *1000000)*0.2 
+                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN (d.SAFETYSTOCK *1000)+(d.SAFETYSTOCK *1000)*0.2
+                                                ELSE d.SAFETYSTOCK+(d.SAFETYSTOCK *0.2)
+                                            END AS SAFETYSTOCK_CHECK
                                     FROM
                                         STOCKTRANSACTION s
-                                    LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
+                                    LEFT JOIN PRODUCT p  ON p.ITEMTYPECODE = s.ITEMTYPECODE
                                         AND p.SUBCODE01 = s.DECOSUBCODE01
                                         AND p.SUBCODE02 = s.DECOSUBCODE02
                                         AND p.SUBCODE03 = s.DECOSUBCODE03  
+                                    LEFT JOIN ITEMWAREHOUSELINK d ON 
+                                        d.ITEMTYPECODE = s.ITEMTYPECODE 
+                                        AND d.LOGICALWAREHOUSECODE = s.LOGICALWAREHOUSECODE
+                                            AND d.SUBCODE01 = s.DECOSUBCODE01
+                                            AND d.SUBCODE02 = s.DECOSUBCODE02 
+                                            AND d.SUBCODE03 = s.DECOSUBCODE03 
+                                            AND d.SUBCODE04 = s.DECOSUBCODE04 
+                                            AND d.SUBCODE05 = s.DECOSUBCODE05 
+                                            AND d.SUBCODE06 = s.DECOSUBCODE06 
+                                            AND d.SUBCODE07 = s.DECOSUBCODE07 
+                                            AND d.SUBCODE08 = s.DECOSUBCODE08 
+                                            AND d.SUBCODE09 = s.DECOSUBCODE09 
+                                            AND d.SUBCODE10 = s.DECOSUBCODE10
+                                    LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'   
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
+                                    AND a3.VALUEBOOLEAN = 1
                                     AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
                                     -- AND  s.DECOSUBCODE01 = 'R' 
                                     -- AND  s.DECOSUBCODE02 = '4'
                                     -- AND  s.DECOSUBCODE03  = '044'
                                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
                                     )
-                                    GROUP BY 
-                                    DECOSUBCODE01,
-                                    DECOSUBCODE02,
-                                    DECOSUBCODE03,
-                                    KODE_OBAT,
-                                    LONGDESCRIPTION
+                                    -- WHERE KODE_OBAT <>  'E-1-000'
                                     ORDER BY KODE_OBAT ASC ");
                             }
 
@@ -1024,6 +1072,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $sisa_stock = ($row_qty_awal['qty_awal'] + $row['QTY_MASUK']) - $row['AKTUAL_QTY_KELUAR'];
 
                                     $qty_balance_ = (float) $row['STOCK_BALANCE'];
+                                    $qty_Balance_stock_gd_pisah_ = (float) $row_Balance_stock_gd_pisah['STOCK_BALANCE'];
                                     $buka_po_qty_ = isset($row_buka_po['QTY']) ? (float) $row_buka_po['QTY'] : 0;
                                     $pakai_belum_timbang_ = isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0;
                                     $savetystock_ = isset($row['SAFETYSTOCK']) ? (float) $row['SAFETYSTOCK'] : 0;
@@ -1047,6 +1096,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($total_out, 0)
                                         : number_format($total_out, 2);
 
+                                if ($warehouse1 == "M510" || $_POST['warehouse'] == 'M510 dan M101' ) {
                                     $totalTY_ = $qty_balance_ + $buka_po_qty_;
                                     $status = ($totalTY_ < $savetystock_)
                                         ? 'SEGERA ORDER'
@@ -1054,12 +1104,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             ? 'HITUNG KEBUTUHAN ORDER'
                                             : '');
                                     $style = '';
+                                } elseif ($warehouse1 == "M101") {
+                                        $totalTY_ = $qty_Balance_stock_gd_pisah_ + $buka_po_qty_;
+                                        $status = ($totalTY_ < $savetystock_)
+                                            ? 'SEGERA ORDER'
+                                            : (($totalTY_ >= $savetystock_ && $totalTY_ < $SAFETYSTOCK_CHECK)
+                                                ? 'HITUNG KEBUTUHAN ORDER'
+                                                : '');
+                                        $style = '';
+                                }
 
                                     if ($status == 'SEGERA ORDER') {
                                         $style = 'background-color: #f44336; color: white; font-weight: bold;'; // merah cerah + teks putih
                                     } elseif ($status == 'HITUNG KEBUTUHAN ORDER') {
                                         $style = 'background-color: #fff176; color: black; font-weight: bold;'; // kuning terang + teks hitam
                                     }
+                                    
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['KODE_OBAT'] ?></td>
@@ -1096,7 +1156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </td>                                                                             
                                         <td>
                                         <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail1" 
-                                           data-code1="<?= $code1 ?>" 
+                                            data-code1="<?= $code1 ?>" 
                                             data-code2="<?= $code2 ?>"                                                
                                             data-code3="<?= $code3 ?>"  
                                             data-tgl1="<?= $tgl1 ?>" 
