@@ -314,102 +314,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $warehouse1 = $_POST['warehouse'];
 
                             if ($_POST['warehouse'] == 'M510 dan M101'||$_POST['warehouse'] == 'M510') {
-                                $Balance_stock = db2_exec($conn1, "SELECT 
-                                            *,
-                                           CASE 
-                                            	WHEN STOCK_BALANCE < SAFETYSTOCK THEN 'SEGERA ORDER'
-    											WHEN STOCK_BALANCE >= SAFETYSTOCK AND STOCK_BALANCE < SAFETYSTOCK_CHECK THEN 'HITUNG KEBUTUHAN ORDER'
-                                            	WHEN STOCK_BALANCE >= SAFETYSTOCK_CHECK THEN ''
-                                            END AS STATUS_                                           
-                                            FROM
+                                $Balance_stock = db2_exec($conn1, "SELECT DISTINCT 
+                                            ITEMTYPECODE,
+                                            KODE_OBAT,
+                                            LONGDESCRIPTION,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            CERTIFICATION,
+                                            NOTELAB,
+                                            SAFETYSTOCK,
+                                            SAFETYSTOCK_CHECK
+                                            from
                                             (SELECT 
-                                            b.ITEMTYPECODE,
-                                            TRIM(b.DECOSUBCODE01) || '-' || TRIM(b.DECOSUBCODE02) || '-' || TRIM(b.DECOSUBCODE03) AS KODE_OBAT, 
-                                            p.LONGDESCRIPTION,
-                                            b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT) *1000
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT) *1000000
-                                                ELSE sum(b.BASEPRIMARYQUANTITYUNIT)
-                                            END  AS STOCK_BALANCE,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                ELSE b.BASEPRIMARYUNITCODE
-                                            END  AS BASEPRIMARYUNITCODE,
-                                            CASE 
-                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN d.SAFETYSTOCK *1000000
-                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN d.SAFETYSTOCK *1000
-                                                ELSE d.SAFETYSTOCK
-                                            END AS SAFETYSTOCK,
-                                            CASE 
-                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN (d.SAFETYSTOCK *1000000)+(d.SAFETYSTOCK *1000000)*0.2 
-                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN (d.SAFETYSTOCK *1000)+(d.SAFETYSTOCK *1000)*0.2
-                                                ELSE d.SAFETYSTOCK+(d.SAFETYSTOCK *0.2)
-                                            END AS SAFETYSTOCK_CHECK,
-                                           	CASE 
-                                                WHEN p.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                ELSE p.BASEPRIMARYUNITCODE
-                                            END AS BASEPRIMARYUNITCODE_SAFETYSTOCK,
-                                            CASE 
-                                                WHEN a.VALUESTRING = 1 THEN 'BV'
-                                                WHEN a.VALUESTRING = 2 THEN 'NON BV'
-                                                ELSE ''
-                                            END CERTIFICATION,
-                                            a2.VALUESTRING AS NOTELAB
-                                            FROM 
-                                           BALANCE b
-                                            LEFT JOIN PRODUCT p  ON p.ITEMTYPECODE = b.ITEMTYPECODE 
-	                                            AND p.SUBCODE01 = b.DECOSUBCODE01
-	                                            AND p.SUBCODE02 = b.DECOSUBCODE02 
-	                                            AND p.SUBCODE03 = b.DECOSUBCODE03 
-	                                            AND p.SUBCODE04 = b.DECOSUBCODE04 
-	                                            AND p.SUBCODE05 = b.DECOSUBCODE05 
-	                                            AND p.SUBCODE06 = b.DECOSUBCODE06 
-	                                            AND p.SUBCODE07 = b.DECOSUBCODE07 
-	                                            AND p.SUBCODE08 = b.DECOSUBCODE08 
-	                                            AND p.SUBCODE09 = b.DECOSUBCODE09 
-	                                            AND p.SUBCODE10 = b.DECOSUBCODE10
-                                            LEFT JOIN ITEMWAREHOUSELINK d ON 
-                                            d.ITEMTYPECODE = b.ITEMTYPECODE 
-                                            AND d.LOGICALWAREHOUSECODE = b.LOGICALWAREHOUSECODE
-	                                            AND d.SUBCODE01 = b.DECOSUBCODE01
-	                                            AND d.SUBCODE02 = b.DECOSUBCODE02 
-	                                            AND d.SUBCODE03 = b.DECOSUBCODE03 
-	                                            AND d.SUBCODE04 = b.DECOSUBCODE04 
-	                                            AND d.SUBCODE05 = b.DECOSUBCODE05 
-	                                            AND d.SUBCODE06 = b.DECOSUBCODE06 
-	                                            AND d.SUBCODE07 = b.DECOSUBCODE07 
-	                                            AND d.SUBCODE08 = b.DECOSUBCODE08 
-	                                            AND d.SUBCODE09 = b.DECOSUBCODE09 
-	                                            AND d.SUBCODE10 = b.DECOSUBCODE10 	                                        
-                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
-                                			LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab' 
-                                			LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'                                			
-                                            WHERE 
-                                            b.ITEMTYPECODE ='DYC'
-                                            AND b.LOGICALWAREHOUSECODE $where_warehouse
-                                            AND b.DETAILTYPE = 1
-                                            AND a3.VALUEBOOLEAN = 1
-                                            -- AND b.DECOSUBCODE01 = 'R' 
-                                            -- AND b.DECOSUBCODE02 = '4' 
-                                            -- AND b.DECOSUBCODE03 = '044' 
-                                            GROUP BY
-                                            b.ITEMTYPECODE,
-                                            b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
-                                            b.BASEPRIMARYUNITCODE,
-                                            p.LONGDESCRIPTION,
-                                            d.SAFETYSTOCK,
-                                            a.VALUESTRING,
-                                            a2.VALUESTRING,
-                                            p.BASEPRIMARYUNITCODE)
-                                            -- WHERE KODE_OBAT <>  'E-1-000'
-                                            ORDER BY KODE_OBAT ASC");
+                                                p.ITEMTYPECODE,
+                                                TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) AS KODE_OBAT, 
+                                                p.LONGDESCRIPTION,
+                                                p.SUBCODE01 as DECOSUBCODE01,
+                                                p.SUBCODE02 as DECOSUBCODE02,
+                                                p.SUBCODE03 as DECOSUBCODE03,                                          
+                                                CASE 
+                                                    WHEN a.VALUESTRING = 1 THEN 'BV'
+                                                    WHEN a.VALUESTRING = 2 THEN 'NON BV'
+                                                    ELSE ''
+                                                END AS CERTIFICATION,
+                                                a2.VALUESTRING AS NOTELAB,
+                                                d.LOGICALWAREHOUSECODE,
+                                                CASE 
+                                                    WHEN p.BASEPRIMARYUNITCODE = 't' THEN d.SAFETYSTOCK *1000000
+                                                    WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN d.SAFETYSTOCK *1000
+                                                    ELSE d.SAFETYSTOCK
+                                                END AS SAFETYSTOCK,
+                                                CASE 
+                                                    WHEN p.BASEPRIMARYUNITCODE = 't' THEN (d.SAFETYSTOCK *1000000)+(d.SAFETYSTOCK *1000000)*0.2 
+                                                    WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN (d.SAFETYSTOCK *1000)+(d.SAFETYSTOCK *1000)*0.2
+                                                    ELSE d.SAFETYSTOCK+(d.SAFETYSTOCK *0.2)
+                                                END AS SAFETYSTOCK_CHECK
+                                                FROM 
+                                                PRODUCT p    
+                                                LEFT JOIN ITEMWAREHOUSELINK d ON 
+                                                d.ITEMTYPECODE = p.ITEMTYPECODE 
+                                                    AND d.SUBCODE01 = p.SUBCODE01
+                                                    AND d.SUBCODE02 = p.SUBCODE02 
+                                                    AND d.SUBCODE03 = p.SUBCODE03 
+                                                    AND d.SUBCODE04 = p.SUBCODE04 
+                                                    AND d.SUBCODE05 = p.SUBCODE05 
+                                                    AND d.SUBCODE06 = p.SUBCODE06 
+                                                    AND d.SUBCODE07 = p.SUBCODE07 
+                                                    AND d.SUBCODE08 = p.SUBCODE08 
+                                                    AND d.SUBCODE09 = p.SUBCODE09 
+                                                    AND d.SUBCODE10 = p.SUBCODE10 	              
+                                                LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
+                                                LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab' 
+                                                LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'                                			
+                                                WHERE 
+                                                p.ITEMTYPECODE ='DYC'
+                                                AND a3.VALUEBOOLEAN = '1'
+                                                AND d.LOGICALWAREHOUSECODE $where_warehouse
+                                            -- AND b.DECOSUBCODE01 = 'D' 
+                                            -- AND b.DECOSUBCODE02 = '0' 
+                                                -- AND b.DECOSUBCODE03 = '044'
+                                                )
+                                                ORDER BY KODE_OBAT ASC;");
                             } else {
                                 $Balance_stock = db2_exec($conn1, " SELECT DISTINCT
                                         DECOSUBCODE01,
@@ -418,7 +384,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         KODE_OBAT,
                                         LONGDESCRIPTION,
                                         SAFETYSTOCK,
-                                        SAFETYSTOCK_CHECK
+                                        SAFETYSTOCK_CHECK,
+                                         CERTIFICATION,
+                                                NOTELAB
                                     FROM 
                                     (
                                     SELECT           
@@ -437,7 +405,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 WHEN p.BASEPRIMARYUNITCODE = 't' THEN (d.SAFETYSTOCK *1000000)+(d.SAFETYSTOCK *1000000)*0.2 
                                                 WHEN p.BASEPRIMARYUNITCODE = 'kg' THEN (d.SAFETYSTOCK *1000)+(d.SAFETYSTOCK *1000)*0.2
                                                 ELSE d.SAFETYSTOCK+(d.SAFETYSTOCK *0.2)
-                                            END AS SAFETYSTOCK_CHECK
+                                            END AS SAFETYSTOCK_CHECK,
+                                             CASE 
+                                                    WHEN a.VALUESTRING = 1 THEN 'BV'
+                                                    WHEN a.VALUESTRING = 2 THEN 'NON BV'
+                                                    ELSE ''
+                                                END CERTIFICATION,
+                                                a2.VALUESTRING AS NOTELAB
                                     FROM
                                         STOCKTRANSACTION s
                                     LEFT JOIN PRODUCT p  ON p.ITEMTYPECODE = s.ITEMTYPECODE
@@ -457,7 +431,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND d.SUBCODE08 = s.DECOSUBCODE08 
                                             AND d.SUBCODE09 = s.DECOSUBCODE09 
                                             AND d.SUBCODE10 = s.DECOSUBCODE10
-                                    LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'   
+                                    LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical'
+                                      LEFT JOIN ADSTORAGE a ON a.UNIQUEID = p.ABSUNIQUEID AND a.FIELDNAME ='Certification'
+                                            LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'    
                                 WHERE  
                                     s.ITEMTYPECODE = 'DYC'
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
@@ -681,9 +657,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 s.DECOSUBCODE02,
                                                 s.DECOSUBCODE03,
                                                 CASE 
-                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                    ELSE SUM(s.USERPRIMARYQUANTITY)
+                                                    when s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                    ELSE s.USERPRIMARYQUANTITY
                                                 END AS AKTUAL_QTY_KELUAR,
                                                 CASE 
                                                     WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -698,18 +675,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                                 AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('120','098')
+                                                and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
                                                 and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
                                                 s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                                s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                            GROUP BY
-                                                s.ITEMTYPECODE,
-                                                s.DECOSUBCODE01,
-                                                s.DECOSUBCODE02,
-                                                s.DECOSUBCODE03,    
-                                                s.USERPRIMARYUOMCODE, 
-                                                s.LOGICALWAREHOUSECODE,
-                                                s.TEMPLATECODE
+                                                s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                                 )
                                                 WHERE LOGICALTEMPLATE !='M101098'
                                             GROUP BY 
@@ -749,9 +719,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             p.LONGDESCRIPTION as NAMA_OBAT,
                                                             TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
                                                             CASE 
+                                                                when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
                                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
-                                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
-                                                                when s.CREATIONUSER = 'MT_STI' and s.TRANSACTIONDATE ='2025-07-13' then 0
+                                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000                                                               
                                                                 ELSE s.USERPRIMARYQUANTITY
                                                             END AS QTY_MASUK,
                                                             CASE 
@@ -785,7 +755,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                         AND s.LOGICALWAREHOUSECODE $where_warehouse
-                                                            and s.CREATIONUSER != 'MT_STI'
+                                                            -- and s.CREATIONUSER != 'MT_STI'
                                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
@@ -812,9 +782,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 s.DECOSUBCODE02,
                                                 s.DECOSUBCODE03,
                                                 CASE 
-                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                    ELSE SUM(s.USERPRIMARYQUANTITY)
+                                                    when s.CREATIONUSER = 'MT_STI' AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000                                                    
+                                                    ELSE s.USERPRIMARYQUANTITY
                                                 END AS QTY_MASUK,
                                                 CASE 
                                                     WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -828,17 +799,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
                                                 AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                                and s.CREATIONUSER != 'MT_STI'
+                                                -- and s.CREATIONUSER != 'MT_STI'
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
                                                 and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
                                                 s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
-                                                s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' 
-                                            GROUP BY
-                                                s.ITEMTYPECODE,
-                                                s.DECOSUBCODE01,
-                                                s.DECOSUBCODE02,
-                                                s.DECOSUBCODE03,    
-                                                s.USERPRIMARYUOMCODE)
+                                                s.DECOSUBCODE03 = '$row[DECOSUBCODE03]')
                                             GROUP BY 
                                             ITEMTYPECODE,
                                             DECOSUBCODE01,
@@ -991,7 +956,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     // echo $time;
                                     // echo $time2;
 
-                                    if($tahunBulan2 == '2025-06') {
+                                    if($tahunBulan2 == '2025-09') {
                                         $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
                                         SUBCODE01,
                                         SUBCODE02,
@@ -1082,7 +1047,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $transfer_ = isset($row_stock_transfer['QTY_TRANSFER']) ? (float) $row_stock_transfer['QTY_TRANSFER'] : 0;
 
                                     if ($warehouse1 == "M510") {
-                                        $stock_balance_future_ = (((float) $row['STOCK_BALANCE']) - (isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0));
+                                        $stock_balance_future_ = (((float) $row_Balance_stock_gd_pisah['STOCK_BALANCE']) - (isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0));
                                     } elseif ($warehouse1 == "M101") {
                                         $stock_balance_future_ = (((float) $row_Balance_stock_gd_pisah['STOCK_BALANCE']) + (isset($row_buka_po['QTY']) ? (float) $row_buka_po['QTY'] : 0)) - (isset($row_pakai_belum_timbang['USERPRIMARYQUANTITY']) ? (float) $row_pakai_belum_timbang['USERPRIMARYQUANTITY'] : 0);
                                     }                                    
@@ -1097,7 +1062,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         : number_format($total_out, 2);
 
                                 if ($warehouse1 == "M510" || $_POST['warehouse'] == 'M510 dan M101' ) {
-                                    $totalTY_ = $qty_balance_ + $buka_po_qty_;
+                                    $totalTY_ = $qty_Balance_stock_gd_pisah_ + $buka_po_qty_;
                                     $status = ($totalTY_ < $savetystock_)
                                         ? 'SEGERA ORDER'
                                         : (($totalTY_ >= $savetystock_ && $totalTY_ < $SAFETYSTOCK_CHECK)
@@ -1169,14 +1134,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <?= $qty_Transfer ?>
                                             </a>
                                         </td>
-                                         <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
+                                        <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
                                         <td><?php echo $qty_total_out ?></td>
                                         <?php endif; ?>
-                                        <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
-                                            <td><?php echo $qty_stock_balance ?></td>
-                                        <?php else: ?>
-                                            <td><?php echo $qty_Balance_stock_gd_pisah; ?></td>
-                                        <?php endif; ?>
+                                        <td><?php echo $qty_Balance_stock_gd_pisah; ?></td>
                                         <td><?php echo $qty_stock_minimum ?></td>
                                         <?php
                                             if ($_POST['warehouse'] == 'M510 dan M101') {

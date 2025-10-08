@@ -34,7 +34,8 @@ FROM ( SELECT
                 s.DECOSUBCODE02,
                 s.DECOSUBCODE03,
                 TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
-                    CASE 
+                CASE 
+                    when s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
                     WHEN  s.USERPRIMARYUOMCODE = 't'   THEN s.USERPRIMARYQUANTITY * 1000000
                     WHEN  s.USERPRIMARYUOMCODE = 'kg'  THEN s.USERPRIMARYQUANTITY * 1000
                     ELSE s.USERPRIMARYQUANTITY
@@ -97,6 +98,7 @@ FROM ( SELECT
                 -- AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
                 AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                 AND s.TEMPLATECODE IN ('120')
+                and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE $warehouse
                 and s.DECOSUBCODE01 = '$code1' AND

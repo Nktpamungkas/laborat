@@ -68,9 +68,9 @@ s.TRANSACTIONNUMBER,
                     p.LONGDESCRIPTION as NAMA_OBAT,
                     TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
                     CASE 
+                        when s.CREATIONUSER = 'MT_STI'  AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05' ) then 0
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
-                        WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
-                        when s.CREATIONUSER = 'MT_STI' and s.TRANSACTIONDATE ='2025-07-13' then 0
+                        WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000                        
                         ELSE s.USERPRIMARYQUANTITY
                     END AS QTY_MASUK,
                     CASE 
@@ -106,7 +106,7 @@ s.TRANSACTIONNUMBER,
                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                    AND s.LOGICALWAREHOUSECODE $warehouse
-                    and s.CREATIONUSER != 'MT_STI'
+                   and NOT (s.CREATIONUSER = 'MT_STI'  AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05' ))
                    and s.DECOSUBCODE01 = '$code1' 
                    AND s.DECOSUBCODE02 = '$code2' 
                    AND s.DECOSUBCODE03 = '$code3'
