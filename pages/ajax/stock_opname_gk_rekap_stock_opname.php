@@ -8,9 +8,11 @@ $tgl_tutup = $_POST['tgl_tutup'];
 $tgl_stk_op = $_POST['tgl_stk_op'];
 $jam_stk_op = $_POST['jam_stk_op'];
 $kategori = $_POST['kategori'];
+$jenis_data = $_POST['jenis_data']??"web";
 
 $kemarin = date('Y-m-d',strtotime($tgl_stk_op  . "-1 days"));
 $tanggal1= date('Y-m-01',strtotime($tgl_stk_op));
+$tanggal1_tutup= date('Y-m-01',strtotime($tgl_tutup));
 $akhir= date('Y-m-t',strtotime($tgl_stk_op));
 
 $data_now=array();
@@ -47,47 +49,6 @@ if($kategori=="DYESTUFF"){
         $kode_obat=trim($rowdb["SUBCODE01"]," ")."-".trim($rowdb["SUBCODE02"]," ")."-".trim($rowdb["SUBCODE03"]," ");
         $data_now[$kode_obat]['kode_obat']=$kode_obat;
         $data_now[$kode_obat]['LONGDESCRIPTION']=$rowdb["LONGDESCRIPTION"];
-    }
-
-    $query_get_data_transaksi="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(USERPRIMARYQUANTITY) TOTAL 
-    FROM(
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
-        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='120' 
-        AND (
-            s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510'
-        ))
-    WHERE TRANSACTION_TIME BETWEEN '$kemarin 23:01:00' AND '$tgl_stk_op $jam_stk_op:00'
-    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03 ";
-    $result_transaksi = db2_exec($conn1, $query_get_data_transaksi, ['cursor' => DB2_SCROLLABLE]);
-    while($rowdb = db2_fetch_assoc($result_transaksi)){
-        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
-        $data_transaksi[$kode_obat]['kode_obat']=$kode_obat;
-        $data_transaksi[$kode_obat]['total_tansaksi']=$rowdb["TOTAL"];
-    }
-
-    $query_get_total_pemakaian="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(USERPRIMARYQUANTITY) TOTAL 
-    FROM(
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
-	    FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$tanggal1' AND '$kemarin' 
-        AND ITEMTYPECODE ='DYC' 
-        AND TEMPLATECODE ='120' 
-        AND  (s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510' )
-        UNION ALL
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
-        FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$tanggal1' AND '$kemarin' 
-        AND ITEMTYPECODE ='DYC' AND 
-        TEMPLATECODE ='098 ' AND s.LOGICALWAREHOUSECODE ='M510'
-    )
-    WHERE TRANSACTION_TIME BETWEEN '$tanggal1 00:00:00' AND '$kemarin 23:00:00'
-    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03";
-    $result_total_pemakaian = db2_exec($conn1, $query_get_total_pemakaian, ['cursor' => DB2_SCROLLABLE]);
-    while($rowdb = db2_fetch_assoc($result_total_pemakaian)){
-        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
-        $data_total_pemakaian[$kode_obat]['kode_obat']=$kode_obat;
-        $data_total_pemakaian[$kode_obat]['total_pemakaian']=$rowdb["TOTAL"];
     }
 
     $query_get_balance="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
@@ -160,47 +121,6 @@ else if($kategori=="CHEMICAL"){
         $data_now[$kode_obat]['LONGDESCRIPTION']=$rowdb["LONGDESCRIPTION"];
     }
 
-    $query_get_data_transaksi="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(USERPRIMARYQUANTITY) TOTAL 
-    FROM(
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
-        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='120' 
-        AND (
-            s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510'
-        ))
-    WHERE TRANSACTION_TIME BETWEEN '$kemarin 23:01:00' AND '$tgl_stk_op $jam_stk_op:00'
-    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03 ";
-    $result_transaksi = db2_exec($conn1, $query_get_data_transaksi, ['cursor' => DB2_SCROLLABLE]);
-    while($rowdb = db2_fetch_assoc($result_transaksi)){
-        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
-        $data_transaksi[$kode_obat]['kode_obat']=$kode_obat;
-        $data_transaksi[$kode_obat]['total_tansaksi']=$rowdb["TOTAL"];
-    }
-
-    $query_get_total_pemakaian="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(USERPRIMARYQUANTITY) TOTAL 
-    FROM(
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
-	    FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$tanggal1' AND '$kemarin' 
-        AND ITEMTYPECODE ='DYC' 
-        AND TEMPLATECODE ='120' 
-        AND  (s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510' )
-        UNION ALL
-        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.USERPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
-        FROM DB2ADMIN.STOCKTRANSACTION AS s
-        WHERE TRANSACTIONDATE BETWEEN '$tanggal1' AND '$kemarin' 
-        AND ITEMTYPECODE ='DYC' AND 
-        TEMPLATECODE ='098 ' AND s.LOGICALWAREHOUSECODE ='M510'
-    )
-    WHERE TRANSACTION_TIME BETWEEN '$tanggal1 00:00:00' AND '$kemarin 23:00:00'
-    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03";
-    $result_total_pemakaian = db2_exec($conn1, $query_get_total_pemakaian, ['cursor' => DB2_SCROLLABLE]);
-    while($rowdb = db2_fetch_assoc($result_total_pemakaian)){
-        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
-        $data_total_pemakaian[$kode_obat]['kode_obat']=$kode_obat;
-        $data_total_pemakaian[$kode_obat]['total_pemakaian']=$rowdb["TOTAL"];
-    }
-
     $query_get_balance="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
     FROM tblopname_11
     WHERE  tgl_tutup = '$tgl_tutup' 
@@ -243,16 +163,106 @@ else if($kategori=="CHEMICAL"){
 }
 
 if (count($data_now) > 0) {
+    $query_get_data_transaksi="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(BASEPRIMARYQUANTITY) TOTAL 
+    FROM(
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
+        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='120' 
+        AND (
+            s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510'
+        )
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
+        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='201' 
+        AND (
+            s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510'
+        )
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
+        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='098' 
+        AND s.LOGICALWAREHOUSECODE ='M510' AND TRANSACTIONDATE <> '2025-10-05'
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
+        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='203' 
+        AND s.LOGICALWAREHOUSECODE <> 'M101' AND s.LOGICALWAREHOUSECODE <> 'M510' 
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY ,timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$kemarin' AND '$tgl_stk_op' 
+        AND ITEMTYPECODE ='DYC' AND TEMPLATECODE ='303' 
+        AND s.LOGICALWAREHOUSECODE <> 'M101' AND s.LOGICALWAREHOUSECODE <> 'M510' 
+    ) 
+    WHERE TRANSACTION_TIME BETWEEN '$kemarin 23:01:00' AND '$tgl_stk_op $jam_stk_op:00'
+    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03 ";
+    $result_transaksi = db2_exec($conn1, $query_get_data_transaksi, ['cursor' => DB2_SCROLLABLE]);
+    while($rowdb = db2_fetch_assoc($result_transaksi)){
+        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
+        $data_transaksi[$kode_obat]['kode_obat']=$kode_obat;
+        $data_transaksi[$kode_obat]['total_tansaksi']=$rowdb["TOTAL"];
+    }
+
+    $query_get_total_pemakaian="SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, SUM(BASEPRIMARYQUANTITY) TOTAL 
+    FROM(
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+	    FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$tanggal1_tutup' AND '$tgl_tutup' 
+        AND ITEMTYPECODE ='DYC' 
+        AND TEMPLATECODE ='120' 
+        AND  (s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510' )
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+	    FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$tanggal1_tutup' AND '$tgl_tutup' 
+        AND ITEMTYPECODE ='DYC' 
+        AND TEMPLATECODE ='201' 
+        AND  (s.LOGICALWAREHOUSECODE ='M101' OR s.LOGICALWAREHOUSECODE ='M510' )
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$tanggal1_tutup' AND '$tgl_tutup' 
+        AND ITEMTYPECODE ='DYC' 
+        AND TEMPLATECODE ='098' 
+        AND s.LOGICALWAREHOUSECODE ='M510' AND TRANSACTIONDATE <> '2025-10-05'
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$tanggal1_tutup' AND '$tgl_tutup' 
+        AND ITEMTYPECODE ='DYC' 
+        AND TEMPLATECODE ='203' 
+        AND s.LOGICALWAREHOUSECODE <> 'M101' AND s.LOGICALWAREHOUSECODE <> 'M510' 
+        UNION ALL
+        SELECT DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, s.BASEPRIMARYQUANTITY , timestamp(TRANSACTIONDATE,TRANSACTIONTIME) TRANSACTION_TIME 
+        FROM DB2ADMIN.STOCKTRANSACTION AS s
+        WHERE TRANSACTIONDATE BETWEEN '$tanggal1_tutup' AND '$tgl_tutup' 
+        AND ITEMTYPECODE ='DYC' 
+        AND TEMPLATECODE ='303' 
+        AND s.LOGICALWAREHOUSECODE <> 'M101' AND s.LOGICALWAREHOUSECODE <> 'M510' 
+    )
+    WHERE TRANSACTION_TIME BETWEEN '$tanggal1_tutup 00:00:00' AND '$tgl_tutup 23:00:00'
+    GROUP BY DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03";
+    $result_total_pemakaian = db2_exec($conn1, $query_get_total_pemakaian, ['cursor' => DB2_SCROLLABLE]);
+    while($rowdb = db2_fetch_assoc($result_total_pemakaian)){
+        $kode_obat=trim($rowdb["DECOSUBCODE01"]," ")."-".trim($rowdb["DECOSUBCODE02"]," ")."-".trim($rowdb["DECOSUBCODE03"]," ");
+        $data_total_pemakaian[$kode_obat]['kode_obat']=$kode_obat;
+        $data_total_pemakaian[$kode_obat]['total_pemakaian']=$rowdb["TOTAL"];
+    }
+
         $no = 1;
         echo "<table class='table table-bordered table-striped' id='detailmasukTable' border=1>";
         echo "<thead>
                 <tr>
                     <th class='text-center'>No</th>
+                    <th class='text-center'>Kode Obat</th>
                     <th class='text-center'>Nama Dyestuff/ Kimia</th>
                     <th class='text-center'>Stock Balance</th>
                     <th class='text-center'>Pemakaian</th>
-                    <th class='text-center'>Pemakaian</th>
-                    <th class='text-center'>Pemasukan</th>
                     <th class='text-center'>Ending Balance</th>
                     <th class='text-center'>Stock Opname</th>
                     <th class='text-center'>Selisih Absolute</th>
@@ -266,9 +276,9 @@ if (count($data_now) > 0) {
 
         foreach($data_now as $index => $row){
             $balance=floatval($data_blc[$index]['balance']??0);
-            $transaksi=floatval($data_transaksi[$index]['total_tansaksi']??0);
+            $transaksi=floatval($data_transaksi[$index]['total_tansaksi']??0)*1000;
             $total_stock=floatval($data_opn[$index]['total_stock']??0);
-            $total_pemakaian=floatval($data_total_pemakaian[$index]['total_pemakaian']??0);
+            $total_pemakaian=floatval($data_total_pemakaian[$index]['total_pemakaian']??0)*1000;
             $saldo_awal=floatval($data_saldo[$index]['saldo_awal']??0);
             $total_balance_gram=$balance*1000;
             $saldo_awal_gram=round(($saldo_awal*1000),2);
@@ -300,21 +310,37 @@ if (count($data_now) > 0) {
             $TOTAL_SD+=$total_pemakaian;
             $TOTAL_SALDO+=$saldo_awal_gram;
 
-            echo "<tr>
+            if($jenis_data=="excel"){
+                echo "<tr>
                     <td class='text-center'>{$no}</td>
+                    <td>" . htmlspecialchars($index) . "</td>
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_balance_gram,2)) . "</td>
-                    <td>" . " " . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($transaksi,2)) . "</td>
-                    <td>" . " " . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($ending_balance,2))  . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_stock,2)) . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_balance,2))  . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_plusminus,2)) . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_pemakaian,2)) . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($persen_selisih,2)) . "% </td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($saldo_awal_gram,2)). "</td>
+                    <td>" . round($total_balance_gram,0). "</td>
+                    <td>" . round($transaksi,0). "</td>
+                    <td>" . round($ending_balance,0). "</td>
+                    <td>" . round($total_stock,0). "</td>
+                    <td>" . round($selisih_balance,0). "</td>
+                    <td>" . round($selisih_plusminus,0). "</td>
+                    <td>" . round($total_pemakaian,0). "</td>
+                    <td>" . round($persen_selisih,0). "% </td>
+                    <td>" . round($saldo_awal_gram,0). "</td>
                 </tr>";
+            }else{
+                echo "<tr>
+                    <td class='text-center'>{$no}</td>
+                    <td>" . htmlspecialchars($index) . "</td>
+                    <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_balance_gram,0),',','.') . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($transaksi,0),',','.') . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($ending_balance,0),',','.')  . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_stock,0),',','.') . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_balance,0),',','.')  . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_plusminus,0),',','.') . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($total_pemakaian,0),',','.') . "</td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($persen_selisih,0),',','.') . "% </td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($saldo_awal_gram,0),',','.'). "</td>
+                </tr>";
+            }
             $no++;
         }
         $TOTAL_SLS_ABS=$TOTAL_ENDING_BLC-$TOTAL_STC_OPN;
@@ -323,25 +349,45 @@ if (count($data_now) > 0) {
         if($TOTAL_SD!=0){
             $TOTAL_PERSEN_SLS=$TOTAL_SLS_PLUSMIN/$TOTAL_SD;
         }
+        if($jenis_data=="excel"){
         echo "</tbody>
         <tfoot>
             <tr>
                 <th class='text-center'></th>
+                <th class='text-center'></th>
                 <th class='text-center'>GRAND TOTAL</th>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_BLC,2)) . "</td>
-                <td>" . " " . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_PAKAI,2)) . "</td>
-                <td>" . " " . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_ENDING_BLC,2))  . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_STC_OPN,2)) . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_ABS,2))  . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_PLUSMIN,2))  . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SD,2)) . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_PERSEN_SLS,2)) . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SALDO,2)). "</td>
+                <td>" . round($TOTAL_BLC,0). "</td>
+                <td>" . round($TOTAL_PAKAI,0). "</td>
+                <td>" . round($TOTAL_ENDING_BLC,0). "</td>
+                <td>" . round($TOTAL_STC_OPN,0). "</td>
+                <td>" . round($TOTAL_SLS_ABS,0). "</td>
+                <td>" . round($TOTAL_SLS_PLUSMIN,0). "</td>
+                <td>" . round($TOTAL_SD,0). "</td>
+                <td>" . round($TOTAL_PERSEN_SLS,0). "</td>
+                <td>" . round($TOTAL_SALDO,0). "</td>
             </tr>
         </tfoot>
         </table>";
+        }else{
+        echo "</tbody>
+        <tfoot>
+            <tr>
+                <th class='text-center'></th>
+                <th class='text-center'></th>
+                <th class='text-center'>GRAND TOTAL</th>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_BLC,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_PAKAI,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_ENDING_BLC,0),',','.')  . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_STC_OPN,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_ABS,0),',','.')  . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_PLUSMIN,0),',','.')  . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SD,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_PERSEN_SLS,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SALDO,0),',','.'). "</td>
+            </tr>
+        </tfoot>
+        </table>";
+        }
     }else{
         echo "Data Rekap Stock Opname GK Tidak Tersedia";
     }

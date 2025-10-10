@@ -9,6 +9,7 @@ ob_start();
 <?php
 ini_set("error_reporting", 1);
 $_POST=$_GET;
+$_POST['jenis_data']="excel";
 include "../ajax/stock_opname_gk_rekap_stock_opname.php";
 ob_end_flush(); 
 exit();
