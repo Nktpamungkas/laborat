@@ -401,6 +401,10 @@ $page = strtolower($page);
                                     </a>
                                     <ul class="dropdown-menu">
                                         <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
+                                            <li class="<?php if ($_GET['p'] == "PrintRFID") {
+                                                            echo "active";
+                                                        } ?>"><a href="?p=PrintRFID"><i class="fa fa-print" aria-hidden="true"></i> <span>Print RFID</span></a>
+                                            </li>
                                             <li class="<?php if ($_GET['p'] == "MasterSuhu") {
                                                             echo "active";
                                                         } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu</span></a>
