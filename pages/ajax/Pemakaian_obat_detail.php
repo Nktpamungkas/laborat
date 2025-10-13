@@ -53,6 +53,7 @@ FROM ( SELECT
 				    WHEN n2.KETERANGAN = 'Tambah Obat' AND n2.STEPTYPE IS NULL THEN 'Tambah Obat'
 				    WHEN n2.KETERANGAN = 'Perbaikan' AND n2.STEPTYPE IS NULL THEN 'Additional'
 				    WHEN n2.KETERANGAN NOT IN ('Perbaikan', 'Tambah Obat') AND n2.STEPTYPE IS NULL THEN 'Normal'
+                    WHEN s.TEMPLATECODE = '098' AND n2.STEPTYPE IS NULL THEN 'Normal'
 				    ELSE 
 				        CASE 
 				            WHEN n2.STEPTYPE = 0 THEN 'Normal'
@@ -97,8 +98,8 @@ FROM ( SELECT
                 s.ITEMTYPECODE = 'DYC'
                 -- AND s.TRANSACTIONDATE  BETWEEN '$tgl1' AND '$tgl2'
                 AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
-                AND s.TEMPLATECODE IN ('120')
-                and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
+                AND s.TEMPLATECODE IN ('120','098')
+                and not (s.CREATIONUSER = 'azwani.najwa' AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
                 AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                 AND s.LOGICALWAREHOUSECODE $warehouse
                 and s.DECOSUBCODE01 = '$code1' AND
