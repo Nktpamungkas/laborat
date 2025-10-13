@@ -62,6 +62,16 @@
         line-height: 1;
         color: #333;
     }
+
+    #epcTable td:last-child {
+        text-align: center;
+        width: 1rem; /* fix width kolom action */
+        padding: 0.5rem;
+    }
+
+    #epcTable td, #epcTable th {
+        text-align: center;
+    }
 </style>
 <div class="row">
     <div class="col-xs-12">
@@ -115,12 +125,52 @@
                     </div>
 
                 </div>
+
+                <!-- RFID Trigerred Modal -->
+                <div class="modal fade modal-super-scaled" id="modalRFID" data-backdrop="static" data-keyboard="true" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width:55%">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">List of data scanned by RFID</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-scrollable" style="border: none;">
+                                    <table id="epcTable" class="table table-bordered" style="width:100%; padding: 1rem">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>No Resep</th>
+                                                <th>Warna</th>
+                                                <th>Group</th>
+                                                <th>Temp</th>
+                                                <th>Status</th>
+                                                <th>Info</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" id="submitBtnRFID" class="btn btn-out btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- RFID Trigerred Modal  -->
             </div>
         </div>
     </div>
 </div>
 
+<?php require './includes/socket_helper.php' ?>
 <script>
+    let holdData = []
     let currentAction = "";
     let repeatList = [];
     let endList = [];
@@ -155,6 +205,10 @@
         fetch("pages/ajax/GetData_DarkroomEndList_Hold.php")
             .then(response => response.json())
             .then(data => {
+                holdData = data
+                
+                // Start websocket to room 3
+                subscribe(1);
 
                 if ($.fn.DataTable.isDataTable('#tableCombined')) {
                     $('#tableCombined').DataTable().destroy();
@@ -183,14 +237,187 @@
                     pageLength: 20,
                     lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "All"]]
                 });
+
+                
             })
             .catch(err => {
                 console.error("Gagal mengambil data:", err);
             });
     }
 
+    function selectedItem(scanned){
+        if (scanned === "" || currentAction === "") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Aksi Terlebih Dahulu',
+                text: 'Silakan pilih tombol Repeat atau End, sebelum scan.'
+            });
+            return;
+        }
+
+        const exists = [...repeatList, ...endList].includes(scanned);
+        if (exists) {
+            return; 
+        }
+
+        if (currentAction === "repeat") repeatList.push(scanned);
+        else if (currentAction === "end") endList.push(scanned);
+
+        renderSelectedList();
+    }
+
     $(document).ready(function () {
+        // MODULE RFID
+            let filteredHoldData = [] // For submit payload
+            let deletedDRData = [] // For tag deleted no_resep with DR
+           
+            epcTable = $('#epcTable').DataTable({
+                paging: true,
+                searching: true,
+                info: true,
+                columns: [
+                    { title: "No" },
+                    { title: "No Resep" },
+                    { title: "Warna" },
+                    { title: "Group" },
+                    { title: "Temp" },
+                    { title: "Status" },
+                    { title: "Info" },
+                    { title: "Action", orderable: false } // kolom tombol
+                ]
+            });
+
+            // Listen for registers (when items add or increase)
+            socket.on('register', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocket({
+                roomId,
+                tags,
+                epcTable,
+                filteredData: filteredHoldData,
+                globalData: holdData,
+                checkFn: (item, docId) => {
+                    const existsOnSelected = [...repeatList, ...endList].includes(docId.trim())
+                    if (existsOnSelected) {
+                        addMessage(`SUCCESS_SUBSCRIBE: Already on selected ${docId}`)
+                        return false // supaya ga di-push
+                    }
+
+                    // kalau lolos, baru cocokkan resep
+                    return item.no_resep.trim() == docId.trim()
+                },
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "warna",
+                    "grp",
+                    "product_name",
+                    "status",
+                    "info",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Listen for dispatch (when items removed or decrease)
+            socket.on('dispatch', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocket({
+                roomId,
+                tags,
+                epcTable,
+                filteredData: filteredHoldData,
+                globalData: holdData,
+                checkFn: (item, docId) => {
+                    const existsOnSelected = [...repeatList, ...endList].includes(docId.trim())
+                    if (existsOnSelected) {
+                        addMessage(`SUCCESS_SUBSCRIBE: Already on selected ${docId}`)
+                        return false // supaya ga di-push
+                    }
+
+                    // kalau lolos, baru cocokkan resep
+                    return item.no_resep.trim() == docId.trim()
+                },
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "warna",
+                    "grp",
+                    "product_name",
+                    "status",
+                    "info",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Listen success_subscribe (when iddle)
+            socket.on('success_subscribe', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocketForIddle({
+                roomId,
+                tags,
+                epcTable,
+                deletedDRData,
+                filteredData: filteredHoldData,
+                globalData: holdData,
+                checkFn: (item, docId) => {
+                    const existsOnSelected = [...repeatList, ...endList].includes(docId.trim())
+                    if (existsOnSelected) {
+                        addMessage(`SUCCESS_SUBSCRIBE: Already on selected ${docId}`)
+                        return false // supaya ga di-push
+                    }
+
+                    // kalau lolos, baru cocokkan resep
+                    return item.no_resep.trim() == docId.trim()
+                },
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "warna",
+                    "grp",
+                    "product_name",
+                    "status",
+                    "info",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Event handler tombol remove
+            $('#epcTable').on('click', '.remove-row', function () {
+                const row = $(this).closest('tr');
+                const noResep = $(this).data('epc');  // ambil data-epc dari tombol
+
+                // Hapus dari DataTables
+                epcTable.row(row).remove().draw(false);
+
+                if (noResep.startsWith("DR") && noResep.length > 2) {
+                     // ✅ Masukkan string no_resep ke deletedDRData kalau belum ada
+                    if (!deletedDRData.includes(noResep)) {
+                        deletedDRData.push(noResep);
+                    }
+                }
+
+                // Hapus juga dari filteredHoldData
+                filteredHoldData = filteredHoldData.filter(item => item.no_resep.trim() !== noResep);
+            });
+
+            $('#submitBtnRFID').on('click', function () {
+                filteredHoldData.map((item) => {
+                    selectedItem(item.no_resep.trim())
+                })
+
+                $('#modalRFID').modal('hide');
+            });
+        // MODULE RFID
+
         loadData();
+
+        setInterval(loadData, 20000);
 
         // Pilih tombol aksi
         $(".action-btn").on("click", function () {
