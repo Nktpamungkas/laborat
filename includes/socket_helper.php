@@ -87,10 +87,10 @@
             let docId = getDocID(hexTag);
 
             // ✅ Jika diawali "DR"
-            if (docId.startsWith("DR") && docId.length > 2) {
-                // sisipkan "-" sebelum char terakhir
-                docId = docId.slice(0, -1) + "-" + docId.slice(-1);
-            }
+            // if (docId.startsWith("DR") && docId.length > 2) {
+            //     // sisipkan "-" sebelum char terakhir
+            //     docId = docId.slice(0, -1) + "-" + docId.slice(-1);
+            // }
 
             // Check if existing on current filteredData
             const existsOnfilteredData = filteredData.some(
@@ -185,7 +185,7 @@
             // ✅ Jika diawali "DR"
             if (docId.startsWith("DR") && docId.length > 2) {
                 // sisipkan "-" sebelum char terakhir
-                docId = docId.slice(0, -1) + "-" + docId.slice(-1);
+                // docId = docId.slice(0, -1) + "-" + docId.slice(-1);
 
                 // ✅ Cek apakah sudah ada di array deletedDR
                 const exists = deletedDRData.some(
