@@ -314,65 +314,165 @@
 					suhu_chamber = '$suhuchamber',
 					warna_flourescent = '$warnafluorescent'
 					");
-
+ 
 			// update nomor urut terakhir
 			mysqli_query($con, "UPDATE no_urut_matching SET nourut = '$nourut'");
 
-			if ($qry) {
-				mysqli_query($con, "INSERT INTO log_status_matching SET
-									`ids` = '$_POST[no_resep]',
-									`status` = 'Create No.resep',
-									`info` = 'generate no resep',
-									`do_by` = '$_SESSION[userLAB]',
-									`do_at` = '$time',
-									`ip_address` = '$ip_num'");
+			// if ($qry) {
+			// 	// Cek jika dua huruf depan $no_resep adalah DR
+			// 	if (substr($no_resep, 0, 2) === 'DR') {
+			// 		// Buat dua kode resep: DRxxxx-A dan DRxxxx-B
+			// 		$no_resep_a = $no_resep . '-A';
+			// 		$no_resep_b = $no_resep . '-B';
 
-				// === PANGGIL API PRINT ===
-				$url = "http://10.0.0.121:8080/api/v1/document/create";
+			// 		// Log status untuk -A
+			// 		mysqli_query($con, "INSERT INTO log_status_matching SET
+			// 							`ids` = '$no_resep_a',
+			// 							`status` = 'Create No.resep',
+			// 							`info` = 'generate no resep DR-A',
+			// 							`do_by` = '$_SESSION[userLAB]',
+			// 							`do_at` = '$time',
+			// 							`ip_address` = '$ip_num'");
+			// 		// Log status untuk -B
+			// 		mysqli_query($con, "INSERT INTO log_status_matching SET
+			// 							`ids` = '$no_resep_b',
+			// 							`status` = 'Create No.resep',
+			// 							`info` = 'generate no resep DR-B',
+			// 							`do_by` = '$_SESSION[userLAB]',
+			// 							`do_at` = '$time',
+			// 							`ip_address` = '$ip_num'");
 
-				$payload = json_encode([
-					"doc_number" => $no_resep,
-					"ip_address" => '10.0.6.233'
-				]);
+			// 		// === PANGGIL API PRINT untuk -A ===
+			// 		$url = "http://10.0.0.121:8080/api/v1/document/create";
+			// 		$payload_a = json_encode([
+			// 			"doc_number" => $no_resep_a,
+			// 			"ip_address" => '10.0.6.233'
+			// 		]);
+			// 		$ch_a = curl_init($url);
+			// 		curl_setopt($ch_a, CURLOPT_RETURNTRANSFER, true);
+			// 		curl_setopt($ch_a, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+			// 		curl_setopt($ch_a, CURLOPT_POST, true);
+			// 		curl_setopt($ch_a, CURLOPT_POSTFIELDS, $payload_a);
+			// 		$response_a = curl_exec($ch_a);
+			// 		$error_a = curl_error($ch_a);
+			// 		curl_close($ch_a);
 
-				$ch = curl_init($url);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-				curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+			// 		// === PANGGIL API PRINT untuk -B ===
+			// 		$payload_b = json_encode([
+			// 			"doc_number" => $no_resep_b,
+			// 			"ip_address" => '10.0.6.233'
+			// 		]);
+			// 		$ch_b = curl_init($url);
+			// 		curl_setopt($ch_b, CURLOPT_RETURNTRANSFER, true);
+			// 		curl_setopt($ch_b, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+			// 		curl_setopt($ch_b, CURLOPT_POST, true);
+			// 		curl_setopt($ch_b, CURLOPT_POSTFIELDS, $payload_b);
+			// 		$response_b = curl_exec($ch_b);
+			// 		$error_b = curl_error($ch_b);
+			// 		curl_close($ch_b);
 
-				$response = curl_exec($ch);
-				$error = curl_error($ch);
-				curl_close($ch);
+			// 		// === LOG HASIL PRINTING -A ===
+			// 		if ($error_a) {
+			// 			$logMessageA = "CURL Error: " . addslashes($error_a);
+			// 			$logSuccessA = 0;
+			// 		} else {
+			// 			$resultA = json_decode($response_a, true);
+			// 			$logMessageA = addslashes($resultA['message'] ?? 'Unknown response');
+			// 			$logSuccessA = isset($resultA['success']) && $resultA['success'] ? 1 : 0;
+			// 		}
+			// 		mysqli_query($con, "INSERT INTO log_printing SET
+			// 			no_resep = '$no_resep_a',
+			// 			ip_address = '$ip_num',
+			// 			success = '$logSuccessA',
+			// 			message = '$logMessageA',
+			// 			response_raw = '" . addslashes($response_a) . "',
+			// 			created_at = NOW(),
+			// 			created_by = '$_SESSION[userLAB]'");
 
-				// === LOG HASIL PRINTING ===
-				if ($error) {
-					$logMessage = "CURL Error: " . addslashes($error);
-					$logSuccess = 0;
-				} else {
-					$result = json_decode($response, true);
-					$logMessage = addslashes($result['message'] ?? 'Unknown response');
-					$logSuccess = isset($result['success']) && $result['success'] ? 1 : 0;
-				}
+			// 		// === LOG HASIL PRINTING -B ===
+			// 		if ($error_b) {
+			// 			$logMessageB = "CURL Error: " . addslashes($error_b);
+			// 			$logSuccessB = 0;
+			// 		} else {
+			// 			$resultB = json_decode($response_b, true);
+			// 			$logMessageB = addslashes($resultB['message'] ?? 'Unknown response');
+			// 			$logSuccessB = isset($resultB['success']) && $resultB['success'] ? 1 : 0;
+			// 		}
+			// 		mysqli_query($con, "INSERT INTO log_printing SET
+			// 			no_resep = '$no_resep_b',
+			// 			ip_address = '$ip_num',
+			// 			success = '$logSuccessB',
+			// 			message = '$logMessageB',
+			// 			response_raw = '" . addslashes($response_b) . "',
+			// 			created_at = NOW(),
+			// 			created_by = '$_SESSION[userLAB]'");
 
-				mysqli_query($con, "INSERT INTO log_printing SET
-					no_resep = '$no_resep',
-					ip_address = '$ip_num',
-					success = '$logSuccess',
-					message = '$logMessage',
-					response_raw = '" . addslashes($response) . "',
-					created_at = NOW(),
-					created_by = '$_SESSION[userLAB]'");
+			// 		// === FEEDBACK KE USER ===
+			// 		if ($logSuccessA && $logSuccessB) {
+			// 			echo "<script>alert('Data tersimpan & print DR-A dan DR-B berhasil dikirim!');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+			// 		} else {
+			// 			$msg = "Data tersimpan, ";
+			// 			if (!$logSuccessA) $msg .= "print DR-A gagal: " . addslashes($logMessageA) . ". ";
+			// 			if (!$logSuccessB) $msg .= "print DR-B gagal: " . addslashes($logMessageB) . ".";
+			// 			echo "<script>alert('$msg');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+			// 		}
+			// 	} else {
+			// 		// Default: satu kali print
+			// 		mysqli_query($con, "INSERT INTO log_status_matching SET
+			// 							`ids` = '$_POST[no_resep]',
+			// 							`status` = 'Create No.resep',
+			// 							`info` = 'generate no resep',
+			// 							`do_by` = '$_SESSION[userLAB]',
+			// 							`do_at` = '$time',
+			// 							`ip_address` = '$ip_num'");
 
-				// === FEEDBACK KE USER ===
-				if ($logSuccess) {
-					echo "<script>alert('Data tersimpan & print berhasil dikirim!');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
-				} else {
-					echo "<script>alert('Data tersimpan, tapi print gagal: " . addslashes($logMessage) . "');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
-				}
-			} else {
-				echo "There's been a problem: " . mysqli_error();
-			}
+			// 		// === PANGGIL API PRINT ===
+			// 		$url = "http://10.0.0.121:8080/api/v1/document/create";
+
+			// 		$payload = json_encode([
+			// 			"doc_number" => $no_resep,
+			// 			"ip_address" => '10.0.6.233'
+			// 		]);
+
+			// 		$ch = curl_init($url);
+			// 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			// 		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+			// 		curl_setopt($ch, CURLOPT_POST, true);
+			// 		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+			// 		$response = curl_exec($ch);
+			// 		$error = curl_error($ch);
+			// 		curl_close($ch);
+
+			// 		// === LOG HASIL PRINTING ===
+			// 		if ($error) {
+			// 			$logMessage = "CURL Error: " . addslashes($error);
+			// 			$logSuccess = 0;
+			// 		} else {
+			// 			$result = json_decode($response, true);
+			// 			$logMessage = addslashes($result['message'] ?? 'Unknown response');
+			// 			$logSuccess = isset($result['success']) && $result['success'] ? 1 : 0;
+			// 		}
+
+			// 		mysqli_query($con, "INSERT INTO log_printing SET
+			// 			no_resep = '$no_resep',
+			// 			ip_address = '$ip_num',
+			// 			success = '$logSuccess',
+			// 			message = '$logMessage',
+			// 			response_raw = '" . addslashes($response) . "',
+			// 			created_at = NOW(),
+			// 			created_by = '$_SESSION[userLAB]'");
+
+			// 		// === FEEDBACK KE USER ===
+			// 		if ($logSuccess) {
+			// 			echo "<script>alert('Data tersimpan & print berhasil dikirim!');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+			// 		} else {
+			// 			echo "<script>alert('Data tersimpan, tapi print gagal: " . addslashes($logMessage) . "');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+			// 		}
+			// 	}
+			// } else {
+			// 	echo "There's been a problem: " . mysqli_error();
+			// }
 		}
 	?>
 	<div class="row">
