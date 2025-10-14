@@ -601,7 +601,7 @@
                 dispensingData = data;
 
                 // Start websocket to room 1
-                subscribe(1)
+                subscribe(2)
 
                 fullGroupedData = {
                     '1': [],

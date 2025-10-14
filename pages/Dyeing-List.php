@@ -152,7 +152,7 @@
                 ];
 
                 // Start websocket to room 2
-                subscribe(1)
+                subscribe(3)
 
                 const machineKeys = priorityOrder.filter(m => allMachines.includes(m));
                 allMachines.forEach(m => { if (!machineKeys.includes(m)) machineKeys.push(m); });
