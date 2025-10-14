@@ -64,5 +64,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         <input type="text" name="no_resep" required autofocus>
         <button type="submit">Print</button>
     </form>
+
+    <h3>Log Printing</h3>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <table id="logPrintingTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>No Resep</th>
+                <th>IP Address</th>
+                <th>Success</th>
+                <th>Message</th>
+                <th>Created At</th>
+                <th>Created By</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $q = mysqli_query($con, "SELECT * FROM log_printing ORDER BY created_at DESC LIMIT 100");
+            $no = 1;
+            while ($row = mysqli_fetch_assoc($q)) {
+                echo "<tr>";
+                echo "<td>" . $no++ . "</td>";
+                echo "<td>" . htmlspecialchars($row['no_resep']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['ip_address']) . "</td>";
+                echo "<td>" . ($row['success'] ? 'Yes' : 'No') . "</td>";
+                echo "<td>" . htmlspecialchars($row['message']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['created_by']) . "</td>";
+                echo "</tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+    <script>
+        $(document).ready(function() {
+            $('#logPrintingTable').DataTable();
+        });
+    </script>
 </body>
 </html>
