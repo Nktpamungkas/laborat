@@ -1,6 +1,12 @@
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script> <!-- Use latest version -->
 <script>
-    const socket = io('http://10.0.0.121:3000');
+    // const socket = io('http://10.0.0.121:3000');
+    const socket = io(
+        window.location.hostname === 'localhost'
+            ? 'http://10.0.0.121:3000'
+            : 'https://online.indotaichen.com',
+        { path: '/socket.io/' }
+    );
     socket.onAny((event, ...args) => {
         console.log("EVENT:", event, args);
     });

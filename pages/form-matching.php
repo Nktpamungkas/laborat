@@ -320,13 +320,56 @@
 
 			if ($qry) {
 				mysqli_query($con, "INSERT INTO log_status_matching SET
-						`ids` = '$_POST[no_resep]',
-						`status` = 'Create No.resep',
-						`info` = 'generate no resep',
-						`do_by` = '$_SESSION[userLAB]',
-						`do_at` = '$time',
-						`ip_address` = '$ip_num'");
-				echo "<script>alert('Data Tersimpan');window.location.href='?p=form-matching-detail&noresep=$_POST[no_resep]';</script>";
+									`ids` = '$_POST[no_resep]',
+									`status` = 'Create No.resep',
+									`info` = 'generate no resep',
+									`do_by` = '$_SESSION[userLAB]',
+									`do_at` = '$time',
+									`ip_address` = '$ip_num'");
+
+				// === PANGGIL API PRINT ===
+				$url = "http://10.0.0.121:8080/api/v1/document/create";
+
+				$payload = json_encode([
+					"doc_number" => $no_resep,
+					"ip_address" => '10.0.6.233'
+				]);
+
+				$ch = curl_init($url);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+				$response = curl_exec($ch);
+				$error = curl_error($ch);
+				curl_close($ch);
+
+				// === LOG HASIL PRINTING ===
+				if ($error) {
+					$logMessage = "CURL Error: " . addslashes($error);
+					$logSuccess = 0;
+				} else {
+					$result = json_decode($response, true);
+					$logMessage = addslashes($result['message'] ?? 'Unknown response');
+					$logSuccess = isset($result['success']) && $result['success'] ? 1 : 0;
+				}
+
+				mysqli_query($con, "INSERT INTO log_printing SET
+					no_resep = '$no_resep',
+					ip_address = '$ip_num',
+					success = '$logSuccess',
+					message = '$logMessage',
+					response_raw = '" . addslashes($response) . "',
+					created_at = NOW(),
+					created_by = '$_SESSION[userLAB]'");
+
+				// === FEEDBACK KE USER ===
+				if ($logSuccess) {
+					echo "<script>alert('Data tersimpan & print berhasil dikirim!');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+				} else {
+					echo "<script>alert('Data tersimpan, tapi print gagal: " . addslashes($logMessage) . "');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+				}
 			} else {
 				echo "There's been a problem: " . mysqli_error();
 			}
