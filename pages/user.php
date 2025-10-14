@@ -14,7 +14,16 @@ include "koneksi.php";
 
 <body>
   <?php
-  $datauser = mysqli_query($con,"SELECT * FROM tbl_user ORDER BY username ASC");
+  $datauser = mysqli_query($con,"SELECT
+                                    a.*,
+                                    GROUP_CONCAT(b.name_menu ORDER BY b.id SEPARATOR ', ') AS roles
+                                  FROM
+                                    tbl_user a
+                                  LEFT JOIN master_menu_cycletime b ON FIND_IN_SET(b.id, REPLACE(a.pic_cycletime, ';', ',')) > 0
+                                  GROUP BY
+                                    a.username, a.pic_cycletime
+                                  ORDER BY
+                                    a.username ASC");
   $no = 1;
   $n = 1;
   $c = 0;
@@ -33,6 +42,7 @@ include "koneksi.php";
                 <th width="57%">UserName</th>
                 <th width="15%">Jabatan</th>
                 <th width="13%">Status</th>
+                <th width="13%">Role CycleTime</th>
                 <th width="10%">Action</th>
               </tr>
             </thead>
@@ -47,6 +57,7 @@ include "koneksi.php";
                   <th><?php echo $rowd['username']; ?></th>
                   <th><?php echo $rowd['jabatan'] ?></th>
                   <th><?php echo $rowd['status']; ?></th>
+                  <th><?php echo $rowd['roles']; ?></th>
                   <th><a href="#" id='<?php echo $rowd['id'] ?>' class="btn btn-info user_edit"><i class="fa fa-edit"></i> </a></th>
                 </tr>
               <?php

@@ -400,14 +400,17 @@ $page = strtolower($page);
                                         </span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
+                                        <?php if ($_SESSION['pic_printrfid'] == '1'): ?>
                                             <li class="<?php if ($_GET['p'] == "PrintRFID") {
                                                             echo "active";
                                                         } ?>"><a href="?p=PrintRFID"><i class="fa fa-print" aria-hidden="true"></i> <span>Print RFID</span></a>
                                             </li>
+                                        <?php endif; ?>
+
+                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
                                             <li class="<?php if ($_GET['p'] == "MasterSuhu") {
                                                             echo "active";
-                                                        } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu</span></a>
+                                                        } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu </span></a>
                                             </li>
                                             <li class="<?php if ($_GET['p'] == "MasterMesin") {
                                                             echo "active";
