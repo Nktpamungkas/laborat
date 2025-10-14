@@ -10,6 +10,7 @@ if ($_POST) {
 	$repass = mysqli_real_escape_string($con,$_POST['re_password']);
 	$level = mysqli_real_escape_string($con,$_POST['level']);
 	$status = mysqli_real_escape_string($con,$_POST['status']);
+	$roles = isset($_POST['roles']) ? implode(';', $_POST['roles']) : '';
 	if ($pass != $repass) {
 		echo " <script>alert('Not Match Re-New Password!!');window.location='?p=user';</script>";
 	} else {
@@ -19,7 +20,8 @@ if ($_POST) {
 				`level`='$level',
 				`status`='$status',
 				`mamber`='$_POST[thn]',
-				`jabatan`='$_POST[jabatan]'
+				`jabatan`='$_POST[jabatan]',
+				`pic_cycletime`='$roles'
 				WHERE `id`='$id' LIMIT 1");
 
 		mysqli_query($con,"INSERT into tbl_log SET `what` = '$id',

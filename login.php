@@ -26,6 +26,7 @@ if ($_POST) { //login user
 		$_SESSION['os'] = $os;
 		$_SESSION['ip'] = $ip;
 		$_SESSION['pic_printrfid'] = $r['pic_printrfid'];
+		$_SESSION['role_cycletime'] = $r['pic_cycletime'];
 		// 1 == admin
 		// 2 == spv
 		// 3 == user

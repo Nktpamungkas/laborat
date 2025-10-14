@@ -14,7 +14,7 @@ include "koneksi.php";
 
 <body>
   <?php
-  $datauser = mysqli_query($con,"SELECT
+  $datauser = mysqli_query($con, "SELECT
                                     a.*,
                                     GROUP_CONCAT(b.name_menu ORDER BY b.id SEPARATOR ', ') AS roles
                                   FROM
@@ -24,6 +24,8 @@ include "koneksi.php";
                                     a.username, a.pic_cycletime
                                   ORDER BY
                                     a.username ASC");
+
+  $dataRoleCycletime = mysqli_query($con, "SELECT * FROM master_menu_cycletime b ORDER BY b.id ASC");
   $no = 1;
   $n = 1;
   $c = 0;
@@ -102,7 +104,7 @@ include "koneksi.php";
                       <label for="jabatan" class="col-md-3 control-label">Jabatan</label>
                       <div class="col-md-6">
                         <select name="jabatan" class="form-control" id="jabatan" required>
-                          <?php $sql_role = mysqli_query($con,"SELECT `role` FROM master_role");
+                          <?php $sql_role = mysqli_query($con, "SELECT `role` FROM master_role");
                           while ($role = mysqli_fetch_array($sql_role)) { ?>
                             <option value="<?php echo $role['role'] ?>"><?php echo $role['role'] ?></option>
                           <?php } ?>
@@ -141,6 +143,20 @@ include "koneksi.php";
                             Non-Aktif
                           </label>
                         </div>
+                        <span class="help-block with-errors"></span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="roles" class="col-md-3 control-label">Role CycleTime</label>
+                      <div class="col-md-6">
+                        <?php while ($role = mysqli_fetch_array($dataRoleCycletime)) { ?>
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" name="roles[]" value="<?php echo $role['id']; ?>"> 
+                              <?php echo $role['name_menu']; ?>
+                            </label>
+                          </div>
+                        <?php } ?>
                         <span class="help-block with-errors"></span>
                       </div>
                     </div>

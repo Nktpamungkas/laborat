@@ -10,6 +10,8 @@ if ($_POST) {
 	$repass = mysqli_real_escape_string($con,$_POST['re_password']);
 	$level = mysqli_real_escape_string($con,$_POST['level']);
 	$status = mysqli_real_escape_string($con,$_POST['status']);
+	$roles = isset($_POST['roles']) ? implode(';', $_POST['roles']) : '';
+
 	$datauser = mysqli_query($con,"SELECT count(*) as jml FROM tbl_user WHERE `username`='$user' LIMIT 1");
 	$row = mysqli_fetch_array($datauser);
 	if ($row['jml'] > 0) {
@@ -24,7 +26,8 @@ if ($_POST) {
 				`status`='$status',
 				`foto`='avatar.png',
 				`jabatan`='$_POST[jabatan]',
-				`mamber`='$_POST[thn]'
+				`mamber`='$_POST[thn]',
+				`pic_cycletime`='$roles'
 				");
 
 		mysqli_query($con,"INSERT into tbl_log SET `what` = '$user',

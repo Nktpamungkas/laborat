@@ -95,25 +95,25 @@ $page = strtolower($page);
             position: relative;
         }
 
-        .dropdown-submenu > .dropdown-menu {
+        .dropdown-submenu>.dropdown-menu {
             top: 0;
             left: 100%;
             margin-top: -1px;
             display: none;
         }
 
-        .dropdown-submenu:hover > .dropdown-menu {
+        .dropdown-submenu:hover>.dropdown-menu {
             display: block;
         }
-        
+
         @media (max-width: 1400px) {
-        .dropdown-submenu > .dropdown-menu {
-            left: auto !important;
-            right: 100% !important;
-            margin-left: 0;
-            margin-right: -1px;
-            border-radius: 4px 0 0 4px;
-        }
+            .dropdown-submenu>.dropdown-menu {
+                left: auto !important;
+                right: 100% !important;
+                margin-left: 0;
+                margin-right: -1px;
+                border-radius: 4px 0 0 4px;
+            }
         }
     </style>
 
@@ -201,18 +201,18 @@ $page = strtolower($page);
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li class="<?php if ($_GET['p'] == "Cycle-Time" or $_GET['p'] == "Form-CycleTime") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Cycle-Time"><i class="fa fa-fw fa-file-pdf-o text-success" aria-hidden="true"></i>
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Cycle-Time"><i class="fa fa-fw fa-file-pdf-o text-success" aria-hidden="true"></i>
                                             <span>Cycle Time</span></a>
                                     </li>
                                     <li class="<?php if ($_GET['p'] == "Cycle-Time-Arsip") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Cycle-Time-Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Cycle-Time-Arsip"><i class="fa fa-fw fa-archive text-green" aria-hidden="true"></i>
                                             <span>Arsip</span></a>
                                     </li>
                                 </ul>
                             <?php endif; ?> -->
-                            
+
                             <!-- Cycle Time Schedule -->
                             <li class="dropdown <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-circle-o-notch" aria-hidden="true"></i>
@@ -222,31 +222,52 @@ $page = strtolower($page);
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li class="<?php if ($_GET['p'] == "Preliminary-Schedule" or $_GET['p'] == "Form-Preliminary-Schedule") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Preliminary-Schedule"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Preliminary Schedule</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Dispensing-List" or $_GET['p'] == "Form-Dispensing-List") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Dispensing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dispensing</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Dyeing-List" or $_GET['p'] == "Form-Dyeing-List") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Dyeing-List"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dyeing</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Darkroom-Start" or $_GET['p'] == "Form-Darkroom-Start") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Darkroom-Start"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dark Room - Start</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Darkroom-End" or $_GET['p'] == "Form-Darkroom-End") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Darkroom-End"><i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            <span>Dark Room - End</span></a>
-                                    </li>
+                                    <?php
+                                        $roleCycletimeRaw = isset($_SESSION['role_cycletime']) ? $_SESSION['role_cycletime'] : '';
+                                        $roleCycletimeArr = array_filter(explode(';', $roleCycletimeRaw)); // jadikan array [1,2,3,4]
+
+                                        // Buat helper function
+                                        function hasAccess($id, $roles)
+                                        {
+                                            return in_array($id, $roles);
+                                        }
+
+                                        // Buat variabel boolean untuk masing-masing menu
+                                        $isGotAccessPreliminary = hasAccess(1, $roleCycletimeArr);
+                                        $isGotAccessDispensing  = hasAccess(2, $roleCycletimeArr);
+                                        $isGotAccessDyeing      = hasAccess(3, $roleCycletimeArr);
+                                        $isGotAccessDarkStart   = hasAccess(4, $roleCycletimeArr);
+                                        $isGotAccessDarkEnd     = hasAccess(5, $roleCycletimeArr);
+                                    ?>
+                                    <?php if ($isGotAccessPreliminary) { ?>
+                                        <li class="<?php if ($_GET['p'] == "Preliminary-Schedule" or $_GET['p'] == "Form-Preliminary-Schedule") echo "active"; ?>">
+                                            <a href="?p=Preliminary-Schedule"><i class="fa fa-clock-o"></i> <span>Preliminary Schedule</span></a>
+                                        </li>
+                                    <?php } ?>
+
+                                    <?php if ($isGotAccessDispensing) { ?>
+                                        <li class="<?php if ($_GET['p'] == "Dispensing-List" or $_GET['p'] == "Form-Dispensing-List") echo "active"; ?>">
+                                            <a href="?p=Dispensing-List"><i class="fa fa-clock-o"></i> <span>Dispensing</span></a>
+                                        </li>
+                                    <?php } ?>
+
+                                    <?php if ($isGotAccessDyeing) { ?>
+                                        <li class="<?php if ($_GET['p'] == "Dyeing-List" or $_GET['p'] == "Form-Dyeing-List") echo "active"; ?>">
+                                            <a href="?p=Dyeing-List"><i class="fa fa-clock-o"></i> <span>Dyeing</span></a>
+                                        </li>
+                                    <?php } ?>
+
+                                    <?php if ($isGotAccessDarkStart) { ?>
+                                        <li class="<?php if ($_GET['p'] == "Darkroom-Start" or $_GET['p'] == "Form-Darkroom-Start") echo "active"; ?>">
+                                            <a href="?p=Darkroom-Start"><i class="fa fa-clock-o"></i> <span>Dark Room - Start</span></a>
+                                        </li>
+                                    <?php } ?>
+
+                                    <?php if ($isGotAccessDarkEnd) { ?>
+                                        <li class="<?php if ($_GET['p'] == "Darkroom-End" or $_GET['p'] == "Form-Darkroom-End") echo "active"; ?>">
+                                            <a href="?p=Darkroom-End"><i class="fa fa-clock-o"></i> <span>Dark Room - End</span></a>
+                                        </li>
+                                    <?php } ?>
 
                                     <li class="divider"></li>
 
@@ -286,31 +307,35 @@ $page = strtolower($page);
                                     </li>
                                 </ul>
                             <?php endif; ?>
-                            
+
                             <!-- STATUS & RESEP -->
                             <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Matcher' or $_SESSION['jabatanLAB'] == 'Bon order'): ?>
-                                <li class="<?php if ($_GET['p'] == "Status-Matching" or $_GET['p'] == 'Status-Handle' or $_GET['p'] == 'Hold-Handle') {
-                                                echo "active";
-                                            } ?>"><a href="?p=Status-Matching"><i class="fa fa-exchange text-purple"></i> <span>Status & Resep</span></a>
-                                </li>
-                            <?php endif; ?>
+                            <li class="<?php if ($_GET['p'] == "Status-Matching" or $_GET['p'] == 'Status-Handle' or $_GET['p'] == 'Hold-Handle') {
+                                            echo "active";
+                                        } ?>"><a href="?p=Status-Matching"><i class="fa fa-exchange text-purple"></i> <span>Status & Resep</span></a>
+                            </li>
+                        <?php endif; ?>
 
 
 
-                            <!-- APPROVAL ? -->
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher'): ?>
-                                <li class="<?php if ($_GET['p'] == "Wait-approval" or $_GET['p'] == 'Detail-status-wait-approve') {
-                                                echo "active";
-                                            } ?>"><a href="?p=Wait-approval"><i class="fa fa-hourglass-half text-danger"></i> <span>Approval ?</span></a>
-                                </li>
-                            <?php endif; ?>
+                        <!-- APPROVAL ? -->
+                        <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher'): ?>
+                            <li class="<?php if ($_GET['p'] == "Wait-approval" or $_GET['p'] == 'Detail-status-wait-approve') {
+                                            echo "active";
+                                        } ?>"><a href="?p=Wait-approval"><i class="fa fa-hourglass-half text-danger"></i> <span>Approval ?</span></a>
+                            </li>
+                        <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] != "QAI") { ?>
+                        <?php if ($_SESSION['jabatanLAB'] != "QAI") { ?>
                             <!-- DATA BASE RESEP GROUP -->
-                            <li class="dropdown <?php if ($_GET['p'] == "Today-Approved" or $_GET['p'] == 'Detail-status-approved' or $_GET['p'] 
-                            == "Today-Rejected" or $_GET['p'] == 'Detail-status-rejected' or $_GET['p'] == "Report-Matching" or $_GET['p'] 
-                            == 'DataBase-resep-new' or $_GET['p'] == 'Report-Rejected' or $_GET['p'] == "Dyestuff_Utilization" or $_GET['p'] 
-                            == "Perform-report" or $_GET['p'] == "Recap-Colorist") {echo "active";} ?>">
+                            <li class="dropdown <?php if (
+                                                    $_GET['p'] == "Today-Approved" or $_GET['p'] == 'Detail-status-approved' or $_GET['p']
+                                                    == "Today-Rejected" or $_GET['p'] == 'Detail-status-rejected' or $_GET['p'] == "Report-Matching" or $_GET['p']
+                                                    == 'DataBase-resep-new' or $_GET['p'] == 'Report-Rejected' or $_GET['p'] == "Dyestuff_Utilization" or $_GET['p']
+                                                    == "Perform-report" or $_GET['p'] == "Recap-Colorist"
+                                                ) {
+                                                    echo "active";
+                                                } ?>">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-flask" aria-hidden="true"></i>
                                     <span>DB Resep</span>
                                     <span class="pull-right-container">
@@ -379,246 +404,246 @@ $page = strtolower($page);
                                     </svg>
                                     <span></span></a>
                             </li>
-                            <?php } ?>
+                        <?php } ?>
 
-                            <!-- Modifikasi Data -->
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Colorist' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Other'): ?>
-                                <li class="<?php if ($_GET['p'] == "Join-No-Order-New" or $_GET['p'] == 'Adjust_Resep_Lab_New') {
-                                                echo "active";
-                                            } ?>"><a href="?p=Join-No-Order-New"><i class="fa fa-adjust" aria-hidden="true"></i>
-                                        <span>Modifikasi</span></a>
-                                </li>
-                            <?php endif; ?>
+                        <!-- Modifikasi Data -->
+                        <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Lab Head' or $_SESSION['jabatanLAB'] == 'Super matcher' or $_SESSION['jabatanLAB'] == 'Colorist' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Other'): ?>
+                            <li class="<?php if ($_GET['p'] == "Join-No-Order-New" or $_GET['p'] == 'Adjust_Resep_Lab_New') {
+                                            echo "active";
+                                        } ?>"><a href="?p=Join-No-Order-New"><i class="fa fa-adjust" aria-hidden="true"></i>
+                                    <span>Modifikasi</span></a>
+                            </li>
+                        <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
-                                <li class="dropdown<?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
+                        <?php if ($_SESSION['jabatanLAB'] == 'Super admin' or $_SESSION['jabatanLAB'] == 'Admin' or $_SESSION['jabatanLAB'] == 'Spv' or $_SESSION['jabatanLAB'] == 'Leader' or $_SESSION['jabatanLAB'] == 'Bon order' or $_SESSION['jabatanLAB'] == 'Matcher'): ?>
+                            <li class="dropdown<?php if ($_GET['p'] == "User" or $_GET['p'] == "Matcher") {
+                                                    echo "active";
+                                                } ?>">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-gears text-yellow"></i> <span>Lain-lain</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-fw fa-angle-down pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <?php if ($_SESSION['pic_printrfid'] == '1'): ?>
+                                        <li class="<?php if ($_GET['p'] == "PrintRFID") {
                                                         echo "active";
-                                                    } ?>">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-gears text-yellow"></i> <span>Lain-lain</span>
-                                        <span class="pull-right-container">
-                                            <i class="fa fa-fw fa-angle-down pull-right"></i>
-                                        </span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <?php if ($_SESSION['pic_printrfid'] == '1'): ?>
-                                            <li class="<?php if ($_GET['p'] == "PrintRFID") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=PrintRFID"><i class="fa fa-print" aria-hidden="true"></i> <span>Print RFID</span></a>
-                                            </li>
-                                        <?php endif; ?>
+                                                    } ?>"><a href="?p=PrintRFID"><i class="fa fa-print" aria-hidden="true"></i> <span>Print RFID</span></a>
+                                        </li>
+                                    <?php endif; ?>
 
-                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
-                                            <li class="<?php if ($_GET['p'] == "MasterSuhu") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu </span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "MasterMesin") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=MasterMesin"><i class="fa fa-building-o" aria-hidden="true"></i> <span>Master Mesin</span></a>
-                                            </li>
-                                            <!-- <li class="<?php if ($_GET['p'] == "InsertSchedule") {
+                                    <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
+                                        <li class="<?php if ($_GET['p'] == "MasterSuhu") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=MasterSuhu"><i class="fa fa-thermometer-half" aria-hidden="true"></i> <span>Master Suhu </span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "MasterMesin") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=MasterMesin"><i class="fa fa-building-o" aria-hidden="true"></i> <span>Master Mesin</span></a>
+                                        </li>
+                                        <!-- <li class="<?php if ($_GET['p'] == "InsertSchedule") {
                                                             echo "active";
                                                         } ?>"><a href="?p=InsertSchedule"><i class="fa fa-indent" aria-hidden="true"></i></i> <span>Insert Schedule</span></a>
                                             </li> -->
-                                            <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Lampu-Buyer") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Lampu-Buyer"><i class="fa fa-lightbulb-o"></i> <span>Lampu-Buyer</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Manage-Proses") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Manage-Proses"><i class="fa fa-spinner"></i> <span>Manage-Proses</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Log_Matching") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Log_Matching"><i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
-                                                    <span>Log Perlakuan Resep</span></a>
-                                            </li>
-                                        <?php endif; ?>
-                                        <?php if ($_SESSION['jabatanLAB'] == 'Super admin'): ?>
-                                            <li class="<?php if ($_GET['p'] == "User") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=User"><i class="fa fa-user text-blue"></i> <span>User</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "announcement") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=announcement"><i class="fa fa-volume-up" aria-hidden="true"></i>
-                                                    <span>announcement</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Matcher") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Matcher"><i class="fa fa-user text-green"></i> <span>Matcher</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Colorist") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "UserResep") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=UserResep"><i class="fa fa-user text-red"></i> <span>User Resep</span></a>
-                                            </li>
-                                        <?php endif; ?>
-                                        <li class="<?php if ($_GET['p'] == "TestQCFinal") {
+                                        <li class="<?php if ($_GET['p'] == "Manage-Dyestuff") {
                                                         echo "active";
-                                                    } ?>"><a href="?p=TestQCFinal"><i class="fa fa-flask text-red"></i> <span>Test QC Final</span></a>
+                                                    } ?>"><a href="?p=Manage-Dyestuff"><i class="fa fa-plus-square"></i> <span>Manage-Dyestuff</span></a>
                                         </li>
-                                        <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
-                                            <li class="<?php if ($_GET['p'] == "ApprovedTestReport") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=ApprovedTestReport"><i class="fa fa-check text-green"></i> <span>Approved Report</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Log_Qctest") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Log_Qctest"><i class="glyphicon glyphicon-resize-small"></i> <span>Log QC Test</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "List-Schedule-Rekap") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=List-Schedule-Rekap"><i class="fa fa-archive text-fuchsia"></i> <span>List Schedule Rekap</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Status-Rekap") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Status-Rekap"><i class="fa fa-archive text-teal"></i> <span>Status & Resep Rekap</span></a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Kartu-Riwayat") {
-                                                            echo "active";
-                                                        } ?>">
-                                                <a href="?p=Kartu-Riwayat">
-                                                    <i class="fa fa-file-text text-green"></i> <span>Kartu Riwayat</span>
-                                                </a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Kartu-Riwayat-Activity") {
-                                                            echo "active";
-                                                        } ?>">
-                                                <a href="?p=Kartu-Riwayat-Activity">
-                                                    <i class="fa fa-tasks text-yellow"></i> <span>Kartu Riwayat Activity</span>
-                                                </a>
-                                            </li>
-                                            <li class="<?php if ($_GET['p'] == "Laporan-Kartu-Stock") {
-                                                            echo "active";
-                                                        } ?>"><a href="?p=Laporan-Kartu-Stock"><i class="fa fa-list-alt text-primary"></i> <span>Laporan & Kartu Stock</span></a>
-                                            </li>
-                                        <?php endif; ?>
-                                        
-                                        <!-- Bon Order Submenu -->
-                                        <li class="dropdown-submenu <?php if (
-                                            $_GET['p'] == "Approval-Bon-Order" ||
-                                            $_GET['p'] == "Status-Matching-Bon-Order" ||
-                                            $_GET['p'] == "Status-Matching-Ganti-kain" ||
-                                            $_GET['p'] == "Rekap-Update-Status" ||
-                                            $_GET['p'] == "Rekap-Data"
-                                        )
-                                            echo "active"; ?>">
-                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                <i class="fa fa-credit-card text-danger"></i> <span>Bon Order</span>
-                                                <span class="pull-right-container">
-                                                    <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
-                                                </span>
+                                        <li class="<?php if ($_GET['p'] == "Lampu-Buyer") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Lampu-Buyer"><i class="fa fa-lightbulb-o"></i> <span>Lampu-Buyer</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Manage-Proses") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Manage-Proses"><i class="fa fa-spinner"></i> <span>Manage-Proses</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Log_Matching") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Log_Matching"><i class="glyphicon glyphicon-resize-small" aria-hidden="true"></i>
+                                                <span>Log Perlakuan Resep</span></a>
+                                        </li>
+                                    <?php endif; ?>
+                                    <?php if ($_SESSION['jabatanLAB'] == 'Super admin'): ?>
+                                        <li class="<?php if ($_GET['p'] == "User") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=User"><i class="fa fa-user text-blue"></i> <span>User</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "announcement") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=announcement"><i class="fa fa-volume-up" aria-hidden="true"></i>
+                                                <span>announcement</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Matcher") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Matcher"><i class="fa fa-user text-green"></i> <span>Matcher</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Colorist") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Colorist"><i class="fa fa-user text-yellow"></i> <span>Colorist</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "UserResep") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=UserResep"><i class="fa fa-user text-red"></i> <span>User Resep</span></a>
+                                        </li>
+                                    <?php endif; ?>
+                                    <li class="<?php if ($_GET['p'] == "TestQCFinal") {
+                                                    echo "active";
+                                                } ?>"><a href="?p=TestQCFinal"><i class="fa fa-flask text-red"></i> <span>Test QC Final</span></a>
+                                    </li>
+                                    <?php if ($_SESSION['jabatanLAB'] != 'Matcher'): ?>
+                                        <li class="<?php if ($_GET['p'] == "ApprovedTestReport") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=ApprovedTestReport"><i class="fa fa-check text-green"></i> <span>Approved Report</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Log_Qctest") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Log_Qctest"><i class="glyphicon glyphicon-resize-small"></i> <span>Log QC Test</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "List-Schedule-Rekap") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=List-Schedule-Rekap"><i class="fa fa-archive text-fuchsia"></i> <span>List Schedule Rekap</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Status-Rekap") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Status-Rekap"><i class="fa fa-archive text-teal"></i> <span>Status & Resep Rekap</span></a>
+                                        </li>
+                                        <li class="<?php if ($_GET['p'] == "Kartu-Riwayat") {
+                                                        echo "active";
+                                                    } ?>">
+                                            <a href="?p=Kartu-Riwayat">
+                                                <i class="fa fa-file-text text-green"></i> <span>Kartu Riwayat</span>
                                             </a>
-                                            <ul class="dropdown-menu">
-                                                <li class="<?php if ($_GET['p'] == "Approval-Bon-Order")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "Approval-Revisi-Bon-Order")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Approval-Revisi-Bon-Order"><i class="fa fa-list-alt"></i> <span>Approval Revisi Bon Order</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon
-                                                            Order</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti
-                                                            Kain</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "Rekap-Update-Status")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Rekap-Update-Status"><i class="fa fa-spinner"></i> <span>Rekap Update Status</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "Rekap-Data")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
-                                                </li>
-                                            </ul>
                                         </li>
-
-                                        <!-- Penggunaan Obat Menu -->
-                                        <li class="dropdown-submenu <?php if (
-                                            $_GET['p'] == "pemakaian_obat" ||
-                                            $_GET['p'] == "pemakaian_obat_category" ||
-                                            $_GET['p'] == "tutup_harian_GK" ||
-                                            $_GET['p'] == "stock_opname_GK"
-                                        )
-                                            echo "active"; ?>">
-                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                                <i class="fa fa-credit-card text-danger"></i> <span>Gudang Kimia</span>
-                                                <span class="pull-right-container">
-                                                    <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
-                                                </span>
+                                        <li class="<?php if ($_GET['p'] == "Kartu-Riwayat-Activity") {
+                                                        echo "active";
+                                                    } ?>">
+                                            <a href="?p=Kartu-Riwayat-Activity">
+                                                <i class="fa fa-tasks text-yellow"></i> <span>Kartu Riwayat Activity</span>
                                             </a>
-                                            <ul class="dropdown-menu">
-                                                <li class="<?php if ($_GET['p'] == "pemakaian_obat")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=pemakaian_obat"><i class="fa fa-file-text"></i> <span>Laporan Summary Penggunaan
-                                                            Obat</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "pemakaian_obat_category")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=pemakaian_obat_category"><i class="fa fa-list text-success"></i> <span>Laporan Penggunaan Obat
-                                                            Kategori</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Transaksi </span></a>
-                                                </li>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "stock_opname_GK")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a>
-                                                </li>
-                                                <li class="<?php if ($_GET['p'] == "stock_opname_GK_rekap")
-                                                    echo "active"; ?>">
-                                                    <a href="?p=stock_opname_GK_rekap"><i class="fa fa-tasks"></i> <span>Rekap Stock Opname GK</span></a>
-                                                </li>
-                                            </ul>
                                         </li>
-                                    
-                                    </ul>
-                                </li>
-                            <?php endif; ?>
+                                        <li class="<?php if ($_GET['p'] == "Laporan-Kartu-Stock") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Laporan-Kartu-Stock"><i class="fa fa-list-alt text-primary"></i> <span>Laporan & Kartu Stock</span></a>
+                                        </li>
+                                    <?php endif; ?>
 
-                            <?php if ($_SESSION['jabatanLAB'] == 'QAI'): ?>
-                                <li class="<?php if ($_GET['p'] == "stock_opname_GK") {
-                                                echo "active";
-                                            } ?>"><a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a></i>
-                                </li>
-                            <?php endif; ?>
+                                    <!-- Bon Order Submenu -->
+                                    <li class="dropdown-submenu <?php if (
+                                                                    $_GET['p'] == "Approval-Bon-Order" ||
+                                                                    $_GET['p'] == "Status-Matching-Bon-Order" ||
+                                                                    $_GET['p'] == "Status-Matching-Ganti-kain" ||
+                                                                    $_GET['p'] == "Rekap-Update-Status" ||
+                                                                    $_GET['p'] == "Rekap-Data"
+                                                                )
+                                                                    echo "active"; ?>">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-credit-card text-danger"></i> <span>Bon Order</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li class="<?php if ($_GET['p'] == "Approval-Bon-Order")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Approval-Bon-Order"><i class="fa fa-check"></i> <span>Approval Bon Order</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Approval-Revisi-Bon-Order")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Approval-Revisi-Bon-Order"><i class="fa fa-list-alt"></i> <span>Approval Revisi Bon Order</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Status-Matching-Bon-Order")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Status-Matching-Bon-Order"><i class="fa fa-file-text"></i> <span>Status Matching Bon
+                                                        Order</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Status-Matching-Ganti-kain")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Status-Matching-Ganti-Kain"><i class="fa fa-tasks"></i> <span>Status Matching Ganti
+                                                        Kain</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Rekap-Update-Status")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Rekap-Update-Status"><i class="fa fa-spinner"></i> <span>Rekap Update Status</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "Rekap-Data")
+                                                            echo "active"; ?>">
+                                                <a href="?p=Rekap-Data"><i class="fa fa-clipboard"></i> <span>Rekap Data</span></a>
+                                            </li>
+                                        </ul>
+                                    </li>
 
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting<span class="caret"></span></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <!-- <li class="<php if ($_GET[p] == "Export_coPower") {
+                                    <!-- Penggunaan Obat Menu -->
+                                    <li class="dropdown-submenu <?php if (
+                                                                    $_GET['p'] == "pemakaian_obat" ||
+                                                                    $_GET['p'] == "pemakaian_obat_category" ||
+                                                                    $_GET['p'] == "tutup_harian_GK" ||
+                                                                    $_GET['p'] == "stock_opname_GK"
+                                                                )
+                                                                    echo "active"; ?>">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-credit-card text-danger"></i> <span>Gudang Kimia</span>
+                                            <span class="pull-right-container">
+                                                <i class="fa fa-angle-right pull-right" style="margin-top: 3px;"></i>
+                                            </span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat")
+                                                            echo "active"; ?>">
+                                                <a href="?p=pemakaian_obat"><i class="fa fa-file-text"></i> <span>Laporan Summary Penggunaan
+                                                        Obat</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "pemakaian_obat_category")
+                                                            echo "active"; ?>">
+                                                <a href="?p=pemakaian_obat_category"><i class="fa fa-list text-success"></i> <span>Laporan Penggunaan Obat
+                                                        Kategori</span></a>
+                                            </li>
+                                            <li class="<?php if ($_GET['p'] == "tutup_harian_GK")
+                                                            echo "active"; ?>">
+                                                <a href="?p=tutup_harian_GK"><i class="fa fa-tasks"></i> <span>Laporan Tutup Transaksi </span></a>
+                                            </li>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "stock_opname_GK")
+                                                    echo "active"; ?>">
+                                        <a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a>
+                                    </li>
+                                    <li class="<?php if ($_GET['p'] == "stock_opname_GK_rekap")
+                                                    echo "active"; ?>">
+                                        <a href="?p=stock_opname_GK_rekap"><i class="fa fa-tasks"></i> <span>Rekap Stock Opname GK</span></a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($_SESSION['jabatanLAB'] == 'QAI'): ?>
+                        <li class="<?php if ($_GET['p'] == "stock_opname_GK") {
+                                        echo "active";
+                                    } ?>"><a href="?p=stock_opname_GK"><i class="fa fa-tasks"></i> <span>Stock Opname GK</span></a></i>
+                        </li>
+                    <?php endif; ?>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <!-- <li class="<php if ($_GET[p] == "Export_coPower") {
                                                         echo "active";
                                                     } ?>"><a href="?p=Export_coPower"><i class="fa fa-superscript text-success" aria-hidden="true"></i>
                                             <span>Export Co-Power File</span></a>
                                     </li> -->
-                                    <li class="<?php if ($_GET['p'] == "Change-password") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Change-password"><i class="fa fa-key"></i> <span>Password</span></a>
-                                    </li>
-                                    <li class="<?php if ($_GET['p'] == "Petunjuk_penggunaan") {
-                                                    echo "active";
-                                                } ?>"><a href="?p=Petunjuk_penggunaan"><i class="fa fa-question text-primary" aria-hidden="true"></i>
-                                            <span>Guide</span></a>
-                                    </li>
-                                </ul>
+                            <li class="<?php if ($_GET['p'] == "Change-password") {
+                                            echo "active";
+                                        } ?>"><a href="?p=Change-password"><i class="fa fa-key"></i> <span>Password</span></a>
                             </li>
-                            <!-- <li class="dropdown">
+                            <li class="<?php if ($_GET['p'] == "Petunjuk_penggunaan") {
+                                            echo "active";
+                                        } ?>"><a href="?p=Petunjuk_penggunaan"><i class="fa fa-question text-primary" aria-hidden="true"></i>
+                                    <span>Guide</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Bon Order<span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li class="<?php if ($_GET['p'] == "Approval-Bon-Order") {
@@ -640,7 +665,7 @@ $page = strtolower($page);
     
                                 </ul>
                             </li> -->
-                        </ul>
+                    </ul>
                     </div>
                     <!-- /.navbar-collapse -->
                     <!-- Navbar Right Menu -->
@@ -706,11 +731,11 @@ $page = strtolower($page);
                                 <ul class="dropdown-menu">
                                     <li class="header">
                                         Ada <a href="/laborat/index1.php?p=Approval-Bon-Order" style="display: inline; padding: 3px 3px; font-weight: 700;">
-                                                <span id="notifTBOText" style="color:#FF0007;"></span> Bon Order Baru
-                                            </a> dan 
-                                            <a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order" style="display: inline; padding: 3px 3px; font-weight: 700;">
-                                                <span id="notifTBOText_revisi" style="color:#FF0007;"></span> Revisi Bon Order
-                                            </a>
+                                            <span id="notifTBOText" style="color:#FF0007;"></span> Bon Order Baru
+                                        </a> dan
+                                        <a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order" style="display: inline; padding: 3px 3px; font-weight: 700;">
+                                            <span id="notifTBOText_revisi" style="color:#FF0007;"></span> Revisi Bon Order
+                                        </a>
                                     </li>
                                     <li class="menu">
                                         <ul id="notifList" class="menu-list" style="max-height:320px;overflow:auto;margin:0;padding:0;list-style:none;"></ul>
@@ -846,16 +871,16 @@ $page = strtolower($page);
     });
     //Date picker
     $('#datepicker2').datepicker({
-        autoclose: true,
-        todayHighlight: true,
-        format: 'yyyy-mm-dd'
-    }),
-    //Date picker
-    $('#datepicker3').datepicker({
-        autoclose: true,
-        todayHighlight: true,
-        format: 'yyyy-mm-dd'
-    });
+            autoclose: true,
+            todayHighlight: true,
+            format: 'yyyy-mm-dd'
+        }),
+        //Date picker
+        $('#datepicker3').datepicker({
+            autoclose: true,
+            todayHighlight: true,
+            format: 'yyyy-mm-dd'
+        });
     $('.form-control.date-picker').datepicker({
         autoclose: true,
         todayHighlight: true,
@@ -1118,7 +1143,7 @@ $(document).ready(function() {
                         }
                     }
                 }
-            } catch(e) {}
+            } catch (e) {}
             // fallback: ambil digit saja
             const n = parseInt(String(x).replace(/[^\d-]/g, ''), 10);
             return isNaN(n) ? 0 : n;
@@ -1145,7 +1170,7 @@ $(document).ready(function() {
 
         refreshNotif();
         setInterval(refreshNotif, 10000);
-        
+
         $("#logout").click(function() {
             Swal.fire({
                 title: 'Are you sure?',
