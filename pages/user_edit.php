@@ -3,7 +3,7 @@ ini_set("error_reporting", 1);
 session_start();
 include("../koneksi.php");
 $modal_id = $_GET['id'];
-$modal = mysqli_query($con,"SELECT * FROM `tbl_user` WHERE id='$modal_id' ");
+$modal = mysqli_query($con, "SELECT * FROM `tbl_user` WHERE id='$modal_id' ");
 while ($r = mysqli_fetch_array($modal)) {
 ?>
   <div class="modal-dialog ">
@@ -26,23 +26,35 @@ while ($r = mysqli_fetch_array($modal)) {
           <div class="form-group">
             <label for="username" class="col-md-3 control-label">Password</label>
             <div class="col-md-6">
-              <input type="password" class="form-control" id="nama" name="password" value="<?php echo $r['password']; ?>" required>
+              <input type="password" class="form-control" id="password" name="password" value="" placeholder="Kosongkan jika tidak ingin mengubah password">
               <span class="help-block with-errors"></span>
             </div>
           </div>
           <div class="form-group">
             <label for="username" class="col-md-3 control-label">Re-Password</label>
             <div class="col-md-6">
-              <input type="password" class="form-control" id="nama" name="re_password" required>
+              <input type="password" class="form-control" id="re_password" name="re_password" placeholder="Ulangi password baru">
               <span class="help-block with-errors"></span>
             </div>
           </div>
+          <script>
+            // jQuery required
+            $(function() {
+              $('#password').on('input', function() {
+                if ($(this).val().length > 0) {
+                  $('#re_password').attr('required', true);
+                } else {
+                  $('#re_password').removeAttr('required');
+                }
+              });
+            });
+          </script>
           <input type="hidden" name="level" value="1">
           <div class="form-group">
             <label for="jabatan" class="col-md-3 control-label">Jabatan</label>
             <div class="col-md-6">
               <select name="jabatan" class="form-control" id="jabatan" required>
-                <?php $sql_role = mysqli_query($con,"SELECT `role` FROM master_role");
+                <?php $sql_role = mysqli_query($con, "SELECT `role` FROM master_role");
                 while ($role = mysqli_fetch_array($sql_role)) { ?>
                   <option <?php if ($r['jabatan'] == $role['role']) echo 'Selected'; ?> value="<?php echo $role['role'] ?>"><?php echo $role['role'] ?></option>
                 <?php } ?>
