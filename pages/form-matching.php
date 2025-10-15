@@ -320,13 +320,13 @@
 
 			if ($qry) {
 				mysqli_query($con, "INSERT INTO log_status_matching SET
-						`ids` = '$_POST[no_resep]',
+						`ids` = '$no_resep',
 						`status` = 'Create No.resep',
 						`info` = 'generate no resep',
 						`do_by` = '$_SESSION[userLAB]',
 						`do_at` = '$time',
 						`ip_address` = '$ip_num'");
-				echo "<script>alert('Data Tersimpan');window.location.href='?p=form-matching-detail&noresep=$_POST[no_resep]';</script>";
+				echo "<script>alert('Data Tersimpan');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
 			} else {
 				echo "There's been a problem: " . mysqli_error();
 			}
