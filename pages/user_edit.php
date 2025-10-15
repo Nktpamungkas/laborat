@@ -92,6 +92,29 @@ while ($r = mysqli_fetch_array($modal)) {
               <span class="help-block with-errors"></span>
             </div>
           </div>
+          <div class="form-group">
+            <label for="roles" class="col-md-3 control-label">Role CycleTime</label>
+            <div class="col-md-6">
+              <?php
+              // Ambil semua role dari master_menu_cycletime
+              $dataRoleCycletime = mysqli_query($con, "SELECT * FROM master_menu_cycletime ORDER BY id ASC");
+
+              // Ubah data pic_cycletime user menjadi array
+              $selected_roles = explode(';', $r['pic_cycletime']);
+
+              while ($role = mysqli_fetch_array($dataRoleCycletime)) {
+                $checked = in_array($role['id'], $selected_roles) ? 'checked' : '';
+              ?>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="roles[]" value="<?php echo $role['id']; ?>" <?php echo $checked; ?>>
+                    <?php echo $role['name_menu']; ?>
+                  </label>
+                </div>
+              <?php } ?>
+              <span class="help-block with-errors"></span>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>

@@ -14,7 +14,18 @@ include "koneksi.php";
 
 <body>
   <?php
-  $datauser = mysqli_query($con,"SELECT * FROM tbl_user ORDER BY username ASC");
+  $datauser = mysqli_query($con, "SELECT
+                                    a.*,
+                                    GROUP_CONCAT(b.name_menu ORDER BY b.id SEPARATOR ', ') AS roles
+                                  FROM
+                                    tbl_user a
+                                  LEFT JOIN master_menu_cycletime b ON FIND_IN_SET(b.id, REPLACE(a.pic_cycletime, ';', ',')) > 0
+                                  GROUP BY
+                                    a.username, a.pic_cycletime
+                                  ORDER BY
+                                    a.username ASC");
+
+  $dataRoleCycletime = mysqli_query($con, "SELECT * FROM master_menu_cycletime b ORDER BY b.id ASC");
   $no = 1;
   $n = 1;
   $c = 0;
@@ -33,6 +44,7 @@ include "koneksi.php";
                 <th width="57%">UserName</th>
                 <th width="15%">Jabatan</th>
                 <th width="13%">Status</th>
+                <th width="13%">Role CycleTime</th>
                 <th width="10%">Action</th>
               </tr>
             </thead>
@@ -47,6 +59,7 @@ include "koneksi.php";
                   <th><?php echo $rowd['username']; ?></th>
                   <th><?php echo $rowd['jabatan'] ?></th>
                   <th><?php echo $rowd['status']; ?></th>
+                  <th><?php echo $rowd['roles']; ?></th>
                   <th><a href="#" id='<?php echo $rowd['id'] ?>' class="btn btn-info user_edit"><i class="fa fa-edit"></i> </a></th>
                 </tr>
               <?php
@@ -91,7 +104,7 @@ include "koneksi.php";
                       <label for="jabatan" class="col-md-3 control-label">Jabatan</label>
                       <div class="col-md-6">
                         <select name="jabatan" class="form-control" id="jabatan" required>
-                          <?php $sql_role = mysqli_query($con,"SELECT `role` FROM master_role");
+                          <?php $sql_role = mysqli_query($con, "SELECT `role` FROM master_role");
                           while ($role = mysqli_fetch_array($sql_role)) { ?>
                             <option value="<?php echo $role['role'] ?>"><?php echo $role['role'] ?></option>
                           <?php } ?>
@@ -130,6 +143,20 @@ include "koneksi.php";
                             Non-Aktif
                           </label>
                         </div>
+                        <span class="help-block with-errors"></span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="roles" class="col-md-3 control-label">Role CycleTime</label>
+                      <div class="col-md-6">
+                        <?php while ($role = mysqli_fetch_array($dataRoleCycletime)) { ?>
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" name="roles[]" value="<?php echo $role['id']; ?>"> 
+                              <?php echo $role['name_menu']; ?>
+                            </label>
+                          </div>
+                        <?php } ?>
                         <span class="help-block with-errors"></span>
                       </div>
                     </div>

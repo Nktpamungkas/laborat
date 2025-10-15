@@ -314,7 +314,7 @@
 					suhu_chamber = '$suhuchamber',
 					warna_flourescent = '$warnafluorescent'
 					");
-
+ 
 			// update nomor urut terakhir
 			mysqli_query($con, "UPDATE no_urut_matching SET nourut = '$nourut'");
 

@@ -41,6 +41,16 @@
     thead tr:nth-child(2) th.sticky-col {
         z-index: 4;
     }
+
+    #epcTable td:last-child {
+        text-align: center;
+        width: 1rem; /* fix width kolom action */
+        padding: 0.5rem;
+    }
+
+    #epcTable td, #epcTable th {
+        text-align: center;
+    }
 </style>
 <style>
     @keyframes slideUp {
@@ -68,10 +78,48 @@
         <div class="box">
             <div id="schedule_table"></div>
         </div>
+
+        <!-- RFID Trigerred Modal -->
+            <div class="modal fade modal-super-scaled" id="modalRFID" data-backdrop="static" data-keyboard="true" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog" style="width:55%">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">List of data scanned by RFID</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-scrollable" style="border: none;">
+                                <table id="epcTable" class="table table-bordered" style="width:100%; padding: 1rem">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>No Resep</th>
+                                            <th>Temp</th>
+                                            <th>No Mesin</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" id="submitBtnRFID" class="btn btn-out btn-success" disabled>Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- RFID Trigerred Modal  -->
     </div>
 </div>
 
+<?php require './includes/socket_helper.php' ?>
 <script>
+    let dyeingData = []
     let blockedResepMap = {};
 
     function loadScheduleTable(callback) {
@@ -85,11 +133,26 @@
             success: function (response) {
                 const { data, allMachines, maxPerMachine, tempListMap, tempListMapNext, oldDataList } = response;
 
+                dyeingData = Object.entries(data) // [ [key, value], ... ]
+                    .flatMap(([groupKey, arr]) =>
+                        (arr || [])
+                        .filter(item => item !== null)
+                        .map(item => ({
+                            ...item,
+                            no_machine: groupKey // tambahin nama group ke dalam object
+                        }))
+                );
+
+                dyeingData = [...dyeingData, ...oldDataList]
+
                 const priorityOrder = [
                     'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A10', 'A11', 'A12',
                     'C1', 'C2 (DYE)', 'C3 (DYE)', 'D1',
                     'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'
                 ];
+
+                // Start websocket to room 2
+                subscribe(3)
 
                 const machineKeys = priorityOrder.filter(m => allMachines.includes(m));
                 allMachines.forEach(m => { if (!machineKeys.includes(m)) machineKeys.push(m); });
@@ -231,6 +294,189 @@
     }
 
     $(document).ready(function () {
+        // MODULE RFID
+            let filteredDyeingData = [] // For submit payload
+            let deletedDRData = [] // For tag deleted no_resep with DR
+            
+            epcTable = $('#epcTable').DataTable({
+                paging: true,
+                searching: true,
+                info: true,
+                columns: [
+                    { title: "No" },
+                    { title: "No Resep" },
+                    { title: "Temp" },
+                    { title: "No Mesin" },
+                    { title: "Status" },
+                    { title: "Action", orderable: false } // kolom tombol
+                ]
+            });
+
+            // Listen for registers (when items add or increase)
+            socket.on('register', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocket({
+                roomId,
+                tags,
+                epcTable,
+                filteredData: filteredDyeingData,
+                globalData: dyeingData,
+                status: "in_progress_dispensing",
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "product_name",
+                    "no_machine",
+                    "status",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Listen for dispatch (when items removed or decrease)
+            socket.on('dispatch', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocket({
+                roomId,
+                tags,
+                epcTable,
+                filteredData: filteredDyeingData,
+                globalData: dyeingData,
+                status: "in_progress_dispensing",
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "product_name",
+                    "no_machine",
+                    "status",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Listen success_subscribe (when iddle)
+            socket.on('success_subscribe', ({
+                roomId,
+                epc,
+                tags
+            }) => globalProcessOnListenSocketForIddle({
+                roomId,
+                tags,
+                epcTable,
+                deletedDRData,
+                filteredData: filteredDyeingData,
+                globalData: dyeingData,
+                status: "in_progress_dispensing",
+                columns: [
+                    (row, index) => index, // nomor urut
+                    (row) => row.no_resep?.trim(),
+                    "product_name",
+                    "no_machine",
+                    "status",
+                    (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+                ]
+            }));
+
+            // Event handler tombol remove
+            $('#epcTable').on('click', '.remove-row', function () {
+                const row = $(this).closest('tr');
+                const noResep = $(this).data('epc');  // ambil data-epc dari tombol
+
+                // Hapus dari DataTables
+                epcTable.row(row).remove().draw(false);
+
+                if (noResep.startsWith("DR") && noResep.length > 2) {
+                     // ✅ Masukkan string no_resep ke deletedDRData kalau belum ada
+                    if (!deletedDRData.includes(noResep)) {
+                        deletedDRData.push(noResep);
+                    }
+                }
+
+                // Hapus juga dari filteredDispensingData
+                filteredDyeingData = filteredDyeingData.filter(item => item.no_resep.trim() !== noResep);
+            });
+
+            $('#submitBtnRFID').on('click', function () {
+                const noResepList = filteredDyeingData.map((item) => item.no_resep.trim())
+                updateStatusBatch(noResepList)
+            });
+
+            function updateStatusBatch(noResepList) {
+                if (!Array.isArray(noResepList) || noResepList.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Data Tidak Ditemukan',
+                        text: 'Tidak ada No. Resep yang dikirim.',
+                    });
+                    return;
+                }
+
+                let total = noResepList.length;
+                let successCount = 0;
+                let failCount = 0;
+                let failedItems = [];
+
+                // Promise chain biar tunggu semua ajax selesai
+                let requests = noResepList.map(noResep => {
+                    return $.ajax({
+                        url: 'pages/ajax/scan_dyeing_update_status.php',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            no_resep: noResep,
+                        },
+                    }).then(res => {
+                        if (res.success) {
+                            successCount++;
+                        } else {
+                            failCount++;
+                            failedItems.push(noResep + " (" + (res.message || res.error || "gagal") + ")");
+                            if (/session/i.test(res.message)) {
+                                window.location.href = "/laborat/login";
+                            }
+                        }
+                    })
+                    .catch(xhr => {
+                        failCount++;
+                        failedItems.push(noResep + " (AJAX error)");
+                        console.error("AJAX error:", xhr.responseText);
+                    });
+                });
+
+                Promise.all(requests).then(() => {
+                    loadScheduleTable();
+
+                    if (failCount === 0) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Semua Berhasil!',
+                            text: `${successCount} dari ${total} resep berhasil diproses.`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else if (successCount === 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Semua Gagal!',
+                            html: `Tidak ada resep yang berhasil.<br><br><b>Detail:</b><br>${failedItems.join('<br>')}`,
+                            width: 600
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Sebagian Gagal!',
+                            html: `${successCount} berhasil, ${failCount} gagal.<br><br><b>Detail gagal:</b><br>${failedItems.join('<br>')}`,
+                            width: 600
+                        });
+                    }
+
+                    popoutModal()
+                });
+            }
+        // MODULE RFID
+        
         loadScheduleTable();
         setInterval(function () {
             const scrollTop = $(window).scrollTop();

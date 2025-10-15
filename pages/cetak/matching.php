@@ -71,7 +71,7 @@ $act = $_GET['g'];
       <td width="16%">BERAT:</td>
       <td width="15%">&nbsp;</td>
       <td width="9%">&nbsp;</td>
-      <td width="15%" style="text-align: right;">No. Form : <?= (strtoupper(substr($qrcode, 0, 2)) === 'DR' ? 'FW-12-LAB-05(A)/00' : 'FW-12-LAB-05/06') ?></td>
+      <td width="15%" style="text-align: right;">No. Form : <?= (strtoupper(substr($qrcode, 0, 2)) === 'DR' ? 'FW-12-LAB-05(A)/01' : 'FW-12-LAB-05/07') ?></td>
     </tr>
   </table>
   <table width="100%" border="0" class="table-list1">

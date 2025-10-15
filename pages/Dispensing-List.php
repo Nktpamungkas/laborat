@@ -3,15 +3,31 @@
         font-style: italic;
         font-size: 12px;
     }
+
     #tempWrapper {
         margin-bottom: 0;
     }
+
     @keyframes shake {
-        0% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        50% { transform: translateX(5px); }
-        75% { transform: translateX(-5px); }
-        100% { transform: translateX(0); }
+        0% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        50% {
+            transform: translateX(5px);
+        }
+
+        75% {
+            transform: translateX(-5px);
+        }
+
+        100% {
+            transform: translateX(0);
+        }
     }
 
     .blink-warning {
@@ -21,8 +37,15 @@
     }
 
     @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.2; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.2;
+        }
     }
 </style>
 <style>
@@ -30,8 +53,9 @@
         opacity: 0.4;
         background-color: #ffeeba !important;
     }
+
     .sortable-selected {
-        background-color:rgb(6, 206, 6) !important;
+        background-color: rgb(6, 206, 6) !important;
     }
 </style>
 <style>
@@ -44,9 +68,10 @@
     .table-scrollable thead th {
         position: sticky;
         top: 0;
-        background-color: #00a65a ;
+        background-color: #00a65a;
         z-index: 1;
     }
+
     .table-scrollable::-webkit-scrollbar {
         width: 6px;
     }
@@ -59,9 +84,11 @@
     .table-scrollable::-webkit-scrollbar-track {
         background: transparent;
     }
+
     .table {
         margin-bottom: 0 !important;
     }
+
     /* tbody {
         font-size: 9px;
     } */
@@ -70,17 +97,31 @@
         text-align: center;
         font-weight: bold;
     }
+
     .content {
         padding: 15px 0 !important;
     }
+
     .col-xs-12 {
         padding: 0 !important;
     }
+
     tbody {
         font-size: 11px;
     }
-</style>
 
+    #epcTable td:last-child {
+        text-align: center;
+        width: 1rem;
+        /* fix width kolom action */
+        padding: 0.5rem;
+    }
+
+    #epcTable td,
+    #epcTable th {
+        text-align: center;
+    }
+</style>
 
 <div class="row">
     <div class="col-xs-12">
@@ -97,10 +138,10 @@
                         <button id="toggleLockBtn" class="btn btn-warning">🔒 Lock Drag</button>
                     </div>
                 </div>
-                
+
                 <!-- Container for tables with display flex -->
                 <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-                    
+
                     <!-- Dispensing Poly Table -->
                     <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
                         <h4 id="polyHeader" class="text-center"><strong>DISPENSING POLY</strong></h4>
@@ -213,21 +254,273 @@
                     </div>
 
                 </div>
+
+                <!-- RFID Trigerred Modal -->
+                <div class="modal fade modal-super-scaled" id="modalRFID" data-backdrop="static" data-keyboard="true" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width:55%">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">List of data scanned by RFID</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-scrollable" style="border: none;">
+                                    <table id="epcTable" class="table table-bordered" style="width:100%; padding: 1rem">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Cycle</th>
+                                                <th>No Resep</th>
+                                                <th>Temp</th>
+                                                <th>No Mesin</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" id="submitBtnRFID" class="btn btn-out btn-success" disabled>Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- RFID Trigerred Modal  -->
             </div>
         </div>
     </div>
 </div>
 
 <!-- <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script> -->
- <script src="bower_components/sortablejs@1.15.0/Sortable.min.js"></script>
+<?php require './includes/socket_helper.php' ?>
+<script src="bower_components/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
     $(document).ready(function() {
-        let fullGroupedData = { '1': [], '2': [], '3': [] };
+        // MODULE RFID
+        let filteredDispensingData = [] // For submit payload
+        let deletedDRData = [] // For tag deleted no_resep with DR
+
+        epcTable = $('#epcTable').DataTable({
+            paging: true,
+            searching: true,
+            info: true,
+            columns: [{
+                    title: "No"
+                },
+                {
+                    title: "Cycle"
+                },
+                {
+                    title: "No Resep"
+                },
+                {
+                    title: "Temp"
+                },
+                {
+                    title: "No Mesin"
+                },
+                {
+                    title: "Status"
+                },
+                {
+                    title: "Action",
+                    orderable: false
+                }
+            ]
+        });
+
+        // Listen for registers (when items add or increase)
+        socket.on('register', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocket({
+            roomId,
+            tags,
+            epcTable,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Listen for dispatch (when items removed or decrease)
+        socket.on('dispatch', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocket({
+            roomId,
+            tags,
+            epcTable,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Listen success_subscribe (when iddle)
+        socket.on('success_subscribe', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocketForIddle({
+            roomId,
+            tags,
+            epcTable,
+            deletedDRData,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Event handler button remove
+        $('#epcTable').on('click', '.remove-row', function() {
+            const row = $(this).closest('tr');
+            const noResep = $(this).data('epc'); // ambil data-epc dari tombol
+
+            // Hapus dari DataTables
+            epcTable.row(row).remove().draw(false);
+
+            if (noResep.startsWith("DR") && noResep.length > 2) {
+                // ✅ Masukkan string no_resep ke deletedDRData kalau belum ada
+                if (!deletedDRData.includes(noResep)) {
+                    deletedDRData.push(noResep);
+                }
+            }
+
+            // Hapus juga dari filteredDispensingData
+            filteredDispensingData = filteredDispensingData.filter(item => item.no_resep.trim() !== noResep);
+        });
+
+        // Button Submit
+        $('#submitBtnRFID').on('click', function() {
+            const noResepList = filteredDispensingData.map((item) => item.no_resep.trim())
+            updateStatusBatch(noResepList)
+        });
+
+        // Action Submit 
+        function updateStatusBatch(noResepList) {
+            if (!Array.isArray(noResepList) || noResepList.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Tidak Ditemukan',
+                    text: 'Tidak ada No. Resep yang dikirim.',
+                });
+                return;
+            }
+
+            let total = noResepList.length;
+            let successCount = 0;
+            let failCount = 0;
+            let failedItems = [];
+
+            // Promise chain biar tunggu semua ajax selesai
+            let requests = noResepList.map(noResep => {
+                const dispensingCode = getDispensingCodeFromNoResep(noResep);
+                if (dispensingCode === null) {
+                    failCount++;
+                    failedItems.push(noResep + " (tidak ditemukan)");
+                    return Promise.resolve(); // skip
+                }
+
+                return $.ajax({
+                    url: 'pages/ajax/scan_dispensing_update_status.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        no_resep: noResep,
+                        dispensing_code: dispensingCode
+                    }
+                }).then(res => {
+                    if (res.success) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        failedItems.push(noResep + " (" + (res.message || res.error || "gagal") + ")");
+                        if (/session/i.test(res.message)) {
+                            window.location.href = "/laborat/login";
+                        }
+                    }
+                }).catch(xhr => {
+                    failCount++;
+                    failedItems.push(noResep + " (AJAX error)");
+                    console.error("AJAX error:", xhr.responseText);
+                });
+            });
+
+            Promise.all(requests).then(() => {
+                fetchAndRenderDataOnly();
+
+                if (failCount === 0) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Semua Berhasil!',
+                        text: `${successCount} dari ${total} resep berhasil diproses.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else if (successCount === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Semua Gagal!',
+                        html: `Tidak ada resep yang berhasil.<br><br><b>Detail:</b><br>${failedItems.join('<br>')}`,
+                        width: 600
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sebagian Gagal!',
+                        html: `${successCount} berhasil, ${failCount} gagal.<br><br><b>Detail gagal:</b><br>${failedItems.join('<br>')}`,
+                        width: 600
+                    });
+                }
+
+                popoutModal()
+            });
+        }
+        // MODULE RFID
+
+        let fullGroupedData = {
+            '1': [],
+            '2': [],
+            '3': []
+        };
 
         loadData();
 
-        $('#scanInput').on('keypress', function (e) {
+        $('#scanInput').on('keypress', function(e) {
             if (e.which === 13) { // Enter key
                 const noResep = $(this).val().trim();
                 if (noResep !== "") {
@@ -256,7 +549,7 @@
                     no_resep: noResep,
                     dispensing_code: dispensingCode
                 },
-                success: function (res) {
+                success: function(res) {
                     if (res.success) {
                         console.log("Update sukses:", res);
                         fetchAndRenderDataOnly();
@@ -273,13 +566,13 @@
                             title: 'Gagal!',
                             text: res.message || res.error || 'Terjadi kesalahan saat memperbarui status.',
                         });
-                        
+
                         if (/session/i.test(res.message)) {
                             window.location.href = "/laborat/login";
                         }
                     }
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     console.error("AJAX error:", xhr.responseText);
                     Swal.fire({
                         icon: 'error',
@@ -295,6 +588,7 @@
             if (!match) return null;
             return match.dispensing?.trim() ?? "";
         }
+
     });
 </script>
 <script>
@@ -306,7 +600,14 @@
             .then(data => {
                 dispensingData = data;
 
-                fullGroupedData = { '1': [], '2': [], '3': [] };
+                // Start websocket to room 1
+                subscribe(2)
+
+                fullGroupedData = {
+                    '1': [],
+                    '2': [],
+                    '3': []
+                };
                 data.forEach(item => {
                     const code = item.dispensing?.trim() ?? '';
                     if (['1', '2'].includes(code)) {
@@ -330,7 +631,11 @@
             .then(data => {
                 dispensingData = data;
 
-                fullGroupedData = { '1': [], '2': [], '3': [] };
+                fullGroupedData = {
+                    '1': [],
+                    '2': [],
+                    '3': []
+                };
                 data.forEach(item => {
                     const code = item.dispensing?.trim() ?? '';
                     if (['1', '2'].includes(code)) {
@@ -437,7 +742,6 @@
         }
     }
 
-
     // function renderTable(dataArray, tbodyElement, dispensingCode) {
     //     const rowsPerBlock = 16;
 
@@ -511,13 +815,13 @@
     // }
 
 
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         if (e.target.classList.contains("editable-machine")) {
             const span = e.target;
             const currentValue = span.dataset.current;
             const id = span.dataset.id;
             const group = span.dataset.group;
-                
+
             fetch(`pages/ajax/get_mesin_options_dispensing.php?group=${encodeURIComponent(group)}`)
                 .then(res => res.json())
                 .then(options => {
@@ -550,41 +854,46 @@
     function saveChange(id, newValue, originalSpan) {
         const select = document.querySelector(`select[data-editing-id="${id}"]`);
         fetch("pages/ajax/update_machine_number.php", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, no_machine: newValue })
-        })
-        .then(res => res.json())
-        .then(response => {
-            const newSpan = document.createElement("span");
-            newSpan.className = "editable-machine";
-            newSpan.dataset.id = id;
-            newSpan.dataset.group = originalSpan.dataset.group;
-            newSpan.dataset.current = newValue;
-            newSpan.textContent = newValue;
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id,
+                    no_machine: newValue
+                })
+            })
+            .then(res => res.json())
+            .then(response => {
+                const newSpan = document.createElement("span");
+                newSpan.className = "editable-machine";
+                newSpan.dataset.id = id;
+                newSpan.dataset.group = originalSpan.dataset.group;
+                newSpan.dataset.current = newValue;
+                newSpan.textContent = newValue;
 
-            if (response.success) {
-                select.replaceWith(newSpan);
+                if (response.success) {
+                    select.replaceWith(newSpan);
 
-                // ✅ Tampilkan SweetAlert kalau berhasil
-                Swal.fire({
-                    toast: true,
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Nomor mesin berhasil diperbarui',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-            } else {
-                alert("Gagal menyimpan perubahan");
+                    // ✅ Tampilkan SweetAlert kalau berhasil
+                    Swal.fire({
+                        toast: true,
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Nomor mesin berhasil diperbarui',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    alert("Gagal menyimpan perubahan");
+                    select.replaceWith(originalSpan);
+                }
+            })
+            .catch(() => {
+                alert("Terjadi kesalahan");
                 select.replaceWith(originalSpan);
-            }
-        })
-        .catch(() => {
-            alert("Terjadi kesalahan");
-            select.replaceWith(originalSpan);
-        });
+            });
     }
 
     // function enableSortableTables() {
@@ -706,7 +1015,7 @@
                 fallbackTolerance: 3,
                 disabled: isLocked,
                 draggable: "tr:not(.not-draggable)",
-                onEnd: function (evt) {
+                onEnd: function(evt) {
                     if (isLocked) return;
 
                     const tbody = evt.from;
@@ -747,33 +1056,35 @@
                     console.log("Reordered dikirim ke server:", reordered);
 
                     fetch('pages/ajax/UpdateOrderIndexes.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(reordered)
-                    })
-                    .then(res => res.json())
-                    .then(response => {
-                        if (response.success) {
-                            fetchAndRenderDataOnly();
-                            setTimeout(() => {
-                                enableSortableTables();
-                            }, 50);
-                        } else {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(reordered)
+                        })
+                        .then(res => res.json())
+                        .then(response => {
+                            if (response.success) {
+                                fetchAndRenderDataOnly();
+                                setTimeout(() => {
+                                    enableSortableTables();
+                                }, 50);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: 'Gagal update urutan.'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: 'Gagal update urutan.'
+                                title: 'Kesalahan',
+                                text: 'Terjadi kesalahan saat menyimpan.'
                             });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: 'Terjadi kesalahan saat menyimpan.'
                         });
-                    });
                 }
 
             });
@@ -796,9 +1107,9 @@
         const scanInput = document.getElementById("scanInput");
         scanInput.disabled = !isLocked;
 
-        if(!isLocked) {
+        if (!isLocked) {
             document.querySelectorAll("tbody tr").forEach(row => {
-                row.addEventListener("click", function () {
+                row.addEventListener("click", function() {
                     const tbody = row.closest("tbody");
                     const sortable = sortables.find(s => s.el === tbody);
                     if (!sortable) return;
@@ -824,7 +1135,7 @@
         return "3";
     }
 
-    window.addEventListener("DOMContentLoaded", function () {
+    window.addEventListener("DOMContentLoaded", function() {
         enableSortableTables();
 
         // Awal: drag terkunci => scan aktif

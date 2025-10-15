@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
         echo json_encode(["success" => false, "error" => "Data tidak ditemukan."]);
     }
 
-    $stmt->close();
+    // $stmt->close();
     $con->close();
 }
 

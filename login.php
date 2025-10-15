@@ -12,7 +12,7 @@ if ($_POST) { //login user
 	extract($_POST);
 	$username = mysqli_real_escape_string($con,$_POST['username']);
 	$password = mysqli_real_escape_string($con,$_POST['password']);
-	$sql = mysqli_query($con,"select * from tbl_user where username='$username' and password='$password' limit 1");
+	$sql = mysqli_query($con,"SELECT * from tbl_user where username='$username' and password='$password' limit 1");
 	if (mysqli_num_rows($sql) > 0) {
 		$_SESSION['userLAB'] = $username;
 		$_SESSION['passLAB'] = $password;
@@ -25,6 +25,8 @@ if ($_POST) { //login user
 		$_SESSION['jabatanLAB'] = $r['jabatan'];
 		$_SESSION['os'] = $os;
 		$_SESSION['ip'] = $ip;
+		$_SESSION['pic_printrfid'] = $r['pic_printrfid'];
+		$_SESSION['role_cycletime'] = $r['pic_cycletime'];
 		// 1 == admin
 		// 2 == spv
 		// 3 == user

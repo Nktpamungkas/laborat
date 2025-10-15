@@ -18,7 +18,7 @@ function db_connect()
 }
 
 //db_connect($db_name);
-$qry1 = mysqli_query($con,"SELECT id FROM tbl_matching WHERE no_resep='$_GET[noresep]' LIMIT 1");
+$qry1 = mysqli_query($con, "SELECT id FROM tbl_matching WHERE no_resep='$_GET[noresep]' LIMIT 1");
 $r1 = mysqli_fetch_array($qry1);
 if ($_GET['id'] != "") {
 	$id = $_GET['id'];
@@ -32,7 +32,7 @@ if (isset($_POST['save'])) {
 	$lab = str_replace("'", "''", $_POST['lab']);
 	$aktual = str_replace("'", "''", $_POST['aktual']);
 
-	$qry = mysqli_query($con,"INSERT INTO tbl_matching_detail SET
+	$qry = mysqli_query($con, "INSERT INTO tbl_matching_detail SET
 		id_matching='$id',
 		kode='$kode',
 		nama='$dyes',
@@ -102,7 +102,152 @@ if (isset($_POST['save'])) {
 			<!-- <div class="col-sm-2">
 				<button type="submit" class="btn btn-block btn-social btn-linkedin" name="save" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
 			</div> -->
-			<a href="pages/cetak/matching.php?idkk=<?php echo $_GET['noresep']; ?>" class="btn btn-danger pull-right" target="_blank"><span class="fa fa-print"></span> Cetak</a>
+			<a href="pages/cetak/matching.php?idkk=<?php echo $_GET['noresep']; ?>" class="btn btn-danger pull-right" target="_blank" id="btnCetak"><span class="fa fa-print"></span> Cetak</a>
+			<script>
+				document.getElementById('btnCetak').addEventListener('click', function(e) {
+					e.preventDefault();
+					var noresep = "<?php echo $_GET['noresep']; ?>";
+					var xhr = new XMLHttpRequest();
+					xhr.open("POST", "", true);
+					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					xhr.onreadystatechange = function() {
+						if (xhr.readyState === 4 && xhr.status === 200) {
+							// Optionally handle response
+							window.open("pages/cetak/matching.php?idkk=" + noresep, "_blank");
+						}
+					};
+					xhr.send("print_matching=1&noresep=" + encodeURIComponent(noresep));
+				});
+			</script>
+			<?php
+			if (isset($_POST['print_matching'])) {
+				$no_resep = $_POST['noresep'];
+				$time = date('Y-m-d H:i:s');
+				$ip_num = $_SERVER['REMOTE_ADDR'];
+				// Cek jika dua huruf depan $no_resep adalah DR
+				if (substr($no_resep, 0, 2) === 'DR') {
+					$no_resep_a = $no_resep . '-A';
+					$no_resep_b = $no_resep . '-B';
+
+					mysqli_query($con, "INSERT INTO log_status_matching SET
+						`ids` = '$no_resep_a',
+						`status` = 'Create No.resep',
+						`info` = 'generate no resep DR-A',
+						`do_by` = '$_SESSION[userLAB]',
+						`do_at` = '$time',
+						`ip_address` = '$ip_num'");
+					mysqli_query($con, "INSERT INTO log_status_matching SET
+						`ids` = '$no_resep_b',
+						`status` = 'Create No.resep',
+						`info` = 'generate no resep DR-B',
+						`do_by` = '$_SESSION[userLAB]',
+						`do_at` = '$time',
+						`ip_address` = '$ip_num'");
+
+					$url = "http://10.0.0.121:8080/api/v1/document/create";
+					$payload_a = json_encode([
+						"doc_number" => $no_resep_a,
+						"ip_address" => '10.0.6.233'
+					]);
+					$ch_a = curl_init($url);
+					curl_setopt($ch_a, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch_a, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+					curl_setopt($ch_a, CURLOPT_POST, true);
+					curl_setopt($ch_a, CURLOPT_POSTFIELDS, $payload_a);
+					$response_a = curl_exec($ch_a);
+					$error_a = curl_error($ch_a);
+					curl_close($ch_a);
+
+					$payload_b = json_encode([
+						"doc_number" => $no_resep_b,
+						"ip_address" => '10.0.6.233'
+					]);
+					$ch_b = curl_init($url);
+					curl_setopt($ch_b, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch_b, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+					curl_setopt($ch_b, CURLOPT_POST, true);
+					curl_setopt($ch_b, CURLOPT_POSTFIELDS, $payload_b);
+					$response_b = curl_exec($ch_b);
+					$error_b = curl_error($ch_b);
+					curl_close($ch_b);
+
+					if ($error_a) {
+						$logMessageA = "CURL Error: " . addslashes($error_a);
+						$logSuccessA = 0;
+					} else {
+						$resultA = json_decode($response_a, true);
+						$logMessageA = addslashes($resultA['message'] ?? 'Unknown response');
+						$logSuccessA = isset($resultA['success']) && $resultA['success'] ? 1 : 0;
+					}
+					mysqli_query($con, "INSERT INTO log_printing SET
+						no_resep = '$no_resep_a',
+						ip_address = '$ip_num',
+						success = '$logSuccessA',
+						message = '$logMessageA',
+						response_raw = '" . addslashes($response_a) . "',
+						created_at = NOW(),
+						created_by = '$_SESSION[userLAB]'");
+
+					if ($error_b) {
+						$logMessageB = "CURL Error: " . addslashes($error_b);
+						$logSuccessB = 0;
+					} else {
+						$resultB = json_decode($response_b, true);
+						$logMessageB = addslashes($resultB['message'] ?? 'Unknown response');
+						$logSuccessB = isset($resultB['success']) && $resultB['success'] ? 1 : 0;
+					}
+					mysqli_query($con, "INSERT INTO log_printing SET
+						no_resep = '$no_resep_b',
+						ip_address = '$ip_num',
+						success = '$logSuccessB',
+						message = '$logMessageB',
+						response_raw = '" . addslashes($response_b) . "',
+						created_at = NOW(),
+						created_by = '$_SESSION[userLAB]'");
+					// Tidak perlu alert di sini, karena sudah di-handle di JS
+				} else {
+					mysqli_query($con, "INSERT INTO log_status_matching SET
+						`ids` = '$no_resep',
+						`status` = 'Create No.resep',
+						`info` = 'generate no resep',
+						`do_by` = '$_SESSION[userLAB]',
+						`do_at` = '$time',
+						`ip_address` = '$ip_num'");
+
+					$url = "http://10.0.0.121:8080/api/v1/document/create";
+					$payload = json_encode([
+						"doc_number" => $no_resep,
+						"ip_address" => '10.0.6.233'
+					]);
+					$ch = curl_init($url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+					curl_setopt($ch, CURLOPT_POST, true);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+					$response = curl_exec($ch);
+					$error = curl_error($ch);
+					curl_close($ch);
+
+					if ($error) {
+						$logMessage = "CURL Error: " . addslashes($error);
+						$logSuccess = 0;
+					} else {
+						$result = json_decode($response, true);
+						$logMessage = addslashes($result['message'] ?? 'Unknown response');
+						$logSuccess = isset($result['success']) && $result['success'] ? 1 : 0;
+					}
+					mysqli_query($con, "INSERT INTO log_printing SET
+						no_resep = '$no_resep',
+						ip_address = '$ip_num',
+						success = '$logSuccess',
+						message = '$logMessage',
+						response_raw = '" . addslashes($response) . "',
+						created_at = NOW(),
+						created_by = '$_SESSION[userLAB]'");
+				}
+				exit;
+			}
+			?>
 		</div>
 		<!-- /.box-footer -->
 
@@ -138,7 +283,7 @@ if (isset($_POST['save'])) {
 					</thead>
 					<tbody>
 						<?php
-						$sql = mysqli_query($con," SELECT * FROM `tbl_matching_detail` a
+						$sql = mysqli_query($con, " SELECT * FROM `tbl_matching_detail` a
 	   INNER JOIN `tbl_matching` b ON b.id=a.id_matching
 	   WHERE b.no_resep='$_GET[noresep]' ");
 						while ($r = mysqli_fetch_array($sql)) {

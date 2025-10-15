@@ -1209,11 +1209,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
                                     $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
                                     $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
-                                    $stock_balance = floatval(str_replace(',', '', $qty_stock_balance));
+                                    $stock_balance = floatval(str_replace(',', '', $qty_Balance_stock_gd_pisah));
                                     $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
                                     $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
-                                    $pakai_belum_timbang = floatval(str_replace(',', '', 0));
-                                    $balance_future = floatval(str_replace(',', '', 0));
+                                    $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
+                                    $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
                                     $total_out_ = floatval(str_replace(',', '', subject: $qty_total_out));
                                     $status_ = mysqli_real_escape_string($con, $status);
                                     $note = mysqli_real_escape_string($con, $row['NOTELAB']);
