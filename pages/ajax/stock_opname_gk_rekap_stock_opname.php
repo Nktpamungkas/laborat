@@ -315,15 +315,15 @@ if (count($data_now) > 0) {
                     <td class='text-center'>{$no}</td>
                     <td>" . htmlspecialchars($index) . "</td>
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
-                    <td>" . round($total_balance_gram,0). "</td>
-                    <td>" . round($transaksi,0). "</td>
-                    <td>" . round($ending_balance,0). "</td>
-                    <td>" . round($total_stock,0). "</td>
-                    <td>" . round($selisih_balance,0). "</td>
-                    <td>" . round($selisih_plusminus,0). "</td>
-                    <td>" . round($total_pemakaian,0). "</td>
-                    <td>" . round($persen_selisih,0). "% </td>
-                    <td>" . round($saldo_awal_gram,0). "</td>
+                    <td class='number'>" . round($total_balance_gram,0). "</td>
+                    <td class='number'>" . round($transaksi,0). "</td>
+                    <td class='number'>" . round($ending_balance,0). "</td>
+                    <td class='number'>" . round($total_stock,0). "</td>
+                    <td class='number'>" . round($selisih_balance,0). "</td>
+                    <td class='number'>" . round($selisih_plusminus,0). "</td>
+                    <td class='number'>" . round($total_pemakaian,0). "</td>
+                    <td class='number'>" . round($persen_selisih,0). "</td>
+                    <td class='number'>" . round($saldo_awal_gram,0). "</td>
                 </tr>";
             }else{
                 echo "<tr>
@@ -356,15 +356,15 @@ if (count($data_now) > 0) {
                 <th class='text-center'></th>
                 <th class='text-center'></th>
                 <th class='text-center'>GRAND TOTAL</th>
-                <td>" . round($TOTAL_BLC,0). "</td>
-                <td>" . round($TOTAL_PAKAI,0). "</td>
-                <td>" . round($TOTAL_ENDING_BLC,0). "</td>
-                <td>" . round($TOTAL_STC_OPN,0). "</td>
-                <td>" . round($TOTAL_SLS_ABS,0). "</td>
-                <td>" . round($TOTAL_SLS_PLUSMIN,0). "</td>
-                <td>" . round($TOTAL_SD,0). "</td>
-                <td>" . round($TOTAL_PERSEN_SLS,0). "</td>
-                <td>" . round($TOTAL_SALDO,0). "</td>
+                <td class='number'>" . round($TOTAL_BLC,0). "</td>
+                <td class='number'>" . round($TOTAL_PAKAI,0). "</td>
+                <td class='number'>" . round($TOTAL_ENDING_BLC,0). "</td>
+                <td class='number'>" . round($TOTAL_STC_OPN,0). "</td>
+                <td class='number'>" . round($TOTAL_SLS_ABS,0). "</td>
+                <td class='number'>" . round($TOTAL_SLS_PLUSMIN,0). "</td>
+                <td class='number'>" . round($TOTAL_SD,0). "</td>
+                <td class='number'>" . round($TOTAL_PERSEN_SLS,0). "</td>
+                <td class='number'>" . round($TOTAL_SALDO,0). "</td>
             </tr>
         </tfoot>
         </table>";
