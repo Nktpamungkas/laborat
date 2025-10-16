@@ -106,7 +106,7 @@ include "koneksi.php";
                                 <th title="1.Konstan | 2.Raising">Program</th>
                                 <th title="1.POLY | 2.COTTON">Dyeing</th>
                                 <th title="1.POLY | 2.COTTON | 3.WHITE">Dispensing</th>
-                                <th><div align="center">Actions</div></th>
+                                <th><div align="center">Status | Actions</div></th>
                             </tr>
                         </thead>
                         <tbody>
