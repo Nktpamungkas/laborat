@@ -174,6 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-sm-2">
                                 <select name="warehouse" class="form-control"
                                         style="width: 100%;" required>
+                                        <option value="M510 dan M101">M510 & M101</option>
                                         <?php
                                         $sqlDB = "SELECT  
                                                             TRIM(CODE) AS CODE,
@@ -257,17 +258,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>                        
                             <table id="Table-obat" class="table table-bordered table-hover" style="width: 100%;">
                             <?php
-                            $db_stocktransaction = db2_exec($conn1,"SELECT DISTINCT        
-                                        s.DECOSUBCODE01, 
-                                        u.LONGDESCRIPTION 
-                                    FROM
-                                        STOCKTRANSACTION s
-                       				LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'		
-                                WHERE  
-                                    s.ITEMTYPECODE = 'DYC'
-                                    AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                    AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
-                                    AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
+                            if ($_POST['warehouse'] == 'M510 dan M101') {
+                                $where_warehouse = "IN ('M510', 'M101')";
+                            } else {
+                                $where_warehouse = "in('$_POST[warehouse]')";
+                            }
+                            $warehouse1 = $_POST['warehouse'];
+                            $db_stocktransaction = db2_exec($conn1,"SELECT DISTINCT
+                                                p.ITEMTYPECODE,
+--                                                TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) AS KODE_OBAT, 
+                                                u.LONGDESCRIPTION,
+                                                p.SUBCODE01 as DECOSUBCODE01
+                                                FROM 
+                                                PRODUCT p     
+                                                LEFT JOIN ADSTORAGE a3 ON a3.UNIQUEID = p.ABSUNIQUEID AND a3.FIELDNAME ='ShowChemical' 
+                                                LEFT JOIN USERGENERICGROUP u ON u.CODE = p.SUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'	                              			
+                                                WHERE 
+                                                p.ITEMTYPECODE ='DYC'
+                                                AND a3.VALUEBOOLEAN = '1'
                                     -- AND s.DECOSUBCODE01 = 'E'
                                     -- AND s.DECOSUBCODE02 IN ('2')
                                     -- AND s.DECOSUBCODE03  IN('030')
@@ -283,7 +291,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Masuk (gr)</th>
                                         <th>Transfer (gr)</th>
                                         <th>Pemakaian (gr)</th>
-                                        <th>Stock Balance (gr)</th>                                       
+                                        <th>Stock Balance (gr)</th>
+                                        <th>total OUT</th>                                           
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -318,7 +327,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             s.ITEMTYPECODE = 'DYC'
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                             AND s.TEMPLATECODE IN ('201','203','303')
-                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                             AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                         GROUP BY
@@ -343,9 +352,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         s.ITEMTYPECODE,
                                         s.DECOSUBCODE01,
                                         CASE 
-                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                            ELSE SUM(s.USERPRIMARYQUANTITY)
+                                            when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                                            WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                            WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                            ELSE s.USERPRIMARYQUANTITY
                                         END AS QTY_MASUK,
                                         CASE 
                                             WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -357,15 +367,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND s.TEMPLATECODE IN ('QCT','304','OPN','204')
+                                        AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                         and s.CREATIONUSER != 'MT_STI'
-                                        AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                        AND s.LOGICALWAREHOUSECODE $where_warehouse 
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                         AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
-                                    GROUP BY
-                                        s.ITEMTYPECODE,
-                                        s.DECOSUBCODE01,  
-                                        s.USERPRIMARYUOMCODE)
+                                    )
                                     GROUP BY 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
@@ -382,9 +389,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01,
                                             CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
+                                                when s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND s.LOGICALWAREHOUSECODE ='M510' then 0
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                ELSE s.USERPRIMARYQUANTITY
                                             END AS AKTUAL_QTY_KELUAR,
                                             CASE 
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -396,14 +404,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND s.TEMPLATECODE  IN ('120')
-                                            AND s.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND s.TEMPLATECODE  IN ('120','098')
+                                            AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                             AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01, 
-                                            s.USERPRIMARYUOMCODE)
+                                        )
                                         GROUP BY 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
@@ -433,7 +438,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     BALANCE b 
                                                     WHERE 
                                                     ITEMTYPECODE ='DYC'
-                                                    AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                                    AND LOGICALWAREHOUSECODE $where_warehouse
                                                     AND DETAILTYPE = 1)
                                                     WHERE 
                                                     DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
@@ -489,7 +494,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             LEFT JOIN ADSTORAGE a2 ON a2.UNIQUEID = p.ABSUNIQUEID AND a2.FIELDNAME ='NoteLab'
                                             WHERE  
                                             i.ITEMTYPECODE ='DYC'
-                                            AND i.LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND i.LOGICALWAREHOUSECODE $where_warehouse
                                             AND i.SUBCODE01 = '$row[DECOSUBCODE01]'
                                             AND NOT TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) ='E-1-000'  ");
                                     $row_stock_minimum = db2_fetch_assoc($stock_minimum);
@@ -511,7 +516,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             FROM 
                                             VIEWAVANALYSISPART1 v 
                                             WHERE ISTANCETYPE = '6'
-                                            AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'
+                                            AND LOGICALWAREHOUSECODE $where_warehouse
                                             AND DUEDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                             and DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                             AND NOT TRIM(DECOSUBCODE01) || '-' || TRIM(DECOSUBCODE02) || '-' || TRIM(DECOSUBCODE03) ='E-1-000' 
@@ -525,7 +530,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $code = $row['DECOSUBCODE01'];
                                     $tgl1 = $_POST['tgl'];
                                     $tgl2 = $_POST['tgl2'];
-                                    $warehouse = $_POST['warehouse'];
+                                    $warehouse =  $where_warehouse;
                                     // $code1 = $row['DECOSUBCODE01'];
                                     // $code2 = $row['DECOSUBCODE02'];
                                     // $code3 = $row['DECOSUBCODE03'];
@@ -538,22 +543,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $tahunBulan2 = $date->format('Y-m');
 
 
-                                    if ($tahunBulan2 == '2025-06') {
+                                    if ($tahunBulan2 == '2025-09') {
                                         $q_qty_awal = mysqli_query($con, "SELECT
                                             SUBCODE01,
-                                            logicalwarehouse,
                                             SUM(qty_awal) AS qty_awal
                                                 FROM
                                                 (SELECT * 
                                             FROM stock_awal_obat_gdkimia_1
-                                            WHERE logicalwarehouse = '$_POST[warehouse]'                                                             
+                                            WHERE logicalwarehouse $where_warehouse                                                          
                                             and not kode_obat = 'E-1-000'                                                              
                                             ) as T
                                             WHERE 
                                             SUBCODE01 = '$row[DECOSUBCODE01]'
                                             group by 
-                                            SUBCODE01,
-                                            logicalwarehouse
+                                            SUBCODE01
                                             ORDER BY SUBCODE01 ASC");
                                     } else {
                                         $q_qty_awal = mysqli_query($con, "SELECT 
@@ -564,14 +567,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             FROM tblopname_11 t
                                             WHERE 
                                                 DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                                AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'    
+                                                AND LOGICALWAREHOUSECODE $where_warehouse  
                                                 AND tgl_tutup = (
                                                     SELECT MAX(tgl_tutup)
                                                     FROM tblopname_11
                                                     WHERE 
                                                         DECOSUBCODE01  = '$row[DECOSUBCODE01]'
                                                         and not KODE_OBAT ='E-1-000'
-                                                        AND LOGICALWAREHOUSECODE = '$_POST[warehouse]'    
+                                                        AND LOGICALWAREHOUSECODE $where_warehouse  
                                                         AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
                                                 ) and not KODE_OBAT ='E-1-000'
                                             GROUP BY tgl_tutup, DECOSUBCODE01");
@@ -606,6 +609,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         ? number_format($row_buka_po['QTY'], 0)
                                         : number_format($row_buka_po['QTY'], 2);
 
+                                    $total_pegeluaran = ($row_qty_pakai['AKTUAL_QTY_KELUAR'] + $row_stock_transfer['QTY_TRANSFER'] );
+
+                                    $qty_total_pegeluaran = (substr(number_format($total_pegeluaran, 2), -3) == '.00')
+                                        ? number_format($total_pegeluaran, 0)
+                                        : number_format($total_pegeluaran, 2);
                                     ?>                               
                                     <tr>
                                         <td><?php echo $row['DECOSUBCODE01'].' - '. $row['LONGDESCRIPTION'] ?></td>
@@ -650,6 +658,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <?= $qty_stock_balance ?>
                                         </a>
                                     </td>
+                                     <td><?= $qty_total_pegeluaran ?></td>
+                                    </td>
                                 </tr>                                   
                                 <?php
                                     $no++;
@@ -671,6 +681,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $warehouse = mysqli_real_escape_string($con, $_POST['warehouse']);
                                     $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
                                     $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
+                                    $total_stock_keluar = floatval(str_replace(',', '', $qty_total_pegeluaran));
                                     $sql = "INSERT INTO tb_stock_gd_kimia_kategori (
                                                 kode_obat,
                                                 nama_obat,
@@ -684,7 +695,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 ip_address,
                                                 logicalwarehouse,
                                                 Stock_minimum,
-                                                sisa_po
+                                                sisa_po,
+                                                total_stock_keluar
                                             ) VALUES (
                                                 '$kode_obat',
                                                 '$nama_obat',
@@ -698,8 +710,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 '$ip',
                                                 '$warehouse',
                                                 '$stock_minimum',
-                                                '$buka_po'
-
+                                                '$buka_po',
+                                                '$total_stock_keluar'
                                             )";
 
                                     $result = mysqli_query($con, $sql);

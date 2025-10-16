@@ -140,6 +140,7 @@ if (file_exists($logoPath)) {
             <th>Sisa Stock (gr)</th>
             <th>Stock Aman (gr)</th>
             <th>Sisa PO (gr)</th>
+            <th>total OUT</th>  
         </tr>
 
         <?php
@@ -156,6 +157,7 @@ if (file_exists($logoPath)) {
             echo "<td class='number'>{$r['stock_balance']}</td>";
             echo "<td class='number'>{$r['stock_minimum']}</td>";
             echo "<td class='number'>{$r['sisa_po']}</td>";
+            echo "<td class='number'>{$r['total_stock_keluar']}</td>";
             echo "</tr>";
             $no++;
         }
