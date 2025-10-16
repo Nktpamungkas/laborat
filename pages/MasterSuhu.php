@@ -41,6 +41,50 @@ include "koneksi.php";
         color: white;
     }
 </style>
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0;
+        right: 0; bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 22px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #28a745;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(18px);
+    }
+</style>
 
 <body>   
 
@@ -131,6 +175,14 @@ include "koneksi.php";
                                 <option value="3">WHITE</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="status">Status</label><br>
+                            <label class="switch">
+                                <input type="checkbox" id="status" name="status" checked>
+                                <span class="slider round"></span>
+                            </label>
+                            <span id="statusLabel" style="margin-left: 10px;">Aktif</span>
+                        </div>
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>
                 </div>
@@ -179,10 +231,19 @@ include "koneksi.php";
                         }
                     },
                     {
-                        data: 'id',
-                        "className": "text-center",
+                        data: null,
+                        className: "text-center",
                         render: function(data, type, row, meta) {
-                            return `<button class="btn btn-danger btn-sm" onclick="deleteData(${data})"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>`;
+                            const checked = row.status == 1 ? 'checked' : '';
+                            return `
+                                <label class="switch" style="margin-right: 10px;">
+                                    <input type="checkbox" ${checked} onchange="toggleStatus(${row.id}, this)">
+                                    <span class="slider round"></span>
+                                </label>
+                                <button class="btn btn-danger btn-sm" onclick="deleteData(${row.id})">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i> Delete
+                                </button>
+                            `;
                         }
                     }
                 ],
@@ -239,6 +300,7 @@ include "koneksi.php";
             const program = $('#program').val() == "KONSTAN" ? "1" : "2";
             const dyeing = $('#dyeing').val();
             const dispensing = $('#dispensing').val();
+            const status = $('#status').is(':checked') ? 1 : 0;
 
             if (!suhu || !durasi) {
                 Swal.fire({
@@ -271,7 +333,8 @@ include "koneksi.php";
                             product_name: productName,
                             program: $('#program').val(),
                             dyeing: $('#dyeing').val(),
-                            dispensing: $('#dispensing').val()
+                            dispensing: $('#dispensing').val(),
+                            status: status
                         };
 
                         $.ajax({
@@ -297,6 +360,8 @@ include "koneksi.php";
                                 $('#program').val('');
                                 $('#dyeing').val('');
                                 $('#dispensing').val('');
+                                $('#status').prop('checked', true);
+                                $('#statusLabel').text('Aktif');
                             },
                             error: function(xhr, status, error) {
                                 Swal.fire({
@@ -319,6 +384,10 @@ include "koneksi.php";
                     });
                 }
             });
+        });
+
+        $('#status').on('change', function() {
+            $('#statusLabel').text(this.checked ? 'Aktif' : 'Nonaktif');
         });
 
         function padLeft(str, length, padChar = '0') {
@@ -400,6 +469,45 @@ include "koneksi.php";
                 }
             });
         }
+
+        function toggleStatus(id, checkbox) {
+            const newStatus = checkbox.checked ? 1 : 0;
+
+            $.ajax({
+                url: 'pages/ajax/update_status_master_suhu.php',
+                method: 'POST',
+                data: {
+                    id: id,
+                    status: newStatus
+                },
+                dataType: 'json',
+                success: function(response) {
+                    Swal.fire({
+                        icon: response.status === 'success' ? 'success' : 'error',
+                        title: response.status === 'success' ? 'Berhasil' : 'Gagal',
+                        text: response.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    if (response.status === 'success') {
+                        $('#masterSuhuTable').DataTable().ajax.reload(null, false); 
+                    } else {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal mengubah status.',
+                        footer: `<pre>${xhr.responseText}</pre>`
+                    });
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+        }
+
 
     </script>
 
