@@ -168,7 +168,7 @@ $act = $_GET['g'];
       <?php
         // Ambil data suhu pertama
         $tempCode1 = $data['temp_code'];
-        $query1 = "SELECT * FROM master_suhu WHERE code = ? AND status = 1";
+        $query1 = "SELECT * FROM master_suhu WHERE code = ?";
         $stmt1 = $con->prepare($query1);
         $stmt1->bind_param("s", $tempCode1);
         $stmt1->execute();
@@ -178,7 +178,7 @@ $act = $_GET['g'];
 
         // Ambil data suhu kedua
         $tempCode2 = $data['temp_code2'];
-        $query2 = "SELECT * FROM master_suhu WHERE code = ? AND status = 1";
+        $query2 = "SELECT * FROM master_suhu WHERE code = ?";
         $stmt2 = $con->prepare($query2);
         $stmt2->bind_param("s", $tempCode2);
         $stmt2->execute();

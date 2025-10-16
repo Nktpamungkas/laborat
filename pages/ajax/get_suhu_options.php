@@ -27,7 +27,7 @@ if ($getDyestuff) {
 		}
 	}
 
-	$query = "SELECT * FROM master_suhu WHERE $where AND status = 1 ORDER BY suhu ASC, waktu ASC";
+	$query = "SELECT * FROM master_suhu WHERE $where ORDER BY suhu ASC, waktu ASC";
 	$result = mysqli_query($con, $query);
 
 	while ($row = mysqli_fetch_assoc($result)) {
