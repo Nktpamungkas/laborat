@@ -267,7 +267,7 @@
         if (filteredData.length > 0) {
             // ✅ Ada data valid → show table & popup
             $('#epcTable').show();
-            countdownButtonRFID();
+            // countdownButtonRFID();
             popupModal();
         } else {
             // ❌ Tidak ada data valid → hide table & close modal
