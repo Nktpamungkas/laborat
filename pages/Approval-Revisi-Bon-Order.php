@@ -252,6 +252,7 @@ $sqlTBO = "
       s.SALESORDERCODE                 AS CODE,
       ip.LANGGANAN || ip.BUYER         AS CUSTOMER,
       a.VALUEDATE                      AS TGL_APPROVE_RMP,
+      aa.VALUETIMESTAMP                AS APPROVAL_RMP_DATETIME,
       
       CASE WHEN a10.VALUESTRING IS NOT NULL AND adC.OPTIONS IS NOT NULL
           AND REGEXP_LIKE(adC.OPTIONS, '(?:^|;)' || a10.VALUESTRING || '=')
@@ -287,7 +288,10 @@ $sqlTBO = "
           s2.CODE = s.SALESORDERCODE
       LEFT JOIN ADSTORAGE a ON
               s2.ABSUNIQUEID = a.UNIQUEID
-              AND a.FIELDNAME = 'ApprovalDate'     
+              AND a.FIELDNAME = 'ApprovalDate'
+      LEFT JOIN ADSTORAGE aa ON
+              s2.ABSUNIQUEID = aa.UNIQUEID
+              AND aa.FIELDNAME = 'ApprovalRMPDateTime'     
       LEFT JOIN ADSTORAGE a10 ON s2.ABSUNIQUEID = a10.UNIQUEID AND a10.FIELDNAME = 'RevisiC'
       LEFT JOIN ADADDITIONALDATA adC ON adC.NAME = a10.FIELDNAME
       LEFT JOIN ADSTORAGE a11 ON s2.ABSUNIQUEID = a11.UNIQUEID AND a11.FIELDNAME = 'Revisi2'
@@ -421,7 +425,7 @@ $sqlTBO = "
     )
 
     SELECT
-        r.CODE, r.CUSTOMER, r.TGL_APPROVE_RMP,
+        r.CODE, r.CUSTOMER, r.TGL_APPROVE_RMP, r.APPROVAL_RMP_DATETIME,
         r.RevisiC, r.Revisi2, r.Revisi3, r.Revisi4, r.Revisi5,
         r.RevisiN, r.DRevisi2, r.DRevisi3, r.DRevisi4, r.DRevisi5,
         r.Revisi1Date, r.Revisi2Date, r.Revisi3Date, r.Revisi4Date, r.Revisi5Date,
@@ -527,6 +531,15 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                 $code = strtoupper(trim($row['CODE']));
                 $customer = trim($row['CUSTOMER']);
                 $tgl = trim($row['TGL_APPROVE_RMP']);
+
+                $approvalDtRaw = trim($row['APPROVAL_RMP_DATETIME'] ?? '');
+                $approvalDtStr = '';
+                if ($approvalDtRaw !== '') {
+                    try {
+                        $dt = new DateTime($approvalDtRaw);
+                        $approvalDtStr = $dt->format('Y-m-d H:i:s');
+                    } catch (Exception $e) { $approvalDtStr = $approvalDtRaw; }
+                }
               ?>
                 <tr>
                   <td style="padding:4px 8px;">
@@ -553,8 +566,8 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                           <option value="<?= htmlspecialchars($rowPIC['username']) ?>"><?= htmlspecialchars($rowPIC['username']) ?></option>
                         <?php endwhile; ?>
                       </select>
-                      <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
-                      <button class="btn btn-danger btn-sm reject-btn"  data-code="<?= $code ?>">Reject</button>
+                      <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>" data-approval-rmp-dt="<?= htmlspecialchars($approvalDtStr, ENT_QUOTES) ?>">Approve</button>
+                      <!-- <button class="btn btn-danger btn-sm reject-btn"  data-code="<?= $code ?>">Reject</button> -->
 
                       <button class="btn btn-outline-purple btn-sm revisi-btn"
                         data-code="<?= $code ?>"
@@ -600,7 +613,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                   <th>No Bon Order</th>
                   <th>Tgl Approved RMP</th>
                   <th>Tgl Approved Lab</th>
-                  <th>Tgl Rejected Lab</th>
+                  <!-- <th>Tgl Rejected Lab</th> -->
                   <th>PIC Lab</th>
                   <th>Keterangan</th>
                 </tr>
@@ -633,7 +646,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                   </td>
                   <td><?= htmlspecialchars($row['tgl_approve_rmp']) ?></td>
                   <td><?= htmlspecialchars($row['tgl_approve_lab']) ?></td>
-                  <td><?= htmlspecialchars($row['tgl_rejected_lab']) ?></td>
+                  <!-- <td><?= htmlspecialchars($row['tgl_rejected_lab']) ?></td> -->
                   <td><?= htmlspecialchars($row['pic_lab']) ?></td>
                   <td>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -898,6 +911,10 @@ $(document).ready(function(){
   function getCustomer(code){ return $("tr:has(button[data-code='"+code+"']) td:first").text(); }
   function getTglApproveRMP(code){ return $("tr:has(button[data-code='"+code+"']) td:eq(2)").text(); }
 
+  function getApprovalRmpDateTime(code) {
+    return $("button.approve-btn[data-code='"+code+"']").data('approval-rmp-dt') || '';
+  }
+
   function reloadTboTable(){
     $.get("pages/ajax/refresh_tbo_table_revisi.php", function (html) {
       const $rows = $($.parseHTML(html)).filter('tr');
@@ -930,6 +947,7 @@ $(document).ready(function(){
     const tgl_approve_rmp = getTglApproveRMP(code);
     const buttons = $("button[data-code='"+code+"']");
     const $revBtn = $("button.revisi-btn[data-code='"+code+"']");
+    const approvalrmpdatetime = getApprovalRmpDateTime(code);
 
     const revisiPayload = {
       revisic:     $revBtn.data('revisic')     || '',
@@ -966,7 +984,7 @@ $(document).ready(function(){
           const lines_json = JSON.stringify(payload.lines || []);
 
           $.post("pages/ajax/approve_bon_order_lab.php", {
-            code, customer, tgl_approve_rmp, pic_lab:pic, status:action, is_revision:1,
+            code, customer, tgl_approve_rmp, pic_lab:pic, status:action, is_revision:1, approvalrmpdatetime,
             ...revisiPayload, lines_json
           }, function(resp){
             Swal.fire({icon:'success', title:'Berhasil', text:resp});

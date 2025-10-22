@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkSql = "SELECT * FROM status_matching_bon_order
                  WHERE salesorder = '$salesorder'
                    AND orderline = '$orderline'
-                   AND warna = '$warna'
                    AND po_greige = '$po'
                  LIMIT 1";
     $checkResult = mysqli_query($con, $checkSql);
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($checkResult && mysqli_num_rows($checkResult) > 0) {
         // Data sudah ada -> lakukan update
         $updateSql = "UPDATE status_matching_bon_order SET 
-                        benang = '$benang',
                         pic_check = '$pic',
                         status_bonorder = '$status'
                       WHERE salesorder = '$salesorder'

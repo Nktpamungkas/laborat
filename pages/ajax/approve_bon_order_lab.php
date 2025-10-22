@@ -36,6 +36,10 @@ $tgl_approve_rmp = trim(req('tgl_approve_rmp'));          // string tanggal
 $pic_lab         = trim(req('pic_lab'));
 $status          = trim(req('status'));                   // 'Approved' / 'Rejected'
 $is_revision     = intval($_POST['is_revision'] ?? 0);
+$approvalrmpdatetime = trim(req('approvalrmpdatetime'));
+if ($approvalrmpdatetime === '') {
+    $approvalrmpdatetime = null;
+}
 
 // kolom-kolom revisi (header)
 $revisic     = $_POST['revisic']     ?? '';
@@ -86,7 +90,7 @@ try {
             (code, customer, tgl_approve_rmp, tgl_approve_lab, tgl_rejected_lab, pic_lab, status, is_revision,
              revisic, revisi2, revisi3, revisi4, revisi5,
              revisin, drevisi2, drevisi3, drevisi4, drevisi5,
-             revisi1date, revisi2date, revisi3date, revisi4date, revisi5date)
+             revisi1date, revisi2date, revisi3date, revisi4date, revisi5date, approvalrmpdatetime)
         VALUES
             (
                 '" . esc($con, $code) . "',
@@ -113,7 +117,8 @@ try {
                 " . to_date_sql($con, $revisi2date) . ",
                 " . to_date_sql($con, $revisi3date) . ",
                 " . to_date_sql($con, $revisi4date) . ",
-                " . to_date_sql($con, $revisi5date) . "
+                " . to_date_sql($con, $revisi5date) . ",
+                '" . esc($con, $approvalrmpdatetime) . "'
             )
     ";
 

@@ -6,38 +6,6 @@
     $userLAB = $_SESSION['userLAB'] ?? '';
     $ipUser  = $_SESSION['ip']      ?? '';
     session_write_close(); 
-
-    function getRmpDateMapFromDB2($conn1, $minCreationDate = '2025-06-01') {
-        $map = [];
-
-       $sql = "
-            SELECT TRIM(s.CODE) AS CODE,
-                DATE(a.VALUETIMESTAMP) AS TGL_APPROVE_RMP
-            FROM SALESORDER s
-            JOIN ADSTORAGE a
-            ON a.UNIQUEID = s.ABSUNIQUEID
-            AND a.FIELDNAME = 'ApprovalRMPDateTime'
-            WHERE a.VALUETIMESTAMP IS NOT NULL
-            AND DATE(s.CREATIONDATETIME) > CAST(? AS DATE)
-        ";
-
-        // Pakai prepare biar aman
-        $stmt = db2_prepare($conn1, $sql);
-        if (!$stmt) return $map;
-
-        $minDate = $minCreationDate;
-        db2_bind_param($stmt, 1, "minDate", DB2_PARAM_IN);
-
-        if (!db2_execute($stmt)) return $map;
-
-        while ($row = db2_fetch_assoc($stmt)) {
-            $code = strtoupper(trim($row['CODE'] ?? ''));
-            if ($code !== '') {
-                $map[$code] = $row['TGL_APPROVE_RMP']; // YYYY-MM-DD
-            }
-        }
-        return $map;
-    }
 ?>
 
 <style>
@@ -74,28 +42,39 @@
 $sqlTBO = "
     SELECT code, customer, tgl_approve_rmp, tgl_approve_lab, pic_lab, is_revision, approvalrmpdatetime
     FROM approval_bon_order
-    WHERE status = 'Approved' ORDER BY id DESC
+    WHERE status = 'Approved'
 ";
 $rsMy = mysqli_query($con, $sqlTBO);
 
 $approvedRows = [];
+// $codes = [];
+// if ($rsMy) {
+//     while ($r = mysqli_fetch_assoc($rsMy)) {
+//         $r['code'] = trim((string)$r['code']);
+//         $approvedRows[] = $r;
+//         if ($r['code'] !== '') {
+//             $codes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
+//         }
+//     }
+// }
 $tempMap = [];
 $codes = [];
-
 if ($rsMy) {
     while ($r = mysqli_fetch_assoc($rsMy)) {
         $r['code'] = trim((string)$r['code']);
         $code = $r['code'];
+
         if ($code === '') continue;
 
+        // cek apakah sudah ada code ini
         if (!isset($tempMap[$code])) {
             $tempMap[$code] = $r;
         } else {
-            $existing = $tempMap[$code]; // ⬅️ penting!
             if ((int)$r['is_revision'] === 1 && (int)$existing['is_revision'] === 0) {
-                $tempMap[$code] = $r; // utamakan revisi
+                // utamakan revisi
+                $tempMap[$code] = $r;
             } elseif ((int)$r['is_revision'] === (int)$existing['is_revision']) {
-                // sama level revisi → ambil Approved Lab terbaru
+                // kalau sama-sama revisi / sama-sama bukan revisi → pilih yang tanggal lab terbaru
                 if (strtotime($r['tgl_approve_lab']) > strtotime($existing['tgl_approve_lab'])) {
                     $tempMap[$code] = $r;
                 }
@@ -103,17 +82,14 @@ if ($rsMy) {
         }
     }
 
-    // unik per code
+    // hasil akhir, sudah unik per code
     $approvedRows = array_values($tempMap);
 
-    // list utk query revisi (yang CTE panjang)
+    // buat list untuk query DB2
     foreach ($approvedRows as $r) {
         $codes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
     }
 }
-
-// ⬇️ ambil peta code => YYYY-MM-DD langsung dari DB2
-$mapRmp = getRmpDateMapFromDB2($conn1, '2025-06-01');
 
 /* 2) Peta revisi dari DB2 utk code yang ada */
 $revMap = [];
@@ -257,7 +233,7 @@ if (!empty($codes)) {
                 <table id="tboTable" class="display table table-bordered table-striped" style="width:100%">
                     <thead class="bg-primary text-white">
                         <tr>
-                            <th width="30%">Nomer Bon Order</th>
+                            <th>Nomer Bon Order</th>
                             <th>Customer</th>
                             <th>Tgl Approved RMP</th>
                             <th>Tgl Approved LAB</th>
@@ -308,13 +284,7 @@ if (!empty($codes)) {
                                     <?= htmlspecialchars($rowTBO['customer']) ?>
                                 </td>
                                 <!-- <td><?= htmlspecialchars($rowTBO['tgl_approve_rmp']) ?></td> -->
-                                <?php
-                                    $codeUpper = strtoupper($code); // kunci map pakai UPPER
-                                    $tglApproveRmp = $mapRmp[$codeUpper] ?? '';
-                                ?>
-                                <td class="cell-rmp" data-tgl-date="<?= htmlspecialchars($tglApproveRmp) ?>">
-                                    <?= htmlspecialchars($tglApproveRmp ?: '') ?>
-                                </td>
+                                 <td><?= !empty($rowTBO['approvalrmpdatetime']) ? date('Y-m-d', strtotime($rowTBO['approvalrmpdatetime'])) : htmlspecialchars($rowTBO['tgl_approve_rmp']) ?></td>
                                 <td><?= htmlspecialchars($rowTBO['tgl_approve_lab']) ?></td>
                                 <td><?= htmlspecialchars($rowTBO['pic_lab']) ?></td>
                             </tr>

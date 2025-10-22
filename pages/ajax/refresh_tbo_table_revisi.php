@@ -451,7 +451,6 @@ while ($row = db2_fetch_assoc($resultTBO)) {
             <?= $picOptions ?>
           </select>
           <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
-          <button class="btn btn-danger btn-sm reject-btn"  data-code="<?= $code ?>">Reject</button>
 
           <button class="btn btn-outline-purple btn-sm revisi-btn"
             data-code="<?= $code ?>"

@@ -487,7 +487,6 @@ while ($row = mysqli_fetch_assoc($resultApproved)) {
       </td>
       <td><?= htmlspecialchars((string)($row['tgl_approve_rmp']  ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
       <td><?= htmlspecialchars((string)($row['tgl_approve_lab']  ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
-      <td><?= htmlspecialchars((string)($row['tgl_rejected_lab'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
       <td><?= htmlspecialchars((string)($row['pic_lab'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
       <td>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">

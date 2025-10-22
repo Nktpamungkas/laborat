@@ -8,31 +8,26 @@ while ($r = mysqli_fetch_assoc($res)) {
 }
 $codeList = implode(",", $approvedCodes);
 
-$sqlTBO = "WITH APPROVED_RMP AS (
-    SELECT DISTINCT 
-        isa.CODE,
-        isa.APPROVERMP,
-        isa.APPROVEDRMP,
-        isa.TGL_APPROVEDRMP
-    FROM ITXVIEW_SALESORDER_APPROVED isa
-)
-SELECT 
-    i.SALESORDERCODE AS code,
-    i.LEGALNAME1 AS customer,
-    MAX(AR.TGL_APPROVEDRMP) AS tgl_approve_rmp
-FROM 
-    ITXVIEWBONORDER i 
-LEFT JOIN APPROVED_RMP AR ON AR.CODE = i.SALESORDERCODE 
-WHERE 
-    AR.APPROVERMP IS NOT NULL 
-    AND AR.APPROVEDRMP IS NOT NULL
-    AND CAST(i.CREATIONDATETIME_SALESORDER AS DATE) > '2025-06-01'
-";
+$sqlTBO = "SELECT DISTINCT 
+                isa.CODE AS CODE,
+                COALESCE(ip.LANGGANAN, '') || COALESCE(ip.BUYER, '') AS CUSTOMER,
+                isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP,
+                VARCHAR_FORMAT(a.VALUETIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS ApprovalRMPDateTime
+            FROM ITXVIEW_SALESORDER_APPROVED isa
+            LEFT JOIN SALESORDER s
+                ON s.CODE = isa.CODE
+            LEFT JOIN ITXVIEW_PELANGGAN ip
+                ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE
+                AND ip.CODE = s.CODE
+            LEFT JOIN ADSTORAGE a
+                ON a.UNIQUEID = s.ABSUNIQUEID
+                AND a.FIELDNAME = 'ApprovalRMPDateTime'
+            WHERE a.VALUETIMESTAMP IS NOT NULL
+                AND DATE(s.CREATIONDATETIME) > DATE('2025-06-01')";
 
 if (!empty($codeList)) {
-    $sqlTBO .= " AND i.SALESORDERCODE NOT IN ($codeList)";
+    $sqlTBO .= " AND isa.CODE NOT IN ($codeList)";
 }
-$sqlTBO .= " GROUP BY i.SALESORDERCODE, i.LEGALNAME1";
 
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
@@ -42,7 +37,7 @@ while ($row = db2_fetch_assoc($resultTBO)) {
     if (in_array($code, $seen)) continue;
     $seen[] = $code;
     $customer = trim($row['CUSTOMER']);
-    $tgl = trim($row['TGL_APPROVE_RMP']);
+    $tgl = trim($row['APPROVALRMPDATETIME']);
 
     echo "<tr>
         <td>$customer</td>
@@ -66,7 +61,6 @@ while ($row = db2_fetch_assoc($resultTBO)) {
 
     echo "      </select>
                 <button class='btn btn-success btn-sm approve-btn' data-code='$code'>Approve</button>
-                <button class='btn btn-danger btn-sm reject-btn' data-code='$code'>Reject</button>
             </div>
         </td>
     </tr>";

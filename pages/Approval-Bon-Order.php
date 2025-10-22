@@ -12,17 +12,21 @@ $codeList = implode(",", $approvedCodes);
 
 // Ambil data siap approve
 $sqlTBO = "SELECT DISTINCT 
-            isa.CODE AS CODE,
-            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
-            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
-        FROM
-            ITXVIEW_SALESORDER_APPROVED isa 
-        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
-        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE
-        WHERE 
-            isa.APPROVEDRMP IS NOT NULL
-            AND CAST(s.CREATIONDATETIME AS DATE) > '2025-06-01'
-";
+                isa.CODE AS CODE,
+                COALESCE(ip.LANGGANAN, '') || COALESCE(ip.BUYER, '') AS CUSTOMER,
+                isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP,
+                VARCHAR_FORMAT(a.VALUETIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS ApprovalRMPDateTime
+            FROM ITXVIEW_SALESORDER_APPROVED isa
+            LEFT JOIN SALESORDER s
+                ON s.CODE = isa.CODE
+            LEFT JOIN ITXVIEW_PELANGGAN ip
+                ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE
+                AND ip.CODE = s.CODE
+            LEFT JOIN ADSTORAGE a
+                ON a.UNIQUEID = s.ABSUNIQUEID
+                AND a.FIELDNAME = 'ApprovalRMPDateTime'
+            WHERE a.VALUETIMESTAMP IS NOT NULL
+                AND DATE(s.CREATIONDATETIME) > DATE('2025-06-01')";
 
 if (!empty($codeList)) {
     $sqlTBO .= " AND isa.CODE NOT IN ($codeList)";
@@ -31,8 +35,57 @@ if (!empty($codeList)) {
 $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
 // Ambil data yang sudah pernah di-approve
-$sqlApproved = "SELECT * FROM approval_bon_order WHERE is_revision = 0 ORDER BY id DESC";
-$resultApproved = mysqli_query($con, $sqlApproved);
+// $sqlApproved = "SELECT * FROM approval_bon_order WHERE is_revision = 0 ORDER BY id DESC";
+// $resultApproved = mysqli_query($con, $sqlApproved);
+$sqlApproved = "SELECT id, customer, code, tgl_approve_lab, pic_lab, status
+                FROM approval_bon_order
+                WHERE is_revision = 0
+                ORDER BY id DESC";
+$resApproved = mysqli_query($con, $sqlApproved);
+
+// Kumpulkan rows dan daftar code
+$rowsApproved = [];
+$codes = [];
+while ($r = mysqli_fetch_assoc($resApproved)) {
+    $rowsApproved[] = $r;
+    $codes[] = strtoupper(trim($r['code']));
+}
+
+function db2_quote($s){ return str_replace("'", "''", $s); }
+
+$mapDb2Date = [];
+if (!empty($codes)) {
+    $chunkSize = 500;
+    foreach (array_chunk($codes, $chunkSize) as $chunk) {
+        $inList = implode(",", array_map(function($c){
+            return "'".db2_quote($c)."'";
+        }, $chunk));
+
+        $sqlDb2 = "
+            SELECT s.CODE AS CODE,
+                   DATE(a.VALUETIMESTAMP) AS TGL_APPROVE_RMP
+            FROM SALESORDER s
+            JOIN ADSTORAGE a
+              ON a.UNIQUEID = s.ABSUNIQUEID
+             AND a.FIELDNAME = 'ApprovalRMPDateTime'
+            WHERE a.VALUETIMESTAMP IS NOT NULL
+              AND s.CODE IN ($inList)
+        ";
+
+        $stmt = db2_exec($conn1, $sqlDb2, ['cursor' => DB2_SCROLLABLE]);
+        if ($stmt === false) {
+            echo "<pre>DB2 exec failed.\n".htmlspecialchars($sqlDb2)."\n\n".
+                 "conn_err: ".db2_conn_errormsg($conn1)."\n".
+                 "stmt_err: ".db2_stmt_errormsg()."</pre>";
+            continue;
+        }
+
+        while ($row = db2_fetch_assoc($stmt)) {
+            $mapDb2Date[strtoupper(trim($row['CODE']))] = $row['TGL_APPROVE_RMP']; // YYYY-MM-DD
+        }
+    }
+}
+
 ?>
 
 <style>
@@ -63,13 +116,10 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                             </thead>
                             <tbody>
                                 <?php 
-                                // $seen = [];
                                 while ($row = db2_fetch_assoc($resultTBO)) {
                                     $code = strtoupper(trim($row['CODE']));
-                                    // if (in_array($code, $seen)) continue;
-                                    // $seen[] = $code;
                                     $customer = trim($row['CUSTOMER']);
-                                    $tgl = trim($row['TGL_APPROVE_RMP']);
+                                    $tgl = trim($row['APPROVALRMPDATETIME']);
                                 ?>
                                 <tr>
                                     <td><?= $customer ?></td>
@@ -94,7 +144,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                                                 <?php endwhile; ?>
                                             </select>
                                             <button class="btn btn-success btn-sm approve-btn" data-code="<?= $code ?>">Approve</button>
-                                            <button class="btn btn-danger btn-sm reject-btn" data-code="<?= $code ?>">Reject</button>
+                                            <!-- <button class="btn btn-danger btn-sm reject-btn" data-code="<?= $code ?>">Reject</button> -->
                                         </div>
                                     </td>
                                 </tr>
@@ -121,28 +171,34 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                                     <th>No Bon Order</th>
                                     <th>Tgl Approved RMP</th>
                                     <th>Tgl Approved Lab</th>
-                                    <th>Tgl Rejected Lab</th>
+                                    <!-- <th>Tgl Rejected Lab</th> -->
                                     <th>PIC Lab</th>
                                     <th>Keterangan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($resultApproved)) { ?>
+                                <?php foreach ($rowsApproved as $row):
+                                    $code   = strtoupper(trim($row['code']));
+                                    $tglRmp = $mapDb2Date[$code] ?? '';
+                                ?>
                                 <tr>
-                                    <td style="display: none;"><?= $row['id'] ?></td>
-                                    <td><?= $row['customer'] ?></td>
-                                    <td>
-                                        <a href="#" class="btn btn-primary btn-sm open-detail" data-code="<?= $row['code'] ?>" data-toggle="modal" data-target="#detailModal">
-                                            <?= $row['code'] ?>
-                                        </a>
-                                    </td>
-                                    <td><?= $row['tgl_approve_rmp'] ?></td>
-                                    <td><?= $row['tgl_approve_lab'] ?></td>
-                                    <td><?= $row['tgl_rejected_lab'] ?></td>
-                                    <td><?= $row['pic_lab'] ?></td>
-                                    <td><strong class="<?= $row['status'] == 'Approved' ? 'text-success' : 'text-danger' ?>"><?= $row['status'] ?></strong></td>
+                                <td style="display:none;"><?= htmlspecialchars($row['id']) ?></td>
+                                <td><?= htmlspecialchars($row['customer']) ?></td>
+                                <td>
+                                    <a href="#" class="btn btn-primary btn-sm open-detail"
+                                    data-code="<?= htmlspecialchars($code) ?>"
+                                    data-toggle="modal" data-target="#detailModal">
+                                    <?= htmlspecialchars($code) ?>
+                                    </a>
+                                </td>
+                                <td><?= htmlspecialchars($tglRmp ?: '') ?></td> <!-- HANYA dari DB2 -->
+                                <td><?= htmlspecialchars($row['tgl_approve_lab']) ?></td>
+                                <td><?= htmlspecialchars($row['pic_lab']) ?></td>
+                                <td><strong class="<?= ($row['status']==='Approved'?'text-success':'text-danger') ?>">
+                                    <?= htmlspecialchars($row['status']) ?>
+                                </strong></td>
                                 </tr>
-                                <?php } ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
@@ -224,14 +280,25 @@ $resultApproved = mysqli_query($con, $sqlApproved);
             return $("tr:has(button[data-code='" + code + "']) td:first").text();
         }
 
+        // function getTglApproveRMP(code) {
+        //     return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
+        // }
+
         function getTglApproveRMP(code) {
-            return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
+            var fullText = $("tr:has(button[data-code='" + code + "']) td:eq(2)").text();
+            var dateOnly = fullText.trim().split(' ')[0];
+            return dateOnly;
+        }
+
+        function getApprovalRmpDateTime(code) {
+            return $("tr:has(button[data-code='" + code + "']) td:eq(2)").text().trim();
         }
 
         function submitApproval(code, action) {
             const pic = getPIC(code);
             const customer = getCustomer(code);
             const tgl_approve_rmp = getTglApproveRMP(code);
+            const approvalrmpdatetime = getApprovalRmpDateTime(code);
 
             // Disable semua tombol approve/reject untuk kode yang sama
             const buttons = $("button[data-code='" + code + "']");
@@ -269,6 +336,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                         code: code,
                         customer: customer,
                         tgl_approve_rmp: tgl_approve_rmp,
+                        approvalrmpdatetime: approvalrmpdatetime,
                         pic_lab: pic,
                         status: action
                     }, function (response) {

@@ -1,10 +1,22 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include "../../koneksi.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
-    $orderCode = $_POST['order_code'];
+$userLAB = $_SESSION['userLAB'] ?? '';
+$ipUser  = $_SESSION['ip']      ?? '';
+session_write_close(); 
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
+    // --- sanitasi input ---
+    $orderCode    = trim($_POST['order_code'] ?? '');
+    $orderCodeEsc = str_replace("'", "''", $orderCode); 
+
+    // ======================
+    // QUERY UTAMA (DB2)
+    // ======================
     $query = "
     SELECT DISTINCT 
         SALESORDERCODE, ORDERLINE, LEGALNAME1, AKJ, JENIS_KAIN,
@@ -22,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         MAX(RevisiC3) AS RevisiC3,
         MAX(RevisiC4) AS RevisiC4,
         MAX(Revisid)  AS Revisid,
-        MAX(Revisi2) AS Revisi2,
-        MAX(Revisi3) AS Revisi3,
-        MAX(Revisi4) AS Revisi4,
-        MAX(Revisi5) AS Revisi5,
+        MAX(Revisi2)  AS Revisi2,
+        MAX(Revisi3)  AS Revisi3,
+        MAX(Revisi4)  AS Revisi4,
+        MAX(Revisi5)  AS Revisi5,
         MAX(Revisi1Date) AS Revisi1Date,
         MAX(Revisi2Date) AS Revisi2Date,
         MAX(Revisi3Date) AS Revisi3Date,
@@ -42,7 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
             i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
             i.NOTETAS,
             i.EXTERNALREFERENCE AS NO_PO,
-            COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+            CASE 
+                WHEN REGEXP_LIKE(i2.GRAMASI_KFF, '^\d+(\.\d+)?$') THEN CAST(i2.GRAMASI_KFF AS DECFLOAT)
+                WHEN REGEXP_LIKE(i2.GRAMASI_FKF, '^\d+(\.\d+)?$') THEN CAST(i2.GRAMASI_FKF AS DECFLOAT)
+                ELSE NULL
+            END AS GRAMASI,
             i3.LEBAR,
 
             CASE a.VALUESTRING
@@ -113,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
               AND p.SUBCODE08 = i.SUBCODE08
               AND p.SUBCODE09 = i.SUBCODE09
               AND p.SUBCODE10 = i.SUBCODE10
+
         LEFT JOIN ITXVIEWGRAMASI i2 ON i2.SALESORDERCODE = i.SALESORDERCODE AND i2.ORDERLINE = i.ORDERLINE 
         LEFT JOIN ITXVIEWLEBAR   i3 ON i3.SALESORDERCODE = i.SALESORDERCODE AND i3.ORDERLINE = i.ORDERLINE 
 
@@ -142,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         LEFT JOIN ADSTORAGE sdt4 ON sdt4.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt4.FIELDNAME = 'Revisi4Date'
         LEFT JOIN ADSTORAGE sdt5 ON sdt5.UNIQUEID = i.ABSUNIQUEID_SALESORDERLINE AND sdt5.FIELDNAME = 'Revisi5Date'
 
-        WHERE i.SALESORDERCODE = '$orderCode'
+        WHERE TRIM(i.SALESORDERCODE) = '$orderCodeEsc'
     )
     GROUP BY
         SALESORDERCODE, ORDERLINE, LEGALNAME1, AKJ, JENIS_KAIN,
@@ -152,17 +169,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     ORDER BY ORDERLINE ASC
     ";
 
-    $stmt = db2_exec($conn1, $query);
+    $stmt = db2_exec($conn1, $query, ['cursor' => DB2_SCROLLABLE]);
 
-    // === RENDER ===
+    // === RENDER TABLE (header) ===
     $html = '
     <table class="table table-sm table-bordered mb-0">
         <thead class="bg-warning text-white">
             <tr>
-                <th>WARNA</th>          
-                <th>Kode Warna</th>          
-                <th>Color Remarks</th>          
-                <th>Kode Item</th>          
+                <th>WARNA</th>
+                <th>Kode Warna</th>
+                <th>Color Remarks</th>
+                <th>AKJ</th>
+                <th>Kode Item</th>
                 <th style="width: 40%;">BENANG</th>
                 <th>PO GREIGE</th>
                 <th>PIC Check</th>
@@ -172,11 +190,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         </thead>
         <tbody>';
 
+    if (!$stmt) {
+        // gagal eksekusi query -> tampilkan pesan error & tutup tabel
+        $html .= '<tr><td colspan="9" class="text-danger">'
+              . htmlspecialchars('DB2 error: ' . db2_stmt_errormsg(), ENT_QUOTES, 'UTF-8')
+              . '</td></tr>';
+        $html .= '</tbody></table>';
+        echo $html;
+        exit;
+    }
+
+    // ======================
+    // LOOP DATA
+    // ======================
+
+    $optionPICBase = '<option value="">-- Pilih PIC --</option>';
+    $resPIC = mysqli_query($con, "SELECT username FROM tbl_user WHERE pic_bonorder=1 ORDER BY id ASC");
+    $picList = [];
+    while ($rp = mysqli_fetch_assoc($resPIC)) {
+        $u = htmlspecialchars($rp['username'], ENT_QUOTES, 'UTF-8');
+        $picList[] = $u;
+    }
+
     while ($row = db2_fetch_assoc($stmt)) {
-        // --- helper data lain (rajut/booking) ---
+        // ---- Ambil baris dasar ITXVIEWBONORDER untuk field tambahan ----
         $q_itxviewkk = db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i
-                                          WHERE SALESORDERCODE = '{$row['SALESORDERCODE']}'
-                                            AND ORDERLINE = '{$row['ORDERLINE']}'");
+                                         WHERE TRIM(SALESORDERCODE) = '{$row['SALESORDERCODE']}'
+                                           AND ORDERLINE = '{$row['ORDERLINE']}'");
         $d_itxviewkk = db2_fetch_assoc($q_itxviewkk);
 
         $subcode04 = ($d_itxviewkk['ITEMTYPEAFICODE'] === 'KFF')
@@ -232,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
             }
         }
 
-        // Gabung BENANG/PO
+        // ---- Gabung BENANG/PO (RAW dulu) ----
         $benangList = array_values(array_filter([
             htmlspecialchars($d_rajut['BENANG'] ?? ''),
             htmlspecialchars($d_booking_new['BENANG'] ?? ''),
@@ -365,6 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                     <td class=\"td-warna\">{$row['WARNA']}</td>
                     <td class=\"td-kode-warna\">{$row['KODE_WARNA']}</td>
                     <td class=\"td-color-remarks\">{$row['COLORREMARKS']}</td>
+                    <td class=\"td-akj\">{$row['AKJ']}</td>
 
                     <td class=\"td-item-code\">{$row['ITEMCODE']}</td>
 
@@ -396,25 +437,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 
 <script>
 $(document).ready(function(){
-    const currentUser = "<?= $_SESSION['userLAB'] ;?>";
-    const ip_user = "<?= $_SESSION['ip'] ;?>";
+    const currentUser = "<?= htmlspecialchars($userLAB, ENT_QUOTES, 'UTF-8'); ?>";
+    const ip_user     = "<?= htmlspecialchars($ipUser,  ENT_QUOTES, 'UTF-8'); ?>";
 
-    toastr.options = {
-        "positionClass": "toast-top-right",
-        "closeButton": true,
-        "progressBar": true,
-        "timeOut": "3000",
-        "extendedTimeOut": "1000",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
+    if (window.toastr) {
+        toastr.options = {
+            positionClass: "toast-top-right",
+            closeButton: true,
+            progressBar: true,
+            timeOut: "3000",
+            extendedTimeOut: "1000",
+            showMethod: "fadeIn",
+            hideMethod: "fadeOut"
+        };
+    }
 
-    // Lock select jika sudah ada data dari awal (prefill)
+    // lock dropdown bila sudah ada prefill
     $('.row-item').each(function() {
         const row = $(this);
         const picSelect = row.find('.pic-check');
         const statusSelect = row.find('.status-bonorder');
-        const hasData = picSelect.val() && statusSelect.val();
+        const hasData = (picSelect.val() && statusSelect.val());
 
         if (hasData) {
             picSelect.prop('disabled', true);
@@ -427,10 +470,10 @@ $(document).ready(function(){
         }
     });
 
-    // Stop bubbling: klik apapun di dalam tabel detail tidak memicu toggle baris utama
+    // cegah bubbling
     $(document).on('click', '.row-item, .row-item *', function(e){ e.stopPropagation(); });
 
-    // Handler Simpan/Edit/Update
+    // handler tombol simpan/edit/update
     $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function() {
         const btn = $(this);
         const row = btn.closest('.row-item');
@@ -500,6 +543,7 @@ $(document).ready(function(){
                 if (window.toastr) toastr.error("Terjadi kesalahan: " + error);
             }
         });
+
     });
 });
 </script>

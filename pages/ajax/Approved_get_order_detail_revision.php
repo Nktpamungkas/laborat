@@ -40,7 +40,12 @@ $query = "SELECT DISTINCT
                     i.NOTETAS_KGF || '/' || TRIM(i.SUBCODE01) || '-' || TRIM(i.SUBCODE02) || '-' || TRIM(i.SUBCODE03) || '-' || TRIM(i.SUBCODE04) AS ITEMCODE,
                     i.NOTETAS,
                     i.EXTERNALREFERENCE AS NO_PO,
-                    COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+                    -- COALESCE(i2.GRAMASI_KFF, i2.GRAMASI_FKF) AS GRAMASI,
+                    CASE 
+                        WHEN REGEXP_LIKE(i2.GRAMASI_KFF, '^\d+(\.\d+)?$') THEN CAST(i2.GRAMASI_KFF AS DECFLOAT)
+                        WHEN REGEXP_LIKE(i2.GRAMASI_FKF, '^\d+(\.\d+)?$') THEN CAST(i2.GRAMASI_FKF AS DECFLOAT)
+                        ELSE NULL
+                    END AS GRAMASI,
                     i3.LEBAR,
                     /* RevisiC* ambil label dari OPTIONS */
                     CASE

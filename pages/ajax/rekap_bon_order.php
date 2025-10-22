@@ -14,6 +14,7 @@ if ($todays == 1) {
 } else {
     // Hari selain Senin, kemarin = 1 hari sebelum hari ini
     $kemarin = date('Y-m-d', strtotime('-1 day'));
+    // $kemarin = "2025-09-23";
 }
 
 $tanggalAwal = '2025-06-01';
@@ -31,7 +32,7 @@ while ($row = mysqli_fetch_assoc($resPIC)) {
     ];
 }
 
-$sqlApproved = "SELECT * FROM approval_bon_order WHERE tgl_approve_rmp ='$kemarin' ORDER BY id DESC";
+$sqlApproved = "SELECT * FROM approval_bon_order WHERE tgl_approve_lab ='$kemarin' ORDER BY id DESC";
 $resultApproved = mysqli_query($con, $sqlApproved);
 $approve_today = mysqli_num_rows($resultApproved);
 // echo mysqli_num_rows($resultApproved);
@@ -132,36 +133,26 @@ while ($r = mysqli_fetch_assoc($resCode)) {
 }
 $codeList = implode(",", $approvedCodes);
 
-$sqlTBO = "SELECT DISTINCT 
-            isa.CODE AS CODE,
-            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
-            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
-        FROM
-            ITXVIEW_SALESORDER_APPROVED isa 
-        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
-        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
-        WHERE 
-            isa.APPROVEDRMP IS NOT NULL
-            AND CAST(isa.TGL_APPROVEDRMP AS DATE) = '$kemarin'
-";
-
 $sqlTBO1 = "SELECT DISTINCT 
-            isa.CODE AS CODE,
-            ip.LANGGANAN || ip.BUYER AS CUSTOMER,
-            isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP
-        FROM
-            ITXVIEW_SALESORDER_APPROVED isa 
-        LEFT JOIN SALESORDER s ON s.CODE = isa.CODE 
-        LEFT JOIN ITXVIEW_PELANGGAN ip ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE AND ip.CODE = s.CODE 
-        WHERE 
-            isa.APPROVEDRMP IS NOT NULL
-            AND CAST(isa.TGL_APPROVEDRMP AS DATE) = '$kemarin'
+                isa.CODE AS CODE,
+                COALESCE(ip.LANGGANAN, '') || COALESCE(ip.BUYER, '') AS CUSTOMER,
+                isa.TGL_APPROVEDRMP AS TGL_APPROVE_RMP,
+                VARCHAR_FORMAT(a.VALUETIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS ApprovalRMPDateTime
+            FROM ITXVIEW_SALESORDER_APPROVED isa
+            LEFT JOIN SALESORDER s
+                ON s.CODE = isa.CODE
+            LEFT JOIN ITXVIEW_PELANGGAN ip
+                ON ip.ORDPRNCUSTOMERSUPPLIERCODE = s.ORDPRNCUSTOMERSUPPLIERCODE
+                AND ip.CODE = s.CODE
+            LEFT JOIN ADSTORAGE a
+                ON a.UNIQUEID = s.ABSUNIQUEID
+                AND a.FIELDNAME = 'ApprovalRMPDateTime'
+            WHERE a.VALUETIMESTAMP IS NOT NULL
+                AND DATE(a.VALUETIMESTAMP) = '$kemarin'
 ";
 if (!empty($codeList)) {
     $sqlTBO1 .= " AND isa.CODE NOT IN ($codeList)";
 }
-
-$resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 
 $resultTBO1 = db2_exec($conn1, $sqlTBO1, ['cursor' => DB2_SCROLLABLE]);
 $totalH11 = db2_num_rows($resultTBO1);
@@ -188,7 +179,7 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
                 <tr class="text-center">
                     <th style="text-align: center;">PIC</th>
                     <th style="text-align: center;">Approved</th>
-                    <th style="text-align: center;">Reject</th>
+                    <!-- <th style="text-align: center;">Reject</th> -->
                     <th style="text-align: center;">Matching Ulang</th>
                     <th style="text-align: center;">OK</th>
                 </tr>
@@ -198,7 +189,7 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
                     <tr>
                         <td><?= htmlspecialchars($pic) ?></td>
                         <td class="text-center"><?= $data['approved'] ?></td>
-                        <td class="text-center"><?= $data['reject'] ?></td>
+                        <!-- <td class="text-center"><?= $data['reject'] ?></td> -->
                         <td class="text-center"><?= $data['matching_ulang'] ?></td>
                         <td class="text-center"><?= $data['ok'] ?></td>
                     </tr>
@@ -207,7 +198,7 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
                 <tr class="fw-bold table-light">
                     <th>Total</th>
                     <th style="text-align: center;"><?= $totalApproved ?></th>
-                    <th style="text-align: center;"><?= $totalReject ?></th>
+                    <!-- <th style="text-align: center;"><?= $totalReject ?></th> -->
                     <th style="text-align: center;"><?= $totalMatchingUlang ?></th>
                     <th style="text-align: center;"><?= $totalOK ?></th>
                 </tr>
