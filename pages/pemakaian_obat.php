@@ -627,7 +627,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         AND i2.SUBCODE03 = s.DECOSUBCODE03
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
