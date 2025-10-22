@@ -108,7 +108,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" id="submitBtnRFID" class="btn btn-out btn-success" disabled>Submit</button>
+                            <button type="button" id="submitBtnRFID" class="btn btn-out btn-success">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -418,6 +418,17 @@
                 let failCount = 0;
                 let failedItems = [];
 
+                // Disable tombol & tampilkan loader swal
+                $('#submitBtnRFID').prop('disabled', true);
+                Swal.fire({
+                    title: 'Memproses...',
+                    html: 'Mohon tunggu hingga semua data selesai diproses.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                });
+
                 // Promise chain biar tunggu semua ajax selesai
                 let requests = noResepList.map(noResep => {
                     return $.ajax({
@@ -448,6 +459,9 @@
                 Promise.all(requests).then(() => {
                     loadScheduleTable();
 
+                    // Tutup swal loading
+			        Swal.close();
+
                     if (failCount === 0) {
                         Swal.fire({
                             icon: 'success',
@@ -473,6 +487,10 @@
                     }
 
                     popoutModal()
+                })
+                .finally(() => {
+                    // Enable tombol lagi
+                    $('#submitBtnRFID').prop('disabled', false);
                 });
             }
         // MODULE RFID
