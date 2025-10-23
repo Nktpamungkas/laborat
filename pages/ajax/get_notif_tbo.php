@@ -15,6 +15,7 @@ $line = [];
 $gabDb2 = [];
 $gabRevisi = [];
 $gabRevisiD = [];
+
 $q_code_baru = "SELECT
 	                t.code as total_new
                 from
@@ -23,7 +24,6 @@ $q_code_baru = "SELECT
                     a.code = t.CODE
                 where
                     buyer is not null
-                    and DATE_RMP is not null
                     and APPROVED_RMP_DATETIME is not null
                     and a.code is null";
 
