@@ -1149,27 +1149,27 @@ $(document).ready(function() {
             return isNaN(n) ? 0 : n;
         }
 
-        // function refreshNotif() {
-        //     $.getJSON('pages/ajax/get_notif_tbo.php', function(resp) {
-        //         const tboCount = resp.new.count;
-        //         const tboRevisiCount = resp.revisi.count;
+        function refreshNotif() {
+            $.getJSON('pages/ajax/get_notif_tbo.php', function(resp) {
+                const tboCount = resp.new.count;
+                const tboRevisiCount = resp.revisi.count;
 
-        //         $('#notifTBO').text(resp.total);
-        //         $('#notifTBOText').text(tboCount);
-        //         $('#notifTBOText_revisi').text(tboRevisiCount);
+                $('#notifTBO').text(resp.total);
+                $('#notifTBOText').text(tboCount);
+                $('#notifTBOText_revisi').text(tboRevisiCount);
 
-        //         const $list = $('#notifList').empty();
-        //         resp.new.codes.forEach(code => $list.append(
-        //             `<li style="padding:6px 12px; background-color: rgb(220, 220, 220);"><a href="/laborat/index1.php?p=Approval-Bon-Order&code=${encodeURIComponent(code)}">Bon Order Baru ${code}</a></li>`
-        //         ));
-        //         resp.revisi.codes.forEach(code => $list.append(
-        //             `<li style="padding:6px 12px; background-color: rgb(250, 235, 215);"><a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order&code=${encodeURIComponent(code)}">Revisi Bon Order ${code}</a></li>`
-        //         ));
-        //     });
-        // }
+                const $list = $('#notifList').empty();
+                resp.new.codes.forEach(code => $list.append(
+                    `<li style="padding:6px 12px; background-color: rgb(220, 220, 220);"><a href="/laborat/index1.php?p=Approval-Bon-Order&code=${encodeURIComponent(code)}">Bon Order Baru ${code}</a></li>`
+                ));
+                resp.revisi.codes.forEach(code => $list.append(
+                    `<li style="padding:6px 12px; background-color: rgb(250, 235, 215);"><a href="/laborat/index1.php?p=Approval-Revisi-Bon-Order&code=${encodeURIComponent(code)}">Revisi Bon Order ${code}</a></li>`
+                ));
+            });
+        }
 
-        // refreshNotif();
-        // setInterval(refreshNotif, 10000);
+        refreshNotif();
+        setInterval(refreshNotif, 10000);
 
         $("#logout").click(function() {
             Swal.fire({
