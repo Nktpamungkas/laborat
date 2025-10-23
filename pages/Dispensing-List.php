@@ -129,13 +129,22 @@
             <div class="box-body">
                 <div class="row" style="margin-bottom: 10px;">
                     <!-- Scan input di kiri -->
-                    <div class="col-xs-6">
+                    <div class="col-xs-4">
                         <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="max-width: 250px;" autofocus>
                     </div>
 
-                    <!-- Tombol lock di kanan -->
-                    <div class="col-xs-6 text-right">
-                        <button id="toggleLockBtn" class="btn btn-warning">🔒 Lock Drag</button>
+                     <div class="col-xs-8 text-right">
+                        <form class="form-inline" style="display: inline-block;">
+                            <label for="searchNoResep">Search :</label>
+                            <input type="text" id="searchNoResep" name="searchNoResep"
+                                    placeholder="Search Suffix…" class="form-control"
+                                    style="max-width: 250px; margin-left: 5px;" autocomplete="off"
+                                    aria-label="Cari No. Resep">
+                        </form>
+
+                        <button id="toggleLockBtn" class="btn btn-warning" style="margin-left: 10px;">
+                        🔒 Lock Drag
+                        </button>
                     </div>
                 </div>
 
@@ -301,6 +310,8 @@
 <script src="bower_components/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
+    let searchTerm = "";
+
     $(document).ready(function() {
         // MODULE RFID
         let filteredDispensingData = [] // For submit payload
@@ -548,6 +559,24 @@
             }
         });
 
+        // $('#searchNoResep').on('input', debounce(function() {
+        //     searchTerm = (this.value || "").trim().toLowerCase();
+        //     renderOnlyTables(dispensingData);
+        // }, 150));
+
+        // function debounce(fn, wait){
+        //     let t; 
+        //     return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); };
+        // }
+
+        $('#searchNoResep').on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchTerm = (this.value || "").trim().toLowerCase();
+                renderOnlyTables(dispensingData);
+            }
+        });
+
         function updateStatus(noResep) {
             const dispensingCode = getDispensingCodeFromNoResep(noResep);
             if (dispensingCode === null) {
@@ -679,9 +708,13 @@
         tbodyCotton.innerHTML = "";
         tbodyWhite.innerHTML = "";
 
-        renderTable(data, tbodyPoly, "1");
-        renderTable(data, tbodyCotton, "2");
-        renderTable(data, tbodyWhite, "");
+        const dataForRender = searchTerm 
+            ? data.filter(it => (it.no_resep || "").toLowerCase().includes(searchTerm))
+            : data;
+
+        renderTable(dataForRender, tbodyPoly,   "1");
+        renderTable(dataForRender, tbodyCotton, "2");
+        renderTable(dataForRender, tbodyWhite,  "");
 
         document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
         document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
@@ -691,74 +724,92 @@
         document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
     }
 
-    function renderTable(dataArray, tbodyElement, dispensingCode) {
-        const rowsPerBlock = 16;
+    function highlightMatch(text, term){
+        if(!term) return text;
+        const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return text.replace(new RegExp(esc, 'ig'), m => `<mark>${m}</mark>`);
+    }
 
+    function renderTable(dataArray, tbodyElement, dispensingCode) {
+        const rowsPerBlock = 16; // tetap dipakai untuk konsistensi cycleNumber dari backend
+
+        // 1) Filter berdasar dispensing code
         const filtered = dataArray.filter(item => {
             const code = item.dispensing?.trim() ?? "";
             return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
         });
 
-        const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
+        // 2) Group per cycleNumber (ini kunci agar warna kembali sesuai cycle)
+        const groupedByCycle = {};
+        filtered.forEach(item => {
+            const cycle = item.cycleNumber ?? 1;
+            if (!groupedByCycle[cycle]) groupedByCycle[cycle] = [];
+            groupedByCycle[cycle].push(item);
+        });
+
         tbodyElement.innerHTML = "";
 
-        for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
-            const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
+        // 3) Render terurut per cycle
+        Object.keys(groupedByCycle).sort((a,b) => Number(a) - Number(b)).forEach(cycleKey => {
+            const cycleNumber = Number(cycleKey);
+            const rows = groupedByCycle[cycleKey];
 
-            // Hitung activeRows untuk kebutuhan cycle cell
-            const activeRows = blockRows.filter(item =>
-                item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-            );
+            // Hitung baris aktif di cycle ini (untuk posisi label Cycle di tengah)
+            const activeRows = rows.filter(it => it.status === 'scheduled' || it.status === 'in_progress_dispensing');
             const middleIndex = Math.floor((activeRows.length - 1) / 2);
 
-            blockRows.forEach((item, indexInBlock) => {
-                const rowNumber = item.rowNumber;
-                const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-                const isOld = item.is_old_data == "1";
+            rows.forEach(item => {
+            const tr = document.createElement("tr");
 
-                const tr = document.createElement("tr");
-                tr.style.backgroundColor = bgColor;
-                tr.dataset.id = item.id;
+            // 🎨 Warna per-cycle : ganjil/ genap
+            const bgColor = (cycleNumber % 2 === 0) ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
+            tr.style.backgroundColor = bgColor;
 
-                const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+            tr.dataset.id = item.id;
 
-                // Sembunyikan jika status tidak diizinkan
-                if (!isVisible) {
-                    tr.style.display = "none";
-                    tr.classList.add("not-draggable");
-                } else if (item.status !== 'scheduled') {
-                    tr.classList.add("not-draggable");
-                }
+            const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+            if (!isVisible) {
+                tr.style.display = "none";
+                tr.classList.add("not-draggable");
+            } else if (item.status !== 'scheduled') {
+                tr.classList.add("not-draggable");
+            }
 
-                tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
+            // No (rowNumber dari backend)
+            tr.innerHTML += `<td align="center" class="row-number">${item.rowNumber}</td>`;
 
-                // Tampilkan cycleNumber di tengah baris aktif
-                const activeIndex = activeRows.findIndex(i => i.id === item.id);
-                if (activeIndex === middleIndex) {
-                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-                } else {
-                    tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
-                }
+            // Cell "Cycle" hanya muncul di tengah baris aktif per cycle
+            const idxInActive = activeRows.findIndex(i => i.id === item.id);
+            if (idxInActive === middleIndex) {
+                tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
+            } else {
+                tr.innerHTML += `<td class="cycle-cell" style="opacity:0; pointer-events:none;"></td>`;
+            }
 
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
-                tr.innerHTML += `
-                    <td align="center">
-                        <span 
-                            class="editable-machine" 
-                            data-id="${item.id}" 
-                            data-group="${item.id_group}" 
-                            data-current="${item.no_machine}"
-                        >
-                            ${item.no_machine}
-                        </span>
-                    </td>`;
-                tr.innerHTML += `<td align="center">${item.status}</td>`;
+            // No. Resep + highlight
+            const resepShown = highlightMatch(item.no_resep || '', searchTerm);
+            const isOld = item.is_old_data == "1";
+            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${resepShown} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
 
-                tbodyElement.appendChild(tr);
+            // Kolom lain
+            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;
+            tr.innerHTML += `
+                <td align="center">
+                <span 
+                    class="editable-machine" 
+                    data-id="${item.id}" 
+                    data-group="${item.id_group}" 
+                    data-current="${item.no_machine}">
+                    ${item.no_machine}
+                </span>
+                </td>`;
+            tr.innerHTML += `<td align="center">${item.status}</td>`;
+
+            tbodyElement.appendChild(tr);
             });
-        }
+        });
     }
+
 
     // function renderTable(dataArray, tbodyElement, dispensingCode) {
     //     const rowsPerBlock = 16;

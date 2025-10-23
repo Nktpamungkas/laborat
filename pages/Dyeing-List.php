@@ -67,14 +67,31 @@
     .slide-up {
         animation: slideUp 0.5s ease-out;
     }
+    .search-hit {
+        outline: 3px solid #28a745;
+        animation: pulse 1s ease-in-out 5;
+    }
+    @keyframes pulse {
+        0% { outline-color: #28a745; }
+        50% { outline-color: #7bd89d; }
+        100% { outline-color: #28a745; }
+    }
 </style>
 
 <div class="row">
     <div class="col-xs-12">
         <h4 id="cottonHeader" class="text-center" style="margin: -20px 0;"><strong>DYEING</strong></h4>
-        <div style="margin-bottom: 10px;">
-            <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
+        <div class="clearfix" style="margin-bottom: 10px;">
+            <div class="pull-left">
+                <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="width: 250px;" autofocus>
+            </div>
+            <div class="pull-right form-inline">
+                <label for="searchSuffix">Search : </label>
+                <input type="text" id="searchSuffix" name="searchSuffix" placeholder="Search Suffix…" class="form-control" style="max-width: 250px;" autocomplete="off" aria-label="Cari No. Resep">
+            </div>
         </div>
+
+
         <div class="box">
             <div id="schedule_table"></div>
         </div>
@@ -114,6 +131,39 @@
                 </div>
             </div>
         <!-- RFID Trigerred Modal  -->
+
+        <!-- Search Results Modal -->
+        <div class="modal fade" id="searchResultsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" style="width:60%">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <h4 class="modal-title">Search Results</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                    <table id="searchResultsTable" class="table table-bordered table-striped" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>No Resep</th>
+                            <th>Mesin</th>
+                            <th>Group</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody><!-- filled by JS --></tbody>
+                    </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Search Results Modal -->
+
     </div>
 </div>
 
@@ -165,7 +215,7 @@
                     <colgroup><col style="min-width: 50px;">`;
                 machineKeys.forEach(() => html += `<col style="min-width: 300px;">`);
                 html += `</colgroup><thead class="table-dark"><tr><th class="sticky-col"></th>`;
-                machineKeys.forEach(m => html += `<th>Mesin ${m}</th>`);
+                machineKeys.forEach(m => html += `<th data-machine="${m}">Mesin ${m}</th>`);
                 html += `</tr><tr><th class="sticky-col">No.</th>`;
                 machineKeys.forEach(m => {
                     const tempList = tempListMap[m]?.join(' ; ') || '-';
@@ -187,8 +237,12 @@
                                 if (diffMin > (120 + proc)) warningClass = 'blink-warning';
                             }
                             const moveClass = cell.justMoved ? 'slide-up' : '';
-                            html += `<td class="${warningClass} ${moveClass}">
-                                        <div style="display: flex; justify-content: space-around; white-space: nowrap;">
+                            html += `<td class="${warningClass} ${moveClass}"
+                                                    data-machine="${machine}"
+                                                    data-row="${i}"
+                                                    data-cycle="now"
+                                                    data-no-resep="${cell.no_resep}">
+                                        <div style="display:flex;justify-content:space-around;white-space:nowrap;">
                                             <span>${cell.no_resep}</span>
                                             <span class="text-muted">${cell.status}</span>
                                         </div>
@@ -202,6 +256,7 @@
 
                 html += `</tbody></table></div>`;
                 $('#schedule_table').html(html);
+                $('.search-hit').removeClass('search-hit');
                 $('#tableContainer').scrollLeft(scrollLeft);
 
                 // --- UPDATE justMoved status (bulk)
@@ -246,7 +301,7 @@
                         <colgroup><col style="min-width: 50px;">`;
                 machineKeys.forEach(() => htmlOld += `<col style="min-width: 300px;">`);
                 htmlOld += `</colgroup><thead class="table-dark"><tr><th rowspan="2" class="sticky-col">No.</th>`;
-                machineKeys.forEach(m => htmlOld += `<th>Mesin ${m}</th>`);
+                machineKeys.forEach(m => htmlOld += `<th data-machine="${m}">Mesin ${m}</th>`);
                 htmlOld += `</tr><tr>`;
                 machineKeys.forEach(m => {
                     const tempListNext = tempListMapNext[m]?.join(' ; ') || '-';
@@ -259,10 +314,16 @@
                     machineKeys.forEach(m => {
                         const item = oldMachineMap[m]?.[i];
                         if (item) {
-                            htmlOld += `<td><div style="display: flex; justify-content: space-around; white-space: nowrap;">
-                                            <span>${item.no_resep}</span>
-                                            <span class="text-muted">${item.status}</span>
-                                        </div></td>`;
+                            htmlOld += `<td
+                                            data-machine="${m}"
+                                            data-row="${i}"
+                                            data-cycle="next"
+                                            data-no-resep="${item.no_resep}">
+                                            <div style="display:flex;justify-content:space-around;white-space:nowrap;">
+                                                <span>${item.no_resep}</span>
+                                                <span class="text-muted">${item.status}</span>
+                                            </div>
+                                        </td>`;
                         } else {
                             htmlOld += `<td></td>`;
                         }
@@ -274,9 +335,14 @@
                 $('#schedule_table').append(htmlOld);
                 $('#tableContainerNext').scrollLeft(scrollLeftNext);
 
+                buildIndexes({ data, oldDataList, machineKeys });
+
+                const qCurrent = $('#searchSuffix').val();
+                if (qCurrent) searchBySuffix(qCurrent, { showModal: false, notifyWhenEmpty: false });
+
                 if (callback && typeof callback === 'function') {
                     callback();
-                }
+                }              
 
                 $('#tableContainer').on('scroll', function () {
                     $('#tableContainerNext').scrollLeft($(this).scrollLeft());
@@ -285,6 +351,10 @@
                 $('#tableContainerNext').on('scroll', function () {
                     $('#tableContainer').scrollLeft($(this).scrollLeft());
                 });
+
+                // simpan supaya bisa dipakai di modal pencarian
+                window._tempListMap = tempListMap || {};
+                window._tempListMapNext = tempListMapNext || {};
             },
             error: function (xhr, status, error) {
                 console.error("Failed to fetch data:", error);
@@ -294,6 +364,18 @@
     }
 
     $(document).ready(function () {
+        //  SEARCH 
+        $('#searchSuffix').on('keydown', function(e){
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const q = $(this).val();
+                searchBySuffix(q, { showModal: true, notifyWhenEmpty: true });
+            }
+        });
+
+        // function debounce(fn, ms=300){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; }
+        // $('#searchSuffix').on('input', debounce(function(){ searchBySuffix($(this).val()); }, 300));
+
         // MODULE RFID
             let filteredDyeingData = [] // For submit payload
             let deletedDRData = [] // For tag deleted no_resep with DR
@@ -556,5 +638,243 @@
                 });
             }
         });
+    }
+</script>
+
+<script>
+    let positionMapNow = {};   // { NO_RESEP: {machine, row, status} }
+    let positionMapNext = {};  // { NO_RESEP: {machine, row, status} }
+    let machineOrder = [];
+
+    function buildIndexes({ data, oldDataList, machineKeys }) {
+        positionMapNow = {};
+        positionMapNext = {};
+        machineOrder = machineKeys.slice();
+
+        // NOW
+        machineKeys.forEach(m => {
+            const entries = data[m] || [];
+            entries.forEach((cell, idx) => {
+            if (cell && cell.no_resep) {
+                const key = cell.no_resep.trim().toUpperCase();
+                (positionMapNow[key] ||= []).push({ machine: m, row: idx, status: cell.status || '' });
+            }
+            });
+        });
+
+        // NEXT
+        const oldMap = {};
+        (oldDataList || []).forEach(item => {
+            const mm = item.no_machine || 'UNASSIGNED';
+            (oldMap[mm] ||= []).push(item);
+        });
+        machineKeys.forEach(m => {
+            (oldMap[m] || []).forEach((item, idx) => {
+            if (item && item.no_resep) {
+                const key = item.no_resep.trim().toUpperCase();
+                (positionMapNext[key] ||= []).push({ machine: m, row: idx, status: item.status || '' });
+            }
+            });
+        });
+    }
+
+    // Helper: scroll horizontal ke kolom mesin dengan alignment & padding
+    function scrollToMachine($container, machine, align = 'center', pad = 24) {
+        // cari <th> kolom mesin di baris header pertama
+        const $th = $container.find(`thead tr:first th[data-machine="${machine}"]`);
+        if (!$th.length) return;
+
+        // posisi kolom relatif ke container
+        const colLeftAbs = $th.offset().left - $container.offset().left + $container.scrollLeft();
+        const colWidth   = $th.outerWidth();
+        const viewW      = $container.innerWidth();
+
+        let targetLeft;
+
+        switch (align) {
+            case 'left':   // tampilkan kolom di sisi kiri dengan padding
+            targetLeft = colLeftAbs - pad;
+            break;
+            case 'right':  // tampilkan kolom di sisi kanan dengan padding
+            targetLeft = colLeftAbs - (viewW - colWidth) + pad;
+            break;
+            default:       // 'center' → pusatkan kolom
+            targetLeft = colLeftAbs - (viewW - colWidth) / 2;
+            break;
+        }
+
+        $container.animate({ scrollLeft: Math.max(targetLeft, 0) }, 250);
+    }
+
+    // gulir ke sel + highlight
+    function jumpToCell(machine, row, cycle) {
+        const containerId = cycle === 'next' ? '#tableContainerNext' : '#tableContainer';
+        const $container = $(containerId);
+        const $cell = $(`${containerId} td[data-machine="${machine}"][data-row="${row}"][data-cycle="${cycle}"]`);
+        if ($cell.length === 0) return;
+
+        // --- scroll horizontal ---
+        scrollToMachine($container, machine, 'center', 24);
+
+        // --- scroll vertikal ---
+        const top = $cell.offset().top - 120;
+        $('html, body').animate({ scrollTop: top }, 250);
+
+        // highlight
+        // $('.search-hit').removeClass('search-hit');
+        $cell.addClass('search-hit');
+    }
+
+    // util: normalisasi
+    function norm(txt){ return (txt||'').trim().toUpperCase(); }
+
+    // cari: no_resep diawali (prefix) dengan input
+    function searchBySuffix(q, opts = {}){
+        const { showModal = true, notifyWhenEmpty = true } = opts;
+        const needle = norm(q);
+        if (!needle){ $('.search-hit').removeClass('search-hit'); return; }
+
+        const collectMatches = (map, cycleName) => {
+            const out = [];
+            Object.keys(map).forEach(key => {
+                if (key.startsWith(needle)) {
+                    // ambil SEMUA posisi untuk resep ini
+                    map[key].forEach((pos, i) => {
+                        out.push({
+                            no_resep: key,
+                            machine: pos.machine,
+                            row: pos.row,
+                            status: pos.status || '',
+                            cycle: cycleName,
+                            idx: i + 1  // nomor kemunculan (1,2,3,…)
+                        });
+                    });
+                }
+            });
+            return out;
+        };
+
+        const results = [
+            ...collectMatches(positionMapNow,  'now'),
+            ...collectMatches(positionMapNext, 'next')
+        ];
+
+        // bersihkan highlight lama
+        $('.search-hit').removeClass('search-hit');
+
+        if (results.length === 0) {
+            if (notifyWhenEmpty) {
+                Swal.fire({ icon:'info', title:'Tidak ditemukan', text:'Data tidak ditemukan' });
+            }
+            return;
+        }
+
+        // highlight SEMUA kemunculan
+        results.forEach(r => {
+            const containerId = r.cycle === 'next' ? '#tableContainerNext' : '#tableContainer';
+            $(`${containerId} td[data-machine="${r.machine}"][data-row="${r.row}"][data-cycle="${r.cycle}"]`)
+            .addClass('search-hit');
+        });
+
+        if (results.length === 1) {
+            const r = results[0];
+            if (r.cycle === 'next') $('#tableContainerNext').closest('.card')[0]?.scrollIntoView({ behavior:'smooth' });
+            jumpToCell(r.machine, r.row, r.cycle);
+            return;
+        }
+
+        if (!showModal) return;
+
+        const tbody = $('#searchResultsTable tbody');
+        tbody.empty();
+
+        // kumpulkan info per (no_resep, machine)
+        const grouped = new Map();
+        /*
+        value:
+        {
+            no_resep, machine,
+            picks: [{cycle,row,status}],
+            statuses: Set,
+            groups: Set  // label merah (group) untuk NOW/NEXT
+        }
+        */
+        const mapNow  = window._tempListMap     || {};
+        const mapNext = window._tempListMapNext || {};
+
+        results.forEach(r => {
+            const key = `${r.no_resep}__${r.machine}`;
+            if (!grouped.has(key)) {
+                grouped.set(key, {
+                no_resep: r.no_resep,
+                machine:  r.machine,
+                picks:    [],
+                statuses: new Set(),
+                groups:   new Set(),
+                });
+            }
+            const g = grouped.get(key);
+            g.picks.push({ cycle: r.cycle, row: r.row, status: r.status || '' });
+            if (r.status) g.statuses.add(r.status);
+
+            // ambil label group per cycle
+            const labelArr = (r.cycle === 'next' ? mapNext : mapNow)[r.machine] || [];
+            if (labelArr.length) g.groups.add(labelArr.join(' ; '));
+        });
+
+        // ubah ke array & urutkan
+        const groupedArr = Array.from(grouped.values()).sort((a,b) =>
+            a.machine.localeCompare(b.machine) ||
+            a.no_resep.localeCompare(b.no_resep)
+        );
+
+        // === AUTO-JUMP: jika cuma 1 baris unik, langsung lompat tanpa buka modal ===
+        if (groupedArr.length === 1) {
+            const g = groupedArr[0];
+            const nowPick  = g.picks.filter(p => p.cycle === 'now').sort((a,b) => a.row - b.row)[0];
+            const nextPick = g.picks.filter(p => p.cycle === 'next').sort((a,b) => a.row - b.row)[0];
+            const target   = nowPick || nextPick;   // prioritas NOW
+            if (target) {
+                if (target.cycle === 'next') {
+                    $('#tableContainerNext').closest('.card')[0]?.scrollIntoView({ behavior:'smooth' });
+                }
+
+                jumpToCell(g.machine, target.row, target.cycle);
+            }
+            return; // <-- jangan buka modal
+        }
+
+        // === jika >1 baris unik, tampilkan modal ===
+        groupedArr.forEach(g => {
+            // tentukan target untuk tombol Go (prioritas NOW)
+            const nowPick  = g.picks.filter(p => p.cycle === 'now').sort((a,b) => a.row - b.row)[0];
+            const nextPick = g.picks.filter(p => p.cycle === 'next').sort((a,b) => a.row - b.row)[0];
+            const target   = nowPick || nextPick;
+
+            const statusText = Array.from(g.statuses).join(' / ') || '-';
+            const groupText  = Array.from(g.groups).join(' / ')   || '-';
+
+            const tr = $(`
+                <tr>
+                <td>${g.no_resep}</td>
+                <td>${g.machine}</td>
+                <td>${groupText}</td>
+                <td>${statusText}</td>
+                <td><button class="btn btn-xs btn-primary btn-jump" type="button">Go</button></td>
+                </tr>
+            `);
+
+            tr.find('.btn-jump').on('click', () => {
+                $('#searchResultsModal').modal('hide');
+                if (target.cycle === 'next') {
+                $('#tableContainerNext').closest('.card')[0]?.scrollIntoView({ behavior:'smooth' });
+                }
+                jumpToCell(g.machine, target.row, target.cycle);
+            });
+
+            tbody.append(tr);
+        });
+
+        $('#searchResultsModal').modal('show');
     }
 </script>
