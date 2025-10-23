@@ -226,6 +226,7 @@ if (file_exists($logoPath)) {
 
             $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
+                                            TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
@@ -322,6 +323,7 @@ if (file_exists($logoPath)) {
                                             WHERE template <> '303'
                                             GROUP BY 
                                             ITEMTYPECODE,
+                                            TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
@@ -378,6 +380,7 @@ if (file_exists($logoPath)) {
 
             $stock_masuk = db2_exec($conn1, " SELECT 
                                                     ITEMTYPECODE,
+                                                    TEMPLATE,
                                                     DECOSUBCODE01,
                                                     DECOSUBCODE02,
                                                     DECOSUBCODE03,
@@ -440,9 +443,10 @@ if (file_exists($logoPath)) {
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                                             )  AS sub
-                                                            WHERE template <> '304'
+                                                            WHERE TEMPLATE <> '304'
                                                             GROUP BY 
                                                             ITEMTYPECODE,
+                                                            TEMPLATE,
                                                             DECOSUBCODE01,
                                                             DECOSUBCODE02,
                                                             DECOSUBCODE03,

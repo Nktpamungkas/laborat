@@ -439,7 +439,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND a3.VALUEBOOLEAN = 1
-                                    AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
+                                    AND s.LOGICALWAREHOUSECODE $where_warehouse
                                     -- AND  s.DECOSUBCODE01 = 'R' 
                                     -- AND  s.DECOSUBCODE02 = '4'
                                     -- AND  s.DECOSUBCODE03  = '044'
@@ -492,15 +492,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tbody>
                                 <?php
 
-                                if (($_POST['warehouse'] === 'M101' || $_POST['warehouse'] === 'M510')) {
-                                    $wheretemplate = "";
-                                    $wheretemplate2 = "";
-                                } else {                                    
+                                if ($_POST['warehouse'] == 'M510 dan M101') {
                                     $wheretemplate = "WHERE template <> '303'";
                                     $wheretemplate2 = "WHERE template <> '304'";
+                                } else {
+                                    $wheretemplate = "";
+                                    $wheretemplate2 = "";
                                 }
-
-
+                                
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
 
@@ -541,6 +540,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                         $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
+                                            TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
@@ -637,6 +637,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             $wheretemplate
                                             GROUP BY 
                                             ITEMTYPECODE,
+                                            TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
@@ -697,6 +698,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         if ($_POST['warehouse'] == 'M510 dan M101') {
                                             $stock_masuk = db2_exec($conn1, " SELECT 
                                                     ITEMTYPECODE,
+                                                    TEMPLATE,
                                                     DECOSUBCODE01,
                                                     DECOSUBCODE02,
                                                     DECOSUBCODE03,
@@ -752,7 +754,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                            -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                         AND s.LOGICALWAREHOUSECODE $where_warehouse
                                                             -- and s.CREATIONUSER != 'MT_STI'
@@ -760,9 +763,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                                             )  AS sub
-                                                            $wheretemplate2
+                                                            WHERE TEMPLATE <> '304'
                                                             GROUP BY 
                                                             ITEMTYPECODE,
+                                                            TEMPLATE,
                                                             DECOSUBCODE01,
                                                             DECOSUBCODE02,
                                                             DECOSUBCODE03,
