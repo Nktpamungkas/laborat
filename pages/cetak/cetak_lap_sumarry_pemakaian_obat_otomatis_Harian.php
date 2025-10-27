@@ -1,17 +1,4 @@
 <?php
-$namaFile = 'lap_Harian_pemakaian_Obat_gd_kimia.xls';
-
-header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
-header("Content-Disposition: attachment; filename=\"$namaFile\"");
-header("Pragma: no-cache");
-header("Expires: 0");
-
-session_start();
-include "./../../koneksi.php";
-
-$ip_num = $_SERVER['REMOTE_ADDR'];
-$os = $_SERVER['HTTP_USER_AGENT'];
-
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
@@ -26,6 +13,21 @@ $Thn2 = (new DateTime($awalParam))->format('Y');
 
 $Bulan = $Thn2 . "-" . $Bln2;
 $namaFile = "Laporan Harian gudang-{$Bulan}.xls";
+
+$namaFile = "lap_Harian_pemakaian_Obat_gd_kimia_tgl_$akhir.xls";
+
+header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+header("Content-Disposition: attachment; filename=\"$namaFile\"");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+session_start();
+include "./../../koneksi.php";
+
+$ip_num = $_SERVER['REMOTE_ADDR'];
+$os = $_SERVER['HTTP_USER_AGENT'];
+
+
 
 $d = cal_days_in_month(CAL_GREGORIAN, $Bln2, $Thn2);
 if ($Thn2 != "" and $Bln2 != "") {
@@ -226,6 +228,14 @@ if (file_exists($logoPath)) {
 
             $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            sum(QTY_TRANSFER) AS QTY_TRANSFER,
+                                            SATUAN_TRANSFER
+                                            from
+                                            (SELECT 
+                                            ITEMTYPECODE,
                                             TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
@@ -327,6 +337,12 @@ if (file_exists($logoPath)) {
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
+                                            SATUAN_TRANSFER)
+                                            GROUP BY 
+                                            ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
                                             SATUAN_TRANSFER");
             $row_stock_transfer = db2_fetch_assoc($stock_transfer) ?: [];
 
@@ -379,6 +395,14 @@ if (file_exists($logoPath)) {
 
 
             $stock_masuk = db2_exec($conn1, " SELECT 
+                                                    ITEMTYPECODE,
+                                                    DECOSUBCODE01,
+                                                    DECOSUBCODE02,
+                                                    DECOSUBCODE03,
+                                                    sum(QTY_MASUK) AS QTY_MASUK,
+                                                    SATUAN_MASUK
+                                                    FROM 
+                                                    (SELECT 
                                                     ITEMTYPECODE,
                                                     TEMPLATE,
                                                     DECOSUBCODE01,
@@ -438,6 +462,10 @@ if (file_exists($logoPath)) {
                                                             s.ITEMTYPECODE = 'DYC'
                                                             AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
+                                                            AND COALESCE(TRIM( CASE 
+                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                                ELSE s.TEMPLATECODE
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '') <> 'OPNM101'
                                                         AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
                                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
@@ -447,6 +475,12 @@ if (file_exists($logoPath)) {
                                                             GROUP BY 
                                                             ITEMTYPECODE,
                                                             TEMPLATE,
+                                                            DECOSUBCODE01,
+                                                            DECOSUBCODE02,
+                                                            DECOSUBCODE03,
+                                                            SATUAN_MASUK)
+                                                            GROUP BY 
+                                                            ITEMTYPECODE,
                                                             DECOSUBCODE01,
                                                             DECOSUBCODE02,
                                                             DECOSUBCODE03,

@@ -21,6 +21,7 @@ $query = "SELECT
                 p.SUBCODE01,
                 p.SUBCODE02,
                 p.SUBCODE03,
+                s.TEMPLATECODE,
 				TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) AS KODE_OBAT,                
                 CASE 
                 	WHEN sum(s.QTY_MASUK) IS NULL THEN 0 
@@ -34,12 +35,32 @@ $query = "SELECT
                 p.LONGDESCRIPTION as NAMA_OBAT
             FROM
                  PRODUCT p
-            LEFT JOIN  (SELECT    s.TRANSACTIONDATE,
+            LEFT JOIN  (
+					SELECT 
+                               TRANSACTIONDATE,
+                               TRANSACTIONNUMBER,
+                               TEMPLATECODE,
+                               ITEMTYPECODE,
+                    DECOSUBCODE01,
+                    DECOSUBCODE02,
+                    DECOSUBCODE03,
+                    LONGDESCRIPTION,
+                    KODE_OBAT,
+                    CASE 
+                    	WHEN TEMPLATECODE = '304' and b = 'M101' then QTY_MASUK * 0 
+                    	ELSE QTY_MASUK
+                    END AS QTY_MASUK,
+                     SATUAN_MASUK,
+                    KETERANGAN  
+                               FROM 
+            ( SELECT    s.TRANSACTIONDATE,
                     s.TRANSACTIONNUMBER,
                     CASE 
                     WHEN s.LOGICALWAREHOUSECODE = 'M101' THEN s3.TEMPLATECODE
                     ELSE s.TEMPLATECODE
                     END AS TEMPLATECODE,
+                    s3.TEMPLATECODE AS a,
+                    s3.LOGICALWAREHOUSECODE AS b,
                     s.ITEMTYPECODE,
                     s.DECOSUBCODE01,
                     s.DECOSUBCODE02,
@@ -47,7 +68,7 @@ $query = "SELECT
                     s2.LONGDESCRIPTION, 
                     TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
                     CASE 
-                        when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                        WHEN s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0                        
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
                         WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
                         ELSE s.USERPRIMARYQUANTITY
@@ -80,9 +101,14 @@ $query = "SELECT
                     s.ITEMTYPECODE = 'DYC'
                     AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
+                    AND COALESCE(TRIM( CASE 
+                                    WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                    ELSE s.TEMPLATECODE
+                                END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '') <> 'OPNM101'
                    AND s.LOGICALWAREHOUSECODE  $warehouse
                     and s.CREATIONUSER != 'MT_STI'
-                    and s.DECOSUBCODE01 = '$code') s ON p.ITEMTYPECODE = s.ITEMTYPECODE            
+                    and s.DECOSUBCODE01 = '$code')
+                    ) s ON p.ITEMTYPECODE = s.ITEMTYPECODE            
                 AND p.SUBCODE01 = s.DECOSUBCODE01
                 AND p.SUBCODE02 = s.DECOSUBCODE02
                 AND p.SUBCODE03 = s.DECOSUBCODE03
@@ -97,11 +123,12 @@ $query = "SELECT
                 p.SUBCODE02,
                 p.SUBCODE03,
                 s.SATUAN_MASUK,
+                s.TEMPLATECODE,
                 p.BASEPRIMARYUNITCODE,
                 u.LONGDESCRIPTION,
                 p.LONGDESCRIPTION 
                 order by 
-                TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) asc";
+                TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) ASC";
 // echo "<pre>$query</pre>";
 
 $stmt = db2_exec($conn1, $query);

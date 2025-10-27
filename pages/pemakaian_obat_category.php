@@ -288,15 +288,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <tr>
                                         <th>Nama</th>
                                         <th>Stock Awal (gr)</th>
-                                        <th>Masuk (gr)</th>
-                                        <th>Transfer (gr)</th>
+                                        <th>Masuk (gr)</th>                                        
                                         <th>Pemakaian (gr)</th>
+                                        <th>Transfer (gr)</th>
                                         <th>Stock Balance (gr)</th>
                                         <th>total OUT</th>                                           
                                     </tr>
                                 </thead>
                                 <tbody>
                                 <?php
+                                if ($_POST['warehouse'] == 'M510 dan M101') {
+                                    $wheretemplate = "WHERE TEMPLATE <> '303'";
+                                    $wheretemplate2 = "WHERE TEMPLATE <> '304'";
+                                } else {
+                                    $wheretemplate = "";
+                                    $wheretemplate2 = "";
+                                }                                
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($db_stocktransaction)) {                                    
 
@@ -306,15 +313,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         sum(QTY_TRANSFER) AS QTY_TRANSFER,
                                         SATUAN_TRANSFER
                                         FROM 
+                                        (SELECT 
+                                        ITEMTYPECODE,
+                                        TEMPLATE,
+                                        DECOSUBCODE01,
+                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
+                                        SATUAN_TRANSFER
+                                        FROM 
                                         (SELECT
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01,
                                             s.DECOSUBCODE02,
                                             s.DECOSUBCODE03,
+                                             CASE 
+                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                ELSE s.TEMPLATECODE
+                                            END  as TEMPLATE,
                                             CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY* 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                ELSE s.USERPRIMARYQUANTITY
                                             END AS QTY_TRANSFER,
                                             CASE 
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -323,19 +341,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             END AS SATUAN_TRANSFER
                                         FROM
                                             STOCKTRANSACTION s
+                                             LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                            AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
-                                            s.USERPRIMARYUOMCODE)
+                                            AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000')
+                                            $wheretemplate
+                                        GROUP BY 
+                                        ITEMTYPECODE,                                        
+                                        TEMPLATE,
+                                        DECOSUBCODE01,
+                                        SATUAN_TRANSFER)
                                         GROUP BY 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
@@ -348,9 +367,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     sum(QTY_MASUK) AS QTY_MASUK,
                                     SATUAN_MASUK
                                     FROM 
+                                    (SELECT 
+                                    ITEMTYPECODE,
+                                    TEMPLATE,
+                                    DECOSUBCODE01,
+                                    sum(QTY_MASUK) AS QTY_MASUK,
+                                    SATUAN_MASUK
+                                    FROM 
                                     (SELECT
                                         s.ITEMTYPECODE,
                                         s.DECOSUBCODE01,
+                                         CASE 
+                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                ELSE s.TEMPLATECODE
+                                            END  as TEMPLATE,
                                         CASE 
                                             when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
                                             WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
@@ -364,15 +394,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         END AS SATUAN_MASUK
                                     FROM
                                         STOCKTRANSACTION s
+                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
+                                        AND COALESCE(TRIM( CASE 
+                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                                ELSE s.TEMPLATECODE
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '') <> 'OPNM101'
                                         and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE $where_warehouse 
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                         AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                     )
+                                    $wheretemplate2 
+                                    GROUP BY 
+                                    ITEMTYPECODE,
+                                    TEMPLATE,
+                                    DECOSUBCODE01,
+                                    SATUAN_MASUK)
                                     GROUP BY 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
@@ -535,13 +576,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     // $code2 = $row['DECOSUBCODE02'];
                                     // $code3 = $row['DECOSUBCODE03'];
 
-                                    $tahunBulan = date('Y-m', strtotime($tgl1));
+                                    $tahunBulan = date('Y-m', strtotime($tgl2));
                                     $kode_obat = $row['KODE_OBAT'];
 
-                                    $date = new DateTime($tgl1);
+                                    $date = new DateTime($tgl2);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
-
 
                                     if ($tahunBulan2 == '2025-09') {
                                         $q_qty_awal = mysqli_query($con, "SELECT
@@ -629,6 +669,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </a>
                                         </td>
                                         <td>
+                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail" 
+                                            data-code="<?= $code ?>"
+                                                data-tgl1="<?= $tgl1 ?>" data-tgl2="<?= $tgl2 ?>" data-warehouse="<?= $warehouse ?>" data-toggle="modal"
+                                                data-target="#detailModal_pakai">
+                                                <?= $qty_Keluar ?>
+                                            </a>
+                                        </td>
+                                        <td>
                                             <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail2" 
                                             data-code="<?= $code ?>"
                                                 data-tgl1="<?= $tgl1 ?>" 
@@ -638,17 +686,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 data-target="#detailModal_transfer">
                                                 <?= $QTY_TRANSFER ?>
                                             </a>
-                                        </td>
-                                        <td>
-                                            <a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail" 
-                                            data-code="<?= $code ?>" 
-                                            data-tgl1="<?= $tgl1 ?>"
-                                            data-tgl2="<?= $tgl2 ?>" 
-                                            data-warehouse="<?= $warehouse ?>" 
-                                            data-toggle="modal" data-target="#detailModal_pakai">
-                                            <?= $qty_Keluar ?>
-                                            </a>
-                                        </td>                                                                          
+                                        </td>                                                                                                               
                                         <td><a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail3" 
                                             data-code="<?= $code ?>"
                                             data-tgl1="<?= $tgl1 ?>" 

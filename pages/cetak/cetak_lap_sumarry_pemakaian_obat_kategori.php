@@ -101,7 +101,7 @@ if (file_exists($logoPath)) {
             </td>
 
             <!-- Judul -->
-            <td colspan="5" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
+            <td colspan="6" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
                 <h3 style="margin: 0;">
                     <strong>DATA PEMAKAIAN BAHAN PEMBANTU BULAN
                         <?= ($Bln2 != "01") ? namabln($Bln2) . " " . $Thn2 : namabln($Bln2) . " " . $Thn; ?>
@@ -137,10 +137,9 @@ if (file_exists($logoPath)) {
             <th>Stock Awal (gr)</th>
             <th>Masuk (gr)</th>
             <th>Total Pemakaian (gr)</th>
-            <th>Sisa Stock (gr)</th>
-            <th>Stock Aman (gr)</th>
-            <th>Sisa PO (gr)</th>
-            <th>total OUT</th>  
+            <th>Transfer (gr)</th>
+            <th>Total Out (gr)</th>             
+            <th>Stock Balance (gr)</th>  
         </tr>
 
         <?php
@@ -154,9 +153,8 @@ if (file_exists($logoPath)) {
             echo "<td class='number'>{$r['qty_awal']}</td>";
             echo "<td class='number'>{$r['stock_masuk']}</td>";
             echo "<td class='number'>{$r['stock_keluar']}</td>";
+            echo "<td class='number'>{$r['stock_transfer']}</td>";
             echo "<td class='number'>{$r['stock_balance']}</td>";
-            echo "<td class='number'>{$r['stock_minimum']}</td>";
-            echo "<td class='number'>{$r['sisa_po']}</td>";
             echo "<td class='number'>{$r['total_stock_keluar']}</td>";
             echo "</tr>";
             $no++;
