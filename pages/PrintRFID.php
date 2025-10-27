@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['no_resep'])) {
     $url = "http://10.0.0.121:8080/api/v1/document/create";
     $payload = json_encode([
         "doc_number" => $no_resep,
-        "ip_address" => '10.0.6.233'
+        "ip_address" => '10.0.6.225'
     ]);
 
     $ch = curl_init($url);
