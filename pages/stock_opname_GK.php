@@ -204,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <!-- <form action="" method="post"> -->
                     <div class="box-body">
                         <div class="form-group">
-                            <div class="col-sm-5" style="display: flex; gap: 10px;">
+                            <div class="col-sm-3" style="display: flex; gap: 10px;">
                                 <input type="date" class="form-control" id="tgl_tutup" placeholder="Tanggal Awal" name="tgl_tutup"> 
                                 <select class="form-select" aria-label="Default select example" id="warehouse">
                                     <option value="" readonly>Pilih Gudang</option>
@@ -212,9 +212,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <option value="M510">M510</option>
                                 </select>                           
                             </div>
-                            <div class="col-sm-2">
-                                <button name="submit" class="btn btn-primary btn-sm cariData"><i class="icofont icofont-search-alt-1"></i> Cari data</button>
-                            </div>                            
+                            <div class="col-sm-3" >
+                                <div style="display: flex; gap: 10px;">
+                                    <button name="submit" class="btn btn-primary btn-sm cariData"><i class="fa fa-search"></i> Cari data</button>
+                                    <button name="exportData" class="btn btn-success btn-sm exportData"><i class="fa-file-excel-o"></i> Export data</button>
+                                </div>
+                            </div>                    
                         </div>
                     </div>                    
                 <!-- </form>            -->
@@ -661,7 +664,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         });
     });
- 
+    $(document).on('click', '.exportData', function() {
+        let tgl_tutup = $("#tgl_tutup").val();
+        let warehouse = $("#warehouse").val();
+        if(tgl_tutup==""){
+            Swal.fire({
+                title: 'Form Tidak Lengkap',
+                text: 'Silahkan Isi Tanggal Tutup Buku',
+                icon: 'warning'
+            })
+            return true;
+        }else if(warehouse==""){
+            Swal.fire({
+                title: 'Form Tidak Lengkap',
+                text: 'Silahkan Pilih Warehouse',
+                icon: 'warning'
+            })
+            return true;
+        }
+        let url="pages/cetak/cetak_stock_opname_gk.php?tgl_tutup="+encodeURIComponent(tgl_tutup)+"&warehouse="+encodeURIComponent(warehouse)+"";
+        window.open(url, "_blank");
+    });
     //logic function
     function selectBP(){
         let paking_kds = $("#opname_bp").val().split("||");
