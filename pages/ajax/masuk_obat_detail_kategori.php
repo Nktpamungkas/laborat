@@ -7,11 +7,29 @@ $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
 $warehouse = $_POST['warehouse'];
 
+
+date_default_timezone_set('Asia/Jakarta');
+$tglInput = $_POST['tgl1'] ?? '';
+
+if (!empty($tglInput) && strtotime($tglInput) !== false) {
+    $awaltanggal = date('Y-m-d 23:01:00', strtotime($tglInput));
+} else {
+    $awaltanggal = date('Y-m-01 23:01:00');
+}
+
+
+// Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
+$awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
+
+// Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
+$akhir = date('Y-m-t 23:00:00');
+// $akhir = '2025-10-21';
+
 // echo "<pre>";
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-if ($warehouse == 'M101') {
+if ($warehouse == "in('M101')") {
     $detailtype = '2';
 } else {
     $detailtype = '1';
@@ -99,7 +117,7 @@ $query = "SELECT
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                     AND COALESCE(TRIM( CASE 
                                     WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE

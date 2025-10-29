@@ -74,18 +74,17 @@ if (file_exists($logoPath)) {
 
 <head>
     <meta charset="UTF-8">
-    <style>
-        td, th {
-            padding: 5px;
-            border: 1px solid #000;
-        }
-        .number {
-            mso-number-format: "0.00"; /* format angka dua desimal */
-        }
-        .int {
-            mso-number-format: "0"; /* untuk integer (kalau kamu mau pakai di kolom no urut) */
-        }
-    </style>
+  <style>
+    td, th {
+        padding: 5px;
+        border: 1px solid #000;
+    }
+    /* 2 desimal + pemisah ribuan (Excel akan sesuaikan tanda sesuai regional) */
+    .number { mso-number-format: "#,##0.00"; }
+    /* untuk kolom No dengan pemisah ribuan (jika perlu) */
+    .int    { mso-number-format: "#,##0"; }
+    th { background-color: #f0f0f0; }
+</style>
 </head>
 
 <body>
@@ -187,8 +186,7 @@ if (file_exists($logoPath)) {
         $no = 1;
         function fmt2($val)
         {
-            $val = (float) ($val ?? 0);
-            return number_format($val, 2, '.', '');
+            return is_numeric($val) ? (float) $val : 0.0;
         }
         while ($row = db2_fetch_assoc($Balance_stock)) {
 
@@ -659,18 +657,19 @@ if (file_exists($logoPath)) {
                                     } 
             $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
 
-            // Konversi nilai aman
+            // hitung sebagai float (TANPA formatting)
             $qty_awal = fmt2($row_qty_awal['qty_awal'] ?? 0);
             $qty_masuk = fmt2($row_stock_masuk['QTY_MASUK'] ?? 0);
             $qty_Keluar = fmt2($row_qty_pakai['AKTUAL_QTY_KELUAR'] ?? 0);
             $qty_Transfer = fmt2($row_stock_transfer['QTY_TRANSFER'] ?? 0);
-            $qty_Balance_stock_gd_pisah = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0);
+            $qty_Balance_pisah = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0);
             $qty_stock_minimum = fmt2($row['SAFETYSTOCK'] ?? 0);
             $qty_stock_buka_PO = fmt2($row_buka_po['QTY'] ?? 0);
+
             $total_out = fmt2(($row_qty_pakai['AKTUAL_QTY_KELUAR'] ?? 0) + ($row_stock_transfer['QTY_TRANSFER'] ?? 0));
+            $totalTY_ = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0) + fmt2($row_buka_po['QTY'] ?? 0);
 
-            $totalTY_ = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0)  + fmt2($row_buka_po['QTY'] ?? 0);
-
+            // status tetap float, tidak diformat di sini
             $status = ($totalTY_ < $qty_stock_minimum)
                 ? 'SEGERA ORDER'
                 : (($totalTY_ >= $qty_stock_minimum && $totalTY_ < ($row['SAFETYSTOCK_CHECK'] ?? 0))
@@ -682,22 +681,24 @@ if (file_exists($logoPath)) {
                     ? 'background-color: #fff176; color:black; font-weight:bold;'
                     : '');
 
+
             echo "<tr>
-                    <td class='int' style='text-align:center'>{$no}</td>
-                    <td>{$row['KODE_OBAT']}</td>
-                    <td>{$row['LONGDESCRIPTION']}</td>
-                    <td class='number'>{$qty_awal}</td>
-                    <td class='number'>{$qty_masuk}</td>
-                    <td class='number'>{$qty_Keluar}</td>
-                    <td class='number'>{$qty_Transfer}</td>
-                    <td class='number'>{$total_out}</td>
-                    <td class='number'>{$qty_Balance_stock_gd_pisah}</td>
-                    <td class='number'>{$qty_stock_minimum}</td>
-                    <td class='number'>{$qty_stock_buka_PO}</td>
-                    <td style='{$style}'>" . htmlspecialchars($status) . "</td>
-                    <td>{$row['NOTELAB']}</td>
-                    <td>{$row['CERTIFICATION']}</td>
-                </tr>";
+                <td class='int' style='text-align:center'>{$no}</td>
+                <td>{$row['KODE_OBAT']}</td>
+                <td>{$row['LONGDESCRIPTION']}</td>
+                <td class='number'>" . number_format($qty_awal, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_masuk, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Keluar, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Transfer, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($total_out, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Balance_pisah, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_stock_minimum, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_stock_buka_PO, 2, '.', ',') . "</td>
+
+                <td style='{$style}'>" . htmlspecialchars($status) . "</td>
+                <td>{$row['NOTELAB']}</td>
+                <td>{$row['CERTIFICATION']}</td>
+            </tr>";
             $no++;
         }
         ?>

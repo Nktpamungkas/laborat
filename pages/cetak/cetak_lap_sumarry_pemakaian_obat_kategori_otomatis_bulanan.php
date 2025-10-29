@@ -81,26 +81,17 @@ if (file_exists($logoPath)) {
 
 <head>
     <meta charset="UTF-8">
-    <style>
-        td,
-        th {
-            mso-number-format: "\@";
-            padding: 5px;
-            border: 1px solid #000;
-        }
-
-        .number {
-            mso-number-format: "#,##0.00";
-        }
-
-        .int {
-            mso-number-format: "0";
-        }
-
-        th {
-            background-color: #f0f0f0;
-        }
-    </style>
+  <style>
+    td, th {
+        padding: 5px;
+        border: 1px solid #000;
+    }
+    /* 2 desimal + pemisah ribuan (Excel akan sesuaikan tanda sesuai regional) */
+    .number { mso-number-format: "#,##0.00"; }
+    /* untuk kolom No dengan pemisah ribuan (jika perlu) */
+    .int    { mso-number-format: "#,##0"; }
+    th { background-color: #f0f0f0; }
+</style>
 </head>
 
 <body>
@@ -116,7 +107,7 @@ if (file_exists($logoPath)) {
             </td>
 
             <!-- Judul -->
-            <td colspan="5" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
+            <td colspan="8" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
                 <h3 style="margin: 0;">
                     <strong>DATA PEMAKAIAN BAHAN PEMBANTU BULAN
                         <?= ($Bln2 != "01") ? namabln($Bln2) . " " . $Thn2 : namabln($Bln2) . " " . $Thn; ?>
@@ -143,16 +134,16 @@ if (file_exists($logoPath)) {
             <td style="width: 20%; font-size: 12px; vertical-align: top;">
                 <table border="0">
                     <tr>
-                        <td><strong>No Form</strong></td>
-                        <td colspan="2">: FW-19-LAB-11</td>
+                        <td colspan="2"><strong>No Form</strong></td>
+                        <td colspan="3">: FW-19-LAB-11</td>
                     </tr>
                     <tr>
-                        <td><strong>No Revisi</strong></td>
-                        <td colspan="2">: 06</td>
+                        <td colspan="2"><strong>No Revisi</strong></td>
+                        <td colspan="3">: 06</td>
                     </tr>
                     <tr>
-                        <td><strong>Tgl. Revisi</strong></td>
-                        <td colspan="2">:</td>
+                        <td colspan="2"><strong>Tgl. Revisi</strong></td>
+                        <td colspan="3">:</td>
                     </tr>
                 </table>
             </td>
@@ -162,23 +153,27 @@ if (file_exists($logoPath)) {
     <table border="1">
         <tr>
             <th>No</th>
-            <th colspan="2">Kode Obat</th>
-            <th colspan="2">Dyestuff/Chemical</th>
+            <th colspan="1">Kode Obat</th>
+            <th colspan="2">Nama Bahan Dyestuff/Chemical</th>
             <th>Stock Awal (gr)</th>
             <th>Masuk (gr)</th>
             <th>Total Pemakaian (gr)</th>
             <th>Transfer (gr)</th>
             <th>Total Out (gr)</th>             
-            <th>Stock Balance (gr)</th>             
+            <th>Sisa Stock</th>
+            <th>Stock Aman</th>
+            <th>Sisa PO</th>
+            <th>Status</th>
+            <th>Note</th>
+            <th>Certification</th>
         </tr>
 
         <?php
-        function safeNum($array, $key)
+        function fmt2($val)
         {
-            if (!is_array($array))
-                return 0;
-            return isset($array[$key]) && is_numeric($array[$key]) ? (float) $array[$key] : 0;
+            return is_numeric($val) ? (float) $val : 0.0;
         }
+
         $no = 1;
        while ($row = db2_fetch_assoc($db_stocktransaction)) {                                    
 
@@ -205,9 +200,9 @@ if (file_exists($logoPath)) {
                                                 ELSE s.TEMPLATECODE
                                             END  as TEMPLATE,
                                             CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN SUM(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN SUM(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE SUM(s.USERPRIMARYQUANTITY)
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                ELSE s.USERPRIMARYQUANTITY
                                             END AS QTY_TRANSFER,
                                             CASE 
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -219,19 +214,14 @@ if (file_exists($logoPath)) {
                                              LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
-                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                             AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
+--                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                             AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
-                                        GROUP BY
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,    
-                                            s.USERPRIMARYUOMCODE)
-                                             $wheretemplate
+                                        )
+                                            WHERE TEMPLATE <> '303'
                                         GROUP BY 
                                         ITEMTYPECODE,                                        
                                         TEMPLATE,
@@ -279,8 +269,8 @@ if (file_exists($logoPath)) {
                                         LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
-                                        -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
-                                        AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
+                                        -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                          AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -291,7 +281,7 @@ if (file_exists($logoPath)) {
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                         AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                     )
-                                    $wheretemplate 
+                                    WHERE TEMPLATE <> '304'
                                     GROUP BY 
                                     ITEMTYPECODE,
                                     TEMPLATE,
@@ -327,8 +317,8 @@ if (file_exists($logoPath)) {
                                             STOCKTRANSACTION s
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
-                                             AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
+                                            --  AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                             AND s.TEMPLATECODE  IN ('120','098')
                                             AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
@@ -496,28 +486,34 @@ if (file_exists($logoPath)) {
                                     }                                
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
 
-            $qty_masuk = number_format(safeNum($row_stock_masuk, 'QTY_MASUK'), 2, '.', '');
-            $qty_Keluar = number_format(safeNum($row_qty_pakai, 'AKTUAL_QTY_KELUAR'), 2, '.', '');
-            $QTY_TRANSFER = number_format(safeNum($row_stock_transfer, 'QTY_TRANSFER'), 2, '.', '');
-            $qty_awal = number_format(safeNum($row_qty_awal, 'qty_awal'), 2, '.', '');
-            $qty_stock_balance = number_format(safeNum($row_balance, 'STOCK_BALANCE'), 2, '.', '');
-            $qty_stock_minimum = number_format(safeNum($row_stock_minimum, 'SAFETYSTOCK'), 2, '.', '');
-            $qty_stock_buka_PO = number_format(safeNum($row_buka_po, 'QTY'), 2, '.', '');
+            // hitung sebagai float (TANPA formatting)
+            $qty_awal = fmt2($row_qty_awal['qty_awal'] ?? 0);
+            $qty_masuk = fmt2($row_stock_masuk['QTY_MASUK'] ?? 0);
+            $qty_Keluar = fmt2($row_qty_pakai['AKTUAL_QTY_KELUAR'] ?? 0);
+            $qty_Transfer = fmt2($row_stock_transfer['QTY_TRANSFER'] ?? 0);
+            $qty_Balance_pisah = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0);
+            $qty_stock_minimum = fmt2($row['SAFETYSTOCK'] ?? 0);
+            $qty_stock_buka_PO = fmt2($row_buka_po['QTY'] ?? 0);
 
-            $total_pegeluaran = safeNum($row_qty_pakai, 'AKTUAL_QTY_KELUAR') + safeNum($row_stock_transfer, 'QTY_TRANSFER');
-            $qty_total_pegeluaran = number_format($total_pegeluaran, 2, '.', '');
+            $total_out = fmt2(($row_qty_pakai['AKTUAL_QTY_KELUAR'] ?? 0) + ($row_stock_transfer['QTY_TRANSFER'] ?? 0));
+            $totalTY_ = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0) + fmt2($row_buka_po['QTY'] ?? 0);
 
-            echo "<tr>";
-            echo "<td class='int' style='text-align:center'>$no</td>";
-            echo "<td colspan='2'>{$row['DECOSUBCODE01']}</td>";
-            echo "<td colspan='2'>{$row['LONGDESCRIPTION']}</td>";
-            echo "<td class='number'>{$qty_awal}</td>";
-            echo "<td class='number'>{$qty_masuk}</td>";
-            echo "<td class='number'>{$qty_Keluar}</td>";        
-            echo "<td class='number'>{$QTY_TRANSFER}</td>";
-            echo "<td class='number'>{$qty_total_pegeluaran}</td>";
-            echo "<td class='number'>{$qty_stock_balance}</td>";
-            echo "</tr>";
+            echo "<tr>
+                <td class='int' style='text-align:center'>{$no}</td>
+                <td>{$row['DECOSUBCODE01']}</td>
+                <td colspan='2'>{$row['LONGDESCRIPTION']}</td>
+                <td class='number'>" . number_format($qty_awal, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_masuk, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Keluar, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Transfer, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($total_out, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Balance_pisah, 2, '.', ',') . "</td>
+                <td  class='number'>" . '0.00' . "</td>
+                <td  class='number'>" . '0.00' . "</td>
+                <td>".' '."</td>
+                <td>" . ' ' . "</td>
+                <td>" . ' ' . "</td>
+            </tr>";
             $no++;
         }
         ?>
@@ -527,34 +523,34 @@ if (file_exists($logoPath)) {
 
     <table style="width: auto;" border="1">
         <tr>
-            <td colspan="3"></td>
-            <td colspan="2" style="text-align: center;">Dibuat Oleh :</td>
+            <td colspan="4"></td>
+            <td colspan="3" style="text-align: center;">Dibuat Oleh :</td>
             <td colspan="3" style="text-align: center;">Diperiksa Oleh :</td>
-            <td colspan="3" style="text-align: center;">Mengetahui :</td>
+            <td colspan="5" style="text-align: center;">Mengetahui :</td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Nama</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Nama</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Jabatan</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Jabatan</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Tanggal</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Tanggal</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Tanda Tangan</td>
-            <td colspan="2" style="text-align: center;"><br><br><br><br></td>
+            <td colspan="4" style="text-align: center;">Tanda Tangan</td>
+            <td colspan="3" style="text-align: center;"><br><br><br><br></td>
             <td colspan="3" style="text-align: center;"></td>
-            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
     </table>
 

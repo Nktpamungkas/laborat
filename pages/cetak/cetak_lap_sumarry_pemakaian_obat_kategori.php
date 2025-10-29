@@ -101,7 +101,7 @@ if (file_exists($logoPath)) {
             </td>
 
             <!-- Judul -->
-            <td colspan="6" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
+            <td colspan="8" style="width: 60%; text-align: center; vertical-align: middle; height: 80px;">
                 <h3 style="margin: 0;">
                     <strong>DATA PEMAKAIAN BAHAN PEMBANTU BULAN
                         <?= ($Bln2 != "01") ? namabln($Bln2) . " " . $Thn2 : namabln($Bln2) . " " . $Thn; ?>
@@ -113,16 +113,16 @@ if (file_exists($logoPath)) {
             <td style="width: 20%; font-size: 12px; vertical-align: top;">
                 <table border="0">
                     <tr>
-                        <td><strong>No Form</strong></td>
-                        <td colspan="2">: FW-19-LAB-11</td>
+                        <td colspan="2"><strong>No Form</strong></td>
+                        <td colspan="3">: FW-19-LAB-11</td>
                     </tr>
                     <tr>
-                        <td><strong>No Revisi</strong></td>
-                        <td colspan="2">: 06</td>
+                        <td colspan="2"><strong>No Revisi</strong></td>
+                        <td colspan="3">: 06</td>
                     </tr>
                     <tr>
-                        <td><strong>Tgl. Revisi</strong></td>
-                        <td colspan="2">:</td>
+                        <td colspan="2"><strong>Tgl. Revisi</strong></td>
+                        <td colspan="3">:</td>
                     </tr>
                 </table>
             </td>
@@ -132,30 +132,39 @@ if (file_exists($logoPath)) {
     <table border="1">
         <tr>
             <th>No</th>
-            <th colspan="2">Kode Obat</th>
-            <th colspan="2">Dyestuff/Chemical</th>
+            <th colspan="1">Kode Obat</th>
+            <th colspan="2">Nama Bahan Dyestuff/Chemical</th>
             <th>Stock Awal (gr)</th>
             <th>Masuk (gr)</th>
             <th>Total Pemakaian (gr)</th>
             <th>Transfer (gr)</th>
             <th>Total Out (gr)</th>             
-            <th>Stock Balance (gr)</th>  
+            <th>Sisa Stock</th>
+            <th>Stock Aman</th>
+            <th>Sisa PO</th>
+            <th>Status</th>
+            <th>Note</th>
+            <th>Certification</th>
         </tr>
-
         <?php
         $no = 1;
         $sql = mysqli_query($con, "SELECT * FROM tb_stock_gd_kimia_kategori WHERE ip_address = '$ip_num'");
         while ($r = mysqli_fetch_array($sql)) {
             echo "<tr>";
             echo "<td class='int' style='text-align:center'>$no</td>";
-            echo "<td colspan='2'>{$r['kode_obat']}</td>";
+            echo "<td colspan='1'>{$r['kode_obat']}</td>";
             echo "<td colspan='2'>{$r['nama_obat']}</td>";
             echo "<td class='number'>{$r['qty_awal']}</td>";
             echo "<td class='number'>{$r['stock_masuk']}</td>";
             echo "<td class='number'>{$r['stock_keluar']}</td>";
             echo "<td class='number'>{$r['stock_transfer']}</td>";
-            echo "<td class='number'>{$r['stock_balance']}</td>";
             echo "<td class='number'>{$r['total_stock_keluar']}</td>";
+            echo "<td class='number'>{$r['stock_balance']}</td>";            
+            echo "<td class='number'>0.00</td>";
+            echo "<td class='number'>0.00</td>";
+            echo "<td></td>";
+            echo "<td></td>";
+            echo "<td></td>";
             echo "</tr>";
             $no++;
         }
@@ -166,34 +175,34 @@ if (file_exists($logoPath)) {
 
     <table style="width: auto;" border="1">
         <tr>
-            <td colspan="3"></td>
-            <td colspan="2" style="text-align: center;">Dibuat Oleh :</td>
+            <td colspan="4"></td>
+            <td colspan="3" style="text-align: center;">Dibuat Oleh :</td>
             <td colspan="3" style="text-align: center;">Diperiksa Oleh :</td>
-            <td colspan="3" style="text-align: center;">Mengetahui :</td>
+            <td colspan="5" style="text-align: center;">Mengetahui :</td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Nama</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Nama</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Jabatan</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Jabatan</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Tanggal</td>
-            <td colspan="2" style="text-align: center;"></td>
+            <td colspan="4" style="text-align: center;">Tanggal</td>
             <td colspan="3" style="text-align: center;"></td>
             <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
         <tr>
-            <td colspan="3" style="text-align: center;">Tanda Tangan</td>
-            <td colspan="2" style="text-align: center;"><br><br><br><br></td>
+            <td colspan="4" style="text-align: center;">Tanda Tangan</td>
+            <td colspan="3" style="text-align: center;"><br><br><br><br></td>
             <td colspan="3" style="text-align: center;"></td>
-            <td colspan="3" style="text-align: center;"></td>
+            <td colspan="5" style="text-align: center;"></td>
         </tr>
     </table>
 

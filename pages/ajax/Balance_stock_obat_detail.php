@@ -11,7 +11,7 @@ $warehouse = $_POST['warehouse'];
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-if ($warehouse == 'M101') {
+if ($warehouse = "in('M101')") {
     $templateCodes = "'QCT','OPN','204'";
 } else {
     $templateCodes = "'QCT','304','OPN','204'";

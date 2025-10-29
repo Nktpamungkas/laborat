@@ -7,12 +7,30 @@ $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
 $warehouse = $_POST['warehouse'];
 
+
+date_default_timezone_set('Asia/Jakarta');
+$tglInput = $_POST['tgl1'] ?? '';
+
+if (!empty($tglInput) && strtotime($tglInput) !== false) {
+    $awaltanggal = date('Y-m-d 23:01:00', strtotime($tglInput));
+} else {
+    $awaltanggal = date('Y-m-01 23:01:00');
+}
+
+
+// Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
+$awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
+
+// Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
+$akhir = date('Y-m-t 23:00:00');
+// $akhir = '2025-10-21';
+
 // echo "<pre>";
-// print_r($_POST); // Debug POST value
+// print_r($awal); // Debug POST value
 // echo "</pre>";
 
 $query = "SELECT
-                p.SUBCODE01,
+                p.SUBCODE01 as DECOSUBCODE01,
                 p.SUBCODE02,
                 p.SUBCODE03,
 				TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) AS KODE_OBAT,                
@@ -39,7 +57,7 @@ $query = "SELECT
                     s.TEMPLATECODE,
                     s.LOGICALWAREHOUSECODE,
                     CASE 
-                        when s.CREATIONUSER = 'azwani.najwa' AND  s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND s.LOGICALWAREHOUSECODE ='M510' then 0
+                        when s.CREATIONUSER = 'azwani.najwa' AND  s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND (s.LOGICALWAREHOUSECODE ='M510' OR s.LOGICALWAREHOUSECODE ='M101') then 0
                         WHEN s.USERPRIMARYUOMCODE = 't' THEN sum(s.USERPRIMARYQUANTITY) * 1000000
                         WHEN s.USERPRIMARYUOMCODE = 'kg' THEN sum(s.USERPRIMARYQUANTITY)* 1000
                         ELSE sum(s.USERPRIMARYQUANTITY)
@@ -53,7 +71,7 @@ $query = "SELECT
                     STOCKTRANSACTION s
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
                     AND s.TEMPLATECODE  IN ('120','098')
                     AND s.LOGICALWAREHOUSECODE $warehouse
                     and s.DECOSUBCODE01 = '$code' 

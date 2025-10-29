@@ -7,11 +7,46 @@ $tgl1 = $_POST['tgl1'];
 $tgl2 = $_POST['tgl2'];
 $warehouse = $_POST['warehouse'];
 
+
+date_default_timezone_set('Asia/Jakarta');
+$tglInput = $_POST['tgl1'] ?? '';
+
+if (!empty($tglInput) && strtotime($tglInput) !== false) {
+    $awaltanggal = date('Y-m-d 23:01:00', strtotime($tglInput));
+} else {
+    $awaltanggal = date('Y-m-01 23:01:00');
+}
+
+
+// Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
+$awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
+
+// Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
+$akhir = date('Y-m-t 23:00:00');
+// $akhir = '2025-10-21';
+
 // echo "<pre>";
 // print_r($_POST); // Debug POST value
 // echo "</pre>";
 
-$query = "SELECT
+if ($warehouse == "in('M101')") {
+    $detailtype = '1';
+} else {
+    $detailtype = '2';
+    
+}
+
+if ($warehouse == "in('M101')") {
+    $templatewarehouse = "IN ('303M510')";
+} else {
+    $templatewarehouse = "IN ('303M510', '303M101')";
+}
+
+    if ($warehouse == "in('M101')"|| $warehouse == "in('M510')") {
+    $wheretemplate = "";
+                                } else {
+    $wheretemplate = "!= '303'";}
+$query = "                    SELECT
                 p.SUBCODE01,
                 p.SUBCODE02,
                 p.SUBCODE03,
@@ -36,10 +71,11 @@ $query = "SELECT
                                             s.DECOSUBCODE01,
                                             s.DECOSUBCODE02,
                                             s.DECOSUBCODE03,
+                                            s3.TEMPLATECODE,                               
                                             CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN sum(s.USERPRIMARYQUANTITY) * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN sum(s.USERPRIMARYQUANTITY) * 1000
-                                                ELSE sum(s.USERPRIMARYQUANTITY)
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                ELSE s.USERPRIMARYQUANTITY
                                             END AS USERPRIMARYQUANTITY,
                                             CASE 
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
@@ -48,21 +84,18 @@ $query = "SELECT
                                             END AS USERPRIMARYUOMCODE
                                         FROM
                                             STOCKTRANSACTION s
-                                        LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'                                       
+                                        LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC' 
+                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE =  $detailtype  
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$tgl1' AND '$tgl2'
-                                            AND s.TEMPLATECODE IN ('201','203','303')
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
+                                            AND s.TEMPLATECODE IN ('201','203','303','304')
                                             AND s.LOGICALWAREHOUSECODE $warehouse
-                                            AND s.DECOSUBCODE01 = '$code' 
-                                        GROUP BY 
-                                            s.TRANSACTIONDATE,
-                                            s.LOGICALWAREHOUSECODE,
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            s.DECOSUBCODE02,
-                                            s.DECOSUBCODE03,
-                                            s.USERPRIMARYUOMCODE                
+                                            AND (CASE 
+                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                ELSE s.TEMPLATECODE
+                                            END ) $wheretemplate
+                                            AND s.DECOSUBCODE01 = '$code'               
                 ) s ON  s.ITEMTYPECODE =  p.ITEMTYPECODE          
                 AND  s.DECOSUBCODE01 = p.SUBCODE01
                 AND  s.DECOSUBCODE02 = p.SUBCODE02

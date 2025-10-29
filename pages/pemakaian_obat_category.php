@@ -10,6 +10,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $_SESSION['tgl2'] = $_POST['tgl2'];
     $_SESSION['warehouse'] = $_POST['warehouse'];
 }
+
+date_default_timezone_set('Asia/Jakarta');
+
+$tglInput = $_POST['tgl'] ?? '';
+
+if (!empty($tglInput) && strtotime($tglInput) !== false) {
+    $awaltanggal = date('Y-m-d 23:01:00', strtotime($tglInput));
+} else {
+    $awaltanggal = date('Y-m-01 23:01:00');
+}
+
+
+// Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
+$awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
+
+// Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
+$akhir = date('Y-m-t 23:00:00');
+// $akhir = '2025-10-21';
+
+$awalParam = $_GET['awal'] ?? '';
+$Bln2 = (new DateTime($awalParam))->format('m');
+$Thn2 = (new DateTime($awalParam))->format('Y');
+$Bulan = $Thn2 . "-" . $Bln2;
 ?>
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -291,8 +314,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <th>Masuk (gr)</th>                                        
                                         <th>Pemakaian (gr)</th>
                                         <th>Transfer (gr)</th>
-                                        <th>Stock Balance (gr)</th>
-                                        <th>total OUT</th>                                           
+                                        <th>total OUT</th>  
+                                        <th>Stock Balance (gr)</th>                                                                                 
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -344,7 +367,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                              LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl] 23:01:00 ' AND '$_POST[tgl2]'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
@@ -397,7 +421,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
-                                        AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                        -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                         AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -430,7 +455,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             s.ITEMTYPECODE,
                                             s.DECOSUBCODE01,
                                             CASE 
-                                                when s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND s.LOGICALWAREHOUSECODE ='M510' then 0
+                                                when s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND (s.LOGICALWAREHOUSECODE ='M510' OR s.LOGICALWAREHOUSECODE ='M101') then 0
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
                                                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
                                                 ELSE s.USERPRIMARYQUANTITY
@@ -444,7 +469,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             STOCKTRANSACTION s
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
                                             AND s.TEMPLATECODE  IN ('120','098')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
@@ -583,7 +609,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
 
-                                    if ($tahunBulan2 == '2025-09') {
+                                    if ($tahunBulan2 == '2025-08') {
                                         $q_qty_awal = mysqli_query($con, "SELECT
                                             SUBCODE01,
                                             SUM(qty_awal) AS qty_awal
@@ -686,7 +712,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 data-target="#detailModal_transfer">
                                                 <?= $QTY_TRANSFER ?>
                                             </a>
-                                        </td>                                                                                                               
+                                        </td>    
+                                        <td><?= $qty_total_pegeluaran ?></td>
                                         <td><a width = "100%" href="#" class="btn btn-primary btn-sm btn-fixed open-detail3" 
                                             data-code="<?= $code ?>"
                                             data-tgl1="<?= $tgl1 ?>" 
@@ -696,7 +723,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <?= $qty_stock_balance ?>
                                         </a>
                                     </td>
-                                     <td><?= $qty_total_pegeluaran ?></td>
+                                     
                                     </td>
                                 </tr>                                   
                                 <?php
