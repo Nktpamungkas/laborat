@@ -371,9 +371,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 p.ITEMTYPECODE ='DYC'
                                                 AND a3.VALUEBOOLEAN = '1'
                                                 AND d.LOGICALWAREHOUSECODE $where_warehouse
-                                            -- AND b.DECOSUBCODE01 = 'D' 
-                                            -- AND b.DECOSUBCODE02 = '0' 
-                                                -- AND b.DECOSUBCODE03 = '044'
+                                                -- AND b.DECOSUBCODE01 = 'D' 
+                                                -- AND b.DECOSUBCODE02 = '1' 
+                                                -- AND b.DECOSUBCODE03 = '020'
                                                 )
                                                 ORDER BY KODE_OBAT ASC;");
                             } else {
@@ -440,16 +440,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND a3.VALUEBOOLEAN = 1
                                     AND s.LOGICALWAREHOUSECODE $where_warehouse
-                                    -- AND  s.DECOSUBCODE01 = 'R' 
-                                    -- AND  s.DECOSUBCODE02 = '4'
-                                    -- AND  s.DECOSUBCODE03  = '044'
+                                    -- AND  s.DECOSUBCODE01 = 'D' 
+                                    -- AND  s.DECOSUBCODE02 = '1'
+                                    -- AND  s.DECOSUBCODE03  = '020'
                                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
                                     )
                                     -- WHERE KODE_OBAT <>  'E-1-000'
                                     ORDER BY KODE_OBAT ASC ");
-                            }
-
-                           
+                            }                          
                                         
                                 ?>
                                 
@@ -499,6 +497,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $wheretemplate = "";
                                     $wheretemplate2 = "";
                                 }
+
+                                $insertData = []; // 🔹 tampung semua data di sini
                                 
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
@@ -826,7 +826,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 CASE 
                                                     WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
                                                     WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                    ELSE s.USERPRIMARYUOMCODE
+                                                    ELSE s.USERPRIMARYUOMCODEz
                                                 END AS SATUAN_MASUK
                                             FROM
                                                 STOCKTRANSACTION s
@@ -990,9 +990,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
                                     // echo $time;
-                                    // echo $time2;
+                                    // echo $tahunBulan2;
 
-                                    if($tahunBulan2 == '2025-09') {
+                                    if($tahunBulan2 == '2025-08') {
                                         $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
                                         SUBCODE01,
                                         SUBCODE02,
@@ -1021,18 +1021,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         KODE_OBAT = '$kode_obat'
                                         AND LOGICALWAREHOUSECODE  $where_warehouse
                                         AND tgl_tutup = (
-                                            SELECT MAX(tgl_tutup)
+                                            SELECT MAX(DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d'))
                                             FROM tblopname_11
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  $where_warehouse
-                                                AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d') = '$tgl1'
                                         )
                                     GROUP BY tgl_tutup, KODE_OBAT");                                        
                                     }                                
 
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);
-                                    // var_dump($row_buka_po);
+                                    // var_dump($row_qty_awal);
 
                                     $qty_masuk = (substr(number_format($row_stock_masuk['QTY_MASUK'], 2), -3) == '.00')
                                         ? number_format($row_stock_masuk['QTY_MASUK'], 0)
@@ -1237,27 +1237,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $today = date('Y-m-d');
 
                                     include_once("koneksi.php");
-                                                                
-                                    // Escape semua input untuk mencegah SQL Injection
-                                    $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
-                                    $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
-                                    $qty_awal = floatval(str_replace(',', '', $qty_awal));
-                                    $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
-                                    $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
-                                    $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
-                                    $stock_balance = floatval(str_replace(',', '', $qty_Balance_stock_gd_pisah));
-                                    $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
-                                    $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
-                                    $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
-                                    $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
-                                    $total_out_ = floatval(str_replace(',', '', subject: $qty_total_out));
-                                    $status_ = mysqli_real_escape_string($con, $status);
-                                    $note = mysqli_real_escape_string($con, $row['NOTELAB']);
-                                    $sertifikat = mysqli_real_escape_string($con, $row['CERTIFICATION']);
-                                    $ip = mysqli_real_escape_string($con, $ipaddress);
-                                    $warehouse = mysqli_real_escape_string($con, $where_warehouse);
 
-                                    $sql = "INSERT INTO tb_stock_gd_kimia (
+                                // Escape & convert
+                                $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
+                                $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
+                                $qty_awal = floatval(str_replace(',', '', $qty_awal));
+                                $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
+                                $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
+                                $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
+                                $stock_balance = floatval(str_replace(',', '', $qty_Balance_stock_gd_pisah));
+                                $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
+                                $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
+                                $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
+                                $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
+                                $total_out_ = floatval(str_replace(',', '', $qty_total_out));
+                                $status_ = mysqli_real_escape_string($con, $status);
+                                $note = mysqli_real_escape_string($con, $row['NOTELAB']);
+                                $sertifikat = mysqli_real_escape_string($con, $row['CERTIFICATION']);
+                                $ip = mysqli_real_escape_string($con, $ipaddress);
+                                $warehouse = mysqli_real_escape_string($con, $where_warehouse);
+
+                                // Simpan dalam array (bukan langsung insert)
+                                $insertData[] = "(
+                                '$kode_obat',
+                                '$nama_obat',
+                                $qty_awal,
+                                $stock_masuk,
+                                $stock_keluar,
+                                $stock_transfer,
+                                $stock_balance,
+                                $stock_minimum,
+                                $buka_po,
+                                $pakai_belum_timbang,
+                                $balance_future,
+                                $total_out_,
+                                '$status_',
+                                '$note',
+                                '$sertifikat',
+                                '$today',
+                                '$ip',
+                                '$warehouse'
+                            )";
+
+                                $no++;
+                                }
+
+                                // =========================================================
+                                // Setelah semua data selesai diproses, lakukan INSERT SEKALI SAJA
+                                // =========================================================
+                                            if (!empty($insertData)) {
+                                                $sql = "INSERT INTO tb_stock_gd_kimia (
                                                 kode_obat,
                                                 nama_obat,
                                                 qty_awal,
@@ -1276,32 +1305,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 tgl_tarik_data,
                                                 ip_address,
                                                 logicalwarehouse
-                                            ) VALUES (
-                                                '$kode_obat',
-                                                '$nama_obat',
-                                                $qty_awal,
-                                                $stock_masuk,
-                                                $stock_keluar,
-                                                $stock_transfer,
-                                                $stock_balance,
-                                                $stock_minimum,
-                                                $buka_po,
-                                                $pakai_belum_timbang,
-                                                $balance_future,
-                                                 $total_out_,
-                                                '$status_',
-                                                '$note',
-                                                '$sertifikat',
-                                                '$today',
-                                                '$ip',
-                                                '$warehouse'
-                                            )";
+                                            ) VALUES " . implode(',', $insertData);
 
                                     $result = mysqli_query($con, $sql);
 
                                     if (!$result) {
-                                        die("Error executing query: " . mysqli_error($con));
+                                        die("❌ Error executing bulk insert: " . mysqli_error($con));
+                                    } else {
+                                        echo "<script>console.log('✅ Bulk insert berhasil. Jumlah data: " . count($insertData) . "');</script>";
                                     }
+                                } else {
+                                    echo "<script>console.log('⚠️ Tidak ada data untuk disimpan');</script>";
                                 }?>
                             </tbody>
                         </table>

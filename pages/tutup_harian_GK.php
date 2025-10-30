@@ -217,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tbody>
                                 <?php
                                 $no = 1;
-                                $tutup_transaksi = mysqli_query($con, "SELECT ITEMTYPECODE, 
+                                $tutup_transaksi = mysqli_query($con, "SELECT DISTINCT ITEMTYPECODE, 
                                                                                     LOGICALWAREHOUSECODE, 
                                                                                     tgl_tutup, 
                                                                                     SUM(BASEPRIMARYQUANTITYUNIT) as total_qty 

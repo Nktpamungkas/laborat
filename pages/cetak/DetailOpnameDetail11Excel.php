@@ -30,7 +30,7 @@ $tgl = date("Y-m-d");
 				  <?php				  
    $no=1;   
    $c=0;
-   $sql = mysqli_query($con,"SELECT 
+   $sql = mysqli_query($con,"SELECT DISTINCT
             ITEMTYPECODE,
             KODE_OBAT,
             LONGDESCRIPTION,
