@@ -322,7 +322,7 @@ if (count($data_now) > 0) {
                     <td class='number'>" . round($selisih_balance,0). "</td>
                     <td class='number'>" . round($selisih_plusminus,0). "</td>
                     <td class='number'>" . round($total_pemakaian,0). "</td>
-                    <td class='number'>" . round($persen_selisih,0). "</td>
+                    <td class='duadigit'>" . round($persen_selisih,2). "</td>
                     <td class='number'>" . round($saldo_awal_gram,0). "</td>
                 </tr>";
             }else{
@@ -337,7 +337,7 @@ if (count($data_now) > 0) {
                     <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_balance,0),',','.')  . "</td>
                     <td>" . Penomoran_helper::nilaiKeRibuan(round($selisih_plusminus,0),',','.') . "</td>
                     <td>" . Penomoran_helper::nilaiKeRibuan(round($total_pemakaian,0),',','.') . "</td>
-                    <td>" . Penomoran_helper::nilaiKeRibuan(round($persen_selisih,0),',','.') . "% </td>
+                    <td>" . Penomoran_helper::nilaiKeRibuan(round($persen_selisih,2),',','.') . "% </td>
                     <td>" . Penomoran_helper::nilaiKeRibuan(round($saldo_awal_gram,0),',','.'). "</td>
                 </tr>";
             }
@@ -363,7 +363,7 @@ if (count($data_now) > 0) {
                 <td class='number'>" . round($TOTAL_SLS_ABS,0). "</td>
                 <td class='number'>" . round($TOTAL_SLS_PLUSMIN,0). "</td>
                 <td class='number'>" . round($TOTAL_SD,0). "</td>
-                <td class='number'>" . round($TOTAL_PERSEN_SLS,0). "</td>
+                <td class='duadigit'>" . round(($TOTAL_PERSEN_SLS*100),2). "</td>
                 <td class='number'>" . round($TOTAL_SALDO,0). "</td>
             </tr>
         </tfoot>
@@ -382,7 +382,7 @@ if (count($data_now) > 0) {
                 <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_ABS,0),',','.')  . "</td>
                 <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SLS_PLUSMIN,0),',','.')  . "</td>
                 <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SD,0),',','.') . "</td>
-                <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_PERSEN_SLS,0),',','.') . "</td>
+                <td>" . Penomoran_helper::nilaiKeRibuan(round(($TOTAL_PERSEN_SLS*100),2),',','.') . "%</td>
                 <td>" . Penomoran_helper::nilaiKeRibuan(round($TOTAL_SALDO,0),',','.'). "</td>
             </tr>
         </tfoot>
