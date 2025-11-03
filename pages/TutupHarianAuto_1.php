@@ -83,7 +83,7 @@ if ($dcek['ck'] > 0) {
 
 	while ($rowdb21 = db2_fetch_assoc($stmt1)) {
 		$sqlInsert = "
-            INSERT INTO tblopname_11 SET 
+            INSERT INTO tblopname_11a SET 
                 ITEMTYPECODE = '" . $rowdb21['ITEMTYPECODE'] . "',
                 LOGICALWAREHOUSECODE = '" . $rowdb21['LOGICALWAREHOUSECODE'] . "',
                 DECOSUBCODE01 = '" . $rowdb21['DECOSUBCODE01'] . "',
@@ -104,7 +104,8 @@ if ($dcek['ck'] > 0) {
                 BASEPRIMARYUNITCODE = '" . $rowdb21['BASEPRIMARYUNITCODE'] . "',
                 BASEPRIMARYQUANTITYUNIT = '" . $rowdb21['BASEPRIMARYQUANTITYUNIT'] . "',
                 tgl_tutup = '$Awal',
-                tgl_buat = NOW()
+                tgl_buat = NOW(),
+                note = 'cek'
         ";
 
 		$simpan = mysqli_query($con, $sqlInsert);
