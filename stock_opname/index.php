@@ -280,7 +280,8 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 loading = true;
                 let dataPost={check:"check_transaksi_multiple", val:$(this).val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val()};
                 $.ajax({
-                    url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                    // url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                    url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
                     type: 'POST',
                     data: dataPost,
                     dataType: "JSON",
