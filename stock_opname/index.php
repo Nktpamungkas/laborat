@@ -317,7 +317,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             $(".WAREHOUSE_ALL").hide();
             let dataPost={check:"edit_data", val:$("#barcode").val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val(),kode_obat:$("#trans_kd_obat").val(),lot:$("#trans_lot").val()};
             $.ajax({
-                url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
                 data: dataPost,
                 dataType: "JSON",
@@ -452,7 +452,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 kategori:ctgr
             };
             $.ajax({
-                url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
                 data: dataPost,
                 dataType: "JSON",
