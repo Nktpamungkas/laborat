@@ -5,29 +5,39 @@ include "../../koneksi.php";
 $tgl_tutup = $_POST['tgl_tutup'];
 $warehouse = $_POST['warehouse'];
 
-$query = "SELECT 
+$query = "SELECT
+     ITEMTYPECODE,
+        KODE_OBAT,
+        LONGDESCRIPTION,
+        LOTCODE,
+        LOGICALWAREHOUSECODE,
+        TGL_TUTUP,
+        SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+        BASEPRIMARYUNITCODE 
+     FROM 
+    (SELECT DISTINCT
         ITEMTYPECODE,
         KODE_OBAT,
         LONGDESCRIPTION,
         LOTCODE,
         LOGICALWAREHOUSECODE,
-        tgl_tutup,
-        SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+        TGL_TUTUP,
+        BASEPRIMARYQUANTITYUNIT,
         BASEPRIMARYUNITCODE 
     FROM tblopname_11
     WHERE 
         tgl_tutup = '$tgl_tutup'
         AND LOGICALWAREHOUSECODE = '$warehouse'
-        and not KODE_OBAT='E-1-000'
+        and not KODE_OBAT='E-1-000') as sub
     GROUP BY  
         ITEMTYPECODE,
         KODE_OBAT,
         LONGDESCRIPTION,
         LOTCODE,
         LOGICALWAREHOUSECODE,
-        tgl_tutup,
+        TGL_TUTUP,
         BASEPRIMARYUNITCODE
-    ORDER BY KODE_OBAT ASC";
+    ORDER BY KODE_OBAT ASC ";
 
 $stmt = mysqli_query($con, $query);
 if (!$stmt) {

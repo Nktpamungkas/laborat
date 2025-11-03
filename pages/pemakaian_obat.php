@@ -1026,7 +1026,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  $where_warehouse
-                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d') = '$tgl1'
+                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d')
                                         )
                                     GROUP BY tgl_tutup, KODE_OBAT");                                        
                                     }                                

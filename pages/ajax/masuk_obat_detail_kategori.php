@@ -39,7 +39,7 @@ $query = "SELECT
                 p.SUBCODE01,
                 p.SUBCODE02,
                 p.SUBCODE03,
-                s.TEMPLATECODE,
+                -- s.TEMPLATECODE,
 				TRIM(p.SUBCODE01) || '-' || TRIM(p.SUBCODE02) || '-' || TRIM(p.SUBCODE03) AS KODE_OBAT,                
                 CASE 
                 	WHEN sum(s.QTY_MASUK) IS NULL THEN 0 
@@ -141,7 +141,7 @@ $query = "SELECT
                 p.SUBCODE02,
                 p.SUBCODE03,
                 s.SATUAN_MASUK,
-                s.TEMPLATECODE,
+                -- s.TEMPLATECODE,
                 p.BASEPRIMARYUNITCODE,
                 u.LONGDESCRIPTION,
                 p.LONGDESCRIPTION 
