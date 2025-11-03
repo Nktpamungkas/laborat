@@ -17,6 +17,10 @@ ob_start();
                 border: 1px solid #000;
             }
 
+            .duadigit{
+                mso-number-format: "#,##0.00";
+            }
+
             .number {
                 mso-number-format: "#,##0";
             }
