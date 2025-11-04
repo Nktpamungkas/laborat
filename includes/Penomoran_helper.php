@@ -30,4 +30,12 @@ class Penomoran_helper{
             return $angka ;
         }
     }
+    public static function nilaiKeRibuanStandarPackage($angka,$ribuan=".",$koma=","){
+        $str=explode("||",strval($angka));
+        $result=array();
+        foreach($str as $exp){
+            $result[]= Penomoran_helper::nilaiKeRibuan($exp,$ribuan,$koma);
+        }
+        return join("||",$result);;
+    }
 }

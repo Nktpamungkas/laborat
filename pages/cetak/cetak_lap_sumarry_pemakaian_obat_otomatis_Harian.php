@@ -2,7 +2,7 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
-$akhir = date('Y-m-d');
+$akhir = date('2025-10-27');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));
@@ -458,7 +458,8 @@ if (file_exists($logoPath)) {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                                            -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir 23:00:00'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                             AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -651,7 +652,7 @@ if (file_exists($logoPath)) {
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                                AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d')
                                         )
                                     GROUP BY tgl_tutup, KODE_OBAT");    
                                     } 
