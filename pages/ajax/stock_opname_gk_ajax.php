@@ -230,6 +230,30 @@
                 $response->send();
             }
         }
+        else if($_POST['status']=="delete_scan" && $id != 0){ 
+            $delete = "DELETE FROM tbl_scan_stock_opname_gk 
+                WHERE id = ? LIMIT 1";
+            $del=mysqli_prepare( $con, $delete );
+            mysqli_stmt_bind_param($del, "d",$id );
+            if(mysqli_stmt_execute($del)){
+                $sqlRefresh = "UPDATE tbl_stock_opname_gk 
+                    SET 
+                    qty_dus = (select SUM(s1.qty_dus)  from tbl_scan_stock_opname_gk s1 where s1.id_dt = ? ),
+                    total_stock = (select SUM(s2.total_stock)  from tbl_scan_stock_opname_gk s2 where s2.id_dt = ? )
+                    WHERE id = ? LIMIT 1"; 
+                $prepareRefresh=mysqli_prepare( $con, $sqlRefresh );
+                mysqli_stmt_bind_param($prepareRefresh, "sss",$_POST['id_stock_opname'],$_POST['id_stock_opname'],$_POST['id_stock_opname']);
+                mysqli_stmt_execute($prepareRefresh);
+                $response->setSuccess(true);
+                $response->addMessage("Berhasil Delete Scan");
+                $response->send();
+            }
+            else {
+                $response->setSuccess(false);
+                $response->addMessage("Gagal Delete Scan : ".mysqli_error($con));
+                $response->send();
+            }
+        }
         else{
             $response->setSuccess(false);
             $response->addMessage("Error Status");

@@ -291,6 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <input type="hidden" value="0" id="opname_total_stock">
                             <input type="hidden" value="0" id="opname_total_scan">
                             <input type="hidden" value="0" id="opname_total_stock_old">
+                            <input type="hidden" value="0" id="opname_total_stock_response">
                             <input type="hidden" value="0" id="opname_qty_old">
                             <input type="hidden" value="0" id="opname_ut">
                             <input type="hidden" value="0" id="opname_tg">
@@ -361,6 +362,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <td>: &nbsp;</td>
                                     <td id="opname_pakingan_standar_text"></td>
                                 </tr >
+                                <tr class="WH_M510 WAREHOUSE_ALL TINGGI_STANDAR va-top" id="tinggi_row">
+                                    <td class="padTopBot5">SP Utuhan</td>
+                                    <td>: &nbsp;</td>
+                                    <td id="opname_pakingan_tinggi_standar_text"></td>
+                                </tr>
                                 <tr class="va-top">
                                     <td class="padTopBot5">Total Scan</td>
                                     <td>: &nbsp;</td>
@@ -369,7 +375,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tr>
                                     <td class="padTopBot5"></td>
                                     <td></td>
-                                    <td id="opname_submit"><button class='btn btn-primary btn-sm save_scan' title='Save' ><i class='fa fa-floppy-o' ></i> Save</button> <button class='btn btn-danger btn-sm cancel_edit_scan' title='Cancel' ><i class='fa fa-ban' ></i> Cancel</button> <p id="loading_confirm" style="display:none">Mohon Tunggu Sedang Save</p></td>
+                                    <td id="opname_submit">
+                                        <button class='btn btn-primary btn-sm save_scan' title='Save' ><i class='fa fa-floppy-o' ></i> Save</button> 
+                                        <button class='btn btn-warning btn-sm cancel_edit_scan' title='Cancel' ><i class='fa fa-ban' ></i> Cancel</button> &nbsp;&nbsp; 
+                                        <button class='btn btn-danger btn-sm delete_scan' title='Delete' ><i class='fa fa-trash' ></i> Delete</button> 
+                                        <p id="loading_confirm" style="display:none">Mohon Tunggu Sedang Save</p></td>
                                 </tr>
                             </table>
                         </div>
@@ -442,36 +452,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         let parent=$(this).parent().parent();
         let id = parent.data('id');
         let dataPost={status:"konfirmasi",id_dt: id};
-        $.ajax({
-            url: 'pages/ajax/stock_opname_gk_ajax.php',
-            type: 'POST',
-            data: dataPost,
-            dataType: "JSON",
-            success: function(response) {
-                if(response.success){ 
-                    let idconfirm=response.messages[1];
-                    $("#confirm_"+idconfirm).html(response.messages[2]);
-                    Swal.fire({
-                        title: 'Saved',
-                        text: 'Berhasil Konfirmasi',
-                        icon: 'success',
-                        timer: 1000,
-                        position : 'top-end',
-                        showConfirmButton: false
-                    })
-                }else{
-                    alert("Terjadi Error Update, mohon hubungi DIT");
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Jaringan Terputus, Silahkan ulangi kembali',
-                    icon: 'error',
-                    timer: 1000,
-                    position : 'top-end',
-                    showConfirmButton: false
+        Swal.fire({
+            icon: 'warning',
+            title: 'Konfirmasi',
+            text: 'Apakah Yakin Konfirmasi Data?',
+            showCancelButton: true,
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: 'pages/ajax/stock_opname_gk_ajax.php',
+                    type: 'POST',
+                    data: dataPost,
+                    dataType: "JSON",
+                    success: function(response) {
+                        if(response.success){ 
+                            let idconfirm=response.messages[1];
+                            $("#confirm_"+idconfirm).html(response.messages[2]);
+                            Swal.fire({
+                                title: 'Saved',
+                                text: 'Berhasil Konfirmasi',
+                                icon: 'success',
+                                timer: 1000,
+                                position : 'top-end',
+                                showConfirmButton: false
+                            })
+                        }else{
+                            alert("Terjadi Error Update, mohon hubungi DIT");
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Jaringan Terputus, Silahkan ulangi kembali',
+                            icon: 'error',
+                            timer: 1000,
+                            position : 'top-end',
+                            showConfirmButton: false
+                        });
+                    }
                 });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    
             }
         });
     });
@@ -508,6 +531,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $("#opname_pakingan_standar").val(response.data.pakingan_standar);
                     $("#opname_total_stock").val(response.data.total_stock);
                     $("#opname_total_stock_old").val("0");
+                    $("#opname_total_stock_response").val(response.data.total_stock);
                     $("#opname_qty_old").val("0");
                     if(response.data.qty_dus==0){
                         $("#opname_qty_dus").val("");
@@ -539,6 +563,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }else{
                             $("#formula").val(response.data.kategori);
                             $("#kategori").val('bukaan').trigger("change");
+                            if(response.data.kategori=="tinggi"){
+                                selectTG();
+                            }
                         }
                     }
                     
@@ -573,6 +600,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if($(this).val()=="utuhan"){
             $("#formula_row").hide();
             $("#berat_row").hide();
+            $("#tinggi_row").hide();
             $("#label_qty").html("Qty Dus");
             selectUT();
         }else{
@@ -600,6 +628,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $(document).on('change', '#kardus_multiple', function(e) {
         hitungTotal()
     });
+    $(document).on('change', '#tinggi_multiple', function(e) {
+        hitungTotal()
+    });
     $(document).on('click', '.save_scan', function() {
         if($("#opname_qty_dus").val()==""||$("#opname_qty_dus").val()=="0"){
             Swal.fire({
@@ -609,8 +640,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
             return 1;
         }
-        $(".save_scan").hide();
-        $("#loading_confirm").show();
+        begin_prosses_scan();
         let id = $("#opname_id").val();
         let ctgr = "utuhan";
         if($("#warehouse").val()=="M510"){
@@ -654,14 +684,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }else{
                     alert("Terjadi Error Update, mohon hubungi DIT");
                 }
-                $(".save_scan").show();
-                $("#loading_confirm").hide();  
+                end_prosses_scan();  
             },
             error: function() {
                 alert("Jaringan Terputus, Silahkan klik Confirm kembali");
-                $(".save_scan").show();
-                $("#loading_confirm").hide();
+                end_prosses_scan();
             }
+        });
+    });
+    $(document).on('click', '.delete_scan', function() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Konfirmasi',
+            text: 'Apakah yakin ingin Menghapus data?',
+            showCancelButton: true,
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                begin_prosses_scan();
+                let id = $("#opname_id").val();
+                let dataPost={
+                    status:"delete_scan",
+                    id_dt: id,
+                    id_stock_opname: id_stock_opname,
+                };
+                $.ajax({
+                    url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
+                    type: 'POST',
+                    data: dataPost,
+                    dataType: "JSON",
+                    success: function(response) {
+                        if(response.success){ 
+                            let dataPost={status:"get_scan_opname",id_dt: id_stock_opname};
+                            refreshScanData(dataPost); 
+                            $("#m-content").hide("slide", { direction: "left" }, 1000); 
+                            Swal.fire({
+                                title: 'Saved',
+                                text: 'Berhasil Menghapus Data',
+                                icon: 'success',
+                                timer: 1000,
+                                showConfirmButton: false
+                            })
+                        }else{
+                            alert("Terjadi Error Update, mohon hubungi DIT");
+                        }
+                        end_prosses_scan();  
+                    },
+                    error: function() {
+                        alert("Jaringan Terputus, Silahkan klik Confirm kembali");
+                        end_prosses_scan();
+                    }
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {}
         });
     });
     $(document).on('click', '.exportData', function() {
@@ -686,6 +761,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         window.open(url, "_blank");
     });
     //logic function
+    //TG untuk standar utuhan di tinggi, BP untuk berat packingan, UT untuk standar utuhan
+    function selectTG(){
+        let paking_kds = $("#opname_ut").val().split("||");
+        if(paking_kds.length>=2){
+            let select=`<select class="form-select w100" id="tinggi_multiple">`;
+            let val=$("#opname_qty_dus").val();
+            let ps=$("#opname_tg").val();
+            let ts= $("#opname_total_stock_response").val();
+            let last_val=0;
+            if(Number(val)!= 0 && ps !=0){
+                let tmp=val/ps;
+                last_val=ts/tmp;
+            }
+            for (let i = 0; i < paking_kds.length; i++) { 
+                let selected= last_val.toFixed() ==paking_kds[i]?"selected": "";
+                select+=`<option value="`+paking_kds[i]+`" `+selected+`>`+nilaiKeRibuan(paking_kds[i], ".",",")+`</option>`;
+            }
+            select+= `</select> `;
+            $("#opname_pakingan_tinggi_standar_text").html(select);
+            $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_tg").val(), ".",","));
+            $("#tinggi_multiple").trigger("change");
+        }else{
+            $("#opname_pakingan_tinggi_standar_text").html(nilaiKeRibuan(paking_kds, ".",","));
+            $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_tg").val(), ".",","));
+            hitungTotal();
+        }
+    }
     function selectBP(){
         let paking_kds = $("#opname_bp").val().split("||");
         if(paking_kds.length>=2){
@@ -720,6 +822,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     function ubahFormula(){
         $("#berat_row").hide();
+        $("#tinggi_row").hide();
         $("#label_qty").html(ucfirst($("#formula").val()));
         let val=0;
         if($("#formula").val()=="berat"){
@@ -729,7 +832,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }else if($("#formula").val()=="volume"){
             val=$("#opname_bj").val();
         }else if($("#formula").val()=="tinggi"){
-            val=$("#opname_tg").val();
+            $("#tinggi_row").show();
+            selectTG();
+            return true;
         }
         $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
         hitungTotal();
@@ -781,9 +886,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 ps=$("#opname_bj").val();
                 total_stock=Number(val)*ps;
             }else if($("#formula").val()=="tinggi"){  
+                let st=$("#opname_ut").val();
+                let sdt_tg = st.split("||");
+                if(sdt_tg.length>=2){
+                    st=$("#tinggi_multiple").val();
+                }       
                 $("#opname_pakingan_standar").val($("#opname_tg").val());
                 ps=$("#opname_tg").val();
-                total_stock=Number(val)/ps*$("#opname_ut").val();  
+                total_stock=Number(val)/ps*st;  
             }
         }
         
@@ -858,6 +968,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $('#detai_scan').on('hidden.bs.modal', function () {
         lihat_detail=false;
     });
+    function begin_prosses_scan(){
+        $(".save_scan").hide();
+        $(".delete_scan").hide();
+        $("#loading_confirm").show();
+    }
+    function end_prosses_scan(){
+        $(".save_scan").show();
+        $(".delete_scan").show();
+        $("#loading_confirm").hide(); 
+    }
     //helper function
     function formatAngka(val){
         var Num=val;

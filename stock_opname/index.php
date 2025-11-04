@@ -116,6 +116,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                         <input type="hidden" value="0" id="opname_total_stock">
                         <input type="hidden" value="0" id="opname_total_scan">
                         <input type="hidden" value="0" id="opname_total_stock_old">
+                        <input type="hidden" value="0" id="opname_total_stock_response">
                         <input type="hidden" value="0" id="opname_qty_old">
                         <input type="hidden" value="0" id="opname_ut">
                         <input type="hidden" value="0" id="opname_tg">
@@ -196,6 +197,11 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                                 <td>: &nbsp;</td>
                                 <td id="opname_pakingan_standar_text"></td>
                             </tr >
+                            <tr class="WH_M510 WAREHOUSE_ALL TINGGI_STANDAR va-top" id="tinggi_row">
+                                <td class="padTopBot5">SP Utuhan</td>
+                                <td>: &nbsp;</td>
+                                <td id="opname_pakingan_tinggi_standar_text"></td>
+                            </tr>
                             <tr class="va-top">
                                 <td>Total Stock</td>
                                 <td>: &nbsp;</td>
@@ -254,6 +260,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             if($(this).val()=="utuhan"){
                 $("#formula_row").hide();
                 $("#berat_row").hide();
+                $("#tinggi_row").hide();
                 $("#label_qty").html("Qty Dus");
                 selectUT();
             }else{
@@ -280,8 +287,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 loading = true;
                 let dataPost={check:"check_transaksi_multiple", val:$(this).val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val()};
                 $.ajax({
-                    // url: '<?=$baseUrl?>pages/ajax/stock_opname_gk_ajax.php',
-                    url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
+                    url: '../pages/ajax/stock_opname_gk_ajax.php',
                     type: 'POST',
                     data: dataPost,
                     dataType: "JSON",
@@ -317,7 +323,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             $(".WAREHOUSE_ALL").hide();
             let dataPost={check:"edit_data", val:$("#barcode").val(),tgl_tutup: $("#tgl_tutup").val(),warehouse:$("#warehouse").val(),kode_obat:$("#trans_kd_obat").val(),lot:$("#trans_lot").val()};
             $.ajax({
-                url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
+                url: '../pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
                 data: dataPost,
                 dataType: "JSON",
@@ -335,6 +341,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                          $("#opname_pakingan_standar").val(response.data.pakingan_standar);
                          $("#opname_total_stock").val(response.data.total_stock);
                          $("#opname_total_stock_old").val(response.data.total_stock);
+                         $("#opname_total_stock_response").val(response.data.total_stock);
                          $("#opname_qty_old").val(response.data.qty_dus);
                        
                         updateSP(response.data.ut,"ut");
@@ -363,6 +370,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                             }else{
                                 $("#formula").val(response.data.kategori);
                                 $("#kategori").val('bukaan').trigger("change");
+                                if(response.data.kategori=="tinggi"){
+                                    selectTG();
+                                }
                             }
                         }
                         
@@ -415,6 +425,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         $(document).on('change', '#kardus_multiple', function(e) {
             hitungTotal()
         });
+        $(document).on('change', '#tinggi_multiple', function(e) {
+            hitungTotal()
+        });
         $(document).on('click', '.confirm', function() {
             if($("#opname_qty_dus").val()==""||$("#opname_qty_dus").val()=="0"){
                 Swal.fire({
@@ -452,7 +465,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                 kategori:ctgr
             };
             $.ajax({
-                url: 'https://online.indotaichen.com/laborat/pages/ajax/stock_opname_gk_ajax.php',
+                url: '../pages/ajax/stock_opname_gk_ajax.php',
                 type: 'POST',
                 data: dataPost,
                 dataType: "JSON",
@@ -483,6 +496,33 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             $("#detailModal").modal("hide"); 
         });
         //logic function
+        //TG untuk standar utuhan di tinggi, BP untuk berat packingan, UT untuk standar utuhan
+        function selectTG(){
+            let paking_kds = $("#opname_ut").val().split("||");
+            if(paking_kds.length>=2){
+                let select=`<select class="form-select w100" id="tinggi_multiple">`;
+                let val=$("#opname_qty_dus").val();
+                let ps=$("#opname_tg").val();
+                let ts= $("#opname_total_stock_response").val();
+                let last_val=0;
+                if(Number(val)!= 0 && ps !=0){
+                    let tmp=val/ps;
+                    last_val=ts/tmp;
+                }
+                for (let i = 0; i < paking_kds.length; i++) { 
+                    let selected= last_val.toFixed() ==paking_kds[i]?"selected": "";
+                    select+=`<option value="`+paking_kds[i]+`" `+selected+`>`+nilaiKeRibuan(paking_kds[i], ".",",")+`</option>`;
+                }
+                select+= `</select> `;
+                $("#opname_pakingan_tinggi_standar_text").html(select);
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_tg").val(), ".",","));
+                $("#tinggi_multiple").trigger("change");
+            }else{
+                $("#opname_pakingan_tinggi_standar_text").html(nilaiKeRibuan(paking_kds, ".",","));
+                $("#opname_pakingan_standar_text").html(nilaiKeRibuan($("#opname_tg").val(), ".",","));
+                hitungTotal();
+            }
+        }
         function selectBP(){
             let paking_kds = $("#opname_bp").val().split("||");
             if(paking_kds.length>=2){
@@ -517,6 +557,7 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
         }
         function ubahFormula(){
             $("#berat_row").hide();
+            $("#tinggi_row").hide();
             $("#label_qty").html(ucfirst($("#formula").val()));
             let val=0;
             if($("#formula").val()=="berat"){
@@ -526,7 +567,9 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
             }else if($("#formula").val()=="volume"){
                 val=$("#opname_bj").val();
             }else if($("#formula").val()=="tinggi"){
-                val=$("#opname_tg").val();
+                $("#tinggi_row").show();
+                selectTG();
+                return true;
             }
             $("#opname_pakingan_standar_text").html(nilaiKeRibuan(val, ".",","));
             hitungTotal();
@@ -578,9 +621,14 @@ $baseUrl=str_replace("stock_opname/index.php","",$url);
                     ps=$("#opname_bj").val();
                     total_stock=Number(val)*ps;
                 }else if($("#formula").val()=="tinggi"){  
+                    let st=$("#opname_ut").val();
+                    let sdt_tg = st.split("||");
+                    if(sdt_tg.length>=2){
+                        st=$("#tinggi_multiple").val();
+                    }    
                     $("#opname_pakingan_standar").val($("#opname_tg").val());
                     ps=$("#opname_tg").val();
-                    total_stock=Number(val)/ps*$("#opname_ut").val();  
+                    total_stock=Number(val)/ps*st;  
                 }
             }
             
