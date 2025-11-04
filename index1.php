@@ -610,7 +610,7 @@ $page = strtolower($page);
                                                     echo "active"; ?>">
                                         <a href="?p=stock_opname_GK_rekap"><i class="fa fa-tasks"></i> <span>Rekap Stock Opname GK</span></a>
                                     </li>
-                                    <?php if (strtoupper($_SESSION['userLAB']) == 'DIT'): ?>
+                                    <?php if (in_array(strtoupper($_SESSION['userLAB']),["DIT","INDAH","CICIK"])): ?>
                                     <li class="<?php if ($_GET['p'] == "standar_packaging_GK")
                                                     echo "active"; ?>">
                                         <a href="?p=standar_packaging_GK"><i class="fa fa-tasks"></i> <span>Standar Packaging</span></a>

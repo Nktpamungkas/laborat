@@ -5,7 +5,7 @@ include "koneksi.php";
 include "includes/Penomoran_helper.php";
 
 $username = $_SESSION['userLAB'];
-if($username!="dit"){
+if(in_array(strtoupper($_SESSION['userLAB']),["DIT","INDAH","CICIK"])==false){
     echo "<center><h1>Tidak ada Akses";
     exit();
 }
