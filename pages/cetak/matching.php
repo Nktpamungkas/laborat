@@ -45,7 +45,7 @@ $act = $_GET['g'];
     include('../../phpqrcode/qrlib.php');
 
     // Data untuk QR Code
-    $qrcode = $_GET['idkk'];
+    $qrcode = $data['no_resep'];
 
     // Membuat QR Code dalam file PNG
 
