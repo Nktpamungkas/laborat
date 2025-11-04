@@ -2,7 +2,7 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
-$akhir = date('2025-10-27');
+$akhir = date('Y-m-d');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));

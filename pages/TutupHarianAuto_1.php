@@ -17,7 +17,7 @@ $cektgl = mysqli_query($con, "SELECT
         COUNT(tgl_tutup) AS ck,
         DATE_FORMAT(NOW(),'%H') AS jam,
         DATE_FORMAT(NOW(),'%H:%i') AS jam1
-    FROM tblopname_11 
+    FROM tblopname_11a
     WHERE tgl_tutup = '$Awal' 
     LIMIT 1
 ");
@@ -30,7 +30,7 @@ $selh = round(abs($t2 - $t1) / (60 * 60 * 45));
 if ($dcek['ck'] > 0) {
 	echo "<script>alert('Stok Tgl $Awal ini sudah pernah ditutup');</script>";
 	$status = "GAGAL - SUDAH DITUTUP";
-} elseif ($dcek['jam'] < 13 && $dcek['jam'] > 0) { 
+} elseif ($dcek['jam'] < 10 && $dcek['jam'] > 0) { 
 
 	echo "<script>alert('Tidak bisa tutup sebelum jam 11 malam. Sekarang masih jam {$dcek['jam1']}');</script>";
 	$status = "GAGAL - BELUM WAKTU";
