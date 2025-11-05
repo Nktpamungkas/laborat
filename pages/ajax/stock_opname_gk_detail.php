@@ -66,6 +66,7 @@ if(trim($warehouse," ")=="M101"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
@@ -162,6 +163,7 @@ else if(trim($warehouse," ")=="M510"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11

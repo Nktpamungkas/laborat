@@ -393,6 +393,7 @@
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11

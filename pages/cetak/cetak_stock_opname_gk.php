@@ -70,6 +70,7 @@ $tgl = date("Y-m-d");
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
@@ -163,6 +164,7 @@ $tgl = date("Y-m-d");
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11

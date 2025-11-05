@@ -60,6 +60,7 @@ if($kategori=="DYESTUFF"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
@@ -106,6 +107,7 @@ if($kategori=="DYESTUFF"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
@@ -152,6 +154,7 @@ else if($kategori=="CHEMICAL"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
@@ -190,6 +193,7 @@ else if($kategori=="CHEMICAL"){
 		            LOTCODE,
 		            LOGICALWAREHOUSECODE,
 		            tgl_tutup,
+                    WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
 		            BASEPRIMARYUNITCODE
 		        FROM tblopname_11
