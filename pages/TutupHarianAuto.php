@@ -1,10 +1,10 @@
 <?php
-include "koneksi.php";
+include "../koneksi.php";
 ini_set("error_reporting", 1);
 $Awal = date("Y-m-d");
 //$Awal = date("Y-m-d", strtotime("-2 day"));
 
-$cektgl=mysqli_query($con,"SELECT DATE_FORMAT(NOW(),'%Y-%m-%d') as tgl,COUNT(tgl_tutup) as ck ,DATE_FORMAT(NOW(),'%H') as jam,DATE_FORMAT(NOW(),'%H:%i') as jam1 FROM tblopname_11 WHERE tgl_tutup='".$Awal."' LIMIT 1");
+$cektgl=mysqli_query($con,"SELECT DATE_FORMAT(NOW(),'%Y-%m-%d') as tgl,COUNT(tgl_tutup) as ck ,DATE_FORMAT(NOW(),'%H') as jam,DATE_FORMAT(NOW(),'%H:%i') as jam1 FROM tblopname_11a WHERE tgl_tutup='".$Awal."' LIMIT 1");
 $dcek=mysqli_fetch_array($cektgl);
 $t1=strtotime($Awal);
 $t2=strtotime($dcek['tgl']);
@@ -66,7 +66,7 @@ AND b.LOGICALWAREHOUSECODE IN ('M510','M101')";
 	//}				  
     while($rowdb21 = db2_fetch_assoc($stmt1)){
 	
-	$simpan=mysqli_query($con,"INSERT INTO `tblopname_11` SET 
+	$simpan=mysqli_query($con,"INSERT INTO `tblopname_11a` SET 
 					ITEMTYPECODE = '".$rowdb21['ITEMTYPECODE']."',
 					LOGICALWAREHOUSECODE = '".$rowdb21['LOGICALWAREHOUSECODE'] . "',
 					DECOSUBCODE01 = '".$rowdb21['DECOSUBCODE01'] . "',
@@ -87,16 +87,17 @@ AND b.LOGICALWAREHOUSECODE IN ('M510','M101')";
 					BASEPRIMARYUNITCODE = '".$rowdb21['BASEPRIMARYUNITCODE']."',
 					BASEPRIMARYQUANTITYUNIT = '".$rowdb21['BASEPRIMARYQUANTITYUNIT']."',
 					tgl_tutup = '".$Awal."',
-					tgl_buat =now()
-					
+					tgl_buat =now(),
+					note = 'Test CURL'
 					") or die("GAGAL SIMPAN");	
 	
 	}
 	if($simpan){		
 		echo "<script>";
 		echo "alert('Stok Tgl ".$Awal." Sudah ditutup')";
+		echo "window.open('', '_self').close();"; // cara variasi untuk nutup tab
 		echo "</script>";
-        echo "<meta http-equiv='refresh' content='0; url=TutupHarianAuto.php?note=Berhasil'>";
+        // echo "<meta http-equiv='refresh' content='0; url=TutupHarianAuto.php?note=Berhasil'>";
 		
 		}			
  }

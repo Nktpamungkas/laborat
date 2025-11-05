@@ -989,6 +989,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date = new DateTime($tgl1);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
+                                    $tgl_kurang_satu = date('Y-m-d', strtotime($tgl1 . ' -1 day'));
                                     // echo $time;
                                     // echo $tahunBulan2;
 

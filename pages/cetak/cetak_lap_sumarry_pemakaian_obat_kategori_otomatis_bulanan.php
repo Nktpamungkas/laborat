@@ -464,11 +464,15 @@ if (file_exists($logoPath)) {
                                             SUBCODE01
                                             ORDER BY SUBCODE01 ASC");
                                     } else {
-                                        $q_qty_awal = mysqli_query($con, "SELECT 
+                                        $q_qty_awal = mysqli_query($con, "SELECT tgl_tutup,
+                                                tahun_bulan,
+                                                DECOSUBCODE01,
+                                                SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal 
+                                                from(SELECT DISTINCT
                                                 tgl_tutup,
                                                 DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
                                                 DECOSUBCODE01,
-                                                SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                                BASEPRIMARYQUANTITYUNIT
                                             FROM tblopname_11 t
                                             WHERE 
                                                 DECOSUBCODE01 = '$row[DECOSUBCODE01]'
@@ -481,7 +485,7 @@ if (file_exists($logoPath)) {
                                                         and not KODE_OBAT ='E-1-000'
                                                         AND LOGICALWAREHOUSECODE IN ('M510', 'M101') 
                                                         AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
-                                                ) and not KODE_OBAT ='E-1-000'
+                                                ) and not KODE_OBAT ='E-1-000') as sub
                                             GROUP BY tgl_tutup, DECOSUBCODE01");
                                     }                                
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];

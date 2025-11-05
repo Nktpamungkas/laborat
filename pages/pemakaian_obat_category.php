@@ -21,7 +21,7 @@ if (!empty($tglInput) && strtotime($tglInput) !== false) {
     $awaltanggal = date('Y-m-01 23:01:00');
 }
 
-
+// echo $tglInput;
 // Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
 
@@ -422,7 +422,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
+                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 23:01:00' AND '$_POST[tgl2] 23:00:00'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                         AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -601,6 +601,8 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                     // $code1 = $row['DECOSUBCODE01'];
                                     // $code2 = $row['DECOSUBCODE02'];
                                     // $code3 = $row['DECOSUBCODE03'];
+                                
+                                    $tgl_kurang_satu = date('Y-m-d', strtotime($tgl1 . ' -1 day'));
 
                                     $tahunBulan = date('Y-m', strtotime($tgl2));
                                     $kode_obat = $row['KODE_OBAT'];
@@ -625,15 +627,26 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                             SUBCODE01
                                             ORDER BY SUBCODE01 ASC");
                                     } else {
-                                        $q_qty_awal = mysqli_query($con, "SELECT 
+                                        $q_qty_awal = mysqli_query($con, " SELECT tgl_tutup,
+                                                tahun_bulan,
+                                                DECOSUBCODE01,
+                                                SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal 
+                                                from(
+                                                SELECT DISTINCT
                                                 tgl_tutup,
                                                 DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                                KODE_OBAT,
+                                                LOTCODE,
                                                 DECOSUBCODE01,
-                                                SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                                DECOSUBCODE02,
+                                                DECOSUBCODE03,
+                                                LONGDESCRIPTION,
+                                                WHSLOCATIONWAREHOUSEZONECODE,
+                                                BASEPRIMARYQUANTITYUNIT
                                             FROM tblopname_11 t
                                             WHERE 
                                                 DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                                AND LOGICALWAREHOUSECODE $where_warehouse  
+                                                AND LOGICALWAREHOUSECODE  $where_warehouse  
                                                 AND tgl_tutup = (
                                                     SELECT MAX(tgl_tutup)
                                                     FROM tblopname_11
@@ -641,8 +654,9 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                                         DECOSUBCODE01  = '$row[DECOSUBCODE01]'
                                                         and not KODE_OBAT ='E-1-000'
                                                         AND LOGICALWAREHOUSECODE $where_warehouse  
-                                                        AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                                        AND  tgl_tutup = '$tgl_kurang_satu'
                                                 ) and not KODE_OBAT ='E-1-000'
+                                                ) as sub
                                             GROUP BY tgl_tutup, DECOSUBCODE01");
                                     }                                
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);                 

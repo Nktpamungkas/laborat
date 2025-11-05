@@ -30,7 +30,7 @@ $selh = round(abs($t2 - $t1) / (60 * 60 * 45));
 if ($dcek['ck'] > 0) {
 	echo "<script>alert('Stok Tgl $Awal ini sudah pernah ditutup');</script>";
 	$status = "GAGAL - SUDAH DITUTUP";
-} elseif ($dcek['jam'] < 10 && $dcek['jam'] > 0) { 
+} elseif ($dcek['jam'] < 23 && $dcek['jam'] > 0) { 
 
 	echo "<script>alert('Tidak bisa tutup sebelum jam 11 malam. Sekarang masih jam {$dcek['jam1']}');</script>";
 	$status = "GAGAL - BELUM WAKTU";
