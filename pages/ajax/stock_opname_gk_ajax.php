@@ -216,6 +216,7 @@
                     SET 
                     qty_dus = (select SUM(s1.qty_dus)  from tbl_scan_stock_opname_gk s1 where s1.id_dt = ? ),
                     total_stock = (select SUM(s2.total_stock)  from tbl_scan_stock_opname_gk s2 where s2.id_dt = ? )
+                    , konfirmasi = '0'
                     WHERE id = ? LIMIT 1"; 
                 $prepareRefresh=mysqli_prepare( $con, $sqlRefresh );
                 mysqli_stmt_bind_param($prepareRefresh, "sss",$_POST['id_stock_opname'],$_POST['id_stock_opname'],$_POST['id_stock_opname']);
@@ -240,6 +241,7 @@
                     SET 
                     qty_dus = (select SUM(s1.qty_dus)  from tbl_scan_stock_opname_gk s1 where s1.id_dt = ? ),
                     total_stock = (select SUM(s2.total_stock)  from tbl_scan_stock_opname_gk s2 where s2.id_dt = ? )
+                    , konfirmasi = '0'
                     WHERE id = ? LIMIT 1"; 
                 $prepareRefresh=mysqli_prepare( $con, $sqlRefresh );
                 mysqli_stmt_bind_param($prepareRefresh, "sss",$_POST['id_stock_opname'],$_POST['id_stock_opname'],$_POST['id_stock_opname']);
@@ -361,13 +363,59 @@
                         BASEPRIMARYUNITCODE
                     ORDER BY KODE_OBAT ASC ") ;
         }
-        $query = "SELECT *
+        $queryOLD = "SELECT *
                 FROM tbl_stock_opname_gk 
                 WHERE 
                     tgl_tutup = '$tgl_tutup'
                     AND LOGICALWAREHOUSECODE = '$warehouse'
                     AND KODE_OBAT = '".$_POST['kode_obat']."'
                     AND LOTCODE = '".$_POST['lot']."'
+                ORDER BY KODE_OBAT ASC";
+        $query = "SELECT o.*,d.total_qty as total_o11
+                FROM tbl_stock_opname_gk o
+                left join 
+   			(
+   			SELECT 
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+	            BASEPRIMARYUNITCODE,
+	            '0'
+	        FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		        where tgl_tutup ='$tgl_tutup'
+		        AND LOGICALWAREHOUSECODE = '$warehouse'
+                AND KODE_OBAT = '".$_POST['kode_obat']."'
+                AND LOTCODE = '".$_POST['lot']."'
+	        ) DST
+	        GROUP BY  
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            BASEPRIMARYUNITCODE
+	    	) d
+        on o.KODE_OBAT=d.KODE_OBAT and d.LOTCODE = o.LOTCODE  and d.tgl_tutup = o.tgl_tutup and d.LOGICALWAREHOUSECODE = o.LOGICALWAREHOUSECODE
+                WHERE 
+                    o.tgl_tutup = '$tgl_tutup'
+                    AND o.LOGICALWAREHOUSECODE = '$warehouse'
+                    AND o.KODE_OBAT = '".$_POST['kode_obat']."'
+                    AND o.LOTCODE = '".$_POST['lot']."'
                 ORDER BY KODE_OBAT ASC";
         $stmt = mysqli_query($con, $query);
         if (!$stmt) {
@@ -383,14 +431,14 @@
                 $dataOpane['kode_obat']=$rowOpname['KODE_OBAT'];
                 $dataOpane['nama_obat']=$rowOpname['LONGDESCRIPTION'];
                 $dataOpane['lot']=$rowOpname['LOTCODE'];
-                $dataOpane['total_qty']=$rowOpname['total_qty']*1000;
+                $dataOpane['total_qty']=$rowOpname['total_o11']*1000;
                 $dataOpane['qty_dus']=$rowOpname['qty_dus'];
                 $dataOpane['pakingan_standar']=$rowOpname['pakingan_standar'];
                 $dataOpane['total_stock']=$rowOpname['total_stock'];
                 $dataOpane['kategori']=$rowOpname['kategori'];
                 $dataOpane['c']=$rowOpname['konfirmasi'];
                         
-                $dataOpane['total_qty_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_qty']*1000);
+                $dataOpane['total_qty_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_o11']*1000);
                 $dataOpane['qty_dus_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['qty_dus']);
                 $dataOpane['pakingan_standar_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['pakingan_standar']);
                 $dataOpane['total_stock_text']=Penomoran_helper::nilaiKeRibuan($rowOpname['total_stock']);

@@ -44,12 +44,48 @@ if($row_count==0){
 }
 
 if(trim($warehouse," ")=="M101"){
-    $query = "SELECT *
-        FROM tbl_stock_opname_gk 
+    $query = "SELECT o.*,d.total_qty as total_o11
+        FROM tbl_stock_opname_gk o
+        left join 
+        (
+   			SELECT 
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+	            BASEPRIMARYUNITCODE,
+	            '0'
+	        FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		        where tgl_tutup ='$tgl_tutup'
+		        AND LOGICALWAREHOUSECODE = '$warehouse'
+	        ) DST
+	        GROUP BY  
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            BASEPRIMARYUNITCODE
+	    	) d
+        on o.KODE_OBAT=d.KODE_OBAT and d.LOTCODE = o.LOTCODE  and d.tgl_tutup = o.tgl_tutup and d.LOGICALWAREHOUSECODE = o.LOGICALWAREHOUSECODE
         WHERE 
-            tgl_tutup = '$tgl_tutup'
-            AND LOGICALWAREHOUSECODE = '$warehouse'
-        ORDER BY KODE_OBAT ASC";
+            o.tgl_tutup = '$tgl_tutup'
+            AND o.LOGICALWAREHOUSECODE = '$warehouse'
+        ORDER BY o.KODE_OBAT ASC";
         $stmt = mysqli_query($con, $query);
     if (!$stmt) {
         echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
@@ -89,7 +125,7 @@ if(trim($warehouse," ")=="M101"){
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
                     <td>" . htmlspecialchars($row['LOTCODE']) . "</td>
                     <td class='text-center'>" . htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty']*1000)." GR</td>
+                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_o11']*1000)." GR</td>
                     <td class='text-right' id='td_dus_".$row['id']."' >$dus</td>
                     <td class='text-right' id='ps_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan(doubleval($row['pakingan_standar']))."</td>
                     <td class='text-right' id='ts_".$row['id']."' >".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>
@@ -104,12 +140,48 @@ if(trim($warehouse," ")=="M101"){
     }
 }
 else if(trim($warehouse," ")=="M510"){
-    $query = "SELECT *
-        FROM tbl_stock_opname_gk 
+    $query = "SELECT o.*,d.total_qty as total_o11
+        FROM tbl_stock_opname_gk o
+        left join 
+        (
+   			SELECT 
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+	            BASEPRIMARYUNITCODE,
+	            '0'
+	        FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		        where tgl_tutup ='$tgl_tutup'
+		        AND LOGICALWAREHOUSECODE = '$warehouse'
+	        ) DST
+	        GROUP BY  
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            BASEPRIMARYUNITCODE
+	    	) d
+        on o.KODE_OBAT=d.KODE_OBAT and d.LOTCODE = o.LOTCODE  and d.tgl_tutup = o.tgl_tutup and d.LOGICALWAREHOUSECODE = o.LOGICALWAREHOUSECODE
         WHERE 
-            tgl_tutup = '$tgl_tutup'
-            AND LOGICALWAREHOUSECODE = '$warehouse'
-        ORDER BY KODE_OBAT ASC";
+            o.tgl_tutup = '$tgl_tutup'
+            AND o.LOGICALWAREHOUSECODE = '$warehouse'
+        ORDER BY o.KODE_OBAT ASC";
         $stmt = mysqli_query($con, $query);
     if (!$stmt) {
         echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
@@ -146,7 +218,7 @@ else if(trim($warehouse," ")=="M510"){
                     <td>" . htmlspecialchars($row['LONGDESCRIPTION']) . "</td>
                     <td>" . htmlspecialchars($row['LOTCODE']) . "</td>
                     <td class='text-center'>" . htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_qty']*1000)." GR</td>
+                    <td class='text-right'>".Penomoran_helper::nilaiKeRibuan($row['total_o11']*1000)." GR</td>
                     <td class='text-right' id='td_dus_".$row['id']."' >".ucfirst($row['kategori'])."<br/>Qty : ".Penomoran_helper::nilaiKeRibuan($row['qty_dus'])."</td>
                     <td class='text-right' id='ps_".$row['id']."'>".Penomoran_helper::nilaiKeRibuan(doubleval($row['pakingan_standar']))."</td>
                     <td class='text-right' id='ts_".$row['id']."' >".Penomoran_helper::nilaiKeRibuan($row['total_stock'])."</td>

@@ -42,12 +42,54 @@ $tgl = date("Y-m-d");
     <body>
     <?php
     if(trim($warehouse," ")=="M101"){
-        $query = "SELECT *
+        $queryOLD = "SELECT *
             FROM tbl_stock_opname_gk 
             WHERE 
                 tgl_tutup = '$tgl_tutup'
                 AND LOGICALWAREHOUSECODE = '$warehouse'
             ORDER BY KODE_OBAT ASC";
+        $query = "SELECT o.*,d.total_qty as total_o11
+        FROM tbl_stock_opname_gk o
+        left join 
+        (
+   			SELECT 
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+	            BASEPRIMARYUNITCODE,
+	            '0'
+	        FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		        where tgl_tutup ='$tgl_tutup'
+		        AND LOGICALWAREHOUSECODE = '$warehouse'
+	        ) DST
+	        GROUP BY  
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            BASEPRIMARYUNITCODE
+	    	) d
+        on o.KODE_OBAT=d.KODE_OBAT and d.LOTCODE = o.LOTCODE  and d.tgl_tutup = o.tgl_tutup and d.LOGICALWAREHOUSECODE = o.LOGICALWAREHOUSECODE
+        WHERE 
+            o.tgl_tutup = '$tgl_tutup'
+            AND o.LOGICALWAREHOUSECODE = '$warehouse'
+        ORDER BY o.KODE_OBAT ASC";
             $stmt = mysqli_query($con, $query);
         if (!$stmt) {
             echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
@@ -79,7 +121,7 @@ $tgl = date("Y-m-d");
                         <td>".htmlspecialchars($row['LONGDESCRIPTION'])."</td>
                         <td>".htmlspecialchars($row['LOTCODE'])."</td>
                         <td align='center'>".htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                        <td class='number'>".($row['total_qty']*1000)."</td>
+                        <td class='number'>".($row['total_o11']*1000)."</td>
                         <td class='number'>".$row['qty_dus']."</td>
                         <td class='number'>".doubleval($row['pakingan_standar'])."</td>
                         <td class='number'>".$row['total_stock']."</td>
@@ -93,12 +135,54 @@ $tgl = date("Y-m-d");
         }
     }
     else if(trim($warehouse," ")=="M510"){
-        $query = "SELECT *
+        $queryOLD = "SELECT *
             FROM tbl_stock_opname_gk 
             WHERE 
                 tgl_tutup = '$tgl_tutup'
                 AND LOGICALWAREHOUSECODE = '$warehouse'
             ORDER BY KODE_OBAT ASC";
+        $query = "SELECT o.*,d.total_qty as total_o11
+        FROM tbl_stock_opname_gk o
+        left join 
+        (
+   			SELECT 
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            SUM(BASEPRIMARYQUANTITYUNIT) AS total_qty,
+	            BASEPRIMARYUNITCODE,
+	            '0'
+	        FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		        where tgl_tutup ='$tgl_tutup'
+		        AND LOGICALWAREHOUSECODE = '$warehouse'
+	        ) DST
+	        GROUP BY  
+	            ITEMTYPECODE,
+	            KODE_OBAT,
+	            LONGDESCRIPTION,
+	            LOTCODE,
+	            LOGICALWAREHOUSECODE,
+	            tgl_tutup,
+	            BASEPRIMARYUNITCODE
+	    	) d
+        on o.KODE_OBAT=d.KODE_OBAT and d.LOTCODE = o.LOTCODE  and d.tgl_tutup = o.tgl_tutup and d.LOGICALWAREHOUSECODE = o.LOGICALWAREHOUSECODE
+        WHERE 
+            o.tgl_tutup = '$tgl_tutup'
+            AND o.LOGICALWAREHOUSECODE = '$warehouse'
+        ORDER BY o.KODE_OBAT ASC";
             $stmt = mysqli_query($con, $query);
         if (!$stmt) {
             echo "<p class='text-danger'>Query gagal: " . mysqli_error($con) . "</p>";
@@ -130,7 +214,7 @@ $tgl = date("Y-m-d");
                         <td>".htmlspecialchars($row['LONGDESCRIPTION'])."</td>
                         <td>".htmlspecialchars($row['LOTCODE'])."</td>
                         <td align='center'>".htmlspecialchars($row['LOGICALWAREHOUSECODE']) . "</td>
-                        <td class='number'>".($row['total_qty']*1000)."</td>
+                        <td class='number'>".($row['total_o11']*1000)."</td>
                         <td align='center'>".ucfirst($row['kategori'])."</td>
                         <td class='number'>".$row['qty_dus']."</td>
                         <td class='number'>".doubleval($row['pakingan_standar'])."</td>

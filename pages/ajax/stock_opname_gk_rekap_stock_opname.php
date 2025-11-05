@@ -52,14 +52,25 @@ if($kategori=="DYESTUFF"){
     }
 
     $query_get_balance="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
-    FROM tblopname_11
-    WHERE  tgl_tutup = '$tgl_tutup' 
-    AND NOT kode_obat = 'E-1-000'
-    AND (
-        SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'C'
-        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'D'
-        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'R'
-    )
+    FROM    (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		            WHERE  tgl_tutup = '$tgl_tutup' 
+                    AND NOT kode_obat = 'E-1-000'
+                    AND (
+                        SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'C'
+                        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'D'
+                        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'R'
+                    )
+    	    ) d
     GROUP BY tgl_tutup, KODE_OBAT ";
     $stmt_blc = mysqli_query($con, $query_get_balance);
     while ($row = mysqli_fetch_assoc($stmt_blc)) {
@@ -87,14 +98,25 @@ if($kategori=="DYESTUFF"){
     }
 
     $query_saldo_awal="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
-    FROM tblopname_11
-    WHERE  tgl_tutup = '$akhir' 
-    AND NOT kode_obat = 'E-1-000'
-    AND (
-        SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'C'
-        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'D'
-        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'R'
-    )
+    FROM    (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		            WHERE  tgl_tutup = '$akhir' 
+                    AND NOT kode_obat = 'E-1-000'
+                    AND (
+                        SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'C'
+                        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'D'
+                        OR SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'R'
+                    )
+    	    ) d
     GROUP BY tgl_tutup, KODE_OBAT ";
     $stmt_saldo = mysqli_query($con, $query_saldo_awal);
     while ($row = mysqli_fetch_assoc($stmt_saldo)) {
@@ -122,10 +144,21 @@ else if($kategori=="CHEMICAL"){
     }
 
     $query_get_balance="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
-    FROM tblopname_11
-    WHERE  tgl_tutup = '$tgl_tutup' 
-    AND NOT kode_obat = 'E-1-000'
-    AND SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'E'
+    FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		            WHERE  tgl_tutup = '$tgl_tutup' 
+		            AND NOT kode_obat = 'E-1-000'
+    			    AND SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'E'
+    	) d
     GROUP BY tgl_tutup, KODE_OBAT ";
     $stmt_blc = mysqli_query($con, $query_get_balance);
     while ($row = mysqli_fetch_assoc($stmt_blc)) {
@@ -149,10 +182,21 @@ else if($kategori=="CHEMICAL"){
     }
 
     $query_saldo_awal="SELECT KODE_OBAT, tgl_tutup, SUM(BASEPRIMARYQUANTITYUNIT) as total_balance 
-    FROM tblopname_11
-    WHERE  tgl_tutup = '$akhir' 
-    AND NOT kode_obat = 'E-1-000'
-    AND SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'E'
+    FROM (
+		        SELECT DISTINCT
+		            ITEMTYPECODE,
+		            KODE_OBAT,
+		            LONGDESCRIPTION,
+		            LOTCODE,
+		            LOGICALWAREHOUSECODE,
+		            tgl_tutup,
+		            BASEPRIMARYQUANTITYUNIT,
+		            BASEPRIMARYUNITCODE
+		        FROM tblopname_11
+		            WHERE  tgl_tutup = '$akhir' 
+                    AND NOT kode_obat = 'E-1-000'
+                    AND SUBSTRING_INDEX(KODE_OBAT, '-', 1)  = 'E'
+    	) d
     GROUP BY tgl_tutup, KODE_OBAT ";
     $stmt_saldo = mysqli_query($con, $query_saldo_awal);
     while ($row = mysqli_fetch_assoc($stmt_saldo)) {
