@@ -23,7 +23,6 @@ $awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
 
 // Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
 $akhir = date('Y-m-t 23:00:00');
-// $akhir = '2025-10-21';
 
 // echo "<pre>";
 // print_r($_POST); // Debug POST value
@@ -42,11 +41,24 @@ if ($warehouse == "in('M101')") {
     $templatewarehouse = "IN ('303M510', '303M101')";
 }
 
-    if ($warehouse == "in('M101')"|| $warehouse == "in('M510')") {
+    if ($warehouse == "in('M101')" || $warehouse == "in('M510')") {
     $wheretemplate = "";
                                 } else {
     $wheretemplate = "!= '303'";}
-$query = "                    SELECT
+
+if ($warehouse == "in('M101')") {
+    $wheretemplate2 =  "AND s.TEMPLATECODE IN ('201','203','303','304')";
+} else {
+    $wheretemplate2 = "AND s.TEMPLATECODE IN ('201','203','303')";
+}
+
+if ($warehouse == "in('M101')" || $warehouse == "in('M510')") {
+    $wherewarehouse2 =  "";
+} else {
+    $wherewarehouse2 = "AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101')";
+
+}
+$query = "SELECT
                 p.SUBCODE01,
                 p.SUBCODE02,
                 p.SUBCODE03,
@@ -85,11 +97,11 @@ $query = "                    SELECT
                                         FROM
                                             STOCKTRANSACTION s
                                         LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC' 
-                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND s3.DETAILTYPE =  $detailtype  
+                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER $wherewarehouse2 AND s3.DETAILTYPE =  $detailtype  
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
-                                            AND s.TEMPLATECODE IN ('201','203','303','304')
+                                            $wheretemplate2 
                                             AND s.LOGICALWAREHOUSECODE $warehouse
                                             AND (CASE 
                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE

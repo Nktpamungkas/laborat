@@ -117,7 +117,7 @@ $query = "SELECT
                 LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
                 WHERE
                     s.ITEMTYPECODE = 'DYC'
-                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 23:01:00' AND '$tgl2 23:00:00'
+                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                     AND COALESCE(TRIM( CASE 
                                     WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
