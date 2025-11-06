@@ -257,30 +257,9 @@ $query = "SELECT DISTINCT
 //             ASC";
 $stmt = db2_exec($conn1, $query);
 $no = 1;
-if ($stmt) {
-    echo "<table class='table table-bordered table-striped' id='detailApprovedTable'>";
-    echo "<thead>
-            <tr>
-                <th>No</th>
-                <th>Bon Order</th>
-                <th>No PO</th>
-                <th>Nama Buyer</th>
-                <th>Jenis Kain</th>
-                <th>AKJ</th>
-                <th>Itemcode</th>
-                <th>Notetas</th>
-                <th>Gramasi</th>
-                <th>Lebar</th>
-                <th>Color Standard</th>
-                <th>Warna</th>
-                <th>Kode Warna</th>
-                <th>Color Remarks</th>
-                <th>Benang</th>
-                <th>Po Greige</th>
-            </tr>
-          </thead>";
-    echo "<tbody>";
+$data = [];
 
+if ($stmt) {
     while ($row = db2_fetch_assoc($stmt)) {
         // Ambil data ITXVIEWBONORDER
         $q_itxviewkk = db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i WHERE SALESORDERCODE = '{$row['SALESORDERCODE']}' AND ORDERLINE = '{$row['ORDERLINE']}'");
@@ -579,29 +558,27 @@ if ($stmt) {
             $po_greige = implode('<br><br>', array_filter($po_greige_List));
         // Gabungkan PO_GREIGE
 
-        echo "<tr>";
-            echo "<td>" . $no++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['SALESORDERCODE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['NO_PO'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['LEGALNAME1'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['JENIS_KAIN'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['AKJ'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['ITEMCODE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['NOTETAS'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars(number_format($row['GRAMASI'] ?? 0, 2)) . "</td>";
-            echo "<td>" . htmlspecialchars(number_format($row['LEBAR'] ?? 0, 2)) . "</td>";
-            echo "<td>" . htmlspecialchars($row['COLOR_STANDARD'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['WARNA'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['KODE_WARNA'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['COLORREMARKS'] ?? '') . "</td>";
-            echo "<td>" . $benang . "</td>";
-            echo "<td>" . $po_greige . "</td>";
-        echo "</tr>";
+        $data[] = [
+            'SALESORDERCODE' => $row['SALESORDERCODE'] ?? '',
+            'NO_PO'          => $row['NO_PO']?? '',
+            'LEGALNAME1'     => $row['LEGALNAME1']?? '',
+            'JENIS_KAIN'     => $row['JENIS_KAIN']?? '',
+            'AKJ'            => $row['AKJ']?? '',
+            'ITEMCODE'       => $row['ITEMCODE']?? '',
+            'NOTETAS'        => $row['NOTETAS']?? '',
+            'GRAMASI'        => (float) $row['GRAMASI']?? '',
+            'LEBAR'          => (float) $row['LEBAR']?? '',
+            'COLOR_STANDARD' => $row['COLOR_STANDARD']?? '',
+            'WARNA'          => $row['WARNA']?? '',
+            'KODE_WARNA'     => $row['KODE_WARNA']?? '',
+            'COLORREMARKS'   => $row['COLORREMARKS'] ?? '',
+            'BENANG'         => $benangList,
+            'PO_GREIGE'         => $po_greige_List,
+        ];
     }
-
-    echo "</tbody></table>";
+    echo json_encode(['success' => true, 'data' => $data]);
 } else {
-    echo "<p class='text-danger'>Data tidak ditemukan.</p>";
+    echo json_encode(['success' => false, 'error' => 'Query failed']);
 }
 
 ?>

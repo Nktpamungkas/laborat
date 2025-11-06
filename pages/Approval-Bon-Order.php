@@ -239,16 +239,76 @@ if (!empty($codes)) {
         $.ajax({
         url: 'pages/ajax/Approved_get_order_detail.php',
         type: 'POST',
+        dataType: 'json',
         data: { code: code },
-        success: function(response) {
-            console.log('Response received');
-            $('#modal-content').html(response);
-
-            if ($.fn.DataTable.isDataTable('#detailApprovedTable')) {
-                console.log('Destroying existing DataTable');
-                $('#detailApprovedTable').DataTable().destroy();
+        success: function(res) {
+            console.log(res)
+            if (!res.success) {
+                $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
+                return;
             }
-            console.log('Initializing DataTable');
+
+            // Bangun tabel dari JSON
+            let html = `
+                <table class='table table-bordered table-striped' id='detailApprovedTable'>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Bon Order</th>
+                            <th>No PO</th>
+                            <th>Nama Buyer</th>
+                            <th>Jenis Kain</th>
+                            <th>AKJ</th>
+                            <th>Itemcode</th>
+                            <th>Notetas</th>
+                            <th>Gramasi</th>
+                            <th>Lebar</th>
+                            <th>Color Standard</th>
+                            <th>Warna</th>
+                            <th>Kode Warna</th>
+                            <th>Color Remarks</th>
+                            <th>Benang</th>
+                            <th>PO Greige</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            res.data.forEach((item, i) => {
+                const benangHtml = (item.BENANG || [])
+                .filter(v => v && v.trim() !== '')  // hanya ambil elemen yang tidak kosong
+                .join('<br><br>');                   // pisahkan antar baris dengan <br><br>
+
+                const poGreigeHtml = (item.PO_GREIGE || [])
+                .filter(v => v && v.trim() !== '')
+                .join('<br><br>');
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${item.SALESORDERCODE ?? ''}</td>
+                        <td>${item.NO_PO ?? ''}</td>
+                        <td>${item.LEGALNAME1 ?? ''}</td>
+                        <td>${item.JENIS_KAIN ?? ''}</td>
+                        <td>${item.AKJ ?? ''}</td>
+                        <td>${item.ITEMCODE ?? ''}</td>
+                        <td>${item.NOTETAS ?? ''}</td>
+                        <td>${item.GRAMASI.toFixed(2)}</td>
+                        <td>${item.LEBAR.toFixed(2)}</td>
+                        <td>${item.COLOR_STANDARD ?? ''}</td>
+                        <td>${item.WARNA ?? ''}</td>
+                        <td>${item.KODE_WARNA ?? ''}</td>
+                        <td>${item.COLORREMARKS ?? ''}</td>
+                        <td>${benangHtml}</td>
+                        <td>${poGreigeHtml}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            $('#modal-content').html(html);
+
+           // Reinit DataTable
             $('#detailApprovedTable').DataTable({
                 paging: true,
                 searching: true,
@@ -256,7 +316,7 @@ if (!empty($codes)) {
                 order: [[0, 'asc']]
             });
         },
-        error: function() {
+        error: function(error) {
             $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
         }
         });
