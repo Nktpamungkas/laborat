@@ -3,7 +3,10 @@ include "../../koneksi.php";
 
 $code = $_POST['code'];
 
-$query = "SELECT DISTINCT 
+// =====================
+// 1. MAIN QUERY (PREPARED)
+// =====================
+$mainSql = "SELECT DISTINCT 
                     SALESORDERCODE, ORDERLINE, LEGALNAME1, AKJ, JENIS_KAIN,
                     LISTAGG(DISTINCT ITEMCODE, ', ') AS ITEMCODE,
                     LISTAGG(DISTINCT NOTETAS, ', ') AS NOTETAS,
@@ -165,232 +168,243 @@ $query = "SELECT DISTINCT
                     SUBCODE07, SUBCODE08, SUBCODE09, SUBCODE10
                 ORDER BY ORDERLINE ASC";
 
-$stmt = db2_exec($conn1, $query);
-$no = 1;
+$mainStmt = db2_prepare($conn1, $mainSql);
+if (!$mainStmt) {
+    echo json_encode(['success' => false, 'error' => 'Prepare main query failed']);
+    exit;
+}
 
-if ($stmt) {
-    // CSS kecil agar baris ringkasan menyatu dengan baris utama
-    echo "<style>
-        .table.table-bordered > tbody > tr.has-revisi > td { border-bottom-color: transparent; }
-        .table.table-bordered > tbody > tr.revisi-summary > td { border-top-color: transparent; }
-        .table.table-bordered > tbody > tr.revisi-summary td:first-child { border-left: none; background:#fafafa; }
-        .table > tbody > tr.has-revisi > td { padding-bottom:6px; }
-        .table > tbody > tr.revisi-summary > td { padding-top:6px; }
-        .btn-outline-purple{background-color:transparent;color:#6f42c1;border:1px solid #6f42c1}
-        .btn-outline-purple:hover,.btn-outline-purple:focus{background:#6f42c1;color:#fff}
-    </style>";
+if (!db2_execute($mainStmt, [$code])) {
+    echo json_encode(['success' => false, 'error' => 'Execute main query failed']);
+    exit;
+}
 
-    echo "<table class='table table-bordered table-striped' id='detailApprovedTable'>";
-    echo "<thead>
-            <tr>
-                <th>No</th>
-                <th>Bon Order</th>
-                <th>No PO</th>
-                <th>Nama Buyer</th>
-                <th>Jenis Kain</th>
-                <th>AKJ</th>
-                <th>Itemcode</th>
-                <th>Notetas</th>
-                <th>Gramasi</th>
-                <th>Lebar</th>
-                <th>Color Standard</th>
-                <th>Warna</th>
-                <th>Kode Warna</th>
-                <th>Color Remarks</th>
-                <th>Benang</th>
-                <th>Po Greige</th>
-            </tr>
-          </thead>";
-    echo "<tbody>";
+// =====================
+// 2. PREPARED STATEMENTS LAIN (CACHED)
+// =====================
 
-    while ($row = db2_fetch_assoc($stmt)) {
-        // Ambil data ITXVIEWBONORDER (untuk penentu subcode04 & data booking/rajut)
-        $q_itxviewkk = db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i 
-                                         WHERE SALESORDERCODE = '{$row['SALESORDERCODE']}' 
-                                           AND ORDERLINE = '{$row['ORDERLINE']}'");
-        $d_itxviewkk = db2_fetch_assoc($q_itxviewkk);
+// 2.1 Detail ITXVIEWBONORDER
+$itxSql = "SELECT * FROM ITXVIEWBONORDER WHERE SALESORDERCODE = ? AND ORDERLINE = ?";
+$itxStmt = db2_prepare($conn1, $itxSql);
 
-        $subcode04 = ($d_itxviewkk['ITEMTYPEAFICODE'] === 'KFF')
-            ? $d_itxviewkk['RESERVATION_SUBCODE04']
-            : $d_itxviewkk['SUBCODE04'];
+// 2.2 RAJUT
+$rajutSql = " SELECT
+        SUMMARIZEDDESCRIPTION AS BENANG,
+        CODE AS PO_GREIGE
+    FROM ITXVIEW_RAJUT
+    WHERE
+        SUBCODE01 = ?
+        AND SUBCODE02 = ?
+        AND SUBCODE03 = ?
+        AND SUBCODE04 = ?
+        AND ORIGDLVSALORDLINESALORDERCODE = ?
+        AND ITEMTYPEAFICODE IN ('KGF','FKG')
+";
+$rajutStmt = db2_prepare($conn1, $rajutSql);
 
-        // ---------- Rajut ----------
-        $skipRajut = (
-            $d_itxviewkk['AKJ'] === 'AKJ' ||
-            $d_itxviewkk['AKJ'] === 'AKW' ||
-            !empty($d_itxviewkk['ADDITIONALDATA']) ||
-            !empty($d_itxviewkk['LEGACYORDER'])
+// 2.3 BOOKING NEW (READY)
+$readySql = " SELECT
+        PROJECTCODE AS PO_GREIGE,
+        SUMMARIZEDDESCRIPTION AS BENANG
+    FROM ITXVIEW_BOOKING_NEW
+    WHERE SALESORDERCODE = ? AND ORDERLINE = ?
+";
+$readyStmt = db2_prepare($conn1, $readySql);
+
+// 2.4 BOOKING BLM READY (dipakai untuk ADDITIONALDATA..)
+$blmSql = " SELECT
+        ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+        COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+    FROM ITXVIEW_BOOKING_BLM_READY
+    WHERE
+        SUBCODE01 = ?
+        AND SUBCODE02 = ?
+        AND SUBCODE03 = ?
+        AND SUBCODE04 = ?
+        AND ORIGDLVSALORDLINESALORDERCODE = ?
+        AND ITEMTYPEAFICODE IN ('KGF','FKG')
+";
+$blmStmt = db2_prepare($conn1, $blmSql);
+
+// =====================
+// 3. HELPER FOR PREPARED FETCH
+// =====================
+function fetchPreparedRow($stmt, array $params, array $default = ['BENANG' => '', 'PO_GREIGE' => ''])
+{
+    if (!$stmt) return $default;
+    if (!db2_execute($stmt, $params)) {
+        return $default;
+    }
+    $row = db2_fetch_assoc($stmt);
+    return $row ?: $default;
+}
+
+$data = [];
+
+while ($row = db2_fetch_assoc($mainStmt)) {
+    $orderCode = $row['SALESORDERCODE'];
+    $orderLine = $row['ORDERLINE'];
+
+    // Ambil data ITXVIEWBONORDER (untuk penentu subcode04 & data booking/rajut)
+    $itx = fetchPreparedRow($itxStmt, [$orderCode, $orderLine], []);
+    if (!$itx) {
+        // kalau tidak ketemu, skip baris ini
+        continue;
+    }
+
+    // Tentukan subcode04 untuk RAJUT/BOOKING
+    $subcode04 = ($itx['ITEMTYPEAFICODE'] === 'KFF')
+        ? $itx['RESERVATION_SUBCODE04']
+        : $itx['SUBCODE04'];
+
+    $isAKJorAKW = in_array($itx['AKJ'], ['AKJ', 'AKW'], true);
+
+    // ========== RAJUT ==========
+    if ($isAKJorAKW || !empty($itx['ADDITIONALDATA']) || !empty($itx['LEGACYORDER'])) {
+        $d_rajut = ['BENANG' => '', 'PO_GREIGE' => ''];
+    } else {
+        $d_rajut = fetchPreparedRow(
+            $rajutStmt,
+            [
+                $itx['SUBCODE01'],
+                $itx['SUBCODE02'],
+                $itx['SUBCODE03'],
+                $subcode04,
+                $orderCode
+            ]
         );
-        if ($skipRajut) {
-            $d_rajut = ['BENANG' => '', 'PO_GREIGE' => ''];
-        } else {
-            $q_rajut = db2_exec($conn1, "SELECT SUMMARIZEDDESCRIPTION AS BENANG, CODE AS PO_GREIGE
-                                         FROM ITXVIEW_RAJUT
-                                         WHERE SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
-                                           AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
-                                           AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
-                                           AND SUBCODE04 = '$subcode04'
-                                           AND ORIGDLVSALORDLINESALORDERCODE = '{$row['SALESORDERCODE']}'
-                                           AND (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')");
-            $d_rajut = db2_fetch_assoc($q_rajut) ?: ['BENANG' => '', 'PO_GREIGE' => ''];
-        }
+    }
 
-        // ---------- Ready ----------
-        $skipReady = (
-            $d_itxviewkk['AKJ'] === 'AKJ' ||
-            $d_itxviewkk['AKJ'] === 'AKW' ||
-            !empty($d_itxviewkk['ADDITIONALDATA'])
-        );
-        if ($skipReady) {
-            $d_booking_new = ['BENANG' => '', 'PO_GREIGE' => ''];
-        } else {
-            $q_booking_new = db2_exec($conn1, "SELECT PROJECTCODE AS PO_GREIGE, SUMMARIZEDDESCRIPTION AS BENANG
-                                               FROM ITXVIEW_BOOKING_NEW
-                                               WHERE SALESORDERCODE = '{$row['SALESORDERCODE']}'
-                                                 AND ORDERLINE = '{$row['ORDERLINE']}'");
-            $d_booking_new = db2_fetch_assoc($q_booking_new) ?: ['BENANG' => '', 'PO_GREIGE' => ''];
-        }
+    // ========== READY (BOOKING_NEW) ==========
+    if ($isAKJorAKW || !empty($itx['ADDITIONALDATA'])) {
+        $d_ready = ['BENANG' => '', 'PO_GREIGE' => ''];
+    } else {
+        $d_ready = fetchPreparedRow($readyStmt, [$orderCode, $orderLine]);
+    }
 
-        // ---------- Belum Ready 1..7 ----------
-        // Helper kecil untuk query BLM_READY
-        $blm = [];
-        for ($i = 1; $i <= 7; $i++) {
-            $field = ($i === 7) ? 'ADDITIONALDATA6A' : ($i === 1 ? 'ADDITIONALDATA' : 'ADDITIONALDATA'.$i);
-            $skip = ($d_itxviewkk['AKJ'] === 'AKJ' || $d_itxviewkk['AKJ'] === 'AKW');
-            if ($skip) {
-                $blm[$i] = ['BENANG' => '', 'PO_GREIGE' => ''];
-            } else {
-                $val = $d_itxviewkk[$field] ?? '';
-                if ($val === '') {
-                    $blm[$i] = ['BENANG' => '', 'PO_GREIGE' => ''];
-                } else {
-                    $q = db2_exec($conn1, "SELECT ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
-                                                   COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
-                                            FROM ITXVIEW_BOOKING_BLM_READY
-                                            WHERE SUBCODE01 = '{$d_itxviewkk['SUBCODE01']}'
-                                              AND SUBCODE02 = '{$d_itxviewkk['SUBCODE02']}'
-                                              AND SUBCODE03 = '{$d_itxviewkk['SUBCODE03']}'
-                                              AND SUBCODE04 = '$subcode04'
-                                              AND ORIGDLVSALORDLINESALORDERCODE = '{$val}'
-                                              AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')");
-                    $blm[$i] = db2_fetch_assoc($q) ?: ['BENANG' => '', 'PO_GREIGE' => ''];
-                }
-            }
-        }
+    // ========== BLM READY (ADDITIONALDATA..6A) ==========
+    $benang_blm = [];
+    $po_blm = [];
 
-        // Gabungkan BENANG & PO_GREIGE
-        $benangList = [
-            htmlspecialchars($d_rajut['BENANG'] ?? ''),
-            htmlspecialchars($d_booking_new['BENANG'] ?? ''),
-            htmlspecialchars($blm[1]['BENANG'] ?? ''),
-            htmlspecialchars($blm[2]['BENANG'] ?? ''),
-            htmlspecialchars($blm[3]['BENANG'] ?? ''),
-            htmlspecialchars($blm[4]['BENANG'] ?? ''),
-            htmlspecialchars($blm[5]['BENANG'] ?? ''),
-            htmlspecialchars($blm[6]['BENANG'] ?? ''),
-            htmlspecialchars($blm[7]['BENANG'] ?? ''),
-        ];
-        $benang = implode('<br><br>', array_filter($benangList));
+    $additionalFields = [
+        'ADDITIONALDATA',
+        'ADDITIONALDATA2',
+        'ADDITIONALDATA3',
+        'ADDITIONALDATA4',
+        'ADDITIONALDATA5',
+        'ADDITIONALDATA6',
+        'ADDITIONALDATA6A',
+    ];
 
-        $po_greige_List = [
-            htmlspecialchars($d_rajut['PO_GREIGE'] ?? ''),
-            htmlspecialchars($d_booking_new['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[1]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[2]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[3]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[4]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[5]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[6]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[7]['PO_GREIGE'] ?? ''),
-        ];
-        $po_greige = implode('<br><br>', array_filter($po_greige_List));
+    if (!$isAKJorAKW) {
+        foreach ($additionalFields as $field) {
+            $val = $itx[$field] ?? '';
+            if (empty($val)) continue;
 
-        // ------------ Ambil "terakhir" dari C-group dan D-group -------------
-        $revC_candidates = [
-            trim((string)($row['REVISIC4'] ?? '')),
-            trim((string)($row['REVISIC3'] ?? '')),
-            trim((string)($row['REVISIC2'] ?? '')),
-            trim((string)($row['REVISIC1'] ?? '')),
-            trim((string)($row['REVISIC']  ?? '')),
-        ];
-        $revD_candidates = [
-            trim((string)($row['REVISI5'] ?? '')),
-            trim((string)($row['REVISI4'] ?? '')),
-            trim((string)($row['REVISI3'] ?? '')),
-            trim((string)($row['REVISI2'] ?? '')),
-            trim((string)($row['REVISID']  ?? '')),
-        ];
-
-        $lastC = ''; foreach ($revC_candidates as $v) { if ($v !== '') { $lastC = $v; break; } }
-        $lastD = ''; foreach ($revD_candidates as $v) { if ($v !== '') { $lastD = $v; break; } }
-
-        $hasRevisi = ($lastC !== '' || $lastD !== '');
-        $rowClass  = $hasRevisi ? 'has-revisi' : '';
-
-        $lastC_esc = htmlspecialchars($lastC, ENT_QUOTES, 'UTF-8');
-        $lastD_esc = htmlspecialchars($lastD, ENT_QUOTES, 'UTF-8');
-
-        // ---------------- Cetak baris utama ----------------
-        echo "<tr class='{$rowClass}'>";
-            echo "<td>" . $no++ . "</td>";
-            echo "<td>" . htmlspecialchars($row['SALESORDERCODE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['NO_PO'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['LEGALNAME1'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['JENIS_KAIN'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['AKJ'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['ITEMCODE'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['NOTETAS'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars(number_format((float)($row['GRAMASI'] ?? 0), 2)) . "</td>";
-            echo "<td>" . htmlspecialchars(number_format((float)($row['LEBAR'] ?? 0), 2)) . "</td>";
-            echo "<td>" . htmlspecialchars($row['COLOR_STANDARD'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['WARNA'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['KODE_WARNA'] ?? '') . "</td>";
-            echo "<td>" . htmlspecialchars($row['COLORREMARKS'] ?? '') . "</td>";
-            echo "<td>" . $benang . "</td>";
-            echo "<td>" . $po_greige . "</td>";
-        echo "</tr>";
-
-        // ---------------- Baris ringkasan revisi (hanya jika ada) ----------------
-        if ($hasRevisi) {
-            // Data-attributes untuk tombol Detail Revisi (modal)
-            $dataAttrs = sprintf(
-                'data-revisic="%s" data-revisic1="%s" data-revisic2="%s" data-revisic3="%s" data-revisic4="%s" ' .
-                'data-revisid="%s" data-revisi2="%s" data-revisi3="%s" data-revisi4="%s" data-revisi5="%s" ' .
-                'data-revisi1date="%s" data-revisi2date="%s" data-revisi3date="%s" data-revisi4date="%s" data-revisi5date="%s"',
-                htmlspecialchars((string)($row['REVISIC']   ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISIC1']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISIC2']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISIC3']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISIC4']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISID']   ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI2']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI3']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI4']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI5']  ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI1DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI2DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI3DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI4DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars((string)($row['REVISI5DATE'] ?? ''), ENT_QUOTES, 'UTF-8')
+            $res = fetchPreparedRow(
+                $blmStmt,
+                [
+                    $itx['SUBCODE01'],
+                    $itx['SUBCODE02'],
+                    $itx['SUBCODE03'],
+                    $subcode04,
+                    $val
+                ]
             );
 
-
-            echo "<tr class='revisi-summary'>
-                    <td></td>
-                    <td colspan='15' style=\"background:#fafafa;\">
-                      <div style=\"display:flex; align-items:center; gap: 50px; flex-wrap:wrap;\">
-                        <div><strong><span>".($lastD_esc === '' ? '-' : $lastD_esc)."</span></strong></div>
-                        <div><strong><span>".($lastC_esc === '' ? '-' : $lastC_esc)."</span></strong></div>
-                        <button type='button' class='btn btn-outline-purple btn-xs revisi-btn' {$dataAttrs}
-                                style='margin-left:auto;'>Detail Revisi</button>
-                      </div>
-                    </td>
-                  </tr>";
+            if (!empty($res['BENANG'])) {
+                $benang_blm[] = htmlspecialchars($res['BENANG']);
+            }
+            if (!empty($res['PO_GREIGE'])) {
+                $po_blm[] = htmlspecialchars($res['PO_GREIGE']);
+            }
         }
     }
 
-    echo "</tbody></table>";
-} else {
-    echo "<p class='text-danger'>Data tidak ditemukan.</p>";
+    // ========== GABUNG BENANG & PO_GREIGE ==========
+    $benangList = array_filter([
+        htmlspecialchars($d_rajut['BENANG'] ?? ''),
+        htmlspecialchars($d_ready['BENANG'] ?? ''),
+        ...$benang_blm
+    ]);
+
+    $poList = array_filter([
+        htmlspecialchars($d_rajut['PO_GREIGE'] ?? ''),
+        htmlspecialchars($d_ready['PO_GREIGE'] ?? ''),
+        ...$po_blm
+    ]);
+
+    // ------------ Ambil "terakhir" dari C-group dan D-group -------------
+    $revC_candidates = [
+        trim((string)($row['REVISIC4'] ?? '')),
+        trim((string)($row['REVISIC3'] ?? '')),
+        trim((string)($row['REVISIC2'] ?? '')),
+        trim((string)($row['REVISIC1'] ?? '')),
+        trim((string)($row['REVISIC']  ?? '')),
+    ];
+    $revD_candidates = [
+        trim((string)($row['REVISI5'] ?? '')),
+        trim((string)($row['REVISI4'] ?? '')),
+        trim((string)($row['REVISI3'] ?? '')),
+        trim((string)($row['REVISI2'] ?? '')),
+        trim((string)($row['REVISID']  ?? '')),
+    ];
+
+    $lastC = ''; foreach ($revC_candidates as $v) { if ($v !== '') { $lastC = $v; break; } }
+    $lastD = ''; foreach ($revD_candidates as $v) { if ($v !== '') { $lastD = $v; break; } }
+
+    $hasRevisi = ($lastC !== '' || $lastD !== '');
+    $rowClass  = $hasRevisi ? 'has-revisi' : '';
+
+    $lastC_esc = htmlspecialchars($lastC, ENT_QUOTES, 'UTF-8');
+    $lastD_esc = htmlspecialchars($lastD, ENT_QUOTES, 'UTF-8');
+
+    // Data-attributes untuk tombol Detail Revisi (modal)
+    $dataAttrs = sprintf(
+        'data-revisic="%s" data-revisic1="%s" data-revisic2="%s" data-revisic3="%s" data-revisic4="%s" ' .
+        'data-revisid="%s" data-revisi2="%s" data-revisi3="%s" data-revisi4="%s" data-revisi5="%s" ' .
+        'data-revisi1date="%s" data-revisi2date="%s" data-revisi3date="%s" data-revisi4date="%s" data-revisi5date="%s"',
+        htmlspecialchars((string)($row['REVISIC']   ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISIC1']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISIC2']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISIC3']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISIC4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISID']   ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI2']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI3']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI4']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI5']  ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI1DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI2DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI3DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI4DATE'] ?? ''), ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars((string)($row['REVISI5DATE'] ?? ''), ENT_QUOTES, 'UTF-8')
+    );
+
+    $data[] = [
+        'SALESORDERCODE' => $orderCode,
+        'NO_PO'          => $row['NO_PO'] ?? '',
+        'LEGALNAME1'     => $row['LEGALNAME1'] ?? '',
+        'JENIS_KAIN'     => $row['JENIS_KAIN'] ?? '',
+        'AKJ'            => $row['AKJ'] ?? '',
+        'ITEMCODE'       => $row['ITEMCODE'] ?? '',
+        'NOTETAS'        => $row['NOTETAS'] ?? '',
+        'GRAMASI'        => isset($row['GRAMASI']) ? (float) $row['GRAMASI'] : null,
+        'LEBAR'          => isset($row['LEBAR']) ? (float) $row['LEBAR'] : null,
+        'COLOR_STANDARD' => $row['COLOR_STANDARD'] ?? '',
+        'WARNA'          => $row['WARNA'] ?? '',
+        'KODE_WARNA'     => $row['KODE_WARNA'] ?? '',
+        'COLORREMARKS'   => $row['COLORREMARKS'] ?? '',
+        // di sini pakai string HTML siap tampil, bukan array mentah
+        'BENANG'         => implode('<br><br>', $benangList),
+        'PO_GREIGE'      => implode('<br><br>', $poList),
+        'HAS_REVISI'     => $hasRevisi,
+        'LAST_C_ESC'     => $lastC_esc,
+        'LAST_D_ESC'     => $lastD_esc,
+        'DATA_ATTRS'      => $dataAttrs
+    ];
 }
+
+echo json_encode(['success' => true, 'data' => $data]);
+
 ?>

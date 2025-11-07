@@ -755,14 +755,88 @@ $(document).on('click', '.open-detail', function(e){
   $.ajax({
     url: 'pages/ajax/Approved_get_order_detail_revision.php',
     type: 'POST',
+    dataType: 'json',
     data: { code: code },
     success: function(res){
-      $('#modal-content').html(res);
-
-      // pastikan bersih
-      if ($.fn.DataTable.isDataTable('#detailApprovedTable')) {
-        $('#detailApprovedTable').DataTable().destroy();
+      if (!res.success) {
+          $('#modal-content').html('<p class="text-danger">Gagal memuat data.</p>');
+          return;
       }
+
+      // Bangun tabel dari JSON
+      let html = `
+          <style>
+              .table.table-bordered > tbody > tr.has-revisi > td { border-bottom-color: transparent; }
+              .table.table-bordered > tbody > tr.revisi-summary > td { border-top-color: transparent; }
+              .table.table-bordered > tbody > tr.revisi-summary td:first-child { border-left: none; background:#fafafa; }
+              .table > tbody > tr.has-revisi > td { padding-bottom:6px; }
+              .table > tbody > tr.revisi-summary > td { padding-top:6px; }
+              .btn-outline-purple{background-color:transparent;color:#6f42c1;border:1px solid #6f42c1}
+              .btn-outline-purple:hover,.btn-outline-purple:focus{background:#6f42c1;color:#fff}
+          </style>
+          <table class='table table-bordered table-striped' id='detailApprovedTable'>
+              <thead>
+                  <tr>
+                      <th>No</th>
+                      <th>Bon Order</th>
+                      <th>No PO</th>
+                      <th>Nama Buyer</th>
+                      <th>Jenis Kain</th>
+                      <th>AKJ</th>
+                      <th>Itemcode</th>
+                      <th>Notetas</th>
+                      <th>Gramasi</th>
+                      <th>Lebar</th>
+                      <th>Color Standard</th>
+                      <th>Warna</th>
+                      <th>Kode Warna</th>
+                      <th>Color Remarks</th>
+                      <th>Benang</th>
+                      <th>PO Greige</th>
+                  </tr>
+              </thead>
+              <tbody>
+      `;
+
+      res.data.forEach((item, i) => {
+        html += `
+            <tr class='${item.HAS_REVISI ? 'has_revisi' : ''}'>
+                <td>${i + 1}</td>
+                <td>${item.SALESORDERCODE ?? ''}</td>
+                <td>${item.NO_PO ?? ''}</td>
+                <td>${item.LEGALNAME1 ?? ''}</td>
+                <td>${item.JENIS_KAIN ?? ''}</td>
+                <td>${item.AKJ ?? ''}</td>
+                <td>${item.ITEMCODE ?? ''}</td>
+                <td>${item.NOTETAS ?? ''}</td>
+                <td>${(item.GRAMASI ?? 0).toFixed(2)}</td>
+                <td>${(item.LEBAR ?? 0).toFixed(2)}</td>
+                <td>${item.COLOR_STANDARD ?? ''}</td>
+                <td>${item.WARNA ?? ''}</td>
+                <td>${item.KODE_WARNA ?? ''}</td>
+                <td>${item.COLORREMARKS ?? ''}</td>
+                <td>${item.BENANG || ''}</td>
+                <td>${item.PO_GREIGE || ''}</td>
+            </tr>
+
+          ${item.HAS_REVISI && `
+            <tr class='revisi-summary'>
+              <td></td>
+              <td colspan='15' style=\"background:#fafafa;\">
+                  <div style=\"display:flex; align-items:center; gap: 50px; flex-wrap:wrap;\">
+                  <div><strong><span>${item.LAST_D_ESC ?? '-'}</span></strong></div>
+                  <div><strong><span>${item.LAST_C_ESC ?? '-'}</span></strong></div>
+                  <button type='button' class='btn btn-outline-purple btn-xs revisi-btn' ${item.DATA_ATTRS}
+                          style='margin-left:auto;'>Detail Revisi</button>
+                  </div>
+              </td>
+            </tr>
+          `}
+        `;
+      });
+
+      html += `</tbody></table>`;
+      $('#modal-content').html(html);
 
       // init DataTable (stabil di modal)
       var dt = $('#detailApprovedTable').DataTable({
