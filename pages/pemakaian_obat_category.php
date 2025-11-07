@@ -368,7 +368,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl] 23:01:00 ' AND '$_POST[tgl2]'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$_POST[tgl2] 23:00:00'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
@@ -422,7 +422,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
                                         -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] 23:01:00' AND '$_POST[tgl2] 23:00:00'
+                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$_POST[tgl2] 23:00:00'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                         AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -443,7 +443,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
                                     SATUAN_MASUK");
-                                    $row_stock_masuk = db2_fetch_assoc($stock_masuk);
+                                    $row_stock_masuk = db2_fetch_assoc($stock_masuk); 
 
                                     $qty_pakai = db2_exec($conn1, "SELECT 
                                         ITEMTYPECODE,
@@ -470,7 +470,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
                                             -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$_POST[tgl2] 23:00:00'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$_POST[tgl2] 23:00:00'
                                             AND s.TEMPLATECODE  IN ('120','098')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 

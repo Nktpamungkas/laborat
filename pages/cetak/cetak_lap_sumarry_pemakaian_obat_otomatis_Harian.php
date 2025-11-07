@@ -530,7 +530,7 @@ if (file_exists($logoPath)) {
                                             AND p.SUBCODE03 = v.DECOSUBCODE03 
                                             WHERE 
                                             v.ISTANCETYPE = '6'
-                                             AND v.LOGICALWAREHOUSECODE IN ('M510','M101')
+                                            AND v.LOGICALWAREHOUSECODE IN ('M510','M101')
                                             AND date(p.CREATIONDATETIME) BETWEEN '$tgl_sebelumnya' AND '$akhir'
                                             and v.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
                                             v.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
@@ -647,7 +647,7 @@ if (file_exists($logoPath)) {
                                         KODE_OBAT = '$kode_obat'
                                         AND LOGICALWAREHOUSECODE  IN ('M510','M101')
                                         AND tgl_tutup = (
-                                            SELECT MAX(tgl_tutup)
+                                            SELECT MAX(DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d'))
                                             FROM tblopname_11
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
