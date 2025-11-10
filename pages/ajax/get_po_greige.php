@@ -12,7 +12,7 @@ session_write_close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     // --- sanitasi input ---
     $orderCode    = trim($_POST['order_code'] ?? '');
-    $orderCodeEsc = str_replace("'", "''", $orderCode); 
+    $orderCodeEsc = str_replace("'", "''", $orderCode); // escape sederhana utk query utama (tetap sama dgn versi kamu)
 
     // ======================
     // QUERY UTAMA (DB2)
@@ -191,8 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         <tbody>';
 
     if (!$stmt) {
-        // gagal eksekusi query -> tampilkan pesan error & tutup tabel
-        $html .= '<tr><td colspan="9" class="text-danger">'
+        $html .= '<tr><td colspan="10" class="text-danger">'
               . htmlspecialchars('DB2 error: ' . db2_stmt_errormsg(), ENT_QUOTES, 'UTF-8')
               . '</td></tr>';
         $html .= '</tbody></table>';
@@ -201,9 +200,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     }
 
     // ======================
-    // LOOP DATA
+    // Prepared statements utk BENANG/PO (mengikuti kode #1)
     // ======================
+    $itxSql = "SELECT * FROM ITXVIEWBONORDER WHERE SALESORDERCODE = ? AND ORDERLINE = ?";
+    $itxStmt = db2_prepare($conn1, $itxSql);
 
+    $rajutSql = "
+        SELECT
+            SUMMARIZEDDESCRIPTION AS BENANG,
+            CODE AS PO_GREIGE
+        FROM ITXVIEW_RAJUT
+        WHERE
+            SUBCODE01 = ?
+            AND SUBCODE02 = ?
+            AND SUBCODE03 = ?
+            AND SUBCODE04 = ?
+            AND ORIGDLVSALORDLINESALORDERCODE = ?
+            AND ITEMTYPEAFICODE IN ('KGF','FKG')
+    ";
+    $rajutStmt = db2_prepare($conn1, $rajutSql);
+
+    $readySql = "
+        SELECT
+            PROJECTCODE AS PO_GREIGE,
+            SUMMARIZEDDESCRIPTION AS BENANG
+        FROM ITXVIEW_BOOKING_NEW
+        WHERE SALESORDERCODE = ? AND ORDERLINE = ?
+    ";
+    $readyStmt = db2_prepare($conn1, $readySql);
+
+    $blmSql = "
+        SELECT
+            ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
+            COALESCE(SUMMARIZEDDESCRIPTION, '') || COALESCE(ORIGDLVSALORDLINESALORDERCODE, '') AS BENANG
+        FROM ITXVIEW_BOOKING_BLM_READY
+        WHERE
+            SUBCODE01 = ?
+            AND SUBCODE02 = ?
+            AND SUBCODE03 = ?
+            AND SUBCODE04 = ?
+            AND ORIGDLVSALORDLINESALORDERCODE = ?
+            AND ITEMTYPEAFICODE IN ('KGF','FKG')
+    ";
+    $blmStmt = db2_prepare($conn1, $blmSql);
+
+    // helper eksekusi prepared
+    function fetchPreparedRow($stmt, array $params, array $default = ['BENANG' => '', 'PO_GREIGE' => '']) {
+        if (!$stmt) return $default;
+        if (!db2_execute($stmt, $params)) return $default;
+        $r = db2_fetch_assoc($stmt);
+        return $r ?: $default;
+    }
+
+    // ======================
+    // Ambil daftar PIC (sekali saja)
+    // ======================
     $optionPICBase = '<option value="">-- Pilih PIC --</option>';
     $resPIC = mysqli_query($con, "SELECT username FROM tbl_user WHERE pic_bonorder=1 ORDER BY id ASC");
     $picList = [];
@@ -212,92 +263,102 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         $picList[] = $u;
     }
 
+    // ======================
+    // LOOP DATA
+    // ======================
     while ($row = db2_fetch_assoc($stmt)) {
-        // ---- Ambil baris dasar ITXVIEWBONORDER untuk field tambahan ----
-        $q_itxviewkk = db2_exec($conn1, "SELECT * FROM ITXVIEWBONORDER i
-                                         WHERE TRIM(SALESORDERCODE) = '{$row['SALESORDERCODE']}'
-                                           AND ORDERLINE = '{$row['ORDERLINE']}'");
-        $d_itxviewkk = db2_fetch_assoc($q_itxviewkk);
-
-        $subcode04 = ($d_itxviewkk['ITEMTYPEAFICODE'] === 'KFF')
-            ? $d_itxviewkk['RESERVATION_SUBCODE04'] : $d_itxviewkk['SUBCODE04'];
-
-        // ---- Rajut ----
-        $skipRajut = ($d_itxviewkk['AKJ'] === 'AKJ' || $d_itxviewkk['AKJ'] === 'AKW'
-                      || !empty($d_itxviewkk['ADDITIONALDATA']) || !empty($d_itxviewkk['LEGACYORDER']));
-        if ($skipRajut) {
-            $d_rajut = ['BENANG'=>'','PO_GREIGE'=>''];
-        } else {
-            $q_rajut = db2_exec($conn1, "SELECT SUMMARIZEDDESCRIPTION AS BENANG, CODE AS PO_GREIGE
-                                         FROM ITXVIEW_RAJUT
-                                         WHERE SUBCODE01='{$d_itxviewkk['SUBCODE01']}'
-                                           AND SUBCODE02='{$d_itxviewkk['SUBCODE02']}'
-                                           AND SUBCODE03='{$d_itxviewkk['SUBCODE03']}'
-                                           AND SUBCODE04='$subcode04'
-                                           AND ORIGDLVSALORDLINESALORDERCODE='{$row['SALESORDERCODE']}'
-                                           AND (ITEMTYPEAFICODE='KGF' OR ITEMTYPEAFICODE='FKG')");
-            $d_rajut = db2_fetch_assoc($q_rajut) ?: ['BENANG'=>'','PO_GREIGE'=>''];
+        // ---- DETAIL ITXVIEWBONORDER (prepared) ----
+        $itx = fetchPreparedRow($itxStmt, [$row['SALESORDERCODE'], $row['ORDERLINE']], []);
+        if (!$itx) {
+            // jika tidak ada baris detil, lewati row ini
+            continue;
         }
 
-        // ---- Ready ----
-        $skipReady = ($d_itxviewkk['AKJ'] === 'AKJ' || $d_itxviewkk['AKJ'] === 'AKW' || !empty($d_itxviewkk['ADDITIONALDATA']));
-        if ($skipReady) {
-            $d_booking_new = ['BENANG'=>'','PO_GREIGE'=>''];
+        // Tentukan subcode04 sesuai KFF
+        $subcode04 = ($itx['ITEMTYPEAFICODE'] === 'KFF')
+            ? $itx['RESERVATION_SUBCODE04']
+            : $itx['SUBCODE04'];
+
+        $isAKJorAKW = in_array($itx['AKJ'], ['AKJ','AKW'], true);
+
+        // ---- RAJUT (prepared) ----
+        if ($isAKJorAKW || !empty($itx['ADDITIONALDATA']) || !empty($itx['LEGACYORDER'])) {
+            $d_rajut = ['BENANG' => '', 'PO_GREIGE' => ''];
         } else {
-            $q_booking_new = db2_exec($conn1, "SELECT PROJECTCODE AS PO_GREIGE, SUMMARIZEDDESCRIPTION AS BENANG
-                                               FROM ITXVIEW_BOOKING_NEW
-                                               WHERE SALESORDERCODE='{$row['SALESORDERCODE']}'
-                                                 AND ORDERLINE='{$row['ORDERLINE']}'");
-            $d_booking_new = db2_fetch_assoc($q_booking_new) ?: ['BENANG'=>'','PO_GREIGE'=>''];
+            $d_rajut = fetchPreparedRow(
+                $rajutStmt,
+                [
+                    $itx['SUBCODE01'],
+                    $itx['SUBCODE02'],
+                    $itx['SUBCODE03'],
+                    $subcode04,
+                    $row['SALESORDERCODE']
+                ]
+            );
         }
 
-        // ---- Belum Ready 1..7 ----
-        $blm = [];
-        for ($i=1; $i<=7; $i++) {
-            $field = ($i === 7) ? 'ADDITIONALDATA6A' : ($i === 1 ? 'ADDITIONALDATA' : 'ADDITIONALDATA'.$i);
-            if ($d_itxviewkk['AKJ'] === 'AKJ' || $d_itxviewkk['AKJ'] === 'AKW' || empty($d_itxviewkk[$field])) {
-                $blm[$i] = ['BENANG'=>'','PO_GREIGE'=>''];
-            } else {
-                $val = $d_itxviewkk[$field];
-                $q = db2_exec($conn1, "SELECT ORIGDLVSALORDLINESALORDERCODE AS PO_GREIGE,
-                                              COALESCE(SUMMARIZEDDESCRIPTION,'') || COALESCE(ORIGDLVSALORDLINESALORDERCODE,'') AS BENANG
-                                        FROM ITXVIEW_BOOKING_BLM_READY
-                                        WHERE SUBCODE01='{$d_itxviewkk['SUBCODE01']}'
-                                          AND SUBCODE02='{$d_itxviewkk['SUBCODE02']}'
-                                          AND SUBCODE03='{$d_itxviewkk['SUBCODE03']}'
-                                          AND SUBCODE04='$subcode04'
-                                          AND ORIGDLVSALORDLINESALORDERCODE='{$val}'
-                                          AND (ITEMTYPEAFICODE='KGF' OR ITEMTYPEAFICODE='FKG')");
-                $blm[$i] = db2_fetch_assoc($q) ?: ['BENANG'=>'','PO_GREIGE'=>''];
+        // ---- READY / BOOKING_NEW (prepared) ----
+        if ($isAKJorAKW || !empty($itx['ADDITIONALDATA'])) {
+            $d_ready = ['BENANG' => '', 'PO_GREIGE' => ''];
+        } else {
+            $d_ready = fetchPreparedRow($readyStmt, [$row['SALESORDERCODE'], $row['ORDERLINE']]);
+        }
+
+        // ---- BLM READY: ADDITIONALDATA..6A (prepared) ----
+        $additionalFields = [
+            'ADDITIONALDATA',
+            'ADDITIONALDATA2',
+            'ADDITIONALDATA3',
+            'ADDITIONALDATA4',
+            'ADDITIONALDATA5',
+            'ADDITIONALDATA6',
+            'ADDITIONALDATA6A',
+        ];
+
+        $benang_blm = [];
+        $po_blm = [];
+
+        if (!$isAKJorAKW) {
+            foreach ($additionalFields as $field) {
+                $val = $itx[$field] ?? '';
+                if (empty($val)) continue;
+
+                $res = fetchPreparedRow(
+                    $blmStmt,
+                    [
+                        $itx['SUBCODE01'],
+                        $itx['SUBCODE02'],
+                        $itx['SUBCODE03'],
+                        $subcode04,
+                        $val
+                    ]
+                );
+                if (!empty($res['BENANG']))   $benang_blm[] = htmlspecialchars($res['BENANG'],   ENT_QUOTES, 'UTF-8');
+                if (!empty($res['PO_GREIGE'])) $po_blm[]    = htmlspecialchars($res['PO_GREIGE'], ENT_QUOTES, 'UTF-8');
             }
         }
 
-        // ---- Gabung BENANG/PO (RAW dulu) ----
-        $benangList = array_values(array_filter([
-            htmlspecialchars($d_rajut['BENANG'] ?? ''),
-            htmlspecialchars($d_booking_new['BENANG'] ?? ''),
-            htmlspecialchars($blm[1]['BENANG'] ?? ''),
-            htmlspecialchars($blm[2]['BENANG'] ?? ''),
-            htmlspecialchars($blm[3]['BENANG'] ?? ''),
-            htmlspecialchars($blm[4]['BENANG'] ?? ''),
-            htmlspecialchars($blm[5]['BENANG'] ?? ''),
-            htmlspecialchars($blm[6]['BENANG'] ?? ''),
-            htmlspecialchars($blm[7]['BENANG'] ?? '')
-        ]));
-        $poList = array_values(array_filter([
-            htmlspecialchars($d_rajut['PO_GREIGE'] ?? ''),
-            htmlspecialchars($d_booking_new['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[1]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[2]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[3]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[4]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[5]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[6]['PO_GREIGE'] ?? ''),
-            htmlspecialchars($blm[7]['PO_GREIGE'] ?? '')
-        ]));
+        // ---- Gabung list BENANG & PO (array; multi-PO akan jadi multi-baris) ----
+        $nonEmpty = fn($v) => !is_null($v) && $v !== '';
+
+        $benangList = [
+            htmlspecialchars($d_rajut['BENANG'] ?? '', ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($d_ready['BENANG'] ?? '', ENT_QUOTES, 'UTF-8'),
+            ...$benang_blm
+        ];
+        $poList = [
+            htmlspecialchars($d_rajut['PO_GREIGE'] ?? '', ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($d_ready['PO_GREIGE'] ?? '', ENT_QUOTES, 'UTF-8'),
+            ...$po_blm
+        ];
+
+        // buang kosong & dedup (pertahankan urutan)
+        $benangList = array_values(array_unique(array_filter($benangList, $nonEmpty)));
+        $poList     = array_values(array_unique(array_filter($poList, $nonEmpty)));
+
         $max = max(count($benangList), count($poList));
 
-        // ==== Hitung lastC/lastD utk ORDERLINE ====
+        // ==== Hitung lastC/lastD utk ORDERLINE (tetap seperti punyamu) ====
         $revC_candidates = [
             trim((string)($row['REVISIC4'] ?? '')),
             trim((string)($row['REVISIC3'] ?? '')),
@@ -363,14 +424,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                 $btnLabel = 'Edit';
             }
 
-            // PIC options
-            $queryPIC = "SELECT * FROM tbl_user WHERE pic_bonorder = 1 ORDER BY id ASC";
-            $resultPIC = mysqli_query($con, $queryPIC);
+            // PIC options (pakai cache list yang sudah diambil di awal)
             $optionPIC = '<option value="">-- Pilih PIC --</option>';
-            while ($rowPIC = mysqli_fetch_assoc($resultPIC)) {
-                $picValue = htmlspecialchars($rowPIC['username']);
-                $sel = ($picValue === $selectedPIC) ? 'selected' : '';
-                $optionPIC .= "<option value=\"$picValue\" $sel>$picValue</option>";
+            foreach ($picList as $u) {
+                $sel = ($u === $selectedPIC) ? 'selected' : '';
+                $optionPIC .= "<option value=\"$u\" $sel>$u</option>";
             }
 
             // Status options
@@ -490,7 +548,6 @@ $(document).ready(function(){
 
         // Mode Edit -> buka dropdown -> jadi Update
         if (btnText === 'Edit') {
-            // contoh validasi user, silakan sesuaikan
             if (currentUser?.toLowerCase?.() !== 'riyan') { toastr.warning('Hanya user Riyan yang dapat melakukan edit'); return; }
             picSelect.prop('disabled', false);
             statusSelect.prop('disabled', false);
@@ -525,7 +582,6 @@ $(document).ready(function(){
                 status_bonorder: status
             },
             success: function(response) {
-                // sukses -> kunci & ubah tombol ke Edit
                 btn.removeClass('btn-loading').prop('disabled', false);
                 btn.find('.spinner-border').addClass('d-none');
                 btn.find('.btn-text').text('Edit');
@@ -534,7 +590,6 @@ $(document).ready(function(){
                 if (window.toastr) toastr.success(response || 'Tersimpan');
             },
             error: function(xhr, status, error) {
-                // gagal -> buka lagi supaya bisa diperbaiki
                 btn.removeClass('btn-loading').prop('disabled', false);
                 btn.find('.spinner-border').addClass('d-none');
                 btn.find('.btn-text').text('Update');
