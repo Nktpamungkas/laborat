@@ -443,7 +443,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     -- AND  s.DECOSUBCODE01 = 'D' 
                                     -- AND  s.DECOSUBCODE02 = '1'
                                     -- AND  s.DECOSUBCODE03  = '020'
-                                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
+                                    -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
+                                    AND (
+                                        (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
+                                        AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
+                                    )
                                     )
                                     -- WHERE KODE_OBAT <>  'E-1-000'
                                     ORDER BY KODE_OBAT ASC ");
@@ -635,7 +639,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         AND i2.SUBCODE03 = s.DECOSUBCODE03
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
+                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                            AND (
+                                                (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
+                                                AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
+                                            )
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
@@ -688,7 +696,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
+                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                AND (
+                                                    (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
+                                                    AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
+                                                )
                                                 AND s.TEMPLATECODE IN ('120','098')
                                                 and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -777,7 +789,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
                                                             -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
+                                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                            AND (
+                                                                (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
+                                                                AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
+                                                            )
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                             AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
@@ -833,7 +849,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
-                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
+                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
+                                                AND (
+                                                    (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
+                                                    AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
+                                                )
                                                 AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                 -- and s.CREATIONUSER != 'MT_STI'
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -1017,18 +1037,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                    FROM                                                      
+                                     (SELECT distinct 
+                                        tgl_tutup,
+                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                        KODE_OBAT,
+                                        LONGDESCRIPTION,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        LOGICALWAREHOUSECODE,
+                                        WHSLOCATIONWAREHOUSEZONECODE,
+                                        LOTCODE,
+                                        BASEPRIMARYQUANTITYUNIT
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
                                         AND LOGICALWAREHOUSECODE  $where_warehouse
                                         AND tgl_tutup = (
-                                            SELECT MAX(DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d'))
+                                            SELECT MAX(tgl_tutup)
                                             FROM tblopname_11
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  $where_warehouse
-                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d')
-                                        )
+                                                AND tgl_tutup = '$tgl1'
+                                        )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");                                        
                                     }                                
 

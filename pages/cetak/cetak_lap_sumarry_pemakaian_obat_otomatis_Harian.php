@@ -2,7 +2,7 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
-$akhir = date('Y-m-d');
+$akhir = date('2025-11-10');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));
@@ -642,6 +642,19 @@ if (file_exists($logoPath)) {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                    FROM                                                      
+                                     (SELECT distinct 
+                                        tgl_tutup,
+                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                        KODE_OBAT,
+                                        LONGDESCRIPTION,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        LOGICALWAREHOUSECODE,
+                                        WHSLOCATIONWAREHOUSEZONECODE,
+                                        LOTCODE,
+                                        BASEPRIMARYQUANTITYUNIT
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
@@ -653,7 +666,7 @@ if (file_exists($logoPath)) {
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  IN ('M510','M101')
                                                 AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d')
-                                        )
+                                        )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");    
                                     } 
             $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];

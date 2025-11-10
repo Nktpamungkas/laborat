@@ -217,15 +217,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tbody>
                                 <?php
                                 $no = 1;
-                                $tutup_transaksi = mysqli_query($con, "SELECT DISTINCT ITEMTYPECODE, 
+                                $tutup_transaksi = mysqli_query($con, "SELECT ITEMTYPECODE, 
                                                                                     LOGICALWAREHOUSECODE, 
                                                                                     tgl_tutup, 
                                                                                     SUM(BASEPRIMARYQUANTITYUNIT) as total_qty 
-                                                                                    FROM tblopname_11
-                                                                                    where  tgl_tutup = '$_POST[tgl]' 
-                                                                                    and not kode_obat = 'E-1-000'
-                                                                                    GROUP BY LOGICALWAREHOUSECODE, 
-                                                                                    tgl_tutup");
+                                                                                     FROM 
+                                                                                        (SELECT DISTINCT
+                                                                                            ITEMTYPECODE,
+                                                                                            KODE_OBAT,
+                                                                                            LONGDESCRIPTION,
+                                                                                            LOTCODE,
+                                                                                            LOGICALWAREHOUSECODE,
+                                                                                            WHSLOCATIONWAREHOUSEZONECODE,
+                                                                                            TGL_TUTUP,
+                                                                                            BASEPRIMARYQUANTITYUNIT,
+                                                                                            BASEPRIMARYUNITCODE 
+                                                                                        FROM tblopname_11
+                                                                                            where  tgl_tutup = '$_POST[tgl]' 
+                                                                                            and not kode_obat = 'E-1-000') as sub
+                                                                                            GROUP BY LOGICALWAREHOUSECODE, 
+                                                                                            tgl_tutup");
                                 while ($row = mysqli_fetch_array($tutup_transaksi)) {
                                     $tgl_tutup = $row['tgl_tutup'];
                                     $warehouse = $row['LOGICALWAREHOUSECODE'];

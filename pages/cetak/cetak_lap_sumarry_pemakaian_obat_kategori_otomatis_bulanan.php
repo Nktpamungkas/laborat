@@ -468,12 +468,19 @@ if (file_exists($logoPath)) {
                                                 tahun_bulan,
                                                 DECOSUBCODE01,
                                                 SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal 
-                                                from(SELECT DISTINCT
-                                                tgl_tutup,
-                                                DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                                DECOSUBCODE01,
-                                                BASEPRIMARYQUANTITYUNIT
-                                            FROM tblopname_11 t
+                                                from(SELECT distinct 
+                                                    tgl_tutup,
+                                                    DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                                    KODE_OBAT,
+                                                    LONGDESCRIPTION,
+                                                    DECOSUBCODE01,
+                                                    DECOSUBCODE02,
+                                                    DECOSUBCODE03,
+                                                    LOGICALWAREHOUSECODE,
+                                                    WHSLOCATIONWAREHOUSEZONECODE,
+                                                    LOTCODE,
+                                                    BASEPRIMARYQUANTITYUNIT
+                                                FROM tblopname_11 t
                                             WHERE 
                                                 DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                                 AND LOGICALWAREHOUSECODE IN ('M510', 'M101') 
