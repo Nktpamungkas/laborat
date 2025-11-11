@@ -7,6 +7,7 @@ session_start();
 $no_resep       = trim(htmlspecialchars($_POST['no_resep']));
 $bottle_qty_1   = (int) $_POST['bottle_qty_1'];
 $bottle_qty_2   = (int) $_POST['bottle_qty_2'];
+$bottle_qty_test= (int) $_POST['bottle_qty_test'];
 $temp_1         = trim(htmlspecialchars($_POST['temp_1'])); 
 $temp_2         = trim(htmlspecialchars($_POST['temp_2']));
 $username       = $_SESSION['userLAB'] ?? null;
@@ -127,15 +128,31 @@ try {
 
     //  INSERT MODEL BARU
     $values = [];
+    $valuesTest = [];
     $insertedCount = 0;
     $errorMessages = [];
 
     $no_resep_esc = $con->real_escape_string($no_resep);
     $temp_1_esc = $con->real_escape_string($temp_1);
     $username_esc = $con->real_escape_string($username);
+    
+    for ($i = 0; $i < $bottle_qty_test; $i++) {
+        $valuesTest[] = "('$no_resep_esc', '$temp_1_esc', '$username_esc', 1)";
+    }
 
     for ($i = 0; $i < $bottle_qty_1; $i++) {
         $values[] = "('$no_resep_esc', '$temp_1_esc', '$username_esc')";
+    }
+
+    if (!empty($valuesTest)) {
+        $values_str_test = implode(',', $valuesTest);
+        $sql = "INSERT INTO tbl_preliminary_schedule (no_resep, code, username, is_test) VALUES $values_str_test";
+
+        if ($con->query($sql)) {
+            $insertedCount += $bottle_qty_test;
+        } else {
+            $errorMessages[] = "Insert failed: " . $con->error;
+        }
     }
 
     if (!empty($values)) {
@@ -143,7 +160,7 @@ try {
         $sql = "INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES $values_str";
 
         if ($con->query($sql)) {
-            $insertedCount = $bottle_qty_1;
+            $insertedCount += $bottle_qty_1;
         } else {
             $errorMessages[] = "Insert failed: " . $con->error;
         }

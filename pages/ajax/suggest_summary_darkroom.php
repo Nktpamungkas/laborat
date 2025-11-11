@@ -36,7 +36,7 @@ if ($date < $cutoff) {
   $time_column = 'darkroom_end';
 }
 
-$sql = "SELECT DISTINCT s.no_resep
+$sql = "SELECT s.no_resep, s.is_test
         FROM tbl_preliminary_schedule s
         WHERE s.$time_column BETWEEN ? AND ?
           AND s.no_resep IS NOT NULL AND s.no_resep <> ''";
@@ -51,6 +51,12 @@ $list = [];
 while($row = $res->fetch_assoc()){
   $nr = trim($row['no_resep']);
   if ($nr!=='') $list[] = $nr;
+  // if ($nr === '') continue;
+
+  // $isTest = (int)($row['is_test'] ?? 0) === 1;
+  // $label  = $isTest ? ($nr . ' (TEST REPORT)') : $nr;
+
+  // $list[] = $label;
 }
 $stmt->close();
 

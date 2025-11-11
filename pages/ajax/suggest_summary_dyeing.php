@@ -44,7 +44,7 @@ if ($shift === '1'){
 }
 
 /* ambil schedule + mapping dyeing (1=poly, 2=cotton) */
-$sql = "SELECT s.no_resep, ms.code, ms.dyeing AS dy
+$sql = "SELECT s.no_resep, s.is_test, ms.code, ms.dyeing AS dy
         FROM tbl_preliminary_schedule s
         LEFT JOIN master_suhu ms ON ms.code = s.code
         WHERE s.dyeing_start BETWEEN ? AND ?
@@ -71,13 +71,15 @@ while($row = $res->fetch_assoc()){
   $total_rows++;
 
   $dy = isset($row['dy']) ? trim((string)$row['dy']) : '';
+  $isTest = (int)($row['is_test'] ?? 0) === 1;
+  $labelForDetail = $isTest ? ($nr . ' (TEST REPORT)') : $nr; 
 
   if ($dy === '1'){ // poly
     $poly_set[$nr] = true;
-    $poly_count[$nr] = ($poly_count[$nr] ?? 0) + 1;
+    $poly_count[$labelForDetail] = ($poly_count[$labelForDetail] ?? 0) + 1;
   }elseif ($dy === '2'){ // cotton
     $cotton_set[$nr] = true;
-    $cotton_count[$nr] = ($cotton_count[$nr] ?? 0) + 1;
+    $cotton_count[$labelForDetail] = ($cotton_count[$labelForDetail] ?? 0) + 1;
   }
 }
 $stmt->close();

@@ -27,7 +27,7 @@ if (isset($_POST['schedules'])) {
                 // $stmt = $con->prepare("SELECT id, is_old_data FROM tbl_preliminary_schedule 
                 //                        WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
                 //                        ORDER BY id DESC LIMIT 1");
-                $stmt = $con->prepare("SELECT ps.id, ps.is_old_data, tm.jenis_matching 
+                $stmt = $con->prepare("SELECT ps.id, ps.is_old_data, ps.is_test, tm.jenis_matching 
                                         FROM tbl_preliminary_schedule ps
                                         LEFT JOIN tbl_matching tm ON 
                                             CASE 
@@ -40,10 +40,10 @@ if (isset($_POST['schedules'])) {
 
                 $stmt->bind_param("s", $no_resep);
                 $stmt->execute();
-                $stmt->bind_result($id, $is_old_data, $jenis_matching);
+                $stmt->bind_result($id, $is_old_data, $is_test, $jenis_matching);
 
                 if ($stmt->fetch()) {
-                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data, 'matching' => $jenis_matching];
+                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data, 'is_test'   => (int)$is_test, 'matching' => $jenis_matching];
                     $stmt->close();
 
                     // Tandai ID ini agar tidak digunakan lagi sementara
@@ -185,9 +185,11 @@ if (isset($_POST['schedules'])) {
                                     $id_info = $idMap[$groupName][$chunkIndex][$i] ?? null;
                                     $id_schedule = $id_info['id'] ?? null;
                                     $is_old_data = $id_info['is_old'] ?? 0;
+                                    $is_test     = (int)($id_info['is_test'] ?? 0);
 
                                     // Atur style td jika is_old_data == 1
                                     $tdStyle = $is_old_data == 1 ? 'background-color: pink;' : '';
+                                    $badge   = $is_test === 1 ? ' <span class="label label-warning">TEST REPORT</span>' : '';
                                 ?>
                                 <td style="<?= $tdStyle ?>">
                                     <?php if (isset($chunk[$i])): ?>
@@ -197,7 +199,7 @@ if (isset($_POST['schedules'])) {
                                                 data-id="<?= $id_schedule ?>"
                                                 data-resep="<?= htmlspecialchars($no_resep) ?>"
                                                 data-group="<?= htmlspecialchars($groupName) ?>">
-                                                <?= htmlspecialchars($no_resep) ?>
+                                                <?= htmlspecialchars($no_resep) ?> <?= $badge ?>
                                                 <!-- <?= htmlspecialchars($no_resep) . ' - ' . htmlspecialchars($id_info['matching'] ?? '') ?> -->
                                             </span>
                                         <?php else: ?>

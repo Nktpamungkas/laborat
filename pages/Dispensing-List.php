@@ -578,7 +578,7 @@
         });
 
         function updateStatus(noResep) {
-            const dispensingCode = getDispensingCodeFromNoResep(noResep);
+            const dispensingCode = getDispensingCodeFromNoResep(noResep);  
             if (dispensingCode === null) {
                 Swal.fire({
                     icon: 'error',
@@ -789,7 +789,8 @@
             // No. Resep + highlight
             const resepShown = highlightMatch(item.no_resep || '', searchTerm);
             const isOld = item.is_old_data == "1";
-            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${resepShown} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
+            const isTest = item.is_test == "1"
+            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${resepShown} - ${item.jenis_matching} ${isOld ? '🕑' : ''}  ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}</td>`;
 
             // Kolom lain
             tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;

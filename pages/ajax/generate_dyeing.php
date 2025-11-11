@@ -19,7 +19,7 @@ $statuses = [
 
 $statusList = "'" . implode("','", $statuses) . "'";
 
-$sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
+$sql = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start,tps.is_test, ms.`group`, ms.product_name, ms.waktu
         FROM tbl_preliminary_schedule tps
         LEFT JOIN master_suhu ms ON tps.code = ms.code
         LEFT JOIN tbl_matching ON 
@@ -59,7 +59,8 @@ while ($row = mysqli_fetch_assoc($result)) {
         'group' => $group,
         'product_name' => $row['product_name'],
         'dyeing_start' => $row['dyeing_start'],
-        'waktu' => $row['waktu']
+        'waktu' => $row['waktu'],
+        'is_test' => $row['is_test']
     ];
 
     if (count($data[$machine]) > $maxPerMachine) {
@@ -79,10 +80,11 @@ foreach ($data as $machine => $entries) {
 
 // Ambil old data (is_old_data = 1)
 $oldDataList = [];
-$oldQuery = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, ms.`group`, ms.product_name, ms.waktu
+$oldQuery = "SELECT tps.no_resep, tps.no_machine, tps.status, tps.dyeing_start, tps.is_test, ms.`group`, ms.product_name, ms.waktu
              FROM tbl_preliminary_schedule tps
              LEFT JOIN master_suhu ms ON tps.code = ms.code
-             WHERE tps.is_old_data = 1 AND tps.status IN ($statusList) AND is_old_cycle = 0";
+             WHERE tps.is_old_data = 1 AND tps.status IN ($statusList) AND is_old_cycle = 0
+             ORDER BY tps.no_resep";
 $oldResult = mysqli_query($con, $oldQuery);
 
 while ($row = mysqli_fetch_assoc($oldResult)) {
@@ -113,7 +115,8 @@ foreach ($oldDataList as $old) {
             'product_name' => $old['product_name'],
             'dyeing_start' => $old['dyeing_start'],
             'waktu' => $old['waktu'],
-            'justMoved' => true
+            'justMoved' => true,
+            'is_test' => $row['is_test']
         ];
     } else {
         $remainingOldData[] = $old;

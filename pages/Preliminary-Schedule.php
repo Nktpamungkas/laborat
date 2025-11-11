@@ -234,6 +234,19 @@
                 <div class="col-sm-2">
                     <input type="number" class="form-control style-ph" name="bottle_qty" id="bottle_qty" placeholder="Input Bottle Quantity" required autocomplete="off">
                 </div>
+
+                <!-- Checkbox Test -->
+                <div class="col-sm-1" style="padding-right: 0 !important;">
+                    <div class="checkbox">
+                        <label style="font-size: 15px;">
+                            <input type="checkbox" id="has_bottle_test" name="has_bottle_test" aria-controls="bottleQtyTestCol">Test Report
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-sm-2" id="bottleQtyTestCol" style="display:none; padding-left: 0; margin-left: -10px;">
+                    <input type="number" class="form-control" name="bottle_qty_test" id="bottle_qty_test" placeholder="Input Bottle Quantity (Test Report)" autocomplete="off" >
+                </div>
             </div><br>
 
             <div class="form-group" id="tempWrapper">
@@ -760,6 +773,17 @@
         loadData();
         checkRepeatItems();
 
+        function syncBottleTest() {
+            var checked = $('#has_bottle_test').is(':checked');
+            $('#bottleQtyTestCol').toggle(checked);
+            $('#bottle_qty_test')
+            .prop('disabled', !checked)
+            .prop('required', checked);
+        }
+
+        $('#has_bottle_test').on('change', syncBottleTest);
+        syncBottleTest();
+
         $('#exsecute').click(function(e) {
             e.preventDefault();
             var no_resep = $('#no_resep').val();
@@ -778,6 +802,8 @@
                 return false;
             }
 
+            var bottle_qty_test = $('#bottle_qty_test').val() ? $('#bottle_qty_test').val() : 0;
+
             // Kirim data ke server menggunakan AJAX
             $.ajax({
                 dataType: 'json',
@@ -787,6 +813,7 @@
                     no_resep: no_resep,
                     bottle_qty_1: bottle_qty_1,
                     bottle_qty_2: bottle_qty_2,
+                    bottle_qty_test: bottle_qty_test,
                     temp_1: temp_1,
                     temp_2: temp_2
                 },
@@ -796,6 +823,7 @@
                         toastr.success(response.message);
                         $('form')[0].reset();
                         $('#no_resep').focus();
+                        syncBottleTest();
 
                         $('#productNameDisplay').text('');
                         $('#productNameDisplay_1').text('');
@@ -937,9 +965,11 @@
                 let rows = '';
                 data.forEach((item, index) => {
                     const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
+                    const testBadge  = item.is_test == 1 ? ' <span class="label label-warning">TEST REPORT</span>' : '';
+
                     rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
-                        <td ${isOldStyle}>${item.no_resep} - ${item.jenis_matching}</td>
+                        <td ${isOldStyle}>${item.no_resep} - ${item.jenis_matching} ${testBadge}</td>
                         <td ${isOldStyle}>${item.product_name}</td>
                         <td align="center">
                             <button class="btn btn-danger btn-sm" onclick="deleteData(${item.id})" <?php if (!$showButton): ?>disabled<?php endif; ?>><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>

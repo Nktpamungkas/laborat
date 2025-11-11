@@ -237,13 +237,14 @@
                                 if (diffMin > (120 + proc)) warningClass = 'blink-warning';
                             }
                             const moveClass = cell.justMoved ? 'slide-up' : '';
+                            const isTest = cell.is_test == "1";
                             html += `<td class="${warningClass} ${moveClass}"
                                                     data-machine="${machine}"
                                                     data-row="${i}"
                                                     data-cycle="now"
                                                     data-no-resep="${cell.no_resep}">
                                         <div style="display:flex;justify-content:space-around;white-space:nowrap;">
-                                            <span>${cell.no_resep}</span>
+                                            <span>${cell.no_resep}  ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}</span>
                                             <span class="text-muted">${cell.status}</span>
                                         </div>
                                     </td>`;
@@ -314,13 +315,14 @@
                     machineKeys.forEach(m => {
                         const item = oldMachineMap[m]?.[i];
                         if (item) {
+                            const isTest = item.is_test == "1";
                             htmlOld += `<td
                                             data-machine="${m}"
                                             data-row="${i}"
                                             data-cycle="next"
                                             data-no-resep="${item.no_resep}">
                                             <div style="display:flex;justify-content:space-around;white-space:nowrap;">
-                                                <span>${item.no_resep}</span>
+                                                <span>${item.no_resep}  ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}</span>
                                                 <span class="text-muted">${item.status}</span>
                                             </div>
                                         </td>`;

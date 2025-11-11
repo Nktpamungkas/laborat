@@ -54,14 +54,14 @@ if ($codesRmp) {
     if ($r && ($rc = db2_fetch_assoc($r))) $B = (int)$rc['CNT'];
 }
 
-/* ===== C: BON ORDER APPROVED LAB (MySQL status=Approved & tgl_approve_lab di bulan) → distinct pair SO/OL dari DB2 ===== */
+/* ===== C: BON ORDER APPROVED LAB (MySQL status=Approved & approvalrmpdatetime di bulan) → distinct pair SO/OL dari DB2 ===== */
 // Ambil daftar CODE dari MySQL (approved lab bulan ini)
 $codesLab = [];
 $qLab = "
   SELECT DISTINCT code
   FROM approval_bon_order
   WHERE status='Approved'
-    AND DATE(approvalrmpdatetime) BETWEEN '$startDate' AND '$endDate'
+    AND DATE(approvalrmpdatetime) BETWEEN DATE('$startDate') AND DATE('$endDate')
 ";
 $resLab = mysqli_query($con, $qLab) or die('MySQL error: ambil code approved lab.');
 while ($r = mysqli_fetch_assoc($resLab)) {
@@ -72,12 +72,12 @@ mysqli_free_result($resLab);
 
 $C = 0;
 if ($codesLab) {
-    $in = implode(',', $codesLab);
+    $in2 = implode(',', $codesLab);
     $sqlCnt = "
       SELECT COUNT(*) AS CNT FROM (
         SELECT DISTINCT SALESORDERCODE, ORDERLINE
         FROM ITXVIEWBONORDER
-        WHERE SALESORDERCODE IN ($in) AND AKJ != 'AKJ'
+        WHERE SALESORDERCODE IN ($in2) AND AKJ != 'AKJ'
       ) x
     ";
     $r = db2_exec($conn1, $sqlCnt, ['cursor' => DB2_SCROLLABLE]);
@@ -85,21 +85,78 @@ if ($codesLab) {
 }
 
 /* ===== D & E: BON ORDER SELESAI REVIEW (MySQL) untuk tgl_approve_lab bulan berjalan ===== */
-$qDE = "
-WITH base AS (
-  SELECT DATE(abo.approvalrmpdatetime) AS d_lab, smbo.status_bonorder
-  FROM approval_bon_order abo
-  LEFT JOIN status_matching_bon_order smbo ON smbo.salesorder = abo.code
-)
-SELECT
-  (SELECT COUNT(*) FROM base WHERE d_lab BETWEEN '$startDate' AND '$endDate' AND status_bonorder='OK')              AS ok_total,
-  (SELECT COUNT(*) FROM base WHERE d_lab BETWEEN '$startDate' AND '$endDate' AND status_bonorder='Matching Ulang') AS mu_total
-";
-$resDE = mysqli_query($con, $qDE) or die('MySQL error: DE.');
-$de = mysqli_fetch_assoc($resDE) ?: ['ok_total'=>0,'mu_total'=>0];
-mysqli_free_result($resDE);
-$D = (int)$de['ok_total'];
-$E = (int)$de['mu_total'];
+// $qDE = "
+// WITH base AS (
+//   SELECT DATE(abo.approvalrmpdatetime) AS d_lab, smbo.status_bonorder
+//   FROM approval_bon_order abo
+//   LEFT JOIN status_matching_bon_order smbo ON smbo.salesorder = abo.code
+// )
+// SELECT
+//   (SELECT COUNT(*) FROM base WHERE d_lab BETWEEN '$startDate' AND '$endDate' AND status_bonorder='OK')              AS ok_total,
+//   (SELECT COUNT(*) FROM base WHERE d_lab BETWEEN '$startDate' AND '$endDate' AND status_bonorder='Matching Ulang') AS mu_total
+// ";
+// $resDE = mysqli_query($con, $qDE) or die('MySQL error: DE.');
+// $de = mysqli_fetch_assoc($resDE) ?: ['ok_total'=>0,'mu_total'=>0];
+// mysqli_free_result($resDE);
+// $D = (int)$de['ok_total'];
+// $E = (int)$de['mu_total'];
+
+$D = 0;
+$E = 0;
+
+if ($codesLab) {
+    $inLab = implode(',', $codesLab);
+
+    // 1) DB2: ambil jumlah DISTINCT pair SO/OL non-AKJ per code
+    //    Catatan: pakai COALESCE(AKJ,'')<>'AKJ' supaya NULL tidak dianggap AKJ.
+    $sqlPairsPerCode = "
+        SELECT SALESORDERCODE, COUNT(DISTINCT ORDERLINE) AS CNT
+        FROM ITXVIEWBONORDER
+        WHERE SALESORDERCODE IN ($inLab)
+          AND COALESCE(AKJ,'') <> 'AKJ'
+        GROUP BY SALESORDERCODE
+    ";
+    $resPairs = db2_exec($conn1, $sqlPairsPerCode, ['cursor' => DB2_SCROLLABLE]) or die('DB2 error: pairs non-AKJ.');
+    $pairsPerCode = []; // [code => cnt_pair_non_akj]
+    while ($row = db2_fetch_assoc($resPairs)) {
+        $code = trim((string)$row['SALESORDERCODE']);
+        $pairsPerCode[$code] = (int)$row['CNT'];
+    }
+
+    if (!empty($pairsPerCode)) {
+        // 2) MySQL: ambil status review (OK / Matching Ulang) untuk code-code tersebut pada bulan berjalan
+        //    Agar efisien, batasi ke code yang memang punya pair non-AKJ (keys dari $pairsPerCode)
+        $codesForStatus = array_map(function($c){ return "'" . str_replace("'", "''", $c) . "'"; }, array_keys($pairsPerCode));
+        $inCodesForStatus = implode(',', $codesForStatus);
+
+        $qStatus = "
+            SELECT abo.code, smbo.status_bonorder
+            FROM approval_bon_order abo
+            LEFT JOIN status_matching_bon_order smbo ON smbo.salesorder = abo.code
+            WHERE DATE(abo.approvalrmpdatetime) BETWEEN '$startDate' AND '$endDate'
+              AND abo.code IN ($inCodesForStatus)
+        ";
+        $resStatus = mysqli_query($con, $qStatus) or die('MySQL error: status review.');
+        while ($r = mysqli_fetch_assoc($resStatus)) {
+            $code   = trim((string)$r['code']);
+            $status = trim((string)($r['status_bonorder'] ?? ''));
+            $cnt    = $pairsPerCode[$code] ?? 0;
+
+            // Distribusikan jumlah pair non-AKJ ke D atau E sesuai statusnya
+            if ($cnt > 0) {
+                if (strcasecmp($status, 'OK') === 0) {
+                    $D += $cnt;
+                } elseif (strcasecmp($status, 'Matching Ulang') === 0) {
+                    $E += $cnt;
+                }
+            }
+            // Supaya tidak terhitung dua kali jika ada duplikat baris status untuk code yang sama,
+            // kamu bisa kosongkan $pairsPerCode[$code] setelah dihitung pertama kali:
+            $pairsPerCode[$code] = 0;
+        }
+        mysqli_free_result($resStatus);
+    }
+}
 
 /* ===== F & G (rumus) ===== */
 $F = $B - $C;              // SISA BELUM APPROVED

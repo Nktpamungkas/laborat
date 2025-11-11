@@ -7,7 +7,8 @@ $query = mysqli_query($con, "
     SELECT 
         t.no_resep,
         t.creationdatetime,
-        COUNT(*) AS qty,
+        SUM(CASE WHEN t.is_test = 0 THEN 1 ELSE 0 END) AS qty_normal,
+        SUM(CASE WHEN t.is_test = 1 THEN 1 ELSE 0 END) AS qty_test,
         MAX(t.status) AS status,
 
         -- Ambil dispensing_start terbaru
@@ -78,7 +79,20 @@ $query = mysqli_query($con, "
             <?php endif; ?>
         </td>
 
-        <td><?= $row['qty'] ?></td>
+        <td>
+            <?php
+                $q0 = (int)($row['qty_normal'] ?? 0);
+                $q1 = (int)($row['qty_test'] ?? 0);
+
+                if ($q0 > 0) {
+                    echo $q0;
+                }
+                if ($q1 > 0) {
+                    if ($q0 > 0) echo "<br>";
+                    echo $q1 . ' <span class="label label-warning label-small">TEST REPORT</span>';
+                }
+            ?>
+        </td>
 
         <td>
             <?= $row['dispensing_start'] ?>

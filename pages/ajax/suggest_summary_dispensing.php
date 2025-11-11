@@ -45,7 +45,7 @@ if ($shift === '1'){
 }
 
 /* ambil schedule + mapping dispensing */
-$sql = "SELECT s.no_resep, ms.code, ms.dispensing
+$sql = "SELECT s.no_resep, s.is_test, ms.code, ms.dispensing
         FROM tbl_preliminary_schedule s
         LEFT JOIN master_suhu ms ON ms.code = s.code
         WHERE s.dispensing_start BETWEEN ? AND ?
@@ -72,16 +72,18 @@ while($row = $res->fetch_assoc()){
   $total_rows++;
 
   $d = isset($row['dispensing']) ? trim((string)$row['dispensing']) : '';
+  $isTest = (int)($row['is_test'] ?? 0) === 1;
+  $labelForDetail = $isTest ? ($nr . ' (TEST REPORT)') : $nr; 
 
   if ($d === '1'){
     $poly_set[$nr] = true;
-    $poly_count[$nr] = ($poly_count[$nr] ?? 0) + 1;
+    $poly_count[$labelForDetail] = ($poly_count[$labelForDetail] ?? 0) + 1;
   }elseif ($d === '2'){
     $cotton_set[$nr] = true;
-    $cotton_count[$nr] = ($cotton_count[$nr] ?? 0) + 1;
+    $cotton_count[$labelForDetail] = ($cotton_count[$labelForDetail] ?? 0) + 1;
   }elseif ($d === '3'){
     $white_set[$nr] = true;
-    $white_count[$nr] = ($white_count[$nr] ?? 0) + 1;
+    $white_count[$labelForDetail] = ($white_count[$labelForDetail] ?? 0) + 1;
   }
 }
 $stmt->close();
