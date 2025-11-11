@@ -100,7 +100,12 @@ $query = "SELECT
                                         LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER $wherewarehouse2 AND s3.DETAILTYPE =  $detailtype  
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
+                                            -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$tgl2 23:00:00'
+                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$tgl2'
+                                            AND (
+                                                (s.TRANSACTIONDATE > '$awal' OR (s.TRANSACTIONDATE = '$awal' AND s.TRANSACTIONTIME >= '23:01:00'))
+                                                AND (s.TRANSACTIONDATE < '$tgl2' OR (s.TRANSACTIONDATE = '$tgl2' AND s.TRANSACTIONTIME <= '23:00:00'))
+                                            )
                                             $wheretemplate2 
                                             AND s.LOGICALWAREHOUSECODE $warehouse
                                             AND (CASE 
