@@ -42,6 +42,14 @@ $act = $_GET['g'];
                         `ip_address` = '$ip_num'");
   ?>
   <?php
+    function qr_data_uri(string $text, int $ecc = QR_ECLEVEL_L, int $size = 3, int $margin = 0): string {
+        ob_start();
+        QRcode::png($text, null, $ecc, $size, $margin); // output biner PNG ke buffer
+        $png = ob_get_clean();
+        return 'data:image/png;base64,' . base64_encode($png);
+    }
+  ?>
+  <?php
     include('../../phpqrcode/qrlib.php');
 
     // Data untuk QR Code
@@ -49,17 +57,26 @@ $act = $_GET['g'];
 
     // Membuat QR Code dalam file PNG
 
-    if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
-        $qrcodeA = $qrcode . '-A';
-        $fileqrA = 'qrcode_A.png';
-        QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 3, 0);
+    // if (strtoupper(substr($qrcode, 0, 2)) === 'DR') {
+    //     $qrcodeA = $qrcode . '-A';
+    //     $fileqrA = 'qrcode_A.png';
+    //     QRcode::png($qrcodeA, $fileqrA, QR_ECLEVEL_L, 3, 0);
 
-        $qrcodeB = $qrcode . '-B';
-        $fileqrB = 'qrcode_B.png';
-        QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 3, 0);
+    //     $qrcodeB = $qrcode . '-B';
+    //     $fileqrB = 'qrcode_B.png';
+    //     QRcode::png($qrcodeB, $fileqrB, QR_ECLEVEL_L, 3, 0);
+    // } else {
+    //     $fileqr = 'qrcode.png';
+    //     QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 3, 0);
+    // }
+
+    $isDR = (strtoupper(substr($qrcode, 0, 2)) === 'DR');
+
+    if ($isDR) {
+        $qrA_uri = qr_data_uri($qrcode . '-A');
+        $qrB_uri = qr_data_uri($qrcode . '-B');
     } else {
-        $fileqr = 'qrcode.png';
-        QRcode::png($qrcode, $fileqr, QR_ECLEVEL_L, 3, 0);
+        $qr_uri  = qr_data_uri($qrcode);
     }
   ?>
   <table width="100%" border="0">
@@ -447,7 +464,7 @@ $act = $_GET['g'];
       <tr>
         <?php if (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR'): ?>
           <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
-            <img src="<?php echo $fileqrA; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
+            <img src="<?= $qrA_uri ?>" alt="QR Code A" class="qrcode" width="80%" height="80%">
           </td>
           <td align="left" colspan="3" style="border-bottom:5px solid black !important; height: 100px; border-bottom: double;">Comment Colorist<br><br><br><br><br><br></td>
           <td align="center" style="border-bottom:5px solid black !important; height: 50px; border-bottom: double;">&nbsp;</td>
@@ -578,7 +595,7 @@ $act = $_GET['g'];
       </tr>
       <tr>
         <td align="center" colspan="2" rowspan="2">
-          <img src="<?php echo (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR') ? $fileqrB : $fileqr; ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
+          <img src="<?= $isDR ? $qrB_uri : $qr_uri ?>" alt="QR Code" class="qrcode" width="80%" height="80%">
         </td>
         <td align="left" colspan="3" style="height: 60px;">Comment Colorist<br><br><br><br><br></td>
         <td align="center">&nbsp;</td>
