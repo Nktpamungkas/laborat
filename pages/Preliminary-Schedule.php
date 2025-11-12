@@ -753,6 +753,32 @@
     //     input.focus();
     // };
 </script>
+<script id="validasi-temp-setup">
+  // === SETUP VALIDASI TEMP ===
+  window.isTempValid = false;
+
+  function setTempValidity(ok, productName = '') {
+    window.isTempValid = !!ok;
+
+    if (ok) {
+      $('#productNameDisplay').text(productName);
+      $('#productNameWrapper').show();
+    } else {
+      $('#productNameDisplay').text('');
+      $('#productNameWrapper').hide();
+    }
+
+    // kunci tombol Simpan kalau tidak valid
+    var $btn = $('#exsecute');
+    if ($btn.length) $btn.prop('disabled', !window.isTempValid);
+  }
+
+  // default: belum valid saat halaman dibuka
+  $(function () {
+    setTempValidity(false);
+  });
+</script>
+
 <script>
     $(document).ready(function() {
 
@@ -786,6 +812,12 @@
 
         $('#exsecute').click(function(e) {
             e.preventDefault();
+            if (!window.isTempValid) {
+                toastr.error('Temp Code belum valid. Harap scan/isi kode hingga Suhu muncul.');
+                $('#temp').focus();
+                return;
+            }
+            
             var no_resep = $('#no_resep').val();
 
             // Cek jika ada bottle_qty_1, jika tidak pakai bottle_qty
@@ -1056,14 +1088,13 @@
 
 <script>
     $(document).ready(function () {
-
         let tempScanTimer;
         $('#temp').on('input', function () {
             clearTimeout(tempScanTimer); // reset timer setiap kali input berubah
 
             const code = $(this).val().trim();
 
-            if (code.length >= 6) {
+            if (code.length >= 7) {
                 tempScanTimer = setTimeout(function () {
                     $.ajax({
                         url: 'pages/ajax/get_program_by_code.php',
@@ -1072,11 +1103,9 @@
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
-                                $('#productNameDisplay').text(response.product_name);
-                                $('#productNameWrapper').show();
-
+                                setTempValidity(true, response.product_name);
                             } else {
-                                $('#productNameDisplay').text('');
+                                setTempValidity(false);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Kode Tidak Ditemukan',
@@ -1085,6 +1114,7 @@
                             }
                         },
                         error: function(xhr) {
+                            setTempValidity(false);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal',
@@ -1094,12 +1124,14 @@
                     });
                 }, 300);
             } else {
+                setTempValidity(false);
                 $('#productNameDisplay').text('');
             }
         });
 
         $('#no_resep').on('input', function () {
             clearTimeout(tempScanTimer);
+            setTempValidity(false);
 
             const code = $(this).val().trim();
 
@@ -1129,9 +1161,12 @@
                             } else if (codes.length === 1) {                           
                                 $('#temp').val(codes[0]).trigger('input');
                             }
+                        }  else {
+                            setTempValidity(false);
                         }
                     },
                     error: function() {
+                        setTempValidity(false);
                         console.error('Gagal mengambil data dari server.');
                     }
                 });
@@ -1151,7 +1186,7 @@
                 clearTimeout(timer);
                 const code = $(this).val().trim();
 
-                if (code.length >= 6) {
+                if (code.length >= 7) {
                     timer = setTimeout(() => {
                         $.ajax({
                             url: 'pages/ajax/get_program_by_code.php',
