@@ -316,7 +316,7 @@ $act = $_GET['g'];
             <font size="+2">2</font>
           </strong></td>
         <td width="4%"><strong>
-            <font size="+2">3</font>
+            <font size="+2">3</font> 
           </strong></td>
         <td width="4%"><strong>
             <font size="+2">4</font>
