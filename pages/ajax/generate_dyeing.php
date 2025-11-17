@@ -116,7 +116,7 @@ foreach ($oldDataList as $old) {
             'dyeing_start' => $old['dyeing_start'],
             'waktu' => $old['waktu'],
             'justMoved' => true,
-            'is_test' => $row['is_test']
+            'is_test' => $old['is_test']
         ];
     } else {
         $remainingOldData[] = $old;
