@@ -37,7 +37,7 @@ $resultTBO = db2_exec($conn1, $sqlTBO, ['cursor' => DB2_SCROLLABLE]);
 // Ambil data yang sudah pernah di-approve
 // $sqlApproved = "SELECT * FROM approval_bon_order WHERE is_revision = 0 ORDER BY id DESC";
 // $resultApproved = mysqli_query($con, $sqlApproved);
-$sqlApproved = "SELECT id, customer, code, tgl_approve_lab, pic_lab, status
+$sqlApproved = "SELECT id, customer, code, tgl_approve_lab, pic_lab, status, approvalrmpdatetime
                 FROM approval_bon_order
                 WHERE is_revision = 0
                 ORDER BY id DESC";
@@ -53,38 +53,38 @@ while ($r = mysqli_fetch_assoc($resApproved)) {
 
 function db2_quote($s){ return str_replace("'", "''", $s); }
 
-$mapDb2Date = [];
-if (!empty($codes)) {
-    $chunkSize = 500;
-    foreach (array_chunk($codes, $chunkSize) as $chunk) {
-        $inList = implode(",", array_map(function($c){
-            return "'".db2_quote($c)."'";
-        }, $chunk));
+// $mapDb2Date = [];
+// if (!empty($codes)) {
+//     $chunkSize = 500;
+//     foreach (array_chunk($codes, $chunkSize) as $chunk) {
+//         $inList = implode(",", array_map(function($c){
+//             return "'".db2_quote($c)."'";
+//         }, $chunk));
 
-        $sqlDb2 = "
-            SELECT s.CODE AS CODE,
-                   DATE(a.VALUETIMESTAMP) AS TGL_APPROVE_RMP
-            FROM SALESORDER s
-            JOIN ADSTORAGE a
-              ON a.UNIQUEID = s.ABSUNIQUEID
-             AND a.FIELDNAME = 'ApprovalRMPDateTime'
-            WHERE a.VALUETIMESTAMP IS NOT NULL
-              AND s.CODE IN ($inList)
-        ";
+//         $sqlDb2 = "
+//             SELECT s.CODE AS CODE,
+//                    DATE(a.VALUETIMESTAMP) AS TGL_APPROVE_RMP
+//             FROM SALESORDER s
+//             JOIN ADSTORAGE a
+//               ON a.UNIQUEID = s.ABSUNIQUEID
+//              AND a.FIELDNAME = 'ApprovalRMPDateTime'
+//             WHERE a.VALUETIMESTAMP IS NOT NULL
+//               AND s.CODE IN ($inList)
+//         ";
 
-        $stmt = db2_exec($conn1, $sqlDb2, ['cursor' => DB2_SCROLLABLE]);
-        if ($stmt === false) {
-            echo "<pre>DB2 exec failed.\n".htmlspecialchars($sqlDb2)."\n\n".
-                 "conn_err: ".db2_conn_errormsg($conn1)."\n".
-                 "stmt_err: ".db2_stmt_errormsg()."</pre>";
-            continue;
-        }
+//         $stmt = db2_exec($conn1, $sqlDb2, ['cursor' => DB2_SCROLLABLE]);
+//         if ($stmt === false) {
+//             echo "<pre>DB2 exec failed.\n".htmlspecialchars($sqlDb2)."\n\n".
+//                  "conn_err: ".db2_conn_errormsg($conn1)."\n".
+//                  "stmt_err: ".db2_stmt_errormsg()."</pre>";
+//             continue;
+//         }
 
-        while ($row = db2_fetch_assoc($stmt)) {
-            $mapDb2Date[strtoupper(trim($row['CODE']))] = $row['TGL_APPROVE_RMP']; // YYYY-MM-DD
-        }
-    }
-}
+//         while ($row = db2_fetch_assoc($stmt)) {
+//             $mapDb2Date[strtoupper(trim($row['CODE']))] = $row['TGL_APPROVE_RMP']; // YYYY-MM-DD
+//         }
+//     }
+// }
 
 ?>
 
@@ -179,7 +179,7 @@ if (!empty($codes)) {
                             <tbody>
                                 <?php foreach ($rowsApproved as $row):
                                     $code   = strtoupper(trim($row['code']));
-                                    $tglRmp = $mapDb2Date[$code] ?? '';
+                                    // $tglRmp = $mapDb2Date[$code] ?? '';
                                 ?>
                                 <tr>
                                 <td style="display:none;"><?= htmlspecialchars($row['id']) ?></td>
@@ -191,7 +191,11 @@ if (!empty($codes)) {
                                     <?= htmlspecialchars($code) ?>
                                     </a>
                                 </td>
-                                <td><?= htmlspecialchars($tglRmp ?: '') ?></td> <!-- HANYA dari DB2 -->
+                                <td>
+                                    <?= !empty($row['approvalrmpdatetime']) 
+                                        ? htmlspecialchars(date('Y-m-d', strtotime($row['approvalrmpdatetime']))) 
+                                        : '' ?>
+                                </td>
                                 <td><?= htmlspecialchars($row['tgl_approve_lab']) ?></td>
                                 <td><?= htmlspecialchars($row['pic_lab']) ?></td>
                                 <td><strong class="<?= ($row['status']==='Approved'?'text-success':'text-danger') ?>">
