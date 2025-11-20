@@ -204,9 +204,7 @@ while ($row = db2_fetch_assoc($mainStmt)) {
     }
 
     // Tentukan subcode04 untuk RAJUT/BOOKING
-    $subcode04 = ($itx['ITEMTYPEAFICODE'] === 'KFF')
-        ? $itx['RESERVATION_SUBCODE04']
-        : $itx['SUBCODE04'];
+    $subcode04 = ($itx['ITEMTYPEAFICODE'] === 'KFF') ? $itx['RESERVATION_SUBCODE04'] : $itx['SUBCODE04'];
 
     $isAKJorAKW = in_array($itx['AKJ'], ['AKJ', 'AKW'], true);
 
@@ -249,7 +247,7 @@ while ($row = db2_fetch_assoc($mainStmt)) {
 
     if (!$isAKJorAKW) {
         foreach ($additionalFields as $field) {
-            $val = $itx[$field] ?? '';
+            $val = strtoupper($itx[$field] ?? '');
             if (empty($val)) continue;
 
             $res = fetchPreparedRow(
@@ -268,6 +266,8 @@ while ($row = db2_fetch_assoc($mainStmt)) {
             }
             if (!empty($res['PO_GREIGE'])) {
                 $po_blm[] = htmlspecialchars($res['PO_GREIGE']);
+            }else if (empty($res['PO_GREIGE'] && !empty($val))) {
+                $po_blm[] = htmlspecialchars($val);
             }
         }
     }
