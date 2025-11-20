@@ -280,6 +280,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
             : $itx['SUBCODE04'];
 
         $isAKJorAKW = in_array($itx['AKJ'], ['AKJ','AKW'], true);
+        // if ($isAKJorAKW) {
+        //     continue;
+        // }
 
         // ---- RAJUT (prepared) ----
         if ($isAKJorAKW || !empty($itx['ADDITIONALDATA']) || !empty($itx['LEGACYORDER'])) {
@@ -320,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
 
         if (!$isAKJorAKW) {
             foreach ($additionalFields as $field) {
-                $val = $itx[$field] ?? '';
+                $val = strtoupper($itx[$field] ?? '');
                 if (empty($val)) continue;
 
                 $res = fetchPreparedRow(
@@ -335,6 +338,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                 );
                 if (!empty($res['BENANG']))   $benang_blm[] = htmlspecialchars($res['BENANG'],   ENT_QUOTES, 'UTF-8');
                 if (!empty($res['PO_GREIGE'])) $po_blm[]    = htmlspecialchars($res['PO_GREIGE'], ENT_QUOTES, 'UTF-8');
+                if (empty($res['PO_GREIGE'] && !empty($val))) $po_blm[] = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
             }
         }
 
@@ -357,6 +361,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
         $poList     = array_values(array_unique(array_filter($poList, $nonEmpty)));
 
         $max = max(count($benangList), count($poList));
+        if ($max === 0) {
+            $max = 1;
+        }
 
         // ==== Hitung lastC/lastD utk ORDERLINE (tetap seperti punyamu) ====
         $revC_candidates = [
@@ -492,113 +499,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
     echo $html;
 }
 ?>
-
-<script>
-$(document).ready(function(){
-    const currentUser = "<?= htmlspecialchars($userLAB, ENT_QUOTES, 'UTF-8'); ?>";
-    const ip_user     = "<?= htmlspecialchars($ipUser,  ENT_QUOTES, 'UTF-8'); ?>";
-
-    if (window.toastr) {
-        toastr.options = {
-            positionClass: "toast-top-right",
-            closeButton: true,
-            progressBar: true,
-            timeOut: "3000",
-            extendedTimeOut: "1000",
-            showMethod: "fadeIn",
-            hideMethod: "fadeOut"
-        };
-    }
-
-    // lock dropdown bila sudah ada prefill
-    $('.row-item').each(function() {
-        const row = $(this);
-        const picSelect = row.find('.pic-check');
-        const statusSelect = row.find('.status-bonorder');
-        const hasData = (picSelect.val() && statusSelect.val());
-
-        if (hasData) {
-            picSelect.prop('disabled', true);
-            statusSelect.prop('disabled', true);
-            row.find('.btn-simpan-row .btn-text').text('Edit');
-        } else {
-            picSelect.prop('disabled', false);
-            statusSelect.prop('disabled', false);
-            row.find('.btn-simpan-row .btn-text').text('Simpan');
-        }
-    });
-
-    // cegah bubbling
-    $(document).on('click', '.row-item, .row-item *', function(e){ e.stopPropagation(); });
-
-    // handler tombol simpan/edit/update
-    $(document).off('click', '.btn-simpan-row').on('click', '.btn-simpan-row', function() {
-        const btn = $(this);
-        const row = btn.closest('.row-item');
-        const btnText = btn.find('.btn-text').text().trim();
-
-        const salesorder = row.find('.td-salesorder').text().trim();
-        const orderline  = row.find('.td-orderline').text().trim();
-        const warna      = row.find('.td-warna').text().trim();
-        const benang     = row.find('.td-benang').text().trim();
-        const po         = row.find('.td-po').text().trim();
-
-        const picSelect    = row.find('.pic-check');
-        const statusSelect = row.find('.status-bonorder');
-
-        // Mode Edit -> buka dropdown -> jadi Update
-        if (btnText === 'Edit') {
-            if (currentUser?.toLowerCase?.() !== 'riyan') { toastr.warning('Hanya user Riyan yang dapat melakukan edit'); return; }
-            picSelect.prop('disabled', false);
-            statusSelect.prop('disabled', false);
-            btn.find('.btn-text').text('Update');
-            return;
-        }
-
-        // Mode Simpan/Update
-        const pic = picSelect.val();
-        const status = statusSelect.val();
-        if (!pic || !status) { alert('PIC dan Status Bon Order wajib dipilih!'); return; }
-
-        // Lock saat kirim
-        picSelect.prop('disabled', true);
-        statusSelect.prop('disabled', true);
-        btn.prop('disabled', true).addClass('btn-loading');
-        btn.find('.btn-text').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>');
-        btn.find('.spinner-border').removeClass('d-none');
-
-        $.ajax({
-            url: 'pages/ajax/simpan_status_matching_bonorder.php',
-            type: 'POST',
-            data: {
-                salesorder,
-                orderline,
-                warna,
-                benang,
-                ip: ip_user,
-                user: currentUser,
-                po_greige: po,
-                pic_check: pic,
-                status_bonorder: status
-            },
-            success: function(response) {
-                btn.removeClass('btn-loading').prop('disabled', false);
-                btn.find('.spinner-border').addClass('d-none');
-                btn.find('.btn-text').text('Edit');
-                picSelect.prop('disabled', true);
-                statusSelect.prop('disabled', true);
-                if (window.toastr) toastr.success(response || 'Tersimpan');
-            },
-            error: function(xhr, status, error) {
-                btn.removeClass('btn-loading').prop('disabled', false);
-                btn.find('.spinner-border').addClass('d-none');
-                btn.find('.btn-text').text('Update');
-                picSelect.prop('disabled', false);
-                statusSelect.prop('disabled', false);
-                if (window.toastr) toastr.error("Terjadi kesalahan: " + error);
-            }
-        });
-
-    });
-});
-</script>
