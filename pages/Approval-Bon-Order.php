@@ -49,7 +49,7 @@ $codes = [];
 while ($r = mysqli_fetch_assoc($resApproved)) {
     $rowsApproved[] = $r;
     $codes[] = strtoupper(trim($r['code']));
-}
+} 
 
 function db2_quote($s){ return str_replace("'", "''", $s); }
 
