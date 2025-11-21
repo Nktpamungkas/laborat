@@ -118,7 +118,10 @@ try {
                 " . to_date_sql($con, $revisi3date) . ",
                 " . to_date_sql($con, $revisi4date) . ",
                 " . to_date_sql($con, $revisi5date) . ",
-                '" . esc($con, $approvalrmpdatetime) . "'
+                " . ($approvalrmpdatetime === null 
+                        ? "NULL" 
+                        : "'" . esc($con, $approvalrmpdatetime) . "'"
+                ) . "
             )
     ";
 

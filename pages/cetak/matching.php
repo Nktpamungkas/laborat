@@ -48,6 +48,71 @@ $act = $_GET['g'];
         $png = ob_get_clean();
         return 'data:image/png;base64,' . base64_encode($png);
     }
+
+    function qr_data_uri_with_label(
+        string $text,
+        string $label = '',
+        int $ecc = QR_ECLEVEL_H,
+        int $size = 4,
+        int $margin = 1
+    ): string {
+        if ($label === '') {
+            $label = $text;
+        }
+
+        // 1. Generate QR ke buffer (PNG biner)
+        ob_start();
+        QRcode::png($text, null, $ecc, $size, $margin);
+        $png = ob_get_clean();
+
+        // 2. Bikin image GD dari PNG
+        $im = imagecreatefromstring($png);
+        if (!$im) {
+            // fallback: kalau gagal, balikin QR biasa saja
+            return 'data:image/png;base64,' . base64_encode($png);
+        }
+
+        $w = imagesx($im);
+        $h = imagesy($im);
+
+        // 3. Siapkan area kotak putih di tengah
+        //    (ukuran 50% lebar, 18% tinggi QR – bisa diubah-ubah)
+        $boxWidth  = (int)($w * 0.5);
+        $boxHeight = (int)($h * 0.18);
+
+        $boxX1 = (int)(($w - $boxWidth) / 2);
+        $boxY1 = (int)(($h - $boxHeight) / 2);
+        $boxX2 = $boxX1 + $boxWidth;
+        $boxY2 = $boxY1 + $boxHeight;
+
+        $white = imagecolorallocate($im, 255, 255, 255);
+        imagefilledrectangle($im, $boxX1, $boxY1, $boxX2, $boxY2, $white);
+
+        // 4. Tulis teks di tengah kotak
+        //    (pakai font built-in GD, biar nggak ribet TTF)
+        //    Batasi panjang teks biar nggak kepanjangan
+        $label = substr($label, -14); // ambil 14 karakter terakhir (opsional)
+
+        $black = imagecolorallocate($im, 0, 0, 0);
+        $font  = 3; // built-in font size 3
+
+        $textWidth  = imagefontwidth($font) * strlen($label);
+        $textHeight = imagefontheight($font);
+
+        $textX = (int)(($w - $textWidth) / 2);
+        $textY = (int)(($h - $textHeight) / 2);
+
+        imagestring($im, $font, $textX, $textY, $label, $black);
+
+        // 5. Kembalikan ke PNG biner
+        ob_start();
+        imagepng($im);
+        imagedestroy($im);
+        $outPng = ob_get_clean();
+
+        // 6. Jadikan data URI seperti sebelumnya
+        return 'data:image/png;base64,' . base64_encode($outPng);
+    }
   ?>
   <?php
     include('../../phpqrcode/qrlib.php');
@@ -462,7 +527,7 @@ $act = $_GET['g'];
       </tr>
 
       <tr>
-        <?php if (strtoupper(substr($_GET['idkk'], 0, 2)) === 'DR'): ?>
+        <?php if ($isDR): ?>
           <td align="center" colspan="2" style="border-bottom:5px solid black !important;">
             <img src="<?= $qrA_uri ?>" alt="QR Code A" class="qrcode" width="80%" height="80%">
           </td>

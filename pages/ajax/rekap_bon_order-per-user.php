@@ -218,7 +218,7 @@ $sisaReview = $totalH1 - ($totalApproved + $totalReject);
 </div>
 
 <?php
-/* ===== Helper ===== */
+/* ===== Helpers ===== */
 function timer_to_hours($s){
     $s = strtolower((string)$s);
     $hari=0;$jam=0;$menit=0;
@@ -240,263 +240,275 @@ function hours_to_points($h){
     if ($h <= 240) return 1;
     return 0;
 }
+function compute_user_totals(array $data, string $user){
+    $stages = ['Preliminary','Dispensing','Dyeing','Darkroom'];
+    $totA = $totP = $totTA = $totTP = 0;
+    foreach ($stages as $st){
+        $rows = $data[$st][$user] ?? [];
+        foreach ($rows as $r){
+            $totA  += (int)($r['awarded']  ?? 0);
+            $totP  += (int)($r['possible'] ?? 0);
+            $totTA += (int)(($r['t_awarded']  === '' ? 0 : $r['t_awarded']));
+            $totTP += (int)(($r['t_possible'] === '' ? 0 : $r['t_possible']));
+        }
+    }
+    $sumA = $totA + $totTA;
+    $sumP = $totP + $totTP;
+    $ratio = $sumP > 0 ? ($sumA / $sumP) : 0;
+    return compact('totA','totP','totTA','totTP','sumA','sumP','ratio');
+}
 
-/* ===== Ambil data per stage (UNION) ===== */
+/* ===== Query per stage (UNION) — sama seperti page sebelumnya ===== */
 $sql = "
 SELECT
   ps.no_resep                                              AS no_resep,
   'Preliminary'                                            AS stage,
   sm.timer                                                 AS timer,
-  UPPER(ps.username)                                       AS user_pre,
-  UPPER(ps.user_dispensing)                                AS user_dis,
-  UPPER(ps.user_dyeing)                                    AS user_dye,
-  UPPER(COALESCE(ps.user_darkroom_end, ps.user_darkroom_start)) AS user_drk,
+  ps.username,
+  ps.user_dispensing,
+  ps.user_dyeing,
+  COALESCE(ps.user_darkroom_end, ps.user_darkroom_start)   AS user_darkroom,
   ps.is_test
 FROM tbl_preliminary_schedule ps
-JOIN tbl_status_matching sm
-  ON sm.idm = (CASE WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep,2) IN ('-A','-B')
-                    THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep)-2)
-                    ELSE ps.no_resep END)
+INNER JOIN tbl_status_matching sm
+  ON sm.idm = (
+      CASE
+        WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep, 2) IN ('-A','-B')
+          THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep) - 2)
+        ELSE ps.no_resep
+      END
+  )
 WHERE DATE(ps.creationdatetime) = ?
-  AND sm.timer IS NOT NULL AND sm.timer <> ''
+  AND sm.timer IS NOT NULL
+  AND sm.timer <> ''
 
 UNION ALL
 SELECT
-  ps.no_resep,'Dispensing',sm.timer,
-  UPPER(ps.username),UPPER(ps.user_dispensing),UPPER(ps.user_dyeing),
-  UPPER(COALESCE(ps.user_darkroom_end, ps.user_darkroom_start)), ps.is_test
+  ps.no_resep,
+  'Dispensing' AS stage,
+  sm.timer,
+  ps.username,
+  ps.user_dispensing,
+  ps.user_dyeing,
+  COALESCE(ps.user_darkroom_end, ps.user_darkroom_start) AS user_darkroom,
+  ps.is_test
 FROM tbl_preliminary_schedule ps
-JOIN tbl_status_matching sm
-  ON sm.idm = (CASE WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep,2) IN ('-A','-B')
-                    THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep)-2)
-                    ELSE ps.no_resep END)
+INNER JOIN tbl_status_matching sm
+  ON sm.idm = (
+      CASE
+        WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep, 2) IN ('-A','-B')
+          THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep) - 2)
+        ELSE ps.no_resep
+      END
+  )
 WHERE DATE(ps.dispensing_start) = ?
-  AND sm.timer IS NOT NULL AND sm.timer <> ''
+  AND sm.timer IS NOT NULL
+  AND sm.timer <> ''
 
 UNION ALL
 SELECT
-  ps.no_resep,'Dyeing',sm.timer,
-  UPPER(ps.username),UPPER(ps.user_dispensing),UPPER(ps.user_dyeing),
-  UPPER(COALESCE(ps.user_darkroom_end, ps.user_darkroom_start)), ps.is_test
+  ps.no_resep,
+  'Dyeing' AS stage,
+  sm.timer,
+  ps.username,
+  ps.user_dispensing,
+  ps.user_dyeing,
+  COALESCE(ps.user_darkroom_end, ps.user_darkroom_start) AS user_darkroom,
+  ps.is_test
 FROM tbl_preliminary_schedule ps
-JOIN tbl_status_matching sm
-  ON sm.idm = (CASE WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep,2) IN ('-A','-B')
-                    THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep)-2)
-                    ELSE ps.no_resep END)
+INNER JOIN tbl_status_matching sm
+  ON sm.idm = (
+      CASE
+        WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep, 2) IN ('-A','-B')
+          THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep) - 2)
+        ELSE ps.no_resep
+      END
+  )
 WHERE DATE(ps.dyeing_start) = ?
-  AND sm.timer IS NOT NULL AND sm.timer <> ''
+  AND sm.timer IS NOT NULL
+  AND sm.timer <> ''
 
 UNION ALL
 SELECT
-  ps.no_resep,'Darkroom',sm.timer,
-  UPPER(ps.username),UPPER(ps.user_dispensing),UPPER(ps.user_dyeing),
-  UPPER(COALESCE(ps.user_darkroom_end, ps.user_darkroom_start)), ps.is_test
+  ps.no_resep,
+  'Darkroom' AS stage,
+  sm.timer,
+  ps.username,
+  ps.user_dispensing,
+  ps.user_dyeing,
+  COALESCE(ps.user_darkroom_end, ps.user_darkroom_start) AS user_darkroom,
+  ps.is_test
 FROM tbl_preliminary_schedule ps
-JOIN tbl_status_matching sm
-  ON sm.idm = (CASE WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep,2) IN ('-A','-B')
-                    THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep)-2)
-                    ELSE ps.no_resep END)
-WHERE ((ps.darkroom_start IS NOT NULL AND DATE(ps.darkroom_start)=?)
-    OR (ps.darkroom_end   IS NOT NULL AND DATE(ps.darkroom_end)  =?))
-  AND sm.timer IS NOT NULL AND sm.timer <> ''
-ORDER BY FIELD(stage,'Preliminary','Dispensing','Dyeing','Darkroom'), no_resep
+INNER JOIN tbl_status_matching sm
+  ON sm.idm = (
+      CASE
+        WHEN ps.no_resep LIKE 'DR%' AND RIGHT(ps.no_resep, 2) IN ('-A','-B')
+          THEN LEFT(ps.no_resep, CHAR_LENGTH(ps.no_resep) - 2)
+        ELSE ps.no_resep
+      END
+  )
+WHERE (
+        (ps.darkroom_start IS NOT NULL AND DATE(ps.darkroom_start) = ?)
+     OR (ps.darkroom_end   IS NOT NULL AND DATE(ps.darkroom_end)   = ?)
+      )
+  AND sm.timer IS NOT NULL
+  AND sm.timer <> ''
+
+ORDER BY no_resep, stage
 ";
+
 $stmt = $con->prepare($sql);
-if (!$stmt) die("Prepare gagal: ".$con->error);
-$stmt->bind_param("sssss", $kemarin,$kemarin,$kemarin,$kemarin,$kemarin);
+if (!$stmt) die("Query prepare gagal: ".$con->error);
+$stmt->bind_param("sssss", $kemarin, $kemarin, $kemarin, $kemarin, $kemarin);
 $stmt->execute();
 $res = $stmt->get_result();
 
-/* ===== Agregasi per STAGE & USER ===== */
-$stageUser = [
-  'Preliminary'=>[], 'Dispensing'=>[], 'Dyeing'=>[], 'Darkroom'=>[]
+$data = [
+  'Preliminary' => [],
+  'Dispensing'  => [],
+  'Dyeing'      => [],
+  'Darkroom'    => [],
 ];
 
-// mapping urutan prioritas stage
-$stageIndexMap = [
-    'Preliminary' => 0,
-    'Dispensing'  => 1,
-    'Dyeing'      => 2,
-    'Darkroom'    => 3,
-];
+while ($row = $res->fetch_assoc()) {
+    $job       = $row['no_resep'];      // pakai no_resep asli (bisa -A/-B)
+    $hours     = timer_to_hours($row['timer']);
+    $points    = hours_to_points($hours);
+    $possible  = 10;
+    $isTest    = ((int)$row['is_test'] === 1);
+    $stage     = $row['stage'];
 
-// untuk aturan:
-// - per user+base_job, hanya stage paling awal yang dihitung
-$jobFirstStage = [];
+    // helper simpan per user & job
+    $put = function (&$bucket, $user) use ($job, $points, $possible, $isTest) {
+        $user = strtoupper(trim((string)$user));
+        if ($user === '') return;
+        if (!isset($bucket[$user][$job])) {
+            $bucket[$user][$job] = [
+                'awarded'    => null,
+                'possible'   => null,
+                't_awarded'  => '',
+                't_possible' => '',
+            ];
+        }
+        if ($isTest) {
+            $bucket[$user][$job]['t_awarded']  = $points;
+            $bucket[$user][$job]['t_possible'] = $possible;
+        } else {
+            $bucket[$user][$job]['awarded']  = $points;
+            $bucket[$user][$job]['possible'] = $possible;
+        }
+    };
 
-// untuk menghindari double count dalam 1 stage untuk user+base_job yang sama
-$seen = [];
-
-while ($row = $res->fetch_assoc()){
-  $stage  = $row['stage'];
-
-  // full job & base job (tanpa -A/-B)
-  $jobFull = $row['no_resep'];
-  $baseJob = $jobFull;
-  if (preg_match('/^DR.+-(A|B)$/', $jobFull)) {
-      $baseJob = substr($jobFull, 0, -2); // DRxxxxx saja
-  }
-
-  $isTest = (int)$row['is_test'] === 1; // tetap disimpan kalau nanti perlu
-
-  // ambil user sesuai stage
-  $user = '';
-  if ($stage==='Preliminary')      $user = trim($row['user_pre']);
-  elseif ($stage==='Dispensing')   $user = trim($row['user_dis']);
-  elseif ($stage==='Dyeing')       $user = trim($row['user_dye']);
-  else                             $user = trim($row['user_drk']);
-  if ($user==='') continue;
-
-  // index prioritas stage
-  $idx = isset($stageIndexMap[$stage]) ? $stageIndexMap[$stage] : 999;
-
-  // === PRIORITAS STAGE BERANTAI PER USER ===
-  // Jika base job untuk user ini sudah pernah muncul di stage lebih awal,
-  // baris ini di-skip (tidak dihitung lagi di stage berikutnya).
-  if (isset($jobFirstStage[$user][$baseJob])) {
-      $firstIdx = $jobFirstStage[$user][$baseJob];
-
-      if ($idx > $firstIdx) {
-          // stage sekarang lebih akhir → abaikan
-          continue;
-      } elseif ($idx < $firstIdx) {
-          // kalau (secara teori) ketemu stage yang lebih awal belakangan,
-          // update prioritas ke yang lebih awal
-          $jobFirstStage[$user][$baseJob] = $idx;
-      }
-  } else {
-      // pertama kali lihat job ini untuk user ini
-      $jobFirstStage[$user][$baseJob] = $idx;
-  }
-
-  // === DEDUPE DALAM STAGE YANG SAMA (user + baseJob) ===
-  // DRxxxx-A & DRxxxx-B → dianggap 1 job di stage ini per user
-  if (isset($seen[$stage][$user][$baseJob])) {
-      continue;
-  }
-  $seen[$stage][$user][$baseJob] = true;
-
-  // semua baris (test & non-test) yang lolos aturan di atas ikut dihitung point
-  $points   = hours_to_points(timer_to_hours($row['timer']));
-  $possible = 10;
-
-  if (!isset($stageUser[$stage][$user])) {
-    $stageUser[$stage][$user] = ['sumA'=>0,'sumP'=>0];
-  }
-  $stageUser[$stage][$user]['sumA'] += $points;
-  $stageUser[$stage][$user]['sumP'] += $possible;
+    switch ($stage) {
+        case 'Preliminary':
+            $put($data['Preliminary'], $row['username']);
+            break;
+        case 'Dispensing':
+            $put($data['Dispensing'],  $row['user_dispensing']);
+            break;
+        case 'Dyeing':
+            $put($data['Dyeing'],      $row['user_dyeing']);
+            break;
+        case 'Darkroom':
+            $put($data['Darkroom'],    $row['user_darkroom']); // COALESCE end/start
+            break;
+    }
 }
-
 $stmt->close();
 
-/* ===== Sort user A–Z di tiap stage ===== */
-foreach ($stageUser as $st => $arr){
-  ksort($arr, SORT_NATURAL | SORT_FLAG_CASE);
-  $stageUser[$st] = $arr;
-}
+/* ===== Susun daftar user & stage dari $data, dan hitung POINT per user ===== */
+$stageOrder = ['Preliminary','Dispensing','Dyeing','Darkroom'];
+$userStageList = []; // [USER] => set stage
+$allUsers = [];
 
-/* ===== Gabung per USER + tentukan stage prioritas tampil ===== */
-$orderStages = ['Preliminary','Dispensing','Dyeing','Darkroom'];
-
-$userAgg = []; // key: user
-foreach ($orderStages as $st) {
-  if (empty($stageUser[$st])) continue;
-
-  foreach ($stageUser[$st] as $user => $tot) {
-    if (!isset($userAgg[$user])) {
-      $userAgg[$user] = [
-        'sumA'      => 0,
-        'sumP'      => 0,
-        'bestStage' => $st,
-        'bestIdx'   => array_search($st, $orderStages, true)
-      ];
+foreach ($stageOrder as $st){
+    foreach ($data[$st] as $user => $rowsAssoc){
+        if ($user==='' || empty($rowsAssoc)) continue;
+        $allUsers[$user] = true;
+        if (!isset($userStageList[$user])) $userStageList[$user] = [];
+        $userStageList[$user][$st] = true;
     }
-
-    // akumulasi poin semua job yang lolos aturan chain
-    $userAgg[$user]['sumA'] += $tot['sumA'];
-    $userAgg[$user]['sumP'] += $tot['sumP'];
-
-    // stage tampil: pilih yang paling kecil
-    $idxNow = array_search($st, $orderStages, true);
-    if ($idxNow < $userAgg[$user]['bestIdx']) {
-      $userAgg[$user]['bestStage'] = $st;
-      $userAgg[$user]['bestIdx']   = $idxNow;
-    }
-  }
 }
+$allUsers = array_keys($allUsers);
+sort($allUsers, SORT_NATURAL | SORT_FLAG_CASE);
 
-/* ===== Susun kembali per STAGE untuk tampilan ===== */
-$stageDisplay = [];
-foreach ($orderStages as $st) {
-  $stageDisplay[$st] = [];
-}
-
-foreach ($userAgg as $user => $info) {
-  $st    = $info['bestStage']; // stage prioritas untuk tampilan
-  $ratio = ($info['sumP'] > 0) ? $info['sumA'] / $info['sumP'] : 0;
-
-  $stageDisplay[$st][] = [
-    'user'  => $user,
-    'ratio' => $ratio
-  ];
-}
-
-/* Sort user A–Z di dalam masing-masing stage */
-foreach ($stageDisplay as $st => $rows) {
-  usort($rows, function($a, $b) {
-    return strnatcasecmp($a['user'], $b['user']);
-  });
-  $stageDisplay[$st] = $rows;
+$userTotals = []; // [USER] => totals (sumA,sumP,ratio)
+foreach ($allUsers as $u){
+    $userTotals[$u] = compute_user_totals($data, $u);
 }
 ?>
+<style>
+    .table-points-awarded {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
 
+    .table-points-awarded td,
+    .table-points-awarded th {
+      border: 1px solid #ababab;
+      padding: 8px;
+      text-align: center;
+    }
+    .table-points-awarded th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #0068c2;
+      color: white;
+    }
+</style>
 <div class="col-md-6">
   <div class="box">
     <h4 class="text-center" style="font-weight:bold;">
       REKAP POINTS AWARDED H-1 (<?= htmlspecialchars($kemarin); ?>)
     </h4>
 
-    <table class="table table-chart" style="width:100%;">
+    <table class="table table-points-awarded" style="width:100%;">
       <thead class="table-secondary">
         <tr class="text-center" style="background:#eee;">
-          <th style="text-align:center; width:28%;">STAGE</th>
-          <th style="text-align:center; width:44%;">NAMA</th>
-          <th style="text-align:center; width:28%;">POINT</th>
+          <th style="text-align:center; width:40%;">USER</th>
+          <th style="text-align:center; width:40%;">STAGE</th>
+          <th style="text-align:center; width:20%;">POINT</th>
         </tr>
       </thead>
       <tbody>
-        <?php
-        $printedAny = false;
+        <?php if (!empty($allUsers)): ?>
+          <?php foreach ($allUsers as $user): ?>
+            <?php
+              // stage untuk user ini (urut sesuai stageOrder)
+              $stList = [];
+              foreach ($stageOrder as $st) {
+                if (isset($userStageList[$user][$st])) $stList[] = $st;
+              }
+              if (empty($stList)) continue;
 
-        foreach ($orderStages as $st) {
-          $rows = $stageDisplay[$st];
-          if (empty($rows)) continue;
+              $rowspan   = count($stList);
+              $totals    = $userTotals[$user] ?? ['sumA'=>0,'sumP'=>0,'ratio'=>0];
+              $ratioText = number_format((float)$totals['ratio'], 4, '.', ''); // 4 desimal
+            ?>
+            <?php foreach ($stList as $i => $stageName): ?>
+              <tr>
+                <?php if ($i === 0): ?>
+                  <td rowspan="<?= $rowspan; ?>" style="vertical-align:middle; font-weight:bold;">
+                    <?= htmlspecialchars($user); ?>
+                  </td>
+                <?php endif; ?>
 
-          $printedAny = true;
-          $rowspan = count($rows);
+                <td><?= htmlspecialchars($stageName); ?></td>
 
-          foreach ($rows as $i => $row) {
-            echo '<tr>';
-
-            // Kolom STAGE hanya dicetak sekali (rowspan)
-            if ($i === 0) {
-              echo '<td rowspan="'.$rowspan.'" style="vertical-align:middle;font-weight:bold;">'
-                    . htmlspecialchars($st) .
-                  '</td>';
-            }
-
-            echo '<td>'.htmlspecialchars($row['user']).'</td>';
-            echo '<td class="text-center" style="background:#cfe8ff;font-weight:bold;">'
-                    . number_format($row['ratio'], 4, '.', '') .
-                 '</td>';
-            echo '</tr>';
-          }
-        }
-
-        if (!$printedAny) {
-          echo '<tr><td colspan="3" class="text-center text-muted">Tidak ada data.</td></tr>';
-        }
-        ?>
+                <?php if ($i === 0): ?>
+                  <td rowspan="<?= $rowspan; ?>" class="text-center"
+                      style="vertical-align:middle; background:#cfe8ff; font-weight:bold;">
+                    <?= $ratioText; ?>
+                  </td>
+                <?php endif; ?>
+              </tr>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <tr><td colspan="3" class="text-center text-muted">Tidak ada data.</td></tr>
+        <?php endif; ?>
       </tbody>
     </table>
   </div>

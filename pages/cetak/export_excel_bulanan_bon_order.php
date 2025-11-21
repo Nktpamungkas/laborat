@@ -191,7 +191,7 @@ $idxBulan = $addStr($bulanLabel);
 $sst = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
      . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="'.(1+count($hdr1)+count($hdr2)+1).'" uniqueCount="'.count($strings).'">';
 foreach ($strings as $s => $i) {
-    $sst .= '<si><t xml:space="preserve">'.htmlspecialchars($s, ENT_XML1).'</t></si>';
+    $sst .= '<si><t xml:space="preserve">'.htmlspecialchars((string)$s, ENT_XML1).'</t></si>';
 }
 $sst .= '</sst>';
 $zip->addFromString('xl/sharedStrings.xml', $sst);

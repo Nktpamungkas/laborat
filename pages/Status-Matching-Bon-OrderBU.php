@@ -42,39 +42,28 @@
 $sqlTBO = "
     SELECT code, customer, tgl_approve_rmp, tgl_approve_lab, pic_lab, is_revision, approvalrmpdatetime
     FROM approval_bon_order
-    WHERE status = 'Approved'
+    WHERE status = 'Approved' ORDER BY id DESC
 ";
 $rsMy = mysqli_query($con, $sqlTBO);
 
 $approvedRows = [];
-// $codes = [];
-// if ($rsMy) {
-//     while ($r = mysqli_fetch_assoc($rsMy)) {
-//         $r['code'] = trim((string)$r['code']);
-//         $approvedRows[] = $r;
-//         if ($r['code'] !== '') {
-//             $codes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
-//         }
-//     }
-// }
 $tempMap = [];
 $codes = [];
+
 if ($rsMy) {
     while ($r = mysqli_fetch_assoc($rsMy)) {
         $r['code'] = trim((string)$r['code']);
         $code = $r['code'];
-
         if ($code === '') continue;
 
-        // cek apakah sudah ada code ini
         if (!isset($tempMap[$code])) {
             $tempMap[$code] = $r;
         } else {
+            $existing = $tempMap[$code]; // ⬅️ penting!
             if ((int)$r['is_revision'] === 1 && (int)$existing['is_revision'] === 0) {
-                // utamakan revisi
-                $tempMap[$code] = $r;
+                $tempMap[$code] = $r; // utamakan revisi
             } elseif ((int)$r['is_revision'] === (int)$existing['is_revision']) {
-                // kalau sama-sama revisi / sama-sama bukan revisi → pilih yang tanggal lab terbaru
+                // sama level revisi → ambil Approved Lab terbaru
                 if (strtotime($r['tgl_approve_lab']) > strtotime($existing['tgl_approve_lab'])) {
                     $tempMap[$code] = $r;
                 }
@@ -82,10 +71,10 @@ if ($rsMy) {
         }
     }
 
-    // hasil akhir, sudah unik per code
+    // unik per code
     $approvedRows = array_values($tempMap);
 
-    // buat list untuk query DB2
+    // list utk query revisi (yang CTE panjang)
     foreach ($approvedRows as $r) {
         $codes[] = "'" . mysqli_real_escape_string($con, $r['code']) . "'";
     }
@@ -233,7 +222,7 @@ if (!empty($codes)) {
                 <table id="tboTable" class="display table table-bordered table-striped" style="width:100%">
                     <thead class="bg-primary text-white">
                         <tr>
-                            <th>Nomer Bon Order</th>
+                            <th width="30%">Nomer Bon Order</th>
                             <th>Customer</th>
                             <th>Tgl Approved RMP</th>
                             <th>Tgl Approved LAB</th>
@@ -283,8 +272,11 @@ if (!empty($codes)) {
                                 <td class="cell-customer" data-cust="<?= htmlspecialchars($rowTBO['customer']) ?>">
                                     <?= htmlspecialchars($rowTBO['customer']) ?>
                                 </td>
-                                <!-- <td><?= htmlspecialchars($rowTBO['tgl_approve_rmp']) ?></td> -->
-                                 <td><?= !empty($rowTBO['approvalrmpdatetime']) ? date('Y-m-d', strtotime($rowTBO['approvalrmpdatetime'])) : htmlspecialchars($rowTBO['tgl_approve_rmp']) ?></td>
+                                <td>
+                                    <?= !empty($rowTBO['approvalrmpdatetime']) 
+                                        ? htmlspecialchars(date('Y-m-d', strtotime($rowTBO['approvalrmpdatetime']))) 
+                                        : '' ?>
+                                </td>
                                 <td><?= htmlspecialchars($rowTBO['tgl_approve_lab']) ?></td>
                                 <td><?= htmlspecialchars($rowTBO['pic_lab']) ?></td>
                             </tr>
@@ -332,7 +324,8 @@ $(document).ready(function () {
         pageLength: 10,
         lengthMenu: [10,25,50,100],
         order: [],
-        autoWidth: false
+        autoWidth: false,
+        deferRender: true 
     });
 
     // Render Nomer Bon Order cell (kolom 1) dgn revisi + tombol (hanya utk is_revision=1)

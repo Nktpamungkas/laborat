@@ -174,32 +174,29 @@ function get_db2_lines($conn1, $codeUpper) {
 }
 
 /** Wrapper opsional biar “kayak versi lama” */
-function has_line_diff($conn1, $con, $codeUpper) {
-    $db2Lines = get_db2_lines($conn1, $codeUpper);
+function has_line_diff($conn1, $codeUpper) {
+    // pakai snapshot line dari MySQL yang SUDAH di-load di atas
+    global $lastLinesByCode;
 
-    // ambil snapshot line MySQL utk code tsb (terakhir per line)
-    $codeEsc = mysqli_real_escape_string($con, $codeUpper);
-    $res = mysqli_query($con, "
-        SELECT lr.*
-        FROM line_revision lr
-        JOIN approval_bon_order a ON a.id = lr.approval_id
-        JOIN (
-          SELECT code, MAX(id) AS max_id
-          FROM approval_bon_order
-          WHERE is_revision = 1
-          GROUP BY code
-        ) m ON m.max_id = a.id
-        WHERE a.is_revision = 1 AND UPPER(lr.code) = '{$codeEsc}'
-        ORDER BY lr.orderline
-    ");
-    $mysqlLines = [];
-    if ($res) while ($r = mysqli_fetch_assoc($res)) $mysqlLines[] = $r;
+    $codeKey    = strtoupper(trim($codeUpper));
+    $mysqlLines = $lastLinesByCode[$codeKey] ?? [];
 
     // aturan: kalau MySQL belum punya snapshot line utk code ini -> JANGAN dianggap beda
-    if (empty($mysqlLines)) return false;
+    if (empty($mysqlLines)) {
+        return false;
+    }
+
+    // baru panggil DB2 kalau memang ada snapshot di MySQL
+    $db2Lines = get_db2_lines($conn1, $codeKey);
+    if (empty($db2Lines)) {
+        // kalau gagal ambil dari DB2, supaya aman kita anggap "tidak beda"
+        // (boleh diubah jadi true kalau kamu lebih suka "konservatif")
+        return false;
+    }
 
     return linesDiffer($db2Lines, $mysqlLines);
 }
+
 
 /* --------------- 1) Snapshot MySQL (header terakhir per code) --------------- */
 $sqlSnap = "
@@ -456,7 +453,7 @@ while ($row = db2_fetch_assoc($resultTBO)) {
         $need = true; // data baru
     } else {
         $headerDiff = revisionsDiffer($row, $snap); // ABAIKAN tanggal
-        $lineDiff   = $ENABLE_LINE_DIFF ? has_line_diff($conn1, $con, $codeUpper) : false;
+        $lineDiff   = $ENABLE_LINE_DIFF ? has_line_diff($conn1, $codeUpper) : false;
         if ($headerDiff || $lineDiff) $need = true;
     }
     if ($need) $tboRows[] = $row;
@@ -530,7 +527,7 @@ $resultApproved = mysqli_query($con, $sqlApproved);
               <?php foreach ($tboRows as $row):
                 $code = strtoupper(trim($row['CODE']));
                 $customer = trim($row['CUSTOMER']);
-                $tgl = trim($row['TGL_APPROVE_RMP']);
+                $tgl = substr(trim($row['APPROVAL_RMP_DATETIME'] ?? ''), 0, 10);
 
                 $approvalDtRaw = trim($row['APPROVAL_RMP_DATETIME'] ?? '');
                 $approvalDtStr = '';
@@ -644,7 +641,12 @@ $resultApproved = mysqli_query($con, $sqlApproved);
                       <?= htmlspecialchars($row['code']) ?>
                     </a>
                   </td>
-                  <td><?= htmlspecialchars($row['tgl_approve_rmp']) ?></td>
+                  <!-- <td><?= htmlspecialchars($row['tgl_approve_rmp']) ?></td> -->
+                  <td>
+                      <?= !empty($row['approvalrmpdatetime']) 
+                          ? htmlspecialchars(date('Y-m-d', strtotime($row['approvalrmpdatetime']))) 
+                          : '' ?>
+                  </td>
                   <td><?= htmlspecialchars($row['tgl_approve_lab']) ?></td>
                   <!-- <td><?= htmlspecialchars($row['tgl_rejected_lab']) ?></td> -->
                   <td><?= htmlspecialchars($row['pic_lab']) ?></td>

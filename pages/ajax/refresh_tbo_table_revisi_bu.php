@@ -119,7 +119,7 @@ while ($row = db2_fetch_assoc($res)) {
 foreach ($tboRows as $row) {
     $code = strtoupper(trim($row['CODE']));
     $customer = trim($row['CUSTOMER']);
-    $tgl = trim($row['TGL_APPROVE_RMP']);
+    $tgl = substr(trim($row['APPROVAL_RMP_DATETIME'] ?? ''), 0, 10);
     ?>
 <tr>
   <td style="padding:4px 8px;">

@@ -485,7 +485,9 @@ while ($row = mysqli_fetch_assoc($resultApproved)) {
           <?= htmlspecialchars($row['code']) ?>
         </a>
       </td>
-      <td><?= htmlspecialchars((string)($row['tgl_approve_rmp']  ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+      <td>
+        <?= !empty($row['approvalrmpdatetime']) ? htmlspecialchars(date('Y-m-d', strtotime($row['approvalrmpdatetime'])), ENT_QUOTES, 'UTF-8') : '' ?>
+      </td>
       <td><?= htmlspecialchars((string)($row['tgl_approve_lab']  ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
       <td><?= htmlspecialchars((string)($row['pic_lab'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
       <td>

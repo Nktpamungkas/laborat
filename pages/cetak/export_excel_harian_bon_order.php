@@ -1,11 +1,14 @@
 <?php
-// REKAP HARIAN BON ORDER (XLSX) — PIC setelah kolom C, D/E/F per PIC multiline
-// B: DB2 (RMP-approved = kemarin) EXCLUDE MySQL (all code)
-// C: DB2 (RMP-approved = today) no exclude
-// D per PIC: DISTINCT pair (DB2) utk code yg Approved Lab Today (per PIC pic_lab)
-// E/F per PIC: MySQL today per PIC (smbo.pic_check)
-// G/H: rumus dari total
-// I: ≤ today & creation > 2025-06-01, irisan approved, exclude OK/MU
+// REKAP HARIAN BON ORDER (XLSX)
+// Kolom:
+// A: BON ORDER BELUM APPROVED LAB (H-1)            => nilai = $B
+// B: BON ORDER RMP APPROVED TODAY (PO GREIGE)      => nilai = $C
+// C: PIC                                           => multiline per PIC
+// D: BON ORDER APPROVED LAB TODAY (PO GREIGE)      => multiline per PIC ($D_per)
+// E: BON ORDER SELESAI REVIEW                      => multiline per PIC ($E_per, dari tbl_log_history_matching)
+// F: SISA BELUM APPROVED                           => $F = $B + $C - $D_total
+// G: SISA BELUM REVIEW                             => $G = $B + $D_total - $E_total
+// H: AKUMULASI SISA BON ORDER BELUM REVIEW         => $H
 
 declare(strict_types=1);
 include "../../koneksi.php"; // mysqli $con, DB2 $conn1
@@ -16,8 +19,27 @@ $todays  = (int)date('N');
 $kemarin = date('Y-m-d', strtotime($todays === 1 ? '-2 days' : '-1 day'));
 $today   = date('Y-m-d');
 
-// $kemarin = "2025-10-18";
-// $today   = "2025-10-20";
+// $kemarin = "2025-11-16";
+// $today   = "2025-11-17";
+
+$sqlRevCode = "
+    SELECT DISTINCT code 
+    FROM approval_bon_order
+    WHERE is_revision = 1 
+      AND DATE(approvalrmpdatetime) >= '2025-11-17'
+";
+$resRev = mysqli_query($con, $sqlRevCode);
+if (!$resRev) {
+    http_response_code(500);
+    die('MySQL error: ambil kode revisi. ' . htmlspecialchars(mysqli_error($con)));
+}
+$excludeRevCodes = [];
+while ($r = mysqli_fetch_assoc($resRev)) {
+    if (!empty($r['code'])) {
+        $excludeRevCodes[] = "'" . str_replace("'", "''", $r['code']) . "'";
+    }
+}
+mysqli_free_result($resRev);
 
 /* ===== 1) B: RMP-approved kemarin (DB2) EXCLUDE semua code di MySQL ===== */
 $sqlCodesKemarin = "SELECT DISTINCT 
@@ -40,7 +62,8 @@ $resDB2 = db2_exec($conn1, $sqlCodesKemarin, ['cursor' => DB2_SCROLLABLE]);
 if (!$resDB2) { http_response_code(500); die('DB2 error: ambil kode kemarin.'); }
 $codesKemarin = [];
 while ($row = db2_fetch_assoc($resDB2)) {
-  $c = trim((string)$row['CODE']); if ($c !== '') $codesKemarin[] = "'" . str_replace("'", "''", $c) . "'";
+  $c = trim((string)$row['CODE']); 
+  if ($c !== '') $codesKemarin[] = "'" . str_replace("'", "''", $c) . "'";
 }
 $excludeCodes = [];
 $resEx = mysqli_query($con, "SELECT code FROM approval_bon_order");
@@ -50,7 +73,7 @@ while ($r = mysqli_fetch_assoc($resEx)) {
 }
 mysqli_free_result($resEx);
 
-$B = 0;
+$B = 0; // kolom A (H-1)
 if (!empty($codesKemarin)) {
   $inKemarin = implode(",", $codesKemarin);
   $sqlCountB = "
@@ -89,10 +112,16 @@ $resDB2C = db2_exec($conn1, $sqlCodesToday, ['cursor' => DB2_SCROLLABLE]);
 if (!$resDB2C) { http_response_code(500); die('DB2 error: ambil kode hari ini.'); }
 $codesToday = [];
 while ($row = db2_fetch_assoc($resDB2C)) {
-  $c = trim((string)$row['CODE']); if ($c !== '') $codesToday[] = "'" . str_replace("'", "''", $c) . "'";
+  $c = trim((string)$row['CODE']); 
+  if ($c !== '') $codesToday[] = "'" . str_replace("'", "''", $c) . "'";
+
+  /* Buang code revisi dari list C */
+  if (!empty($excludeRevCodes)) {
+      $codesToday = array_diff($codesToday, $excludeRevCodes);
+  }
 }
 
-$C = 0;
+$C = 0; // kolom B (RMP approved today)
 if (!empty($codesToday)) {
   $inToday = implode(",", $codesToday);
   $sqlCountC = "
@@ -117,15 +146,51 @@ while ($r = mysqli_fetch_assoc($resPIC)) {
   if ($u !== '') $picList[] = $u;
 }
 mysqli_free_result($resPIC);
+
+/* Tambah PIC dari tbl_log_history_matching (kalau belum ada di picList)
+   dan samakan dengan case-insensitive */
+$picLowerMap = [];
+foreach ($picList as $p) {
+    $picLowerMap[strtolower($p)] = $p;
+}
+
+$sqlLogUsers = "
+  SELECT DISTINCT user_update
+  FROM tbl_log_history_matching
+  WHERE process = 'input'
+    AND DATE(date_update) = '$today'
+";
+$resLogUsers = mysqli_query($con, $sqlLogUsers);
+if (!$resLogUsers) {
+    http_response_code(500);
+    die('MySQL error: ambil user_update log history. ' . htmlspecialchars(mysqli_error($con)));
+}
+
+while ($r = mysqli_fetch_assoc($resLogUsers)) {
+    $uLog = trim((string)($r['user_update'] ?? ''));
+    if ($uLog === '') continue;
+
+    $key = strtolower($uLog);
+
+    // kalau sudah ada (beda huruf besar/kecil), jangan ditambah lagi
+    if (isset($picLowerMap[$key])) continue;
+
+    // user_update baru -> tambahkan ke picList
+    $picList[] = $uLog;
+    $picLowerMap[$key] = $uLog;
+}
+mysqli_free_result($resLogUsers);
+
 if (!$picList) $picList = ['(tidak ada PIC)'];
 
-/* ===== 4) Hitung per PIC: D/E/F =====
+/* ===== 4) Hitung per PIC: D (Approved Lab today) & E (Selesai Review) =====
    D per PIC: DISTINCT pair (SALESORDERCODE, ORDERLINE) dari DB2 untuk
               code yang Approved Lab Today & pic_lab = PIC.
-   E per PIC: COUNT(*) status_bonorder='OK' (tgl_approve_lab=today) dan smbo.pic_check = PIC
-   F per PIC: COUNT(*) status_bonorder='Matching Ulang' (tgl_approve_lab=today) dan smbo.pic_check = PIC
+   E per PIC: COUNT(*) dari tbl_log_history_matching
+              WHERE process='input' AND DATE(date_update) = $today AND values_pic = $picEsc
 */
-$D_per = []; $E_per = []; $F_per = [];
+$D_per = [];
+$E_per = [];
 
 foreach ($picList as $picName) {
   $picEsc = mysqli_real_escape_string($con, $picName);
@@ -143,10 +208,14 @@ foreach ($picList as $picName) {
   if (!$resCodesPic) { http_response_code(500); die('MySQL error (codes per PIC): '.htmlspecialchars(mysqli_error($con))); }
   while ($r = mysqli_fetch_assoc($resCodesPic)) {
     if (!empty($r['code'])) $codesForPic[] = "'" . str_replace("'", "''", $r['code']) . "'";
+
+    if (!empty($excludeRevCodes)) {
+        $codesForPic = array_diff($codesForPic, $excludeRevCodes);
+    }
   }
   mysqli_free_result($resCodesPic);
 
-  // 4b) D per PIC = DISTINCT pair dari DB2 untuk kode di atas
+  // 4b) D per PIC = DISTINCT pair dari DB2 untuk kode-kode Approved Lab today
   $D_val = 0;
   if (!empty($codesForPic)) {
     $inPicCodes = implode(",", $codesForPic);
@@ -166,44 +235,34 @@ foreach ($picList as $picName) {
   }
   $D_per[] = $D_val;
 
-  // 4c) E per PIC = OK
+  // 4c) E per PIC = BON ORDER SELESAI REVIEW (dari log history matching)
+  $picEscLower = mysqli_real_escape_string($con, strtolower($picName));
   $sqlEpic = "
     SELECT COUNT(*) AS CNT
-    FROM approval_bon_order abo
-    LEFT JOIN status_matching_bon_order smbo ON smbo.salesorder = abo.code
-    WHERE DATE(abo.approvalrmpdatetime) = '$today'
-      AND smbo.status_bonorder = 'OK'
-      AND smbo.pic_check = '$picEsc'
+    FROM tbl_log_history_matching lhm
+    WHERE lhm.process = 'insert'
+      AND DATE(lhm.date_update) = '$today'
+      AND LOWER(lhm.user_update) = '$picEscLower'
   ";
   $resEpic = mysqli_query($con, $sqlEpic);
   $E_per[] = (int) (mysqli_fetch_assoc($resEpic)['CNT'] ?? 0);
   mysqli_free_result($resEpic);
-
-  // 4d) F per PIC = Matching Ulang
-  $sqlFpic = "
-    SELECT COUNT(*) AS CNT
-    FROM approval_bon_order abo
-    LEFT JOIN status_matching_bon_order smbo ON smbo.salesorder = abo.code
-    WHERE DATE(abo.approvalrmpdatetime) = '$today'
-      AND smbo.status_bonorder = 'Matching Ulang'
-      AND smbo.pic_check = '$picEsc'
-  ";
-  $resFpic = mysqli_query($con, $sqlFpic);
-  $F_per[] = (int) (mysqli_fetch_assoc($resFpic)['CNT'] ?? 0);
-  mysqli_free_result($resFpic);
 }
 
-/* Totals untuk rumus */
+/* Totals */
 $D_total = array_sum($D_per);
 $E_total = array_sum($E_per);
-$F_total = array_sum($F_per);
 
-/* ===== 5) G & H (pakai totals baru) ===== */
-$G = $B + $C - $D_total;                 // SISA BELUM APPROVED
-$H = $B + $D_total - ($E_total + $F_total); // SISA BELUM REVIEW
+/* ===== 5) F & G (pakai totals baru) =====
+   F: SISA BELUM APPROVED = B + C - D_total
+   G: SISA BELUM REVIEW   = B + D_total - E_total
+*/
+$F = $B + $C - $D_total;      // SISA BELUM APPROVED
+$G = $B + $D_total - $E_total; // SISA BELUM REVIEW
 
-/* ===== 6) I: ≤ today & creation > 2025-06-01, irisan approved, exclude pair OK/MU ===== */
-// 6a) Kode DB2 sesuai kondisi I
+/* ===== 6) H (AKUMULASI SISA BON ORDER BELUM REVIEW)
+*/
+// 6a) Kode DB2 sesuai kondisi akumulasi
 $sqlCodesI = "SELECT DISTINCT 
                         isa.CODE AS CODE,
                         COALESCE(ip.LANGGANAN, '') || COALESCE(ip.BUYER, '') AS CUSTOMER,
@@ -219,14 +278,14 @@ $sqlCodesI = "SELECT DISTINCT
                         ON a.UNIQUEID = s.ABSUNIQUEID
                         AND a.FIELDNAME = 'ApprovalRMPDateTime'
                     WHERE a.VALUETIMESTAMP IS NOT NULL
-                        AND DATE(a.VALUETIMESTAMP) <= DATE('$today')
-                        AND DATE(s.CREATIONDATETIME) > DATE('2025-06-01')";
+                        AND DATE(a.VALUETIMESTAMP) >= '2025-11-17'";
 
 $resDB2I = db2_exec($conn1, $sqlCodesI, ['cursor' => DB2_SCROLLABLE]);
-if (!$resDB2I) { http_response_code(500); die('DB2 error: ambil kode untuk kolom I.'); }
+if (!$resDB2I) { http_response_code(500); die('DB2 error: ambil kode untuk kolom H (akumulasi).'); }
 $codesI = [];
 while ($row = db2_fetch_assoc($resDB2I)) {
-  $c = trim((string)$row['CODE']); if ($c !== '') $codesI[] = "'" . str_replace("'", "''", $c) . "'";
+  $c = trim((string)$row['CODE']); 
+  if ($c !== '') $codesI[] = "'" . str_replace("'", "''", $c) . "'";
 }
 
 // 6b) Set exclude pair (OK/MU) dari MySQL
@@ -237,7 +296,7 @@ $sqlEx = "
   WHERE smbo.status_bonorder IN ('OK','Matching Ulang')
 ";
 $resEx2 = mysqli_query($con, $sqlEx);
-if (!$resEx2) { http_response_code(500); die('MySQL error (exclude kolom I): '.htmlspecialchars(mysqli_error($con))); }
+if (!$resEx2) { http_response_code(500); die('MySQL error (exclude kolom H): '.htmlspecialchars(mysqli_error($con))); }
 while ($r = mysqli_fetch_assoc($resEx2)) {
   $so = trim((string)($r['salesorder'] ?? ''));
   $ol = (string)(isset($r['orderline']) ? (int)$r['orderline'] : 0);
@@ -254,7 +313,11 @@ while ($r = mysqli_fetch_assoc($resAp)) {
 }
 mysqli_free_result($resAp);
 
-$I = 0;
+if (!empty($excludeRevCodes)) {
+    $codesApprovedMy = array_diff($codesApprovedMy, $excludeRevCodes);
+}
+
+$H = 0;
 if (!empty($codesI) && !empty($codesApprovedMy)) {
   $inI        = implode(",", $codesI);
   $inApproved = implode(",", $codesApprovedMy);
@@ -266,20 +329,19 @@ if (!empty($codesI) && !empty($codesApprovedMy)) {
       AND i.AKJ != 'AKJ'
   ";
   $resPairsI = db2_exec($conn1, $sqlPairsI, ['cursor' => DB2_SCROLLABLE]);
-  if (!$resPairsI) { http_response_code(500); die('DB2 error: ambil pair kolom I.'); }
+  if (!$resPairsI) { http_response_code(500); die('DB2 error: ambil pair kolom H (akumulasi).'); }
 
   while ($p = db2_fetch_assoc($resPairsI)) {
     $so = trim((string)$p['SALESORDERCODE']);
     $ol = (int)$p['ORDERLINE'];
-    if (!isset($exSet[$so.'|'.$ol])) $I++;
+    if (!isset($exSet[$so.'|'.$ol])) $H++;
   }
 }
 
-/* ===== 7) Siapkan teks multiline per kolom PIC/D/E/F ===== */
+/* ===== 7) Siapkan teks multiline per kolom PIC/D/E ===== */
 $PIC_text = implode("\n", $picList);
 $D_text   = implode("\n", array_map(fn($v)=>(string)$v, $D_per));
 $E_text   = implode("\n", array_map(fn($v)=>(string)$v, $E_per));
-$F_text   = implode("\n", array_map(fn($v)=>(string)$v, $F_per));
 
 /* ===== 8) Bikin XLSX (ZipArchive) ===== */
 $filename = "Rekap_Harian_Bon_Order_" . date('d-m-Y', strtotime($today)) . ".xlsx";
@@ -295,7 +357,8 @@ $addStr = function(string $s) use (&$strings): int {
 };
 
 /* Header & data (urutan kolom baru): 
-   A=B, B=C, C=PIC, D=D(per PIC), E=OK(per PIC), F=MU(per PIC), G, H, I */
+   A=B, B=C, C=PIC, D=D(per PIC), E=SELESAI REVIEW(per PIC), F=SISA BELUM APPROVED, G=SISA BELUM REVIEW, H=AKUMULASI
+*/
 $title = "REKAP HARIAN BON ORDER (" . date('d-m-Y', strtotime($today)) . ")";
 
 $hdr1  = [
@@ -303,50 +366,31 @@ $hdr1  = [
   "BON ORDER RMP APPROVED TODAY (PO GREIGE)",      // B
   "PIC",                                           // C
   "BON ORDER APPROVED LAB TODAY (PO GREIGE)",      // D
-  "BON ORDER SELESAI REVIEW",                      // E-F merged
-  "",                                              // (placeholder level-1 untuk F)
-  "SISA BELUM APPROVED",                           // G
-  "SISA BELUM REVIEW",                             // H
-  "AKUMULASI SISA BON ORDER BELUM REVIEW"          // I
+  "BON ORDER SELESAI REVIEW",                      // E
+  "SISA BELUM APPROVED",                           // F
+  "SISA BELUM REVIEW",                             // G
+  "AKUMULASI SISA BON ORDER BELUM REVIEW"          // H
 ];
-$hdr2  = [
-  "", "", "", "", "OK", "MATCHING ULANG", "", "", ""
-];
+$hdr2 = ["", "", "", "", "", "", "", ""];          // baris header ke-2 kosong (tetap 2 baris header)
 
-$row4_strings = [
-  (string)$B,
-  (string)$C,
-  $PIC_text,
-  $D_text,
-  $E_text,
-  $F_text
-];
-$row4_nums = [
-  (int)$G,
-  (int)$H,
-  (int)$I
-];
-
-/* register strings */
 $idxTitle = $addStr($title);
 $idxHdr1  = array_map($addStr, $hdr1);
 $idxHdr2  = array_map($addStr, $hdr2);
 $idxPIC   = $addStr($PIC_text);
 $idxDtxt  = $addStr($D_text);
 $idxEtxt  = $addStr($E_text);
-$idxFtxt  = $addStr($F_text);
 
 /* sharedStrings.xml */
-$sstCount = 1 + count($hdr1) + count($hdr2) + 4; // title + hdrs + PIC/D/E/F
+$sstCount = 1 + count($hdr1) + count($hdr2) + 3; // title + hdrs + PIC/D/E
 $sst = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
      . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="'.$sstCount.'" uniqueCount="'.count($strings).'">';
 foreach ($strings as $s => $i) {
-  $sst .= '<si><t xml:space="preserve">'.htmlspecialchars($s, ENT_XML1).'</t></si>';
+  $sst .= '<si><t xml:space="preserve">'.htmlspecialchars((string)$s, ENT_XML1).'</t></si>';
 }
 $sst .= '</sst>';
 $zip->addFromString('xl/sharedStrings.xml', $sst);
 
-/* styles.xml — tetap seperti versi kamu (wrap & fill header sama) */
+/* styles.xml — tetap seperti versi lama (wrap & fill header sama) */
 $styles = <<<XML
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
@@ -385,24 +429,27 @@ $zip->addFromString('xl/styles.xml', $styles);
 /* helper col ref */
 function cRef(int $col, int $row): string {
   $letters = '';
-  while ($col > 0) { $mod = ($col - 1) % 26; $letters = chr(65 + $mod) . $letters; $col = intdiv($col - 1, 26); }
+  while ($col > 0) {
+    $mod = ($col - 1) % 26;
+    $letters = chr(65 + $mod) . $letters;
+    $col = intdiv($col - 1, 26);
+  }
   return $letters.$row;
 }
 
-/* sheet1.xml — urutan kolom baru */
+/* sheet1.xml — 8 kolom (A..H) */
 $sheet = [];
 $sheet[] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 $sheet[] = '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
 $sheet[] = '<cols>'
-         . '<col min="1" max="1" width="18" customWidth="1"/>'  // A = B total
-         . '<col min="2" max="2" width="22" customWidth="1"/>'  // B = C total
+         . '<col min="1" max="1" width="18" customWidth="1"/>'  // A = B total (H-1)
+         . '<col min="2" max="2" width="22" customWidth="1"/>'  // B = C total (RMP approved today)
          . '<col min="3" max="3" width="25" customWidth="1"/>'  // C = PIC (wrap)
          . '<col min="4" max="4" width="24" customWidth="1"/>'  // D per PIC (wrap)
-         . '<col min="5" max="5" width="16" customWidth="1"/>'  // E (OK) per PIC
-         . '<col min="6" max="6" width="16" customWidth="1"/>'  // F (MU) per PIC
-         . '<col min="7" max="7" width="20" customWidth="1"/>'  // G
-         . '<col min="8" max="8" width="20" customWidth="1"/>'  // H
-         . '<col min="9" max="9" width="28" customWidth="1"/>'  // I
+         . '<col min="5" max="5" width="20" customWidth="1"/>'  // E per PIC (Selesai Review)
+         . '<col min="6" max="6" width="20" customWidth="1"/>'  // F (Sisa Belum Approved)
+         . '<col min="7" max="7" width="20" customWidth="1"/>'  // G (Sisa Belum Review)
+         . '<col min="8" max="8" width="28" customWidth="1"/>'  // H (Akumulasi)
          . '</cols>';
 $sheet[] = '<sheetData>';
 
@@ -411,45 +458,47 @@ $sheet[] = '<row r="1" ht="22"><c r="A1" t="s" s="5"><v>'.$idxTitle.'</v></c></r
 
 /* row2 Header level-1 */
 $sheet[] = '<row r="2" ht="46" customHeight="1">';
-for ($i=0; $i<9; $i++) {
+for ($i=0; $i<8; $i++) {
   $sheet[] = '<c r="'.cRef($i+1,2).'" t="s" s="3"><v>'.$idxHdr1[$i].'</v></c>';
 }
 $sheet[] = '</row>';
 
-/* row3 Header level-2 */
-$sheet[] = '<row r="3" ht="46" customHeight="1">';
-for ($i=0; $i<9; $i++) {
+/* row3 Header level-2 (kosong, tapi tetap ada untuk merge vertikal) */
+$sheet[] = '<row r="3" ht="20" customHeight="1">';
+for ($i=0; $i<8; $i++) {
   $sheet[] = '<c r="'.cRef($i+1,3).'" t="s" s="4"><v>'.$idxHdr2[$i].'</v></c>';
 }
 $sheet[] = '</row>';
 
 /* row4 Data:
-   A=B (angka), B=C (angka), C=PIC (wrap), D=DTXT (wrap), E=ETXT (wrap), F=FTXT (wrap), G/H/I angka */
+   A=B (angka), B=C (angka), C=PIC (wrap),
+   D=D_text (wrap), E=E_text (wrap),
+   F=F (angka), G=G (angka), H=H (angka)
+*/
 $sheet[] = '<row r="4">';
-$sheet[] = '<c r="A4" t="n" s="2"><v>'.$B.'</v></c>';        // B total
-$sheet[] = '<c r="B4" t="n" s="2"><v>'.$C.'</v></c>';        // C total
-$sheet[] = '<c r="C4" t="s" s="1"><v>'.$idxPIC.'</v></c>';   // PIC multiline
-$sheet[] = '<c r="D4" t="s" s="1"><v>'.$idxDtxt.'</v></c>';  // D per PIC ml
-$sheet[] = '<c r="E4" t="s" s="1"><v>'.$idxEtxt.'</v></c>';  // E per PIC ml
-$sheet[] = '<c r="F4" t="s" s="1"><v>'.$idxFtxt.'</v></c>';  // F per PIC ml
-$sheet[] = '<c r="G4" t="n" s="2"><v>'.$G.'</v></c>';        // G
-$sheet[] = '<c r="H4" t="n" s="2"><v>'.$H.'</v></c>';        // H
-$sheet[] = '<c r="I4" t="n" s="2"><v>'.$I.'</v></c>';        // I
+$sheet[] = '<c r="A4" t="n" s="2"><v>'.$B.'</v></c>';        // A = B total (H-1)
+$sheet[] = '<c r="B4" t="n" s="2"><v>'.$C.'</v></c>';        // B = C total (RMP today)
+$sheet[] = '<c r="C4" t="s" s="1"><v>'.$idxPIC.'</v></c>';   // C = PIC multiline
+$sheet[] = '<c r="D4" t="s" s="1"><v>'.$idxDtxt.'</v></c>';  // D per PIC multiline
+$sheet[] = '<c r="E4" t="s" s="1"><v>'.$idxEtxt.'</v></c>';  // E per PIC multiline (Selesai Review)
+$sheet[] = '<c r="F4" t="n" s="2"><v>'.$F.'</v></c>';        // F = Sisa Belum Approved
+$sheet[] = '<c r="G4" t="n" s="2"><v>'.$G.'</v></c>';        // G = Sisa Belum Review
+$sheet[] = '<c r="H4" t="n" s="2"><v>'.$H.'</v></c>';        // H = Akumulasi Sisa
 $sheet[] = '</row>';
 
 $sheet[] = '</sheetData>';
 
 /* merge: title & header groups */
-$sheet[] = '<mergeCells count="7">'
-         . '<mergeCell ref="A1:I1"/>'
+$sheet[] = '<mergeCells count="9">'
+         . '<mergeCell ref="A1:H1"/>'
          . '<mergeCell ref="A2:A3"/>'
          . '<mergeCell ref="B2:B3"/>'
          . '<mergeCell ref="C2:C3"/>'
          . '<mergeCell ref="D2:D3"/>'
-         . '<mergeCell ref="E2:F2"/>'
+         . '<mergeCell ref="E2:E3"/>'
+         . '<mergeCell ref="F2:F3"/>'
          . '<mergeCell ref="G2:G3"/>'
          . '<mergeCell ref="H2:H3"/>'
-         . '<mergeCell ref="I2:I3"/>'
          . '</mergeCells>';
 
 $sheet[] = '</worksheet>';
