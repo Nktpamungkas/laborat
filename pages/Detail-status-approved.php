@@ -1473,7 +1473,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                         <?php // if ($_SESSION['userLAB'] == 'Cliviaugina'OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
                                             <!-- <br>
                                             <br> -->
-                                            <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                            <a class="bbtn btn-sm btn-warning approve btn-export-recipe-csv3" data-rcode="<?= $data['recipe_code_1']; ?>" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_1']; ?>
                                             </a>
                                             <!-- <br>
@@ -1657,7 +1657,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                         <?php // if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
                                             <!-- <br>
                                             <br> -->
-                                            <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                            <a class="bbtn btn-sm btn-warning approve btn-export-recipe-csv3" data-rcode="<?= $data['recipe_code_1']; ?>" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=2&IMPORTAUTOCOUNTER=<?= $dataR['id']; ?>&rcode=<?= $data['recipe_code_2']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_2']; ?>
                                             </a>
                                             <!-- <br>
