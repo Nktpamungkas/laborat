@@ -1267,7 +1267,7 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                     <?php // if ($_SESSION['userLAB'] == 'Cliviaugina' OR $_SESSION['userLAB'] == 'cliviaugina') : ?>
                                         <!-- <br>
                                         <br> -->
-                                        <a class="bbtn btn-sm btn-warning approve" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
+                                        <a class="bbtn btn-sm btn-warning approve btn-export-recipe-csv3" data-rcode="<?= $data['recipe_code_1']; ?>" href="ExportRecipeCSV3.php?idm=<?= $_GET['idm']; ?>&id=<?= $data['id']; ?>&suffix=1&IMPORTAUTOCOUNTER=<?= $dataD['id']; ?>&rcode=<?= $data['recipe_code_1']; ?>&numbersuffix=<?= $data['idm']; ?>&userLogin=<?= $_SESSION['userLAB']; ?>">
                                             <i class="fa fa-cloud-upload" aria-hidden="true"></i> Export Recipe <?= $data['recipe_code_1']; ?>
                                         </a>
                                         <!-- <br>
@@ -2046,6 +2046,41 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                     });
                 }
             });
+        });
+
+        $(".btn-export-recipe-csv3").on("click", function (e) {
+             e.preventDefault();
+
+            const recipeCode = $(this).data("rcode") || "";
+            const href = $(this).attr("href");
+
+            // cek apakah mengandung "/"
+            if (!recipeCode.includes("/")) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Format Tidak Valid",
+                    text: "Recipe code tidak sesuai format!",
+                });
+                return false;
+            }
+
+            // split berdasarkan "/"
+            const parts = recipeCode.split("/");
+            const firstPart = parts[0] ? parts[0].trim() : "";
+
+            // cek panjang index ke-0
+            if (firstPart.length > 10) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Format Tidak Valid",
+                    text: "Recipe code tidak sesuai format!",
+                });
+                return false;
+            }
+
+            // valid → lanjut ke link
+            window.location.href = href;
+            return true;
         });
     })
 </script>
