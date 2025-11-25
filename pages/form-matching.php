@@ -2602,12 +2602,5 @@
 		}
 	});
 </script>
-<script>
-	$(function() {
-		$('form.form-horizontal').on('submit', function(e) {
-			$(this).find('button[name="simpan"]').prop('disabled', true);
-		});
-	});
-</script>
 
 </html>
