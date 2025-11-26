@@ -267,6 +267,31 @@
 			}
 			$char = preg_replace('/[^a-z]/i', '', $_POST['no_resep']);
 
+			// ============================
+			// CEK ANTI DOUBLE INPUT
+			// ============================
+			$sqlCekLast = "
+				SELECT TIMESTAMPDIFF(SECOND, creationdatetime, NOW()) AS selisih
+				FROM tbl_matching
+				ORDER BY creationdatetime DESC
+				LIMIT 1
+			";
+			$resLast = mysqli_query($con, $sqlCekLast);
+
+			if ($resLast && mysqli_num_rows($resLast) > 0) {
+				$rowLast = mysqli_fetch_assoc($resLast);
+				$selisih = (int)$rowLast['selisih'];
+
+				// Kalau selisih kurang dari 13 detik → anggap double submit
+				if ($selisih >= 0 && $selisih < 13) {
+					echo "<script>
+							alert('Input dibatalkan: selisih dengan data sebelumnya kurang dari 13 detik (kemungkinan double submit).');
+						</script>";
+					exit; // HENTIKAN SCRIPT: tidak insert tbl_matching dan tidak insert log_status_matching
+				}
+			}
+			// ====== END CEK ======
+
 			// get data no urut terakhir
 			$queryGetNoUrut = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 			$fetchGetNoUrut = mysqli_fetch_array($queryGetNoUrut);
@@ -2602,4 +2627,15 @@
 		}
 	});
 </script>
+<script>
+	$(function() {
+		$('button[name="simpan"]').on('click', function() {
+			const $btn = $(this);
+			setTimeout(function() {
+				$btn.prop('disabled', true);
+			}, 0);
+		});
+	});
+</script>
+
 </html>
