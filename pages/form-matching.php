@@ -320,6 +320,7 @@
 				if ($selisih >= 0 && $selisih < 13) {
 					echo "<script>
 							alert('Input dibatalkan: selisih dengan data sebelumnya kurang dari 13 detik (kemungkinan double submit).');
+							window.location.href='?p=form-matching';
 						</script>";
 					exit; // HENTIKAN SCRIPT: tidak insert tbl_matching dan tidak insert log_status_matching
 				}
