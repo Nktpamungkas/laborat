@@ -4,6 +4,40 @@
 <head>
 	<meta charset="utf-8">
 	<title>Form Matching</title>
+
+	<style>
+		#loading-overlay {
+			position: fixed;
+			z-index: 9999;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.4);
+			display: none;
+			align-items: center;
+			justify-content: center;
+		}
+		#loading-overlay .loader-box {
+			text-align: center;
+			color: #fff;
+			font-size: 16px;
+		}
+		#loading-overlay .spinner {
+			border: 6px solid #f3f3f3;
+			border-top: 6px solid #3498db;
+			border-radius: 50%;
+			width: 60px;
+			height: 60px;
+			margin: 0 auto 10px;
+			animation: spin 1s linear infinite;
+		}
+		@keyframes spin {
+			0%   { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+	</style>
+
 </head>
 
 <body>
@@ -252,7 +286,7 @@
 	?>
 
 	<?php
-		if (isset($_POST['simpan'])) {
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$ip_num = $_SERVER['REMOTE_ADDR'];
 			$kain = str_replace("'", "''", $_POST['kain']);
 			$benang = str_replace("'", "''", $_POST['benang']);
@@ -305,7 +339,7 @@
 			$tempCode 		= $_POST['temp_code'];
 			$tempCode2 		= $_POST['temp_code2'];
 
-			echo $suhuchamber 	= $_POST['suhu_chamber'] !== '' ? $_POST['suhu_chamber'] : ($_POST['none_suhu_chamber'] !== '' ? $_POST['none_suhu_chamber'] : null);
+			$suhuchamber 	= $_POST['suhu_chamber'] !== '' ? $_POST['suhu_chamber'] : ($_POST['none_suhu_chamber'] !== '' ? $_POST['none_suhu_chamber'] : null);
 			$warnafluorescent	= $_POST['warna_fluorescent'];
 
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
@@ -351,7 +385,20 @@
 						`do_by` = '$_SESSION[userLAB]',
 						`do_at` = '$time',
 						`ip_address` = '$ip_num'");
-				echo "<script>alert('Data Tersimpan');window.location.href='?p=form-matching-detail&noresep=$no_resep';</script>";
+				echo "
+				<script>
+				Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: 'Data Tersimpan',
+					timer: 1500,
+					showConfirmButton: false
+				}).then(function() {
+					window.location.href='?p=form-matching-detail&noresep={$no_resep}';
+				});
+				</script>
+				";
+				exit;
 			} else {
 				echo "There's been a problem: " . mysqli_error();
 			}
@@ -442,6 +489,13 @@
 			<!-- nav-tabs-custom -->
 		</div>
 		<!-- /.col -->
+	</div>
+
+	<div id="loading-overlay">
+		<div class="loader-box">
+			<div class="spinner"></div>
+			<div>Menyimpan data, harap tunggu...</div>
+		</div>
 	</div>
 </body>
 <!-- Modal -->
@@ -2629,11 +2683,16 @@
 </script>
 <script>
 	$(function() {
-		$('button[name="simpan"]').on('click', function() {
-			const $btn = $(this);
+		$('button[name="simpan"]').on('click', function(e) {
+			e.preventDefault();
+			$('#loading-overlay').css('display', 'flex');
+
+			const $form = $(this).closest('form');
+			$(this).prop('disabled', true);
+
 			setTimeout(function() {
-				$btn.prop('disabled', true);
-			}, 0);
+				$form[0].submit();
+			}, 600);
 		});
 	});
 </script>

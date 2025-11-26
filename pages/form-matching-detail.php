@@ -47,6 +47,47 @@ if (isset($_POST['save'])) {
 	}
 }
 ?>
+
+<style>
+    #loading-overlay {
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #loading-overlay .loader-box {
+        text-align: center;
+        color: #fff;
+        font-size: 16px;
+    }
+    #loading-overlay .spinner {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 10px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0%   { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<div id="loading-overlay">
+    <div class="loader-box">
+        <div class="spinner"></div>
+        <div>Memuat data, harap tunggu...</div>
+    </div>
+</div>
+
 <div class="box box-info">
 	<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
 		<div class="box-header with-border">
@@ -315,3 +356,11 @@ if (isset($_POST['save'])) {
 		</div>
 	</div>
 </div>
+
+<script>
+    $(window).on('load', function () {
+        setTimeout(function () {
+            $('#loading-overlay').fadeOut(300);
+        }, 700);
+    });
+</script>
