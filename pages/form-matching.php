@@ -2682,20 +2682,30 @@
 		}
 	});
 </script>
+
 <script>
-	$(function() {
-		$('button[name="simpan"]').on('click', function(e) {
-			e.preventDefault();
-			$('#loading-overlay').css('display', 'flex');
+    $(function() {
+        $('button[name="simpan"]').on('click', function(e) {
+            const $btn  = $(this);
+            const form  = this.form;
 
-			const $form = $(this).closest('form');
-			$(this).prop('disabled', true);
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                form.reportValidity(); 
+                return; 
+            }
 
-			setTimeout(function() {
-				$form[0].submit();
-			}, 600);
-		});
-	});
+            e.preventDefault();
+
+            $('#loading-overlay').css('display', 'flex');
+            $btn.prop('disabled', true);
+
+            setTimeout(function() {
+                form.submit();
+            }, 600);
+        });
+    });
 </script>
+
 
 </html>
