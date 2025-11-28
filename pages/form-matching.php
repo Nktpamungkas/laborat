@@ -179,110 +179,9 @@
 				}
 				$resultKKTas = db2_exec($conn1, "SELECT * FROM ITXVIEW_KK_TAS WHERE PROJECTCODE LIKE '%$order%' $where_demand");
 				$dt_kk_tas = db2_fetch_assoc($resultKKTas);
-			}else {
-				// $sqlLot = sqlsrv_query($conn, "SELECT
-				// 										x.*,dbo.fn_StockMovementDetails_GetTotalWeightPCC(0, x.PCBID) as Weight,
-				// 										dbo.fn_StockMovementDetails_GetTotalRollPCC(0, x.PCBID) as RollCount
-				// 									FROM( SELECT
-				// 										so.CustomerID, so.BuyerID,
-				// 										sod.ID as SODID, sod.ProductID, sod.UnitID, sod.WeightUnitID,
-				// 										pcb.ID as PCBID,pcb.UnitID as BatchUnitID,
-				// 										pcblp.DepartmentID,pcb.PCID,pcb.LotNo,pcb.ChildLevel,pcb.RootID
-				// 									FROM
-				// 										SalesOrders so INNER JOIN
-				// 										JobOrders jo ON jo.SOID=so.ID INNER JOIN
-				// 										SODetails sod ON so.ID = sod.SOID INNER JOIN
-				// 										SODetailsAdditional soda ON sod.ID = soda.SODID LEFT JOIN
-				// 										ProcessControlJO pcjo ON sod.ID = pcjo.SODID LEFT JOIN
-				// 										ProcessControlBatches pcb ON pcjo.PCID = pcb.PCID LEFT JOIN
-				// 										ProcessControlBatchesLastPosition pcblp ON pcb.ID = pcblp.PCBID LEFT JOIN
-				// 										ProcessFlowProcessNo pfpn ON pfpn.EntryType = 2 and pcb.ID = pfpn.ParentID AND pfpn.MachineType = 24 LEFT JOIN
-				// 										ProcessFlowDetailsNote pfdn ON pfpn.EntryType = pfdn.EntryType AND pfpn.ID = pfdn.ParentID
-				// 									WHERE jo.DocumentNo='" . $_GET['idk'] . "' AND pcb.Gross<>'0'
-				// 										GROUP BY
-				// 											so.SONumber, so.SODate, so.CustomerID, so.BuyerID, so.PONumber, so.PODate,jo.DocumentNo,
-				// 											sod.ID, sod.ProductID, sod.Quantity, sod.UnitID, sod.Weight, sod.WeightUnitID,
-				// 											soda.RefNo,pcb.DocumentNo,pcb.Dated,sod.RequiredDate,
-				// 											pcb.ID, pcb.DocumentNo, pcb.Gross,
-				// 											pcb.Quantity, pcb.UnitID, pcb.ScheduledDate, pcb.ProductionScheduledDate,
-				// 											pcblp.DepartmentID,pcb.LotNo,pcb.PCID,pcb.ChildLevel,pcb.RootID
-				// 										) x INNER JOIN
-				// 										ProductMaster pm ON x.ProductID = pm.ID LEFT JOIN
-				// 										Departments dep ON x.DepartmentID  = dep.ID LEFT JOIN
-				// 										Departments pdep ON dep.RootID = pdep.ID LEFT JOIN
-				// 										Partners cust ON x.CustomerID = cust.ID LEFT JOIN
-				// 										Partners buy ON x.BuyerID = buy.ID LEFT JOIN
-				// 										UnitDescription udq ON x.UnitID = udq.ID LEFT JOIN
-				// 										UnitDescription udw ON x.WeightUnitID = udw.ID LEFT JOIN
-				// 										UnitDescription udb ON x.BatchUnitID = udb.ID
-				// 									ORDER BY
-				// 										x.SODID, x.PCBID");
-				// $sLot = sqlsrv_fetch_array($sqlLot);
-
-				// $cLot = sqlsrv_num_rows($sqlLot);
-				// $child = $sLot['ChildLevel'];
-
-				// if ($child > 0) {
-				// 	$sqlgetparent = sqlsrv_query($conn, "select ID,LotNo from ProcessControlBatches where ID='$sLot[RootID]' and ChildLevel='0'");
-				// 	$rowgp = sqlsrv_fetch_array($sqlgetparent);
-
-				// 	$nomLot = $rowgp['LotNo'];
-				// 	$nomorLot = "$nomLot/K$sLot[ChildLevel]&nbsp;";
-				// } else {
-				// 	$nomorLot = $sLot['LotNo'];
-				// }
-
-				// $sqlLot1 = "Select count(*) as TotalLot From ProcessControlBatches where PCID='$sLot[PCID]' and RootID='0' and LotNo < '1000'";
-				// $qryLot1 = sqlsrv_query($conn, $sqlLot1) or die('A error occured : ');
-				// $rowLot = sqlsrv_fetch_array($qryLot1);
-
-				// $sqls = sqlsrv_query($conn, "select salesorders.customerid,salesorders.buyerid from Joborders
-				// 		left join salesorders on soid= salesorders.id
-				// 		where JobOrders.documentno='$_GET[idk]'", array(), array("Scrollable" => 'static'));
-				// $ssr = sqlsrv_fetch_array($sqls);
-				// $cek = sqlsrv_num_rows($sqls);
-				// $lgn1 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[customerid]'");
-				// $ssr1 = sqlsrv_fetch_array($lgn1);
-				// $lgn2 = sqlsrv_query($conn, "select partnername from partners where id='$ssr[buyerid]'");
-				// $ssr2 = sqlsrv_fetch_array($lgn2);
+				
 			}
 		}
-	?>
-	<?php
-		// $sqljkd = sqlsrv_query($conn, "SELECT processcontrol.id AS pcid,
-		// 									processcontrolJO.SODID,
-		// 									salesorders.ponumber,
-		// 									joborders.documentno,
-		// 									processcontrol.productid,
-		// 									salesorders.customerid,
-		// 									CONVERT ( VARCHAR ( 10 ), SODetails.RequiredDate, 121 ) AS RequiredDate,
-		// 									salesorders.buyerid,
-		// 									processcontrolbatches.lotno,
-		// 									productcode,
-		// 									productmaster.color,
-		// 									colorno,
-		// 									description,
-		// 									productmaster.weight,
-		// 									cuttablewidth,
-		// 									SOSampleColor.OtherDesc,
-		// 									SOSampleColor.Flag,
-		// 									hangerno 
-		// 								FROM
-		// 									Joborders
-		// 								LEFT JOIN salesorders ON soid = salesorders.id
-		// 								LEFT JOIN SOSampleColor ON SOSampleColor.SOID= SalesOrders.id
-		// 								LEFT JOIN SODetails ON SalesOrders.id= SODetails.SOID
-		// 								LEFT JOIN productmaster ON productmaster.id= SODetails.productid
-		// 								LEFT JOIN productpartner ON productpartner.productid= SODetails.productid
-		// 								LEFT JOIN processcontrolJO ON processcontrolJO.joid = Joborders.id
-		// 								LEFT JOIN processcontrol ON processcontrolJO.pcid = processcontrol.id
-		// 								LEFT JOIN processcontrolbatches ON processcontrolbatches.pcid = processcontrol.id 
-		// 								WHERE
-		// 									productmaster.id= '$_GET[iditem]' 
-		// 									AND processcontrol.productid= '$_GET[iditem]' 
-		// 									AND JobOrders.documentno= '$_GET[idk]'", array(), array("Scrollable" => 'static'));
-		// $r1 = sqlsrv_fetch_array($sqljkd);
-		// $cek1 = sqlsrv_num_rows($sqljkd);
 	?>
 
 	<?php
@@ -566,16 +465,6 @@
 		<label for="no_item" class="col-sm-2 control-label">Item</label>
 		<div class="col-sm-10">
 			<select name="no_item" class="form-control selectNoItem" id="no_item" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" required style="width: 400px;">
-				<?php
-				// $sqljk = sqlsrv_query($conn, "select productmaster.id,productpartner.productcode,productmaster.color,colorno,hangerno from Joborders
-				// 					left join salesorders on soid= salesorders.id
-				// 					left join SODetails on SalesOrders.id=SODetails.SOID
-				// 					left join productmaster on productmaster.id= SODetails.productid
-				// 					left join productpartner on productpartner.productid= SODetails.productid
-				// 					where JobOrders.documentno='$_GET[idk]'
-				// 					GROUP BY productmaster.id,productpartner.productcode,productmaster.color,
-				// 					productmaster.colorno,productmaster.hangerno");
-				?>
 				<option value="">Pilih</option>
 				<?php //while ($r = sqlsrv_fetch_array($sqljk)) { ?>
 					<option value="<?php// echo $r['id']; ?>" <?php //if ($_GET['iditem'] == $r['id']) { echo "SELECTED"; } ?>>
