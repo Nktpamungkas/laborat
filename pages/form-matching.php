@@ -45,36 +45,6 @@
 		ini_set("error_reporting", 1);
 		session_start();
 		include "koneksi.php";
-		function nourut($str)
-		{
-			include "koneksi.php";
-			// $res = preg_replace("/[^0-9]/", "", $str);
-			// $fourStr = substr($res, 0, 4);
-			// $fourInt = intval(substr($res, 4, 4) + 1);
-			// $date = date('ym');
-
-			// if ($fourStr != $date) {
-			// 	$FChar = $date . "0001";
-			// } else {
-			// 	$FE = "";
-			// 	if (strlen(strval($fourInt)) <= 3) {
-			// 		for ($i = strlen(strval($fourInt)); $i <= 3; $i++) {
-			// 			$FE = "0" . $fourInt;
-			// 		}
-			// 		$FChar = $date . $FE;
-			// 	} else {
-			// 		$FChar = $date . $fourInt;
-			// 	}
-			// }
-
-			// $fourInt = $str + 1;
-			return $str;
-		}
-
-		// $sqlNoResep = mysqli_query($con,"SELECT no_resep FROM tbl_matching where id = (select max(id) from tbl_matching) LIMIT 1");
-		// $noResep = mysqli_fetch_array($sqlNoResep);
-		// $nourut = nourut($noResep['no_resep']);
-
 		$sqlNoResep = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 		$noResep = mysqli_fetch_array($sqlNoResep);
 		$nourut = nourut($noResep['nourut']) + 1;
