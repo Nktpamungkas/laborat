@@ -47,7 +47,7 @@
 		include "koneksi.php";
 		$sqlNoResep = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 		$noResep = mysqli_fetch_array($sqlNoResep);
-		$nourut = nourut($noResep['nourut']) + 1;
+		$nourut = $noResep['nourut'] + 1;
 
 		if ($_GET['idk'] != "") {
 			$order 		= $_GET['idk'];
@@ -1161,7 +1161,7 @@
 											WHERE p.SALESORDERCODE = '$order' AND p.ORDERLINE = '$getorderline'
 											GROUP BY 
 												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
-			$r_item = db2_fetch_assoc($sqlitem)
+			$r_item = db2_fetch_assoc($sqlitem);
 			?>
 			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="<?= $r_item['SUBCODE02'] . $r_item['SUBCODE03']; ?>" placeholder="No Item">
 		</div>
