@@ -57,7 +57,8 @@ $sqlCodesKemarin = "SELECT DISTINCT
                         ON a.UNIQUEID = s.ABSUNIQUEID
                         AND a.FIELDNAME = 'ApprovalRMPDateTime'
                     WHERE a.VALUETIMESTAMP IS NOT NULL
-                        AND DATE(a.VALUETIMESTAMP) = '$kemarin'";
+                        AND DATE(a.VALUETIMESTAMP) = '$kemarin'
+                        AND isa.CODE NOT LIKE 'RFD%'";
 $resDB2 = db2_exec($conn1, $sqlCodesKemarin, ['cursor' => DB2_SCROLLABLE]);
 if (!$resDB2) { http_response_code(500); die('DB2 error: ambil kode kemarin.'); }
 $codesKemarin = [];
@@ -106,7 +107,8 @@ $sqlCodesToday ="SELECT DISTINCT
                         ON a.UNIQUEID = s.ABSUNIQUEID
                         AND a.FIELDNAME = 'ApprovalRMPDateTime'
                     WHERE a.VALUETIMESTAMP IS NOT NULL
-                        AND DATE(a.VALUETIMESTAMP) = '$today'";
+                        AND DATE(a.VALUETIMESTAMP) = '$today'
+                        AND isa.CODE NOT LIKE 'RFD%'";
 
 $resDB2C = db2_exec($conn1, $sqlCodesToday, ['cursor' => DB2_SCROLLABLE]);
 if (!$resDB2C) { http_response_code(500); die('DB2 error: ambil kode hari ini.'); }
@@ -226,6 +228,7 @@ foreach ($picList as $picName) {
         FROM ITXVIEWBONORDER i
         WHERE i.SALESORDERCODE IN ($inPicCodes)
         AND i.AKJ != 'AKJ'
+        AND i.SALESORDERCODE NOT LIKE 'RFD%'
       ) x
     ";
     $resD_DB2 = db2_exec($conn1, $sqlD_DB2, ['cursor' => DB2_SCROLLABLE]);
@@ -278,7 +281,8 @@ $sqlCodesI = "SELECT DISTINCT
                         ON a.UNIQUEID = s.ABSUNIQUEID
                         AND a.FIELDNAME = 'ApprovalRMPDateTime'
                     WHERE a.VALUETIMESTAMP IS NOT NULL
-                        AND DATE(a.VALUETIMESTAMP) >= '2025-11-17'";
+                        AND DATE(a.VALUETIMESTAMP) >= '2025-11-17'
+                        AND isa.CODE NOT LIKE 'RFD%'";
 
 $resDB2I = db2_exec($conn1, $sqlCodesI, ['cursor' => DB2_SCROLLABLE]);
 if (!$resDB2I) { http_response_code(500); die('DB2 error: ambil kode untuk kolom H (akumulasi).'); }
@@ -306,7 +310,7 @@ mysqli_free_result($resEx2);
 
 // 6c) Irisan dengan Approved (MySQL)
 $codesApprovedMy = [];
-$resAp = mysqli_query($con, "SELECT DISTINCT code FROM approval_bon_order WHERE status = 'Approved'");
+$resAp = mysqli_query($con, "SELECT DISTINCT code FROM approval_bon_order WHERE status = 'Approved' AND code NOT LIKE 'RFD%'");
 if (!$resAp) { http_response_code(500); die('MySQL error: ambil codes Approved. '.htmlspecialchars(mysqli_error($con))); }
 while ($r = mysqli_fetch_assoc($resAp)) {
   if (!empty($r['code'])) $codesApprovedMy[] = "'" . str_replace("'", "''", $r['code']) . "'";
@@ -327,6 +331,7 @@ if (!empty($codesI) && !empty($codesApprovedMy)) {
     WHERE i.SALESORDERCODE IN ($inI)
       AND i.SALESORDERCODE IN ($inApproved)
       AND i.AKJ != 'AKJ'
+      AND i.SALESORDERCODE NOT LIKE 'RFD%'
   ";
   $resPairsI = db2_exec($conn1, $sqlPairsI, ['cursor' => DB2_SCROLLABLE]);
   if (!$resPairsI) { http_response_code(500); die('DB2 error: ambil pair kolom H (akumulasi).'); }
