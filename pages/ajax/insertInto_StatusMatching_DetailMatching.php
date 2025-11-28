@@ -33,6 +33,7 @@ $hapus = mysqli_query($con, "DELETE from tbl_matching_detail where id_matching =
 
 mysqli_query($con, "UPDATE `tbl_status_matching` SET
                     `percobaan_ke` = '$_POST[matching_ke]',
+                    `howmany_percobaan_ke` = '$_POST[howmany_Matching_ke]',
                     `benang_aktual` = '$benang_a',
                     `lebar_aktual` = '$_POST[lebar_a]',
                     `gramasi_aktual` = '$_POST[gramasi_a]',

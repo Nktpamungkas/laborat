@@ -2345,7 +2345,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                 var bleaching_tm = $("#bleaching_tm").val();
             }
             insertInto_StatusMatching_DetailMatching($("#id_matching").val(), $("#id_status").val(), $("#idm").val(),
-                $('#Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(),
+                $('#Matching-ke').val(), $('#howmany_Matching-ke').val(), $('#BENANG-A').val(), $("#LEBAR-A").val(), $("#GRAMASI-A").val(),
                 $("#L_R").find('option:selected').val(), $("#kadar_air").val(),
                 RC_Suhu, RCWaktu, soapingSuhu, soapingWaktu,
                 $("#CIE_WI").val(), $("#CIE_TINT").val(), $("#YELLOWNESS").val(),
@@ -2377,7 +2377,7 @@ $_SESSION['jenis_matching'] = $ldorno;
         }
 
         function insertInto_StatusMatching_DetailMatching(id_matching, id_status, idm,
-            matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu,
+            matching_ke, howmany_Matching_ke, benang_a, lebar_a, gramasi_a, l_R, kadar_air, RC_Suhu, RCWaktu, soapingSuhu,
             soapingWaktu, cie_wi, cie_tint, yellowness, Spektro_R, Done_Matching, keterangan,
             tgl_buat_status, cside_c, cside_min, tside_c, tside_min, kadar_air_true, cocok_warna,
             final_matcher, koreksi_resep, koreksi_resep2, koreksi_resep3, koreksi_resep4, koreksi_resep5,
@@ -2395,6 +2395,7 @@ $_SESSION['jenis_matching'] = $ldorno;
                     id_status: id_status,
                     idm: idm,
                     matching_ke: matching_ke,
+                    howmany_Matching_ke: howmany_Matching_ke,
                     benang_a: benang_a,
                     lebar_a: lebar_a,
                     gramasi_a: gramasi_a,
