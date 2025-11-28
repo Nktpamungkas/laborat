@@ -1400,14 +1400,6 @@
 				$order = $dt_langganan['PROJECTCODE'];
 				$orderline = $_GET['iditem'];
 
-				// $sql_cck = db2_exec($conn1, "SELECT
-				// 									$stdcckwarna_lapdip
-				// 									ITXVIEW_COLORREMARKS.VALUESTRING
-				// 								FROM
-				// 									SALESORDERLINE SALESORDERLINE
-				// 								LEFT JOIN ITXVIEW_COLORSTANDARD ITXVIEW_COLORSTANDARD ON SALESORDERLINE.ABSUNIQUEID = ITXVIEW_COLORSTANDARD.UNIQUEID
-				// 								LEFT JOIN ITXVIEW_COLORREMARKS ITXVIEW_COLORREMARKS ON ITXVIEW_COLORSTANDARD.UNIQUEID = ITXVIEW_COLORREMARKS.UNIQUEID
-				// 								WHERE TRIM(SALESORDERLINE.SALESORDERCODE) = '$order' AND TRIM(SALESORDERLINE.ORDERLINE) = '$orderline'");
 				$sql_cck = db2_exec($conn1, "SELECT * FROM ITXVIEW_STD_CCK_WARNA WHERE SALESORDERCODE = '$order' AND ORDERLINE = '$orderline'");
 				$r_cck = db2_fetch_assoc($sql_cck);
 			?>
