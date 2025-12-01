@@ -340,7 +340,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_code'])) {
                 if (!empty($res['PO_GREIGE'])) $po_blm[]    = htmlspecialchars($res['PO_GREIGE'], ENT_QUOTES, 'UTF-8');
                 if (empty($res['PO_GREIGE'] && !empty($val))) $po_blm[] = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
             }
-            
         }
 
         // ---- Gabung list BENANG & PO (array; multi-PO akan jadi multi-baris) ----

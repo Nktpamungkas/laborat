@@ -25,95 +25,167 @@ $tody = date('Y-m-d', strtotime("-1 days"));
                 </tr>
             </thead>
             <?php $dateY = date('Y-m-d', strtotime("-2 days"));
-            $sql_TotalYstrdyXcolorist = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep, b.koreksi_resep2
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where b.approve = 'TRUE' 
-											  -- and b.status <> 'hold'
-											  and b.status = 'selesai'
-											  and (b.koreksi_resep <> '' or b.koreksi_resep2 <> '')
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+            $sql_TotalYstrdyXcolorist = mysqli_query($con,"SELECT 
+                                                                a.id,
+                                                                b.grp,
+                                                                a.no_order,
+                                                                a.no_item,
+                                                                b.STATUS,
+                                                                b.approve,
+                                                                a.jenis_matching,
+                                                                b.percobaan_ke,
+                                                                b.koreksi_resep,
+                                                                b.koreksi_resep2
+                                                            FROM
+                                                                tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                            WHERE
+                                                                b.approve = 'TRUE'
+                                                            -- and b.status <> 'hold'
+                                                            AND b.STATUS = 'selesai'
+                                                            AND (b.koreksi_resep <> '' OR b.koreksi_resep2 <> '')
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                            GROUP BY
+                                                                a.no_resep 
+                                                            ORDER BY
+                                                                a.id DESC");
             $TotalYstrdyXcolorist = mysqli_num_rows($sql_TotalYstrdyXcolorist);
-            $sql_colorist = mysqli_query($con,"SELECT a.nama , count(c.no_resep) as cout
-                                        FROM tbl_colorist a
-                                        left join tbl_status_matching b on a.nama = b.koreksi_resep
-                                        left join tbl_matching c on b.idm = c.no_resep
-                                        where a.is_active = 'TRUE'  
-                                        and b.approve = 'TRUE' 
-										and b.status = 'selesai'
-                                        and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                        group by a.nama
-                                        ORDER BY cout desc");
+            $sql_colorist = mysqli_query($con,"SELECT
+                                                    a.nama,
+                                                    count( c.no_resep ) AS cout 
+                                                FROM
+                                                    tbl_colorist a
+                                                    LEFT JOIN tbl_status_matching b ON a.nama = b.koreksi_resep
+                                                    LEFT JOIN tbl_matching c ON b.idm = c.no_resep 
+                                                WHERE
+                                                    a.is_active = 'TRUE' 
+                                                    AND b.approve = 'TRUE' 
+                                                    AND b.STATUS = 'selesai' 
+                                                    AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                GROUP BY
+                                                    a.nama 
+                                                ORDER BY
+                                                    cout DESC");
             ?>
             <tbody>
                 <?php while ($colorist = mysqli_fetch_array($sql_colorist)) : ?>
                     <tr>
                         <th><?php echo $colorist['nama'] ?></th>
-                        <?php $sql_LD = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'L/D' or a.jenis_matching = 'LD NOW') 
-                                              and b.approve = 'TRUE' 
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              AND NOT a.no_order = 'LABDIP'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_LD = mysqli_query($con, "SELECT
+                                                                a.id,
+                                                                b.grp,
+                                                                a.no_order,
+                                                                a.no_item,
+                                                                b.STATUS,
+                                                                b.approve,
+                                                                a.jenis_matching,
+                                                                b.percobaan_ke,
+                                                                b.final_matcher 
+                                                            FROM
+                                                                tbl_matching a
+                                                                LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                            WHERE
+                                                                ( a.jenis_matching = 'L/D' OR a.jenis_matching = 'LD NOW' ) 
+                                                                AND b.approve = 'TRUE' 
+                                                                AND b.STATUS = 'selesai' 
+                                                                AND b.koreksi_resep = '$colorist[nama]' 
+                                                                AND NOT a.no_order = 'LABDIP'
+                                                                AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                            GROUP BY
+                                                                a.no_resep 
+                                                            ORDER BY
+                                                                a.id DESC");
                         $Color_LD = mysqli_num_rows($sql_LD); ?>
                         <td><?php echo $Color_LD ?></td>
-                        <?php $sql_MU = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'Matching Ulang' or a.jenis_matching = 'Matching Ulang NOW') 
-                                              and b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_MU = mysqli_query($con,"SELECT
+                                                                a.id,
+                                                                b.grp,
+                                                                a.no_order,
+                                                                a.no_item,
+                                                                b.STATUS,
+                                                                b.approve,
+                                                                a.jenis_matching,
+                                                                b.percobaan_ke,
+                                                                b.final_matcher 
+                                                            FROM
+                                                                tbl_matching a
+                                                                LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                            WHERE
+                                                                ( a.jenis_matching = 'Matching Ulang' OR a.jenis_matching = 'Matching Ulang NOW' ) 
+                                                                AND b.approve = 'TRUE' 
+                                                                AND b.STATUS = 'selesai' 
+                                                                AND b.koreksi_resep = '$colorist[nama]' 
+                                                                AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                            GROUP BY
+                                                                a.no_resep 
+                                                            ORDER BY
+                                                                a.id DESC");
                         $Color_MU = mysqli_num_rows($sql_MU); ?>
                         <td><?php echo $Color_MU ?></td>
-                        <?php $sql_PBKN = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'Perbaikan' or a.jenis_matching = 'Perbaikan NOW') 
-                                              and b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_PBKN = mysqli_query($con,"SELECT
+                                                                a.id,
+                                                                b.grp,
+                                                                a.no_order,
+                                                                a.no_item,
+                                                                b.STATUS,
+                                                                b.approve,
+                                                                a.jenis_matching,
+                                                                b.percobaan_ke,
+                                                                b.final_matcher 
+                                                            FROM
+                                                                tbl_matching a
+                                                                LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                            WHERE
+                                                                ( a.jenis_matching = 'Perbaikan' OR a.jenis_matching = 'Perbaikan NOW' ) 
+                                                                AND b.approve = 'TRUE' 
+                                                                AND b.STATUS = 'selesai' 
+                                                                AND b.koreksi_resep = '$colorist[nama]' 
+                                                                AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                            GROUP BY
+                                                                a.no_resep 
+                                                            ORDER BY
+                                                                a.id DESC");
                         $Color_PBKN = mysqli_num_rows($sql_PBKN); ?>
                         <td><?php echo $Color_PBKN ?></td>
-                        <?php $sql_MD = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where a.jenis_matching = 'Matching Development' 
-                                              and b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_MD = mysqli_query($con,"SELECT
+                                                                a.id,
+                                                                b.grp,
+                                                                a.no_order,
+                                                                a.no_item,
+                                                                b.STATUS,
+                                                                b.approve,
+                                                                a.jenis_matching,
+                                                                b.percobaan_ke,
+                                                                b.final_matcher 
+                                                            FROM
+                                                                tbl_matching a
+                                                                LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                            WHERE
+                                                                a.jenis_matching = 'Matching Development' 
+                                                                AND b.approve = 'TRUE' 
+                                                                AND b.STATUS = 'selesai' 
+                                                                AND b.koreksi_resep = '$colorist[nama]' 
+                                                                AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                            GROUP BY
+                                                                a.no_resep 
+                                                            ORDER BY
+                                                                a.id DESC");
                         $Color_MD = mysqli_num_rows($sql_MD); ?>
                         <td><?php echo $Color_MD ?></td>
-                        <?php $sql_SumPerCbn = mysqli_query($con,"SELECT sum(b.percobaan_ke) as total_percobaan
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m-%d %H:%i') BETWEEN '$dateY 23:00' AND '$tody 23:00'
-                                              group by b.koreksi_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_SumPerCbn = mysqli_query($con,"SELECT
+                                                                    sum( b.percobaan_ke ) AS total_percobaan 
+                                                                FROM
+                                                                    tbl_matching a
+                                                                    LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                                WHERE
+                                                                    b.approve = 'TRUE' 
+                                                                    AND b.STATUS = 'selesai' 
+                                                                    AND b.koreksi_resep = '$colorist[nama]' 
+                                                                    AND DATE_FORMAT( b.approve_at, '%Y-%m-%d %H:%i' ) BETWEEN '$dateY 23:00' AND '$tody 23:00' 
+                                                                GROUP BY
+                                                                    b.koreksi_resep 
+                                                                ORDER BY
+                                                                    a.id DESC");
                         $SumPerCbn = mysqli_fetch_array($sql_SumPerCbn); ?>
                         <td class="alert-warning"><?php
                                                     $totot = $Color_LD + $Color_MU + $Color_PBKN + $Color_MD;
@@ -172,94 +244,163 @@ $tody = date('Y-m-d', strtotime("-1 days"));
                 </tr>
             </thead>
             <?php $dateF = date('Y-m');
-            $sql_TotalMonthXcolorist = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.koreksi_resep,b.koreksi_resep2
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where b.approve = 'TRUE' 
-											  -- and b.status <> 'hold'
-											  and b.status = 'selesai'
-											  and (b.koreksi_resep <> '' or b.koreksi_resep2 <> '')
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              ORDER BY a.id desc");
+            $sql_TotalMonthXcolorist = mysqli_query($con,"SELECT
+                                                            a.id,
+                                                            b.grp,
+                                                            a.no_order,
+                                                            a.no_item,
+                                                            b.STATUS,
+                                                            b.approve,
+                                                            a.jenis_matching,
+                                                            b.percobaan_ke,
+                                                            b.koreksi_resep,
+                                                            b.koreksi_resep2 
+                                                        FROM
+                                                            tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                        WHERE
+                                                            b.approve = 'TRUE' 
+                                                            -- and b.status <> 'hold'	
+                                                            AND b.STATUS = 'selesai' 
+                                                            AND ( b.koreksi_resep <> '' OR b.koreksi_resep2 <> '' ) 
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                        ORDER BY
+                                                            a.id DESC");
             $TotalMonthXcolorist = mysqli_num_rows($sql_TotalMonthXcolorist);
-            $sql_colorist = mysqli_query($con,"SELECT a.nama , count(c.no_resep) as cout
-                                        FROM tbl_colorist a
-                                        left join tbl_status_matching b on a.nama = b.koreksi_resep
-                                        left join tbl_matching c on b.idm = c.no_resep
-                                        where a.is_active = 'TRUE' 
-										and b.approve = 'TRUE'
-										and b.status = 'selesai'
-                                        and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                        group by a.nama
-                                        ORDER BY cout desc");
+            $sql_colorist = mysqli_query($con,"SELECT
+                                                    a.nama,
+                                                    count( c.no_resep ) AS cout 
+                                                FROM
+                                                    tbl_colorist a
+                                                    LEFT JOIN tbl_status_matching b ON a.nama = b.koreksi_resep
+                                                    LEFT JOIN tbl_matching c ON b.idm = c.no_resep 
+                                                WHERE
+                                                    a.is_active = 'TRUE' 
+                                                    AND b.approve = 'TRUE' 
+                                                    AND b.STATUS = 'selesai' 
+                                                    AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                GROUP BY
+                                                    a.nama 
+                                                ORDER BY
+                                                    cout DESC");
             ?>
             <tbody>
                 <?php while ($colorist = mysqli_fetch_array($sql_colorist)) : ?>
                     <tr>
                         <th><?php echo $colorist['nama'] ?></th>
-                        <?php $sql_LD = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'L/D' or a.jenis_matching = 'LD NOW')  
-                                              and b.approve = 'TRUE' 
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              AND NOT a.no_order = 'LABDIP'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_LD = mysqli_query($con,"SELECT
+                                                            a.id,
+                                                            b.grp,
+                                                            a.no_order,
+                                                            a.no_item,
+                                                            b.STATUS,
+                                                            b.approve,
+                                                            a.jenis_matching,
+                                                            b.percobaan_ke,
+                                                            b.final_matcher 
+                                                        FROM
+                                                            tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                        WHERE
+                                                            ( a.jenis_matching = 'L/D' OR a.jenis_matching = 'LD NOW' ) 
+                                                            AND b.approve = 'TRUE' 
+                                                            AND b.STATUS = 'selesai' 
+                                                            AND b.koreksi_resep = '$colorist[nama]' 
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                        GROUP BY
+                                                            a.no_resep 
+                                                        ORDER BY
+                                                            a.id DESC");
                         $Color_LD = mysqli_num_rows($sql_LD); ?>
                         <td><?php echo $Color_LD ?></td>
-                        <?php $sql_MU = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'Matching Ulang' or a.jenis_matching = 'Matching Ulang NOW')  
-                                              and b.approve = 'TRUE' 
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_MU = mysqli_query($con,"SELECT
+                                                            a.id,
+                                                            b.grp,
+                                                            a.no_order,
+                                                            a.no_item,
+                                                            b.STATUS,
+                                                            b.approve,
+                                                            a.jenis_matching,
+                                                            b.percobaan_ke,
+                                                            b.final_matcher 
+                                                        FROM
+                                                            tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                        WHERE
+                                                            ( a.jenis_matching = 'Matching Ulang' OR a.jenis_matching = 'Matching Ulang NOW' ) 
+                                                            AND b.approve = 'TRUE' 
+                                                            AND b.STATUS = 'selesai' 
+                                                            AND b.koreksi_resep = '$colorist[nama]' 
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                        GROUP BY
+                                                            a.no_resep 
+                                                        ORDER BY
+                                                            a.id DESC");
                         $Color_MU = mysqli_num_rows($sql_MU); ?>
                         <td><?php echo $Color_MU ?></td>
-                        <?php $sql_PBKN = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where (a.jenis_matching = 'Perbaikan' or a.jenis_matching = 'Perbaikan NOW')
-                                              and b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_PBKN = mysqli_query($con,"SELECT
+                                                            a.id,
+                                                            b.grp,
+                                                            a.no_order,
+                                                            a.no_item,
+                                                            b.STATUS,
+                                                            b.approve,
+                                                            a.jenis_matching,
+                                                            b.percobaan_ke,
+                                                            b.final_matcher 
+                                                        FROM
+                                                            tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                        WHERE
+                                                            ( a.jenis_matching = 'Perbaikan' OR a.jenis_matching = 'Perbaikan NOW' ) 
+                                                            AND b.approve = 'TRUE' 
+                                                            AND b.STATUS = 'selesai' 
+                                                            AND b.koreksi_resep = '$colorist[nama]' 
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                        GROUP BY
+                                                            a.no_resep 
+                                                        ORDER BY
+                                                            a.id DESC");
                         $Color_PBKN = mysqli_num_rows($sql_PBKN); ?>
                         <td><?php echo $Color_PBKN ?></td>
-                        <?php $sql_MD = mysqli_query($con,"SELECT a.id, b.grp, a.no_order, a.no_item, b.status , b.approve , 
-                                              a.jenis_matching, b.percobaan_ke, b.final_matcher
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm
-                                              where a.jenis_matching = 'Matching Development' 
-                                              and b.approve = 'TRUE' 
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              group by a.no_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_MD = mysqli_query($con,"SELECT
+                                                            a.id,
+                                                            b.grp,
+                                                            a.no_order,
+                                                            a.no_item,
+                                                            b.STATUS,
+                                                            b.approve,
+                                                            a.jenis_matching,
+                                                            b.percobaan_ke,
+                                                            b.final_matcher 
+                                                        FROM
+                                                            tbl_matching a
+                                                            LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                        WHERE
+                                                            a.jenis_matching = 'Matching Development' 
+                                                            AND b.approve = 'TRUE' 
+                                                            AND b.STATUS = 'selesai' 
+                                                            AND b.koreksi_resep = '$colorist[nama]' 
+                                                            AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                        GROUP BY
+                                                            a.no_resep 
+                                                        ORDER BY
+                                                            a.id DESC");
                         $Color_MD = mysqli_num_rows($sql_MD); ?>
                         <td><?php echo $Color_MD ?></td>
-                        <?php $sql_SumPerCbn = mysqli_query($con,"SELECT sum(b.percobaan_ke) as total_percobaan
-                                              FROM tbl_matching a 
-                                              left join tbl_status_matching b on a.no_resep = b.idm 
-                                              and b.approve = 'TRUE'
-											  and b.status = 'selesai'
-                                              and b.koreksi_resep = '$colorist[nama]'
-                                              and DATE_FORMAT(b.approve_at,'%Y-%m') = '$dateF'
-                                              group by b.koreksi_resep
-                                              ORDER BY a.id desc");
+                        <?php $sql_SumPerCbn = mysqli_query($con,"SELECT
+                                                                    sum( b.percobaan_ke ) AS total_percobaan 
+                                                                FROM
+                                                                    tbl_matching a
+                                                                    LEFT JOIN tbl_status_matching b ON a.no_resep = b.idm 
+                                                                    AND b.approve = 'TRUE' 
+                                                                    AND b.STATUS = 'selesai' 
+                                                                    AND b.koreksi_resep = '$colorist[nama]' 
+                                                                    AND DATE_FORMAT( b.approve_at, '%Y-%m' ) = '$dateF' 
+                                                                GROUP BY
+                                                                    b.koreksi_resep 
+                                                                ORDER BY
+                                                                    a.id DESC");
                         $SumPerCbn = mysqli_fetch_array($sql_SumPerCbn); ?>
                         <td class="alert-warning"><?php
                                                     $totot = $Color_LD + $Color_MU + $Color_PBKN + $Color_MD;
