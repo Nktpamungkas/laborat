@@ -1,7 +1,7 @@
 <?php
 ini_set("error_reporting", 1);
 include "../koneksi.php";
-$Awal = date('Y-m-d');
+$Awal = "2025-05-15";
 $cektgl=mysqli_query($con,"SELECT
 	DATE_FORMAT(NOW(), '%Y-%m-%d') as tgl,
 	COUNT(tgl_tutup) as ck ,

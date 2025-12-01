@@ -73,34 +73,8 @@
         text-align: center;
     }
 </style>
-<?php
-    $RCode	    = isset($_POST['rcode']) ? $_POST['rcode'] : '';
-
-?>
 <div class="row">
     <div class="col-xs-12">
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title"> Filter Data</h3>
-                <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                </div>
-            </div>
-            <form method="post" enctype="multipart/form-data" name="form1" class="form-horizontal" id="form1">
-                <div class="box-body">
-                    <div class="form-group">
-                        <div class="col-sm-2">
-                            <input name="rcode" type="text" class="form-control pull-right" id="rcode" placeholder="No. Resep" value="<?php echo $RCode;  ?>" autocomplete="off"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="box-footer">
-                    <div class="col-sm-2">
-                        <button type="submit" class="btn btn-block btn-social btn-linkedin btn-sm" name="save" style="width: 60%">Search <i class="fa fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
-        </div>
         <div class="box">
             <div class="box-body">
 
@@ -223,11 +197,7 @@
     }
 
     function loadData() {
-        const rcode = $("#rcode").val().trim(); // ambil nilai filter
-
-        const params = rcode ? `?rcode=${encodeURIComponent(rcode)}` : "";
-
-        fetch("pages/ajax/GetData_Status_End.php" + params)
+        fetch("pages/ajax/GetData_Status_End.php")
             .then(response => response.json())
             .then(data => {
                 endData = data
@@ -562,12 +532,6 @@
             } else if (key === 'q') {
                 $("[data-action='end']").click();
             }
-        });
-
-        // Handle form search (No. Resep)
-        $("#form1").on("submit", function (e) {
-            e.preventDefault(); // cegah submit normal
-            loadData();         // reload data dengan filter rcode
         });
     });
 </script>

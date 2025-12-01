@@ -371,9 +371,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 p.ITEMTYPECODE ='DYC'
                                                 AND a3.VALUEBOOLEAN = '1'
                                                 AND d.LOGICALWAREHOUSECODE $where_warehouse
-                                                -- AND b.DECOSUBCODE01 = 'D' 
-                                                -- AND b.DECOSUBCODE02 = '1' 
-                                                -- AND b.DECOSUBCODE03 = '020'
+                                            -- AND b.DECOSUBCODE01 = 'D' 
+                                            -- AND b.DECOSUBCODE02 = '0' 
+                                                -- AND b.DECOSUBCODE03 = '044'
                                                 )
                                                 ORDER BY KODE_OBAT ASC;");
                             } else {
@@ -439,19 +439,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                     AND (s.DETAILTYPE = 1 OR s.DETAILTYPE = 0)
                                     AND a3.VALUEBOOLEAN = 1
-                                    AND s.LOGICALWAREHOUSECODE $where_warehouse
-                                    -- AND  s.DECOSUBCODE01 = 'D' 
-                                    -- AND  s.DECOSUBCODE02 = '1'
-                                    -- AND  s.DECOSUBCODE03  = '020'
-                                    -- AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
-                                    AND (
-                                        (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
-                                        AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
-                                    )
+                                    AND s.LOGICALWAREHOUSECODE ='$_POST[warehouse]'
+                                    -- AND  s.DECOSUBCODE01 = 'R' 
+                                    -- AND  s.DECOSUBCODE02 = '4'
+                                    -- AND  s.DECOSUBCODE03  = '044'
+                                    AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00' 
                                     )
                                     -- WHERE KODE_OBAT <>  'E-1-000'
                                     ORDER BY KODE_OBAT ASC ");
-                            }                          
+                            }
+
+                           
                                         
                                 ?>
                                 
@@ -494,16 +492,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <tbody>
                                 <?php
 
-                                if ($_POST['warehouse'] == 'M510 dan M101') {
-                                    $wheretemplate = "WHERE TEMPLATE <> '303'";
-                                    $wheretemplate2 = "WHERE TEMPLATE <> '304'";
-                                } else {
+                                if (($_POST['warehouse'] === 'M101' || $_POST['warehouse'] === 'M510')) {
                                     $wheretemplate = "";
                                     $wheretemplate2 = "";
+                                } else {                                    
+                                    $wheretemplate = "WHERE template <> '303'";
+                                    $wheretemplate2 = "WHERE template <> '304'";
                                 }
 
-                                $insertData = []; // 🔹 tampung semua data di sini
-                                
+
                                 $no = 1;
                                 while ($row = db2_fetch_assoc($Balance_stock)) {
 
@@ -542,17 +539,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah);
                                   
 
-                                        $stock_transfer = db2_exec($conn1, "SELECT 
+                                        $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            sum(QTY_TRANSFER) AS QTY_TRANSFER,
-                                            SATUAN_TRANSFER
-                                            from
-                                              (SELECT 
-                                            ITEMTYPECODE,
-                                            TEMPLATE,
                                             DECOSUBCODE01,
                                             DECOSUBCODE02,
                                             DECOSUBCODE03,
@@ -639,11 +627,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         AND i2.SUBCODE03 = s.DECOSUBCODE03
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                            AND (
-                                                (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
-                                                AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
-                                            )
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE $where_warehouse
                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
@@ -651,13 +635,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                             )  AS sub
                                             $wheretemplate
-                                            GROUP BY 
-                                            ITEMTYPECODE,
-                                            TEMPLATE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            SATUAN_TRANSFER) 
                                             GROUP BY 
                                             ITEMTYPECODE,
                                             DECOSUBCODE01,
@@ -696,11 +673,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                AND (
-                                                    (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
-                                                    AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
-                                                )
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('120','098')
                                                 and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -722,17 +695,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $tgl_filter_masuk = date('Y-m-d', strtotime($tgl_input1 . ' -1 months'));
 
                                         if ($_POST['warehouse'] == 'M510 dan M101') {
-                                            $stock_masuk = db2_exec($conn1, " SELECT
-                                            ITEMTYPECODE,
-                                                    DECOSUBCODE01,
-                                                    DECOSUBCODE02,
-                                                    DECOSUBCODE03,
-                                                    sum(QTY_MASUK) AS QTY_MASUK,
-                                                    SATUAN_MASUK
-                                            FROM
-                                            (SELECT 
+                                            $stock_masuk = db2_exec($conn1, " SELECT 
                                                     ITEMTYPECODE,
-                                                    TEMPLATE,
                                                     DECOSUBCODE01,
                                                     DECOSUBCODE02,
                                                     DECOSUBCODE03,
@@ -788,32 +752,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            -- AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
                                                             AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                            AND (
-                                                                (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
-                                                                AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
-                                                            )
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                                            AND NOT COALESCE(TRIM( CASE 
-                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
-                                                                ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
-                                                            AND s.LOGICALWAREHOUSECODE $where_warehouse
+                                                        AND s.LOGICALWAREHOUSECODE $where_warehouse
                                                             -- and s.CREATIONUSER != 'MT_STI'
                                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
                                                             AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
                                                             )  AS sub
-                                                            WHERE TEMPLATE <> '304'
+                                                            $wheretemplate2
                                                             GROUP BY 
-                                                            ITEMTYPECODE,
-                                                            TEMPLATE,
-                                                            DECOSUBCODE01,
-                                                            DECOSUBCODE02,
-                                                            DECOSUBCODE03,
-                                                            SATUAN_MASUK)
-                                                             GROUP BY 
                                                             ITEMTYPECODE,
                                                             DECOSUBCODE01,
                                                             DECOSUBCODE02,
@@ -842,18 +790,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 CASE 
                                                     WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
                                                     WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                    ELSE s.USERPRIMARYUOMCODEz
+                                                    ELSE s.USERPRIMARYUOMCODE
                                                 END AS SATUAN_MASUK
                                             FROM
                                                 STOCKTRANSACTION s
                                             WHERE
                                                 s.ITEMTYPECODE = 'DYC'
                                                 -- AND s.TRANSACTIONDATE BETWEEN '$tgl_filter_masuk' AND '$_POST[tgl2]'
-                                                AND s.TRANSACTIONDATE BETWEEN '$_POST[tgl]' AND '$_POST[tgl2]'
-                                                AND (
-                                                    (s.TRANSACTIONDATE > '$_POST[tgl]' OR (s.TRANSACTIONDATE = '$_POST[tgl]' AND s.TRANSACTIONTIME >= '$_POST[time]:00'))
-                                                    AND (s.TRANSACTIONDATE < '$_POST[tgl2]' OR (s.TRANSACTIONDATE = '$_POST[tgl2]' AND s.TRANSACTIONTIME <= '$_POST[time2]:00'))
-                                                )
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$_POST[tgl] $_POST[time]:00' AND '$_POST[tgl2] $_POST[time2]:00'
                                                 AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                                                 -- and s.CREATIONUSER != 'MT_STI'
                                                 AND s.LOGICALWAREHOUSECODE  $where_warehouse
@@ -1009,11 +953,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $date = new DateTime($tgl1);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
-                                    $tgl_kurang_satu = date('Y-m-d', strtotime($tgl1 . ' -1 day'));
                                     // echo $time;
-                                    // echo $tahunBulan2;
+                                    // echo $time2;
 
-                                    if($tahunBulan2 == '2025-08') {
+                                    if($tahunBulan2 == '2025-09') {
                                         $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
                                         SUBCODE01,
                                         SUBCODE02,
@@ -1037,19 +980,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
-                                    FROM                                                      
-                                     (SELECT distinct 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        LONGDESCRIPTION,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        LOGICALWAREHOUSECODE,
-                                        WHSLOCATIONWAREHOUSEZONECODE,
-                                        LOTCODE,
-                                        BASEPRIMARYQUANTITYUNIT
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
@@ -1060,13 +990,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  $where_warehouse
-                                                AND tgl_tutup = '$tgl1'
-                                        )) AS SUB
+                                                AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                        )
                                     GROUP BY tgl_tutup, KODE_OBAT");                                        
                                     }                                
 
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal);
-                                    // var_dump($row_qty_awal);
+                                    // var_dump($row_buka_po);
 
                                     $qty_masuk = (substr(number_format($row_stock_masuk['QTY_MASUK'], 2), -3) == '.00')
                                         ? number_format($row_stock_masuk['QTY_MASUK'], 0)
@@ -1271,56 +1201,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     $today = date('Y-m-d');
 
                                     include_once("koneksi.php");
+                                                                
+                                    // Escape semua input untuk mencegah SQL Injection
+                                    $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
+                                    $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
+                                    $qty_awal = floatval(str_replace(',', '', $qty_awal));
+                                    $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
+                                    $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
+                                    $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
+                                    $stock_balance = floatval(str_replace(',', '', $qty_Balance_stock_gd_pisah));
+                                    $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
+                                    $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
+                                    $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
+                                    $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
+                                    $total_out_ = floatval(str_replace(',', '', subject: $qty_total_out));
+                                    $status_ = mysqli_real_escape_string($con, $status);
+                                    $note = mysqli_real_escape_string($con, $row['NOTELAB']);
+                                    $sertifikat = mysqli_real_escape_string($con, $row['CERTIFICATION']);
+                                    $ip = mysqli_real_escape_string($con, $ipaddress);
+                                    $warehouse = mysqli_real_escape_string($con, $where_warehouse);
 
-                                // Escape & convert
-                                $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
-                                $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
-                                $qty_awal = floatval(str_replace(',', '', $qty_awal));
-                                $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
-                                $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
-                                $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
-                                $stock_balance = floatval(str_replace(',', '', $qty_Balance_stock_gd_pisah));
-                                $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
-                                $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
-                                $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
-                                $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
-                                $total_out_ = floatval(str_replace(',', '', $qty_total_out));
-                                $status_ = mysqli_real_escape_string($con, $status);
-                                $note = mysqli_real_escape_string($con, $row['NOTELAB']);
-                                $sertifikat = mysqli_real_escape_string($con, $row['CERTIFICATION']);
-                                $ip = mysqli_real_escape_string($con, $ipaddress);
-                                $warehouse = mysqli_real_escape_string($con, $where_warehouse);
-
-                                // Simpan dalam array (bukan langsung insert)
-                                $insertData[] = "(
-                                '$kode_obat',
-                                '$nama_obat',
-                                $qty_awal,
-                                $stock_masuk,
-                                $stock_keluar,
-                                $stock_transfer,
-                                $stock_balance,
-                                $stock_minimum,
-                                $buka_po,
-                                $pakai_belum_timbang,
-                                $balance_future,
-                                $total_out_,
-                                '$status_',
-                                '$note',
-                                '$sertifikat',
-                                '$today',
-                                '$ip',
-                                '$warehouse'
-                            )";
-
-                                $no++;
-                                }
-
-                                // =========================================================
-                                // Setelah semua data selesai diproses, lakukan INSERT SEKALI SAJA
-                                // =========================================================
-                                            if (!empty($insertData)) {
-                                                $sql = "INSERT INTO tb_stock_gd_kimia (
+                                    $sql = "INSERT INTO tb_stock_gd_kimia (
                                                 kode_obat,
                                                 nama_obat,
                                                 qty_awal,
@@ -1339,17 +1240,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 tgl_tarik_data,
                                                 ip_address,
                                                 logicalwarehouse
-                                            ) VALUES " . implode(',', $insertData);
+                                            ) VALUES (
+                                                '$kode_obat',
+                                                '$nama_obat',
+                                                $qty_awal,
+                                                $stock_masuk,
+                                                $stock_keluar,
+                                                $stock_transfer,
+                                                $stock_balance,
+                                                $stock_minimum,
+                                                $buka_po,
+                                                $pakai_belum_timbang,
+                                                $balance_future,
+                                                 $total_out_,
+                                                '$status_',
+                                                '$note',
+                                                '$sertifikat',
+                                                '$today',
+                                                '$ip',
+                                                '$warehouse'
+                                            )";
 
                                     $result = mysqli_query($con, $sql);
 
                                     if (!$result) {
-                                        die("❌ Error executing bulk insert: " . mysqli_error($con));
-                                    } else {
-                                        echo "<script>console.log('✅ Bulk insert berhasil. Jumlah data: " . count($insertData) . "');</script>";
+                                        die("Error executing query: " . mysqli_error($con));
                                     }
-                                } else {
-                                    echo "<script>console.log('⚠️ Tidak ada data untuk disimpan');</script>";
                                 }?>
                             </tbody>
                         </table>

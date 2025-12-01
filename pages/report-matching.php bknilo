@@ -86,7 +86,7 @@ include "koneksi.php";
                                                                                                                     if ($_POST['submit']) {
                                                                                                                       echo $_POST['time_start'];
                                                                                                                     } else {
-                                                                                                                      echo "07:00";
+                                                                                                                      echo "23:00";
                                                                                                                     } ?>" placeholder="00:00" maxlength="5">
             </div>  
             <div class="form-group mb-2">
@@ -105,7 +105,7 @@ include "koneksi.php";
                                                                                                                     if ($_POST['submit']) {
                                                                                                                       echo $_POST['time_end'];
                                                                                                                     } else {
-                                                                                                                      echo "07:00";
+                                                                                                                      echo "23:00";
                                                                                                                     } ?>" placeholder="00:00" maxlength="5">
             </div>   
             <button type="submit" name="submit" value="search" class="btn btn-primary btn-sm mb-2"><i class="fa fa-search" aria-hidden="true"></i>
@@ -150,6 +150,7 @@ include "koneksi.php";
                 <th class="text-center">kt_status</th>
                 <th class="text-center">koreksi_resep</th>
                 <th class="text-center">percobaan_ke</th>
+                <th class="text-center">percobaan_berapa_kali</th>
                 <th class="text-center">benang_aktual</th>
                 <th class="text-center">lebar_aktual</th>
                 <th class="text-center">gramasi_aktual</th>
@@ -213,11 +214,17 @@ include "koneksi.php";
                   ORDER BY a.id desc limit 50");
               } else {
                 $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
-                  FROM tbl_status_matching a
-                  INNER JOIN tbl_matching b ON a.idm = b.no_resep
-                  where a.status = 'selesai' and a.approve = 'TRUE' and
-                  DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$date_s $time_s' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$date_e $time_e'
-                  ORDER BY a.id desc");
+                                          FROM tbl_status_matching a
+                                          INNER JOIN tbl_matching b ON a.idm = b.no_resep
+                                          where a.status = 'selesai' and a.approve = 'TRUE' and
+                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') >= '$date_s $time_s' AND DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') <= '$date_e $time_e'
+                                          ORDER BY a.id desc");
+//				  $sql = mysqli_query($con,"SELECT *,  a.id as id_status, a.created_at as tgl_buat_status, a.created_by as status_created_by
+//                                          FROM tbl_status_matching a
+//                                          INNER JOIN tbl_matching b ON a.idm = b.no_resep
+//                                          where a.status = 'selesai' and a.approve = 'TRUE' and
+//                                          DATE_FORMAT(a.approve_at,'%Y-%m-%d %H:%i') between '$date_s $time_s' AND '$date_e $time_e'
+//                                          ORDER BY a.id desc");
               }
               while ($r = mysqli_fetch_array($sql)) {
                 $no++;
@@ -256,6 +263,7 @@ include "koneksi.php";
                   <td><?php echo $r['kt_status'] ?></td>
                   <td><?php echo $r['koreksi_resep'] ?></td>
                   <td><?php echo $r['percobaan_ke'] ?></td>
+                  <td><?php echo $r['howmany_percobaan_ke'] ?></td>
                   <td><?php echo $r['benang_aktual'] ?></td>
                   <td><?php echo $r['lebar_aktual'] ?></td>
                   <td><?php echo $r['gramasi_aktual'] ?></td>

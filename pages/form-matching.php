@@ -45,13 +45,118 @@
 		ini_set("error_reporting", 1);
 		session_start();
 		include "koneksi.php";
+		function nourut($str)
+		{
+			include "koneksi.php";
+			// $res = preg_replace("/[^0-9]/", "", $str);
+			// $fourStr = substr($res, 0, 4);
+			// $fourInt = intval(substr($res, 4, 4) + 1);
+			// $date = date('ym');
+
+			// if ($fourStr != $date) {
+			// 	$FChar = $date . "0001";
+			// } else {
+			// 	$FE = "";
+			// 	if (strlen(strval($fourInt)) <= 3) {
+			// 		for ($i = strlen(strval($fourInt)); $i <= 3; $i++) {
+			// 			$FE = "0" . $fourInt;
+			// 		}
+			// 		$FChar = $date . $FE;
+			// 	} else {
+			// 		$FChar = $date . $fourInt;
+			// 	}
+			// }
+
+			// $fourInt = $str + 1;
+			return $str;
+		}
+
+		// $sqlNoResep = mysqli_query($con,"SELECT no_resep FROM tbl_matching where id = (select max(id) from tbl_matching) LIMIT 1");
+		// $noResep = mysqli_fetch_array($sqlNoResep);
+		// $nourut = nourut($noResep['no_resep']);
+
 		$sqlNoResep = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 		$noResep = mysqli_fetch_array($sqlNoResep);
-		$nourut = $noResep['nourut'] + 1;
+		$nourut = nourut($noResep['nourut']) + 1;
 
 		if ($_GET['idk'] != "") {
 			$order 		= $_GET['idk'];
 			$jns_match	= $_GET['jn_mcng'];
+			// QUERY untuk Standart Cocok Warna Dan Lap Dip
+			$stdcckwarna_lapdip = "CASE
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END			
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
+												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
+											END	
+									END AS LABDIPNO,
+									CASE
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Labdip - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Labdip - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'First Lot - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'First Lot - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN   
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Original - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Original - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+											END	
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Previous Order - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Previous Order - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+											END
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Master Color - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Master Color - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+											END
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN  
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Lampiran Buyer - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Lampiran Buyer - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
+											END
+										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
+											CASE
+												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Body - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
+												ELSE 'Body - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
+											END
+									END AS STDCCKWARNA,";
 
 			if ($jns_match == "Matching Ulang NOW" or $jns_match == "Perbaikan NOW") {
 				$query_langganan = db2_exec($conn1, "SELECT TRIM(s.CODE) AS PROJECTCODE, TRIM(ip.LANGGANAN) AS LANGGANAN, TRIM(ip.BUYER) AS BUYER
@@ -1161,7 +1266,7 @@
 											WHERE p.SALESORDERCODE = '$order' AND p.ORDERLINE = '$getorderline'
 											GROUP BY 
 												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
-			$r_item = db2_fetch_assoc($sqlitem);
+			$r_item = db2_fetch_assoc($sqlitem)
 			?>
 			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="<?= $r_item['SUBCODE02'] . $r_item['SUBCODE03']; ?>" placeholder="No Item">
 		</div>
@@ -1708,6 +1813,14 @@
 			$order = $dt_langganan['PROJECTCODE'];
 			$orderline = $_GET['iditem'];
 
+			// $sql_cck = db2_exec($conn1, "SELECT
+			// 							$stdcckwarna_lapdip
+			// 							ITXVIEW_COLORREMARKS.VALUESTRING
+			// 						FROM
+			// 							SALESORDERLINE SALESORDERLINE
+			// 						LEFT JOIN ITXVIEW_COLORSTANDARD ITXVIEW_COLORSTANDARD ON SALESORDERLINE.ABSUNIQUEID = ITXVIEW_COLORSTANDARD.UNIQUEID
+			// 						LEFT JOIN ITXVIEW_COLORREMARKS ITXVIEW_COLORREMARKS ON ITXVIEW_COLORSTANDARD.UNIQUEID = ITXVIEW_COLORREMARKS.UNIQUEID
+			// 						WHERE TRIM(SALESORDERLINE.SALESORDERCODE) = '$order' AND TRIM(SALESORDERLINE.ORDERLINE) = '$orderline'");
 			$sql_cck = db2_exec($conn1, "SELECT * FROM ITXVIEW_STD_CCK_WARNA WHERE SALESORDERCODE = '$order' AND ORDERLINE = '$orderline'");
 			$r_cck = db2_fetch_assoc($sql_cck);
 			?>
