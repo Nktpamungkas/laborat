@@ -106,6 +106,10 @@ s.TRANSACTIONNUMBER,
                     AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$tgl1 $time:00' AND '$tgl2 $time2:00'
                     AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
                    AND s.LOGICALWAREHOUSECODE $warehouse
+                   AND NOT COALESCE(TRIM( CASE 
+                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                                ELSE s.TEMPLATECODE
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
                    and NOT (s.CREATIONUSER = 'MT_STI'  AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05' ))
                    and s.DECOSUBCODE01 = '$code1' 
                    AND s.DECOSUBCODE02 = '$code2' 
