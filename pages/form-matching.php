@@ -45,118 +45,13 @@
 		ini_set("error_reporting", 1);
 		session_start();
 		include "koneksi.php";
-		function nourut($str)
-		{
-			include "koneksi.php";
-			// $res = preg_replace("/[^0-9]/", "", $str);
-			// $fourStr = substr($res, 0, 4);
-			// $fourInt = intval(substr($res, 4, 4) + 1);
-			// $date = date('ym');
-
-			// if ($fourStr != $date) {
-			// 	$FChar = $date . "0001";
-			// } else {
-			// 	$FE = "";
-			// 	if (strlen(strval($fourInt)) <= 3) {
-			// 		for ($i = strlen(strval($fourInt)); $i <= 3; $i++) {
-			// 			$FE = "0" . $fourInt;
-			// 		}
-			// 		$FChar = $date . $FE;
-			// 	} else {
-			// 		$FChar = $date . $fourInt;
-			// 	}
-			// }
-
-			// $fourInt = $str + 1;
-			return $str;
-		}
-
-		// $sqlNoResep = mysqli_query($con,"SELECT no_resep FROM tbl_matching where id = (select max(id) from tbl_matching) LIMIT 1");
-		// $noResep = mysqli_fetch_array($sqlNoResep);
-		// $nourut = nourut($noResep['no_resep']);
-
 		$sqlNoResep = mysqli_query($con, "SELECT nourut FROM no_urut_matching");
 		$noResep = mysqli_fetch_array($sqlNoResep);
-		$nourut = nourut($noResep['nourut']) + 1;
+		$nourut = $noResep['nourut'] + 1;
 
 		if ($_GET['idk'] != "") {
 			$order 		= $_GET['idk'];
 			$jns_match	= $_GET['jn_mcng'];
-			// QUERY untuk Standart Cocok Warna Dan Lap Dip
-			$stdcckwarna_lapdip = "CASE
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END			
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN ITXVIEW_COLORREMARKS.VALUESTRING
-												ELSE SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, 1, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) -1)
-											END	
-									END AS LABDIPNO,
-									CASE
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 1 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Labdip - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Labdip - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 2 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'First Lot - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'First Lot - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 3 THEN   
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Original - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Original - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END	
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 4 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Previous Order - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Previous Order - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 5 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Master Color - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Master Color - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 6 THEN  
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Lampiran Buyer - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Lampiran Buyer - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50) 
-											END
-										WHEN ITXVIEW_COLORSTANDARD.VALUESTRING = 7 THEN 
-											CASE
-												WHEN LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING) = '0' THEN 'Body - ' || TRIM(ITXVIEW_COLORREMARKS.VALUESTRING)
-												ELSE 'Body - ' || SUBSTR(ITXVIEW_COLORREMARKS.VALUESTRING, LOCATE('(', ITXVIEW_COLORREMARKS.VALUESTRING), 50)
-											END
-									END AS STDCCKWARNA,";
 
 			if ($jns_match == "Matching Ulang NOW" or $jns_match == "Perbaikan NOW") {
 				$query_langganan = db2_exec($conn1, "SELECT TRIM(s.CODE) AS PROJECTCODE, TRIM(ip.LANGGANAN) AS LANGGANAN, TRIM(ip.BUYER) AS BUYER
@@ -215,8 +110,8 @@
 				$rowLast = mysqli_fetch_assoc($resLast);
 				$selisih = (int)$rowLast['selisih'];
 
-				// Kalau selisih kurang dari 13 detik → anggap double submit
-				if ($selisih >= 0 && $selisih < 13) {
+				// Kalau selisih kurang dari 1 detik → anggap double submit
+				if ($selisih >= 0 && $selisih < 2) {
 					echo "<script>
 							alert('Input dibatalkan: selisih dengan data sebelumnya kurang dari 13 detik (kemungkinan double submit).');
 							window.location.href='?p=form-matching';
@@ -394,7 +289,7 @@
 	<div id="loading-overlay">
 		<div class="loader-box">
 			<div class="spinner"></div>
-			<div>Menyimpan data, harap tunggu...</div>
+			<div>harap tunggu...</div>
 		</div>
 	</div>
 </body>
@@ -974,19 +869,17 @@
 	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// Development -->
-<div id="Development" style="display: none;">
+	<div id="Development" style="display: none;">
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
-			<input name="no_order" type="text" class="form-control orderdevelopment" id="order" required placeholder="No Order..."
-			onchange="window.location='?p=Form-Matching&idk='+document.getElementById(`order`).value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?= $_GET['idk']; ?>">
+			<input name="no_order" type="text" class="form-control orderdevelopment" id="order" required placeholder="No Order..." value="<?= $_GET['idk']; ?>">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="demand" class="col-sm-2 control-label" style="font-style: italic;">No Production Demand</label>
 		<div class="col-sm-2">
-			<select name="demand" id="demand" class="form-control" style="width: 100%;"
-			onchange="window.location='?p=Form-Matching&idk='+document.getElementById(`order`).value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value+'&demand='+document.getElementById(`demand`).value">
+			<select name="demand" id="demand" class="form-control" style="width: 100%;">
 				<option value="" selected disabled>Pilih...</option>
 				<?php if($_GET['idk']) : ?>
 					<?php 
@@ -1206,204 +1099,57 @@
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">L/D NOW Req No.</label>
 		<div class="col-sm-4">
-			<input name="no_order" placeholder="Request Number ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuyld" id="order" onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?php if ($_GET['idk'] != "") {
-																																																																																										echo $_GET['idk'];
-																																																																																									} ?>" placeholder="No Order" required>
+			<input name="no_order" placeholder="Request Number ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuyld" id="order" value="" required>
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="langganan" class="col-sm-2 control-label">Langganan</label>
 		<div class="col-sm-6">
-			<input name="langganan" type="text" class="form-control" id="langganan" value="<?= $dt_langganan['LANGGANAN'] . '/' . $dt_langganan['BUYER']; ?>" placeholder="Langganan">
+			<input name="langganan" type="text" class="form-control" id="langganan" value="" placeholder="Langganan">
 		</div>
-	</div>
-	<!-- hidden item -->
-	<!-- <input type="hidden" name="no_item1" id="no_item1" class="form-control" value="-"> -->
-	<input name="no_po" type="hidden" class="form-control" id="no_po" placeholder="No PO" value="-">
-	<!-- <input name="kain" type="hidden" class="form-control" id="kain" placeholder="Kain" value="-"> -->
-	<!--/ hidden kain -->
-	<div class="form-group">
-		<label for="warna" class="col-sm-2 control-label">No. Item</label>
+		</div>
+		<div class="form-group">
+			<label for="warna" class="col-sm-2 control-label">No. Item</label>
 		<div class="col-sm-6">
-			<select name="no_item" class="form-control selectNoItemNOW" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" id="no_item" required style="width: 400px;">
-				<?php
-				$order = $dt_langganan['PROJECTCODE'];
-				$sqljk = db2_exec($conn1, "SELECT 
-												TRIM(p2.CODE) AS CODE,
-												p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
-												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
-												p.ITEMDESCRIPTION AS WARNA,
-												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05,
-												p.ORDERLINE
-											FROM SALESORDERLINE p
-											LEFT JOIN PRODUCTIONDEMAND p2 ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
-											WHERE p.SALESORDERCODE = '$order' AND NOT p.ORDERLINE IS NULL
-											GROUP BY 
-												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE08,p.SUBCODE07,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
-				?>
+			<select name="no_item" class="form-control selectNoItemNOW" id="no_item" required style="width: 400px;">
 				<option value="">Pilih</option>
-				<?php while ($r = db2_fetch_assoc($sqljk)) { ?>
-					<option value="<?= $r['DLVSALESORDERLINEORDERLINE']; ?>" <?php if ($_GET['iditem'] == $r['DLVSALESORDERLINEORDERLINE']) {
-																					echo "SELECTED";
-																				} ?>>
-						<?= $r['ITEMTYPEAFICODE'] . '-' . $r['SUBCODE02'] . '.' . $r['SUBCODE03']; ?> | <?= $r['WARNA']; ?> | <?= $r['ORDERLINE']; ?> | <?= $r['CODE']; ?>
-					</option>
-				<?php } ?>
 			</select>
-
-			<?php
-			$order = $dt_langganan['PROJECTCODE'];
-			$getorderline = $_GET['iditem'];
-			$sqlitem = db2_exec($conn1, "SELECT 
-												TRIM(p2.CODE) AS CODE,
-												p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
-												p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
-												p.ITEMDESCRIPTION AS WARNA,
-												trim(p.SUBCODE01) AS SUBCODE01, trim(p.SUBCODE02) AS SUBCODE02, trim(p.SUBCODE03) AS SUBCODE03, trim(p.SUBCODE04) AS SUBCODE04, trim(p.SUBCODE05) AS SUBCODE05, trim(p.SUBCODE06) AS SUBCODE06, trim(p.SUBCODE07) AS SUBCODE07, trim(p.SUBCODE08) AS SUBCODE08,
-												trim(p.SUBCODE09) AS SUBCODE09, trim(p.SUBCODE10) AS SUBCODE10
-											FROM SALESORDERLINE p
-											LEFT JOIN PRODUCTIONDEMAND p2 ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
-											WHERE p.SALESORDERCODE = '$order' AND p.ORDERLINE = '$getorderline'
-											GROUP BY 
-												p2.CODE, p.ORDERLINE,p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,p.ITEMTYPEAFICODE,p.ITEMDESCRIPTION");
-			$r_item = db2_fetch_assoc($sqlitem)
-			?>
-			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="<?= $r_item['SUBCODE02'] . $r_item['SUBCODE03']; ?>" placeholder="No Item">
+			<input name="no_item1" type="hidden" class="form-control" id="no_item1" value="" placeholder="No Item">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="color_code" class="col-sm-2 control-label">Color Code</label>
 		<div class="col-sm-4">
-			<!-- <input name="color_code" type="text" class="form-control" id="color_code" placeholder="Color Code" value="<?= $r_item['SUBCODE05']; ?>"> -->
 			<input name="color_code" type="text" class="form-control" id="color_code" placeholder="Color Code" value="">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="recipe_code" class="col-sm-2 control-label">Recipe Code</label>
 		<div class="col-sm-4">
-			<!--<input name="recipe_code" type="text" class="form-control" id="recipe_code" placeholder="Recipe Code" value="">-->
 			<textarea name="recipe_code" class="form-control" id="recipe_code" placeholder="Recipe Code"></textarea>
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="no_po" class="col-sm-2 control-label">PO Greige</label>
 		<div class="col-sm-4">
-			<?php
-			$d_pogreigenew = db2_exec($conn1, "SELECT 
-														CASE
-															WHEN LOTCODE IS NOT NULL THEN LOTCODE
-															ELSE '-'
-														END AS LOTCODE,
-														CASE
-															WHEN DEMAND_KGF IS NOT NULL THEN DEMAND_KGF
-															ELSE '-'
-														END AS DEMAND_KGF
-													FROM 
-													(SELECT 
-														i.LOTCODE AS LOTCODE,
-														i.DEMAND_KGF AS DEMAND_KGF
-													FROM 
-														ITXVIEWPOGREIGENEW i 
-													WHERE 
-														i.SALESORDERCODE = '$_GET[idk]' AND i.ORDERLINE = '$_GET[iditem]'
-													UNION ALL
-													SELECT 
-														i2.LOTCODE AS LOTCODE,
-														i2.DEMAND_KGF AS DEMAND_KGF
-													FROM 
-														ITXVIEWPOGREIGENEW2 i2 
-													WHERE 
-														i2.SALESORDERCODE = '$_GET[idk]' AND i2.ORDERLINE = '$_GET[iditem]'
-													UNION ALL
-													SELECT
-														i3.LOTCODE AS LOTCODE,
-														i3.DEMAND_KGF AS DEMAND_KGF
-													FROM
-														ITXVIEWPOGREIGENEW3 i3 
-													WHERE 
-														i3.SALESORDERCODE = '$_GET[idk]' AND i3.ORDERLINE = '$_GET[iditem]')
-													GROUP BY 
-														LOTCODE, DEMAND_KGF");
-			$d_pogreigenew4 = db2_exec($conn1, "SELECT INTERNALREFERENCE FROM PRODUCTIONDEMAND WHERE ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'");
-			$d_pogreigenew5 = db2_exec($conn1, "SELECT 
-														a.ORIGDLVSALORDLINESALORDERCODE,
-														a.ORIGDLVSALORDERLINEORDERLINE,
-														a.INTERNALREFERENCE,
-														b.NAMENAME,
-														b.VALUESTRING 
-													FROM 
-														PRODUCTIONDEMAND a
-													LEFT JOIN ADSTORAGE b ON b.UNIQUEID = a.ABSUNIQUEID 
-													WHERE 
-														ORIGDLVSALORDLINESALORDERCODE = '$_GET[idk]' AND ORIGDLVSALORDERLINEORDERLINE = '$_GET[iditem]'
-														AND
-														(b.NAMENAME = 'ProAllow' OR b.NAMENAME = 'ProAllow2' OR b.NAMENAME = 'ProAllo3' OR b.NAMENAME = 'ProAllow4' OR b.NAMENAME = 'ProAllow5')");
-
-			$r_pogreigenew = db2_fetch_assoc($d_pogreigenew);
-			$r_pogreigenew4 = db2_fetch_assoc($d_pogreigenew4);
-			$r_pogreigenew5 = db2_fetch_assoc($d_pogreigenew5);
-
-			if ($r_pogreigenew['LOTCODE'] && $r_pogreigenew['DEMAND_KGF']) {
-				$pogreige = 'NO KO : ' . $r_pogreigenew['LOTCODE'] . '/ DEMAND KGF :' . $r_pogreigenew['DEMAND_KGF'];
-			}
-			if ($r_pogreigenew4['INTERNALREFERENCE']) {
-				$pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
-			} else {
-				$pogreige2 = $r_pogreigenew5['VALUESTRING'];
-			}
-			?>
-			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="<?= $pogreige; ?>, PROJECT : <?= $pogreige2; ?>">
+			<input name="no_po" type="text" class="form-control" id="no_po" placeholder="No PO" value="">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Jenis Kain</label>
 		<div class="col-sm-6">
-			<?php
-			$itemtype = $r_item['ITEMTYPEAFICODE'];
-			$s1 = $r_item['SUBCODE01'];
-			$s2 = $r_item['SUBCODE02'];
-			$s3 = $r_item['SUBCODE03'];
-			$s4 = $r_item['SUBCODE04'];
-			$s5 = $r_item['SUBCODE05'];
-			$s6 = $r_item['SUBCODE06'];
-			$s7 = $r_item['SUBCODE07'];
-			$s8 = $r_item['SUBCODE08'];
-			$s9 = $r_item['SUBCODE09'];
-			$s10 = $r_item['SUBCODE10'];
-
-			$sql_jk = db2_exec($conn1, "SELECT * FROM PRODUCT WHERE TRIM(SUBCODE01) = '$s1' 
-															AND TRIM(SUBCODE02) = '$s2' 
-															AND TRIM(SUBCODE03) = '$s3' 
-															AND TRIM(SUBCODE04) = '$s4' 
-															AND TRIM(SUBCODE05) = '$s5' 
-															AND TRIM(SUBCODE06) = '$s6' 
-															AND TRIM(SUBCODE07) = '$s7' 
-															AND TRIM(SUBCODE08) = '$s8'
-															AND TRIM(SUBCODE09) = '$s9'
-															AND TRIM(SUBCODE10) = '$s10'
-															AND TRIM(ITEMTYPECODE) = '$itemtype'");
-			$r_jk = db2_fetch_assoc($sql_jk);
-			?>
-			<input name="kain" type="text" class="form-control" required id="kain" value="<?= str_replace('"', " ", $r_jk['LONGDESCRIPTION']); ?>" placeholder="Jenis kain...">
+			<input name="kain" type="text" class="form-control" required id="kain" value="" placeholder="Jenis kain...">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">Warna</label>
 		<div class="col-sm-6">
-			<input name="warna" type="text" class="form-control" id="warna" value="<?= $r_item['WARNA']; ?>" placeholder="Warna">
+			<input name="warna" type="text" class="form-control" id="warna" value="" placeholder="Warna">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="no_warna" class="col-sm-2 control-label">LAB DIP NO</label>
 		<div class="col-sm-6">
-			<?php
-				$order = $dt_langganan['PROJECTCODE'];
-				$orderline = $_GET['iditem'];
-
-				$sql_cck = db2_exec($conn1, "SELECT * FROM ITXVIEW_STD_CCK_WARNA WHERE SALESORDERCODE = '$order' AND ORDERLINE = '$orderline'");
-				$r_cck = db2_fetch_assoc($sql_cck);
-			?>
-			<!-- <input name="no_warna" type="text" class="form-control" id="no_warna" value="<?= $r_cck['LABDIPNO']; ?>" placeholder="LAB DIP NO"> -->
 			<input name="no_warna" type="text" class="form-control" id="no_warna" value="" placeholder="LAB DIP NO">
 		</div>
 	</div>
@@ -1415,18 +1161,13 @@
 	<div class="form-group">
 		<label for="cocok_warna" class="col-sm-2 control-label">Cocok Warna</label>
 		<div class="col-sm-6">
-			<input name="cocok_warna" type="text" class="form-control" id="cocok_warna" value="<?= $r_cck['STDCCKWARNA']; ?>" placeholder="Cocok Warna">
+			<input name="cocok_warna" type="text" class="form-control" id="cocok_warna" value="" placeholder="Cocok Warna">
 		</div>
 	</div>
 	<div class="form-group">
 		<label for="tgl_delivery" class="col-sm-2 control-label">Tgl Delivery</label>
 		<div class="col-sm-3">
-			<?php
-			$d_tgldelivery = db2_exec($conn1, "SELECT * FROM SALESORDERDELIVERY WHERE SALESORDERLINESALESORDERCODE = '$_GET[idk]' AND SALESORDERLINEORDERLINE = '$_GET[iditem]'");
-			$r_delivery = db2_fetch_assoc($d_tgldelivery);
-			?>
-			<input name="tgl_delivery" type="text" value="<?php $date_deliv = date_create($r_delivery['DELIVERYDATE']);
-															echo date_format($date_deliv, "Y-m-d"); ?>" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
+			<input name="tgl_delivery" type="text" value="" class="form-control datepicker" id="tgl_delivery" placeholder="Tgl Delivery">
 		</div>
 	</div>
 	<!-- HIDDEN INPUT -->
@@ -1545,7 +1286,7 @@
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
-			<input name="no_order" placeholder="No order ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuy" id="order" onchange="window.location='?p=Form-Matching&idk='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" value="<?php if ($_GET['idk'] != "") {
+			<input name="no_order" placeholder="No order ..." onkeyup="this.value = this.value.toUpperCase();" type="text" class="form-control ordernowcuy" id="order" value="<?php if ($_GET['idk'] != "") {
 																																																																																								echo $_GET['idk'];
 																																																																																							} ?>" placeholder="No Order" required>
 		</div>
@@ -1562,7 +1303,7 @@
 	<div class="form-group">
 		<label for="warna" class="col-sm-2 control-label">No. Item..</label>
 		<div class="col-sm-6">
-			<select name="no_item" class="form-control selectNoItemNOW" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" id="no_item" required style="width: 400px;">
+			<select name="no_item" class="form-control selectNoItemNOW" id="no_item" required style="width: 400px;">
 				<?php
 					$order = $dt_langganan['PROJECTCODE'];
 					$sqljk = db2_exec($conn1, "SELECT
@@ -1752,12 +1493,18 @@
 														AND
 														(b.NAMENAME = 'ProAllow' OR b.NAMENAME = 'ProAllow2' OR b.NAMENAME = 'ProAllo3' OR b.NAMENAME = 'ProAllow4' OR b.NAMENAME = 'ProAllow5')");
 
-			$r_pogreigenew = db2_fetch_assoc($d_pogreigenew);
+			$r_pogreigenew  = db2_fetch_assoc($d_pogreigenew);
 			$r_pogreigenew4 = db2_fetch_assoc($d_pogreigenew4);
 			$r_pogreigenew5 = db2_fetch_assoc($d_pogreigenew5);
 
-			if ($r_pogreigenew['LOTCODE'] && $r_pogreigenew['DEMAND_KGF']) {
-				$pogreige = 'NO KO : ' . $r_pogreigenew['LOTCODE'] . '/ DEMAND KGF :' . $r_pogreigenew['DEMAND_KGF'];
+			// Samakan format dengan versi lama / AJAX:
+			// NO KO : <LOTCODE>/ DEMAND KGF :<DEMAND>, PROJECT : <INTERNALREFERENCE/ VALUESTRING>
+			if ($r_pogreigenew) {
+				$lotcode = isset($r_pogreigenew['LOTCODE']) && $r_pogreigenew['LOTCODE'] !== '' ? $r_pogreigenew['LOTCODE'] : '-';
+				$dkgf    = isset($r_pogreigenew['DEMAND_KGF']) && $r_pogreigenew['DEMAND_KGF'] !== '' ? $r_pogreigenew['DEMAND_KGF'] : '-';
+				$pogreige = 'NO KO : ' . $lotcode . '/ DEMAND KGF :' . $dkgf;
+			} else {
+				$pogreige = 'NO KO : -/ DEMAND KGF :-';
 			}
 			if ($r_pogreigenew4['INTERNALREFERENCE']) {
 				$pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
@@ -1813,14 +1560,6 @@
 			$order = $dt_langganan['PROJECTCODE'];
 			$orderline = $_GET['iditem'];
 
-			// $sql_cck = db2_exec($conn1, "SELECT
-			// 							$stdcckwarna_lapdip
-			// 							ITXVIEW_COLORREMARKS.VALUESTRING
-			// 						FROM
-			// 							SALESORDERLINE SALESORDERLINE
-			// 						LEFT JOIN ITXVIEW_COLORSTANDARD ITXVIEW_COLORSTANDARD ON SALESORDERLINE.ABSUNIQUEID = ITXVIEW_COLORSTANDARD.UNIQUEID
-			// 						LEFT JOIN ITXVIEW_COLORREMARKS ITXVIEW_COLORREMARKS ON ITXVIEW_COLORSTANDARD.UNIQUEID = ITXVIEW_COLORREMARKS.UNIQUEID
-			// 						WHERE TRIM(SALESORDERLINE.SALESORDERCODE) = '$order' AND TRIM(SALESORDERLINE.ORDERLINE) = '$orderline'");
 			$sql_cck = db2_exec($conn1, "SELECT * FROM ITXVIEW_STD_CCK_WARNA WHERE SALESORDERCODE = '$order' AND ORDERLINE = '$orderline'");
 			$r_cck = db2_fetch_assoc($sql_cck);
 			?>
@@ -2236,12 +1975,20 @@
 </div>
 
 <script>
-	$(document).ready(function() {
-		$('.datepicker').datepicker({
-			autoclose: true,
-			format: 'yyyy-mm-dd',
-			todayHighlight: true,
-		})
+		$(document).ready(function() {
+			$('.datepicker').datepicker({
+				autoclose: true,
+				format: 'yyyy-mm-dd',
+				todayHighlight: true,
+			})
+
+			// Spinner helper untuk proses AJAX (load data form)
+			function showAjaxLoader() {
+				$('#loading-overlay').css('display', 'flex');
+			}
+			function hideAjaxLoader() {
+				$('#loading-overlay').hide();
+			}
 
 		
 		if ($('.form-control.ordercuy').val().length >= 12) {
@@ -2289,32 +2036,39 @@
 			$('#no_resep').val(no_resep_fix);
 		})
 
-		$('#jen_matching').change(function() {
-			if ($(this).find(":selected").val() == 'Matching Ulang' || $(this).find(":selected").val() == 'Perbaikan') {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
-				$("#Matching_ulang_perbaikan").show();
-				toggleTemp2();
-			} else if ($(this).find(":selected").val() == 'L/D') {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#LD').appendTo('#echoing_the_choice');
-				$("#LD").show();
-				toggleTemp2();
-			} else if ($(this).find(":selected").val() == 'LD NOW') {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#LDNOW').appendTo('#echoing_the_choice');
-				$("#LDNOW").show();
-				toggleTemp2();
-			} else if ($(this).find(":selected").val() == "Matching Development") {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#Development').appendTo('#echoing_the_choice');
-				$("#Development").show();
-				toggleTemp2();
-			} else if ($(this).find(":selected").val() == 'Matching Ulang NOW' || $(this).find(":selected").val() == 'Perbaikan NOW') {
-				$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
-				$('#NowForm').appendTo('#echoing_the_choice');
-				$("#NowForm").show();
-				toggleTemp2();
+			$('#jen_matching').change(function() {
+				if ($(this).find(":selected").val() == 'Matching Ulang' || $(this).find(":selected").val() == 'Perbaikan') {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#Matching_ulang_perbaikan').appendTo('#echoing_the_choice');
+					$("#Matching_ulang_perbaikan").show();
+					toggleTemp2();
+				} else if ($(this).find(":selected").val() == 'L/D') {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#LD').appendTo('#echoing_the_choice');
+					$("#LD").show();
+					toggleTemp2();
+				} else if ($(this).find(":selected").val() == 'LD NOW') {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#LDNOW').appendTo('#echoing_the_choice');
+					$("#LDNOW").show();
+					toggleTemp2();
+				} else if ($(this).find(":selected").val() == "Matching Development") {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#Development').appendTo('#echoing_the_choice');
+					$("#Development").show();
+					toggleTemp2();
+
+					// Jika No Order sudah terisi ketika berpindah ke Matching Development,
+					// langsung load daftar No Production Demand via AJAX.
+					var ordDev = $('.orderdevelopment').val() || '';
+					if ($.trim(ordDev).length > 0) {
+						$('.orderdevelopment').trigger('change');
+					}
+				} else if ($(this).find(":selected").val() == 'Matching Ulang NOW' || $(this).find(":selected").val() == 'Perbaikan NOW') {
+					$("#echoing_the_choice").children(":first").appendTo('#hidding-choice');
+					$('#NowForm').appendTo('#echoing_the_choice');
+					$("#NowForm").show();
+					toggleTemp2();
 			}
 		})
 
@@ -2494,6 +2248,303 @@
 					}
 				});
 			});
+		});
+
+		// =====================================================================
+		// AJAX khusus NOW (LD NOW & Matching Ulang NOW): 
+		// load data dari Req No / No Order & No. Item tanpa reload page
+		// =====================================================================
+			var ldnowProjectCodeLD   = null; // untuk form LD NOW
+			var ldnowProjectCodeNow  = null; // untuk form NowForm (Matching Ulang NOW / Perbaikan NOW)
+
+			function clearNowFields(containerSelector, keepLangganan) {
+				var $c = $(containerSelector);
+
+				// Jika ganti Req No / No Order -> reset langganan + daftar No. Item
+				if (!keepLangganan) {
+					$c.find('#langganan').val('');
+					$c.find('#no_item').empty().append('<option value=\"\">Pilih</option>');
+				}
+
+				// Field detail selalu di-reset
+				$c.find('#no_item1').val('');
+				$c.find('#color_code').val('');
+				$c.find('#recipe_code').val('');
+				$c.find('#no_po').val('');
+				$c.find('#kain').val('');
+				$c.find('#warna').val('');
+				$c.find('#no_warna').val('');
+				$c.find('#cocok_warna').val('');
+				$c.find('#tgl_delivery').val('');
+			}
+
+			function loadNowHeader(reqNo, containerSelector, isLD) {
+				var req = $.trim(reqNo || '').toUpperCase();
+				if (!req) return;
+
+				showAjaxLoader();
+					$.ajax({
+						url: 'pages/ajax/ldnow_get_header.php',
+						type: 'POST',
+						dataType: 'json',
+					data: { 
+						req_no: req,
+						mode: isLD ? 'LD' : 'NOW'
+					},
+					success: function(res) {
+						if (!res || !res.success) {
+							alert(res && res.message ? res.message : 'Data NOW tidak ditemukan.');
+							return;
+						}
+
+						if (isLD) {
+							ldnowProjectCodeLD = res.projectcode || req;
+						} else {
+							ldnowProjectCodeNow = res.projectcode || req;
+						}
+
+						var $c   = $(containerSelector);
+						var $sel = $c.find('#no_item');
+
+						$c.find('#langganan').val(res.langganan || '');
+						$sel.empty().append('<option value=\"\">Pilih</option>');
+
+							if (res.items && res.items.length) {
+								$.each(res.items, function(_, item) {
+									$sel.append(
+										$('<option>', {
+											value: item.value,
+											text: item.text
+										})
+									);
+								});
+							}
+						},
+						error: function() {
+							alert('Gagal mengambil data NOW (Req No / No Order).');
+						},
+						complete: function() {
+							hideAjaxLoader();
+						}
+					});
+				}
+
+			// =====================================================================
+			// AJAX untuk Matching Development (Development):
+			// - Ketik No Order  -> load daftar No Production Demand + buyer
+			// - Pilih Demand    -> load detail ke form Development
+			// =====================================================================
+			function clearDevelopmentFields(resetDemand) {
+				var $d = $('#Development');
+				if (resetDemand) {
+					$d.find('#demand').empty().append('<option value=\"\" selected disabled>Pilih...</option>');
+				}
+
+				$d.find('#langganan').val('');
+				$d.find('#no_item1').val('');
+				$d.find('#color_code').val('');
+				$d.find('#recipe_code').val('');
+				$d.find('#kain').val('');
+				$d.find('#warna').val('');
+				$d.find('#no_warna').val('');
+				$d.find('#lebar').val('');
+				$d.find('#gramasi').val('');
+				$d.find('#benang').val('');
+				$d.find('#cocok_warna').val('');
+				$d.find('#tgl_delivery').val('');
+				$d.find('#qty').val('');
+			}
+
+			// Ketika No Order (Matching Development) diganti
+			$('.orderdevelopment').on('change', function() {
+				var ord = $(this).val() || '';
+				ord = $.trim(ord).toUpperCase();
+				$(this).val(ord);
+
+				clearDevelopmentFields(true);
+				if (!ord) return;
+
+				showAjaxLoader();
+				$.ajax({
+					url: 'pages/ajax/dev_get_header.php',
+					type: 'POST',
+					dataType: 'json',
+					data: { order: ord },
+					success: function(res) {
+						if (!res || !res.success) {
+							// Jika gagal, biarkan opsi dari PHP (query lama) tetap ada
+							console.log('Dev header gagal:', res && res.message ? res.message : 'unknown');
+							return;
+						}
+
+						var $d = $('#Development');
+						var $selDemand = $d.find('#demand');
+
+						$d.find('#langganan').val(res.buyer || '');
+						$selDemand.empty().append('<option value=\"\" selected disabled>Pilih...</option>');
+
+						if (res.demands && res.demands.length) {
+							$.each(res.demands, function(_, item) {
+								$selDemand.append(
+									$('<option>', {
+										value: item.value,
+										text: item.text
+									})
+								);
+							});
+						}
+						},
+						error: function() {
+							console.log('AJAX dev_get_header error');
+						},
+						complete: function() {
+							hideAjaxLoader();
+						}
+					});
+			});
+
+			// Ketika No Production Demand dipilih pada Development
+			$('#Development').on('change', '#demand', function() {
+				var demand = $(this).val();
+				var ord    = $('.orderdevelopment').val() || '';
+				ord = $.trim(ord).toUpperCase();
+
+				clearDevelopmentFields(false);
+
+				if (!ord || !demand) return;
+
+				$.ajax({
+					url: 'pages/ajax/dev_get_detail.php',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						order: ord,
+						demand: demand
+					},
+					beforeSend: function() {
+						showAjaxLoader();
+					},
+					success: function(res) {
+						if (!res || !res.success) {
+							alert(res && res.message ? res.message : 'Detail Development tidak ditemukan.');
+							return;
+						}
+
+						var $d = $('#Development');
+						$d.find('#langganan').val(res.buyer || '');
+						$d.find('#no_item1').val(res.no_item1 || '');
+						$d.find('#color_code').val(res.color_code || '');
+						$d.find('#kain').val(res.kain || '');
+						$d.find('#warna').val(res.warna || '');
+						$d.find('#no_warna').val(res.no_warna || '');
+						$d.find('#lebar').val(res.lebar || '');
+						$d.find('#gramasi').val(res.gramasi || '');
+						$d.find('#benang').val(res.benang || '');
+						$d.find('#cocok_warna').val(res.cocok_warna || '');
+						$d.find('#tgl_delivery').val(res.tgl_delivery || '');
+						$d.find('#qty').val(res.qty || '');
+						},
+						error: function() {
+							alert('Gagal mengambil detail Development.');
+						},
+						complete: function() {
+							hideAjaxLoader();
+						}
+					});
+			});
+
+			// Saat halaman pertama kali dibuka dengan Matching Development dan No Order sudah terisi,
+			// langsung load daftar No Production Demand via AJAX (tanpa menghapus opsi PHP).
+			if ($('#jen_matching').val() === 'Matching Development') {
+				var ordInit = $('.orderdevelopment').val() || '';
+				if ($.trim(ordInit).length > 0) {
+					$('.orderdevelopment').trigger('change');
+				}
+			}
+
+		// Ketika Req No (L/D NOW) diganti
+		$('.ordernowcuyld').on('change', function() {
+			var reqNo = $(this).val();
+			$(this).val($.trim(reqNo).toUpperCase());
+			ldnowProjectCodeLD = null;
+			clearNowFields('#LDNOW', false);
+			loadNowHeader(reqNo, '#LDNOW', true);
+		});
+
+		// Ketika No Order (Matching Ulang NOW / Perbaikan NOW) diganti
+		$('.ordernowcuy').on('change', function() {
+			var reqNo = $(this).val();
+			$(this).val($.trim(reqNo).toUpperCase());
+			ldnowProjectCodeNow = null;
+			clearNowFields('#NowForm', false);
+			loadNowHeader(reqNo, '#NowForm', false);
+		});
+
+		// Ketika No. Item (LD NOW atau Matching Ulang NOW) dipilih
+		$('#LDNOW, #NowForm').on('change', '.selectNoItemNOW', function() {
+			var orderline = $(this).val();
+			var $container = $(this).closest('#LDNOW, #NowForm');
+			var isLD = $container.attr('id') === 'LDNOW';
+			var projectCode = isLD ? ldnowProjectCodeLD : ldnowProjectCodeNow;
+
+			if (!orderline || !projectCode) {
+				clearNowFields($container, true);
+				return;
+			}
+
+			clearNowFields($container, true);
+
+				$.ajax({
+					url: 'pages/ajax/ldnow_get_item_detail.php',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						projectcode: projectCode,
+						orderline: orderline
+					},
+					beforeSend: function() {
+						showAjaxLoader();
+					},
+					success: function(res) {
+					if (!res || !res.success) {
+						alert(res && res.message ? res.message : 'Detail item NOW tidak ditemukan.');
+						return;
+					}
+
+					$container.find('#no_item1').val(res.no_item1 || '');
+					$container.find('#color_code').val(res.color_code || '');
+					$container.find('#no_po').val(res.no_po || '');
+					$container.find('#recipe_code').val(res.recipe_code || '');
+					$container.find('#kain').val(res.kain || '');
+					$container.find('#warna').val(res.warna || '');
+					$container.find('#no_warna').val(res.no_warna || '');
+					$container.find('#cocok_warna').val(res.cocok_warna || '');
+					$container.find('#tgl_delivery').val(res.tgl_delivery || '');
+
+						// Lebar, Gramasi, Qty, Benang hanya diisi otomatis untuk Matching Ulang NOW (NowForm),
+						// agar behavior LD NOW tetap seperti form lama (qty = 0, lebar/gramasi hidden).
+						if ($container.attr('id') === 'NowForm') {
+							if (res.lebar) {
+								$container.find('#lebar').val(res.lebar);
+							}
+							if (res.gramasi) {
+								$container.find('#gramasi').val(res.gramasi);
+							}
+							if (res.qty) {
+								$container.find('#qty').val(res.qty);
+							}
+							if (res.benang) {
+								$container.find('#benang').val(res.benang);
+							}
+							}
+					},
+					error: function() {
+						alert('Gagal mengambil detail No. Item NOW.');
+					},
+					complete: function() {
+						hideAjaxLoader();
+					}
+				});
 		});
 
 		$('.selectProses3').on('click', function() {
