@@ -3,14 +3,14 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal 1 di bulan berjalan jam 23:00:00
-$awaltanggal = date('Y-m-01 23:01:00');
+$awaltanggal = date('2025-11-01 23:01:00');
 
 // Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
 $awal = date('Y-m-d 23:01:00', strtotime('-1 day', strtotime($awaltanggal)));
 
 // Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
-$akhir = date('Y-m-t 23:00:00');
-// $akhir = '2025-10-21 23:00:00';
+// $akhir = date('Y-m-d 23:00:00');
+$akhir = '2025-11-30 23:00:00';
 
 
 $awalParam = date('Y-m-d');
@@ -86,7 +86,7 @@ if (file_exists($logoPath)) {
         border: 1px solid #000;
     }
     /* 2 desimal + pemisah ribuan (Excel akan sesuaikan tanda sesuai regional) */
-    .number { mso-number-format: "#,##0.00"; }
+    .number { mso-number-format: "#,##0"; }
     /* untuk kolom No dengan pemisah ribuan (jika perlu) */
     .int    { mso-number-format: "#,##0"; }
     th { background-color: #f0f0f0; }
@@ -398,7 +398,16 @@ if (file_exists($logoPath)) {
             $row_qty_pakai = db2_fetch_assoc($qty_pakai) ?: [];
 
 
-            $stock_masuk = db2_exec($conn1, " SELECT 
+
+            $stock_masuk = db2_exec($conn1, "SELECT 
+                                                    ITEMTYPECODE,
+                                                    DECOSUBCODE01,
+                                                    DECOSUBCODE02,
+                                                    DECOSUBCODE03,
+                                                    round(sum(QTY_MASUK)) AS QTY_MASUK,
+                                                    SATUAN_MASUK
+                                                    FROM 
+                                                    (SELECT 
                                                     ITEMTYPECODE,
                                                     TEMPLATE,
                                                     DECOSUBCODE01,
@@ -456,12 +465,13 @@ if (file_exists($logoPath)) {
                                                         LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
                                                         WHERE
                                                             s.ITEMTYPECODE = 'DYC'
-                                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                                            -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
                                                             AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                                            AND COALESCE(TRIM( CASE 
+                                                            AND NOT COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                                                                 ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '') <> 'OPNM101'
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
                                                         AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
                                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
@@ -469,7 +479,13 @@ if (file_exists($logoPath)) {
                                                             )  AS sub
                                                             WHERE TEMPLATE <> '304'
                                                             GROUP BY 
+                                                            ITEMTYPECODE,
                                                             TEMPLATE,
+                                                            DECOSUBCODE01,
+                                                            DECOSUBCODE02,
+                                                            DECOSUBCODE03,
+                                                            SATUAN_MASUK)
+                                                            GROUP BY 
                                                             ITEMTYPECODE,
                                                             DECOSUBCODE01,
                                                             DECOSUBCODE02,
@@ -633,6 +649,19 @@ if (file_exists($logoPath)) {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal
+                                    FROM                                                      
+                                     (SELECT distinct
+                                        tgl_tutup,
+                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                        KODE_OBAT,
+                                        LONGDESCRIPTION,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        LOGICALWAREHOUSECODE,
+                                        WHSLOCATIONWAREHOUSEZONECODE,
+                                        LOTCODE,
+                                        BASEPRIMARYQUANTITYUNIT
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
@@ -644,7 +673,7 @@ if (file_exists($logoPath)) {
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  IN ('M510','M101')
                                                 AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
-                                        )
+                                        )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");    
                                     } 
             $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
@@ -676,14 +705,14 @@ if (file_exists($logoPath)) {
                 <td class='int' style='text-align:center'>{$no}</td>
                 <td>{$row['KODE_OBAT']}</td>
                 <td>{$row['LONGDESCRIPTION']}</td>
-                <td class='number'>" . number_format($qty_awal, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_masuk, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_Keluar, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_Transfer, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($total_out, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_Balance_stock_gd_pisah, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_stock_minimum, 2, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_stock_buka_PO, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_awal, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_masuk, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Keluar, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Transfer, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($total_out, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Balance_stock_gd_pisah, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_stock_minimum, 0, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_stock_buka_PO, 0, '.', ',') . "</td>
                 <td style='{$style}'>" . htmlspecialchars($status) . "</td>
                 <td>{$row['NOTELAB']}</td>
                 <td>{$row['CERTIFICATION']}</td>

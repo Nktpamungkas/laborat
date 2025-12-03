@@ -75,7 +75,7 @@ if (file_exists($logoPath)) {
         }
 
         .number {
-            mso-number-format: "#,##0.00";
+            mso-number-format: "#,##0";
         }
 
         .int {

@@ -75,7 +75,7 @@ if (file_exists($logoPath)) {
         }
 
         .number {
-            mso-number-format: "#,##0.00";
+            mso-number-format: "#,##0";
         }
 
         .int {
@@ -152,7 +152,7 @@ if (file_exists($logoPath)) {
         while ($r = mysqli_fetch_array($sql)) {
             echo "<tr>";
             echo "<td class='int' style='text-align:center'>$no</td>";
-            echo "<td colspan='1'>{$r['kode_obat']}</td>";
+            echo "<td colspan='1' style='text-align:center'>{$r['kode_obat']}</td>";
             echo "<td colspan='2'>{$r['nama_obat']}</td>";
             echo "<td class='number'>{$r['qty_awal']}</td>";
             echo "<td class='number'>{$r['stock_masuk']}</td>";

@@ -1,14 +1,14 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
 // tanggal 1 di bulan berjalan jam 23:00:00
-$awaltanggal = date('2025-11-01 23:01:00');
+$awaltanggal = date('Y-m-01 23:01:00');
 
 // Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
 
 // Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
-$akhir = date('2025-11-30 23:00:00');
-// $akhir = '2025-11-30';
+$akhir = date('Y-m-t 23:00:00');
+// $akhir = '2025-10-21';
 
 $awalParam = $_GET['awal'] ?? '';
 $Bln2 = (new DateTime($awalParam))->format('m');
@@ -87,7 +87,7 @@ if (file_exists($logoPath)) {
         border: 1px solid #000;
     }
     /* 2 desimal + pemisah ribuan (Excel akan sesuaikan tanda sesuai regional) */
-    .number { mso-number-format: "#,##0"; }
+    .number { mso-number-format: "#,##0.00"; }
     /* untuk kolom No dengan pemisah ribuan (jika perlu) */
     .int    { mso-number-format: "#,##0"; }
     th { background-color: #f0f0f0; }
@@ -180,7 +180,7 @@ if (file_exists($logoPath)) {
                                 $stock_transfer = db2_exec($conn1, "SELECT 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
-                                        round(sum(QTY_TRANSFER)) AS QTY_TRANSFER,
+                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
                                         SATUAN_TRANSFER
                                         FROM 
                                         (SELECT 
@@ -214,7 +214,7 @@ if (file_exists($logoPath)) {
                                              LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                             AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
+                                             AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
 --                                            AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                             AND s.TEMPLATECODE IN ('201','203','303')
                                             AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
@@ -236,7 +236,7 @@ if (file_exists($logoPath)) {
                                     $stock_masuk = db2_exec($conn1, "SELECT 
                                     ITEMTYPECODE,
                                     DECOSUBCODE01,
-                                    round(sum(QTY_MASUK)) AS QTY_MASUK,
+                                    sum(QTY_MASUK) AS QTY_MASUK,
                                     SATUAN_MASUK
                                     FROM 
                                     (SELECT 
@@ -269,13 +269,13 @@ if (file_exists($logoPath)) {
                                         LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
                                     WHERE
                                         s.ITEMTYPECODE = 'DYC'
-                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
+                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
                                         -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                        AND NOT COALESCE(TRIM( CASE 
+                                         AND COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                                                                 ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','304M510')
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '') <> 'OPNM101'
                                         and s.CREATIONUSER != 'MT_STI'
                                         AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
@@ -296,7 +296,7 @@ if (file_exists($logoPath)) {
                                     $qty_pakai = db2_exec($conn1, "SELECT 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
-                                        round(sum(AKTUAL_QTY_KELUAR)) AS AKTUAL_QTY_KELUAR,
+                                        sum(AKTUAL_QTY_KELUAR) AS AKTUAL_QTY_KELUAR,
                                         SATUAN
                                         FROM 
                                         (SELECT
@@ -317,7 +317,7 @@ if (file_exists($logoPath)) {
                                             STOCKTRANSACTION s
                                         WHERE
                                             s.ITEMTYPECODE = 'DYC'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
+                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal' AND '$akhir'
                                             --  AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                             AND s.TEMPLATECODE  IN ('120','098')
                                             AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
@@ -333,7 +333,7 @@ if (file_exists($logoPath)) {
                                     $Balance_stock = db2_exec($conn1, "SELECT 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,
-                                        round(SUM(STOCK_BALANCE)) AS STOCK_BALANCE,
+                                        SUM(STOCK_BALANCE) AS STOCK_BALANCE,
                                         BASEPRIMARYUNITCODE
                                         FROM
                                         (SELECT 	TRIM(DECOSUBCODE01) || '-' || TRIM(DECOSUBCODE02) || '-' || TRIM(DECOSUBCODE03) AS KODE_OBAT,
@@ -419,9 +419,9 @@ if (file_exists($logoPath)) {
                                             COUNTERCODE,
                                             DECOSUBCODE01,
                                             CASE 
-                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN round(sum(BASEPRIMARYQUANTITY)*1000)
-                                                WHEN BASEPRIMARYUNITCODE = 't' THEN round(sum(BASEPRIMARYQUANTITY)*1000000)
-                                                else round(sum(BASEPRIMARYQUANTITY))
+                                                WHEN BASEPRIMARYUNITCODE = 'kg' THEN sum(BASEPRIMARYQUANTITY)*1000
+                                                WHEN BASEPRIMARYUNITCODE = 't' THEN sum(BASEPRIMARYQUANTITY)*1000000
+                                                else sum(BASEPRIMARYQUANTITY)
                                             END AS QTY,
                                             CASE 
                                                 WHEN BASEPRIMARYUNITCODE = 'kg' THEN 'g'
@@ -443,7 +443,7 @@ if (file_exists($logoPath)) {
                                     $row_buka_po = db2_fetch_assoc($buka_po) ?: [];
 
                                     $tahunBulan = date('Y-m', strtotime($akhir));
-                                    // $tgl_kurang_satu = date('Y-m-d', strtotime($awal . ' -1 day'));
+
                                     $date = new DateTime($akhir);
                                     $date->modify('-1 month');
                                     $tahunBulan2 = $date->format('Y-m');
@@ -451,7 +451,7 @@ if (file_exists($logoPath)) {
                                     if ($tahunBulan2 == '2025-09') {
                                         $q_qty_awal = mysqli_query($con, "SELECT
                                             SUBCODE01,
-                                            round(SUM(qty_awal)) AS qty_awal
+                                            SUM(qty_awal) AS qty_awal
                                                 FROM
                                                 (SELECT * 
                                             FROM stock_awal_obat_gdkimia_1
@@ -468,22 +468,15 @@ if (file_exists($logoPath)) {
                                                 tahun_bulan,
                                                 DECOSUBCODE01,
                                                 SUM(BASEPRIMARYQUANTITYUNIT*1000) AS qty_awal 
-                                                from(
-                                                SELECT DISTINCT
+                                                from(SELECT DISTINCT
                                                 tgl_tutup,
                                                 DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                                KODE_OBAT,
-                                                LOTCODE,
                                                 DECOSUBCODE01,
-                                                DECOSUBCODE02,
-                                                DECOSUBCODE03,
-                                                LONGDESCRIPTION,
-                                                WHSLOCATIONWAREHOUSEZONECODE,
                                                 BASEPRIMARYQUANTITYUNIT
                                             FROM tblopname_11 t
                                             WHERE 
                                                 DECOSUBCODE01 = '$row[DECOSUBCODE01]'
-                                                AND LOGICALWAREHOUSECODE  IN ('M510', 'M101')  
+                                                AND LOGICALWAREHOUSECODE IN ('M510', 'M101') 
                                                 AND tgl_tutup = (
                                                     SELECT MAX(tgl_tutup)
                                                     FROM tblopname_11
@@ -491,9 +484,8 @@ if (file_exists($logoPath)) {
                                                         DECOSUBCODE01  = '$row[DECOSUBCODE01]'
                                                         and not KODE_OBAT ='E-1-000'
                                                         AND LOGICALWAREHOUSECODE IN ('M510', 'M101') 
-                                                        AND  tgl_tutup = '$awal'
-                                                ) and not KODE_OBAT ='E-1-000'
-                                                ) as sub
+                                                        AND DATE_FORMAT(tgl_tutup, '%Y-%m') = '$tahunBulan2'
+                                                ) and not KODE_OBAT ='E-1-000') as sub
                                             GROUP BY tgl_tutup, DECOSUBCODE01");
                                     }                                
                                     $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
@@ -503,7 +495,7 @@ if (file_exists($logoPath)) {
             $qty_masuk = fmt2($row_stock_masuk['QTY_MASUK'] ?? 0);
             $qty_Keluar = fmt2($row_qty_pakai['AKTUAL_QTY_KELUAR'] ?? 0);
             $qty_Transfer = fmt2($row_stock_transfer['QTY_TRANSFER'] ?? 0);
-            $qty_Balance = fmt2($row_balance['STOCK_BALANCE'] ?? 0);
+            $qty_Balance_pisah = fmt2($row_Balance_stock_gd_pisah['STOCK_BALANCE'] ?? 0);
             $qty_stock_minimum = fmt2($row['SAFETYSTOCK'] ?? 0);
             $qty_stock_buka_PO = fmt2($row_buka_po['QTY'] ?? 0);
 
@@ -512,16 +504,16 @@ if (file_exists($logoPath)) {
 
             echo "<tr>
                 <td class='int' style='text-align:center'>{$no}</td>
-                <td style='text-align:center' >{$row['DECOSUBCODE01']}</td>
+                <td>{$row['DECOSUBCODE01']}</td>
                 <td colspan='2'>{$row['LONGDESCRIPTION']}</td>
-                <td class='number'>" . number_format($qty_awal, 0, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_masuk, 0, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_Keluar, 0, '.', ',') . "</td>
-                <td class='number'>" . number_format($qty_Transfer, 0, '.', ',') . "</td>
-                <td class='number'>" . number_format($total_out, 0, '.', ',') . "</td>
-                <td class='number'>" . '0' . "</td>
-                <td  class='number'>" . '0' . "</td>
-                <td  class='number'>" . '0' . "</td>
+                <td class='number'>" . number_format($qty_awal, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_masuk, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Keluar, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Transfer, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($total_out, 2, '.', ',') . "</td>
+                <td class='number'>" . number_format($qty_Balance_pisah, 2, '.', ',') . "</td>
+                <td  class='number'>" . '0.00' . "</td>
+                <td  class='number'>" . '0.00' . "</td>
                 <td>".' '."</td>
                 <td>" . ' ' . "</td>
                 <td>" . ' ' . "</td>
