@@ -516,9 +516,10 @@ try {
         $warna_short = trim(strtok($warna_short, '-'));
     }
 
-    // - COLOR CODE & LAB DIP NO dari STDCCKWARNA (contoh:
-    //   "Previous Order - 6400/181448M-C ( ... )" atau
-    //   "Labdip - 12367/121274D-C ( ... )")
+    // - COLOR CODE & LAB DIP NO dari STDCCKWARNA, contoh:
+    //   "Previous Order - 6400/181448M-C ( ... )"
+    //   "Labdip - 12367/121274D-C ( ... )"
+    //   "First Lot - 21120/230538D-B, LANJUT PROCESS"
     if ($cocok_warna) {
         if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
             $color_code = $m[1];
@@ -529,6 +530,10 @@ try {
         // Pola khusus "Labdip - 12367/121274D-C ( ... )"
         if (!$no_warna && preg_match('/Labdip\\s*-\\s*([^()]+)/i', $cocok_warna, $m3)) {
             $no_warna = trim($m3[1]);
+        }
+        // Pola "First Lot - 21120/230538D-B, LANJUT PROCESS"
+        if (!$no_warna && preg_match('/First Lot\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
+            $no_warna = trim($m4[1]);
         }
     }
 
