@@ -1,6 +1,8 @@
 <?php
 session_start();
 include '../../koneksi.php';
+include '../../includes/insert_balance_transaction_helper.php';
+include '../../includes/check_stock_balance_before_dispensing.php';
 header('Content-Type: application/json');
 
 $response = ['success' => false];
@@ -23,23 +25,36 @@ if (!$userScheduled) {
 
 if (isset($data['assignments']) && is_array($data['assignments'])) {
     $submitted_ids = [];
+
+    $check = checkStockAvailability($con, $data['assignments']);
+
+    if (!$check['ok']) {
+        
+        $response = [
+            'success' => false,
+            'message' => $check['message'],
+            'detail' => $check['failed']
+        ];
+        echo json_encode($response);
+        return;
+    }
     
-    // foreach ($data['assignments'] as $item) {
-    //     $id = intval($item['id_schedule']);
-    //     $machine = trim($item['machine']);
-    //     $group = trim($item['group']);
+    foreach ($data['assignments'] as $item) {
+        $id = intval($item['id_schedule']);
+        $machine = trim($item['machine']);
+        $group = trim($item['group']);
 
-    //     if ($id && $machine) {
-    //         $stmt = $con->prepare("UPDATE tbl_preliminary_schedule 
-    //                                SET no_machine = ?, id_group = ?, status = 'scheduled' 
-    //                                WHERE id = ?");
-    //         $stmt->bind_param("ssi", $machine, $group, $id);
-    //         $stmt->execute();
-    //         $stmt->close();
+        if ($id && $machine) {
+            $stmt = $con->prepare("UPDATE tbl_preliminary_schedule 
+                                   SET no_machine = ?, id_group = ?, status = 'scheduled' 
+                                   WHERE id = ?");
+            $stmt->bind_param("ssi", $machine, $group, $id);
+            $stmt->execute();
+            $stmt->close();
 
-    //         $submitted_ids[] = $id;
-    //     }
-    // }
+            $submitted_ids[] = $id;
+        }
+    }
 
     // 1️⃣ Ambil mesin yang sibuk SEBELUM pemrosesan input
     $busyStatuses = ['scheduled', 'in_progress_dispensing', 'in_progress_dyeing', 'stop_dyeing'];
@@ -58,6 +73,7 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
     }
     $stmtBusy->close();
 
+
     // 2️⃣ Loop inputan baru
     foreach ($data['assignments'] as $item) {
         $id = intval($item['id_schedule']);
@@ -74,6 +90,9 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
             $stmt->close();
             $submitted_ids[] = $id;
 
+            // PANGGIL function insert balance
+            insertBalanceTransaction($con, $id);
+
             // ❗ Cek apakah mesin sudah sibuk SEBELUMNYA
             if (in_array($machine, $mesin_sibuk_sebelumnya)) {
                 $stmt = $con->prepare("UPDATE tbl_preliminary_schedule SET is_old_data = 1 WHERE id = ?");
@@ -84,7 +103,7 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
         }
     }
 
-    // 🔁 Tandai data yang tidak dipilih sebagai is_old_data = 1
+    // // 🔁 Tandai data yang tidak dipilih sebagai is_old_data = 1
     if (isset($data['all_ids']) && is_array($data['all_ids'])) {
         $all_ids = array_map('intval', $data['all_ids']);
         $not_selected_ids = array_diff($all_ids, $submitted_ids);

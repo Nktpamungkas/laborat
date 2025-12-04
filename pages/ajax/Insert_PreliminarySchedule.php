@@ -12,6 +12,11 @@ $temp_1         = trim(htmlspecialchars($_POST['temp_1']));
 $temp_2         = trim(htmlspecialchars($_POST['temp_2']));
 $username       = $_SESSION['userLAB'] ?? null;
 
+// Element balance
+$element_id     = trim(htmlspecialchars($_POST['element'])) ?? '';
+$kain_qty       = (int) $_POST['kain_qty'];
+$kain_qty_test  = (int) $_POST['kain_qty_test'];
+
 if (!$username) {
     echo json_encode([
         'success' => false,
@@ -126,43 +131,68 @@ try {
     //     }
     // }
 
-    //  INSERT MODEL BARU
-    $values = [];
-    $valuesTest = [];
-    $insertedCount = 0;
-    $errorMessages = [];
+    // Prepare statement untuk insert parent
+    $stmtInsertParent = $con->prepare("
+        INSERT INTO tbl_preliminary_schedule (no_resep, code, username, is_test) 
+        VALUES (?, ?, ?, ?)
+    ");
 
+    if (!$stmtInsertParent) {
+        throw new Exception("Prepare insert parent failed: " . $con->error);
+    }
+
+    // Prepare statement untuk insert child
+    $stmtInsertChild = $con->prepare("
+        INSERT INTO tbl_preliminary_schedule_element (tbl_preliminary_schedule_id, element_id, qty)
+        VALUES (?, ?, ?)
+    ");
+
+    if (!$stmtInsertChild) {
+        throw new Exception("Prepare insert child failed: " . $con->error);
+    }
+
+    $insertedCount = 0;
     $no_resep_esc = $con->real_escape_string($no_resep);
     $temp_1_esc = $con->real_escape_string($temp_1);
     $username_esc = $con->real_escape_string($username);
-    
+
+    // Insert test bottles
     for ($i = 0; $i < $bottle_qty_test; $i++) {
-        $valuesTest[] = "('$no_resep_esc', '$temp_1_esc', '$username_esc', 1)";
-    }
+        // is_test = 1
+        $stmtInsertParent->bind_param("sssi", $no_resep_esc, $temp_1_esc, $username_esc, $is_test);
+        $is_test = 1;
 
-    for ($i = 0; $i < $bottle_qty_1; $i++) {
-        $values[] = "('$no_resep_esc', '$temp_1_esc', '$username_esc')";
-    }
+        if (!$stmtInsertParent->execute()) {
+            throw new Exception("Insert schedule (test) failed: " . $stmtInsertParent->error);
+        }
 
-    if (!empty($valuesTest)) {
-        $values_str_test = implode(',', $valuesTest);
-        $sql = "INSERT INTO tbl_preliminary_schedule (no_resep, code, username, is_test) VALUES $values_str_test";
+        $lastId = $stmtInsertParent->insert_id;
+        $insertedCount++;
 
-        if ($con->query($sql)) {
-            $insertedCount += $bottle_qty_test;
-        } else {
-            $errorMessages[] = "Insert failed: " . $con->error;
+        // insert element
+        $stmtInsertChild->bind_param("isi", $lastId, $element_id, $kain_qty_test);
+        if (!$stmtInsertChild->execute()) {
+            throw new Exception("Insert element (test) failed: " . $stmtInsertChild->error);
         }
     }
 
-    if (!empty($values)) {
-        $values_str = implode(',', $values);
-        $sql = "INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES $values_str";
+    // Insert normal bottles
+    for ($i = 0; $i < $bottle_qty_1; $i++) {
+        // is_test = 0
+        $stmtInsertParent->bind_param("sssi", $no_resep_esc, $temp_1_esc, $username_esc, $is_test);
+        $is_test = 0;
 
-        if ($con->query($sql)) {
-            $insertedCount += $bottle_qty_1;
-        } else {
-            $errorMessages[] = "Insert failed: " . $con->error;
+        if (!$stmtInsertParent->execute()) {
+            throw new Exception("Insert schedule failed: " . $stmtInsertParent->error);
+        }
+
+        $lastId = $stmtInsertParent->insert_id;
+        $insertedCount++;
+
+        // insert element
+        $stmtInsertChild->bind_param("isi", $lastId, $element_id, $kain_qty);
+        if (!$stmtInsertChild->execute()) {
+            throw new Exception("Insert element failed: " . $stmtInsertChild->error);
         }
     }
 

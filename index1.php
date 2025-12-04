@@ -525,6 +525,10 @@ $page = strtolower($page);
                                                         echo "active";
                                                     } ?>"><a href="?p=Laporan-Kartu-Stock"><i class="fa fa-list-alt text-primary"></i> <span>Laporan & Kartu Stock</span></a>
                                         </li>
+                                        <li class="<?php if ($_GET['p'] == "Balances") {
+                                                        echo "active";
+                                                    } ?>"><a href="?p=Balances"><i class="fa fa-list-alt text-primary"></i> <span>Balances</span></a>
+                                        </li>
                                     <?php endif; ?>
 
                                     <!-- Bon Order Submenu -->
