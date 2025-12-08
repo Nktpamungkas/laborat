@@ -49,7 +49,8 @@
             tgl_delivery='$_POST[tgl_delivery]',
             jenis_matching='$_POST[jen_matching]',
             temp_code='$tempCode',
-            temp_code2='$tempCode2'
+            temp_code2='$tempCode2',
+            for_forecast='$_POST[for_forecast]'
             where no_resep = '$_POST[no_resep]' LIMIT 1
             ");
 

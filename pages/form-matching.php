@@ -881,24 +881,6 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="order" class="col-sm-2 control-label">For Forecast?</label>
-		<div class="col-sm-1">
-			<input type="hidden" name="for_forecast" value="0">
-			<div class="checkbox" style="margin-top: 5px;">
-				<label>
-					<input type="checkbox" id="for_forecast" name="for_forecast" value="1">
-					Yes
-				</label>
-			</div>
-		</div>
-		<div class="col-sm-2">
-			<span style="color: red;">
-				*Apakah kartu matching ini digunakan untuk forecast? <br>
-				Jika ya, silahkah pilih "Yes" pada pilihan di samping.
-			</span>
-		</div>
-	</div>
-	<div class="form-group">
 		<label for="demand" class="col-sm-2 control-label" style="font-style: italic;">No Production Demand</label>
 		<div class="col-sm-2">
 			<select name="demand" id="demand" class="form-control" style="width: 100%;">
@@ -1001,6 +983,24 @@
 																						echo "checked";
 																					}
 																				}  ?> value="1">
+		</div>
+	</div>
+		<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">For Forecast?</label>
+		<div class="col-sm-1">
+			<input type="hidden" name="for_forecast" value="0">
+			<div class="checkbox" style="margin-top: 5px;">
+				<label>
+					<input type="checkbox" id="for_forecast" name="for_forecast" value="1">
+					Yes
+				</label>
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<span style="color: red;">
+				*Apakah kartu matching ini digunakan untuk forecast? <br>
+				Jika ya, silahkah pilih "Yes" pada pilihan di samping.
+			</span>
 		</div>
 	</div>
 	<div class="form-group">
