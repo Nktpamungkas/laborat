@@ -62,12 +62,13 @@ $data = [
 if ($element_id !== '') {
   $sql = "SELECT ELEMENTSCODE AS element_code,
         CONCAT(
-            COALESCE(TRIM(DECOSUBCODE01),'') ,
-            COALESCE(TRIM(DECOSUBCODE02),'') ,
-            COALESCE(TRIM(DECOSUBCODE03),'') ,
+            COALESCE(TRIM(DECOSUBCODE01),'') ,'-',
+            COALESCE(TRIM(DECOSUBCODE02),'') ,'',
+            COALESCE(TRIM(DECOSUBCODE03),'') ,'-',
             COALESCE(TRIM(DECOSUBCODE04),'')
         ) AS item_code,
         LOTCODE AS lot_code, 
+        PROJECTCODE AS project_code,
         WAREHOUSELOCATIONCODE AS loc_code, 
         BASEPRIMARYQUANTITYUNIT AS qty
         FROM balance WHERE NUMBERID = ? LIMIT 1";
@@ -79,6 +80,7 @@ if ($element_id !== '') {
       $data['element_code'] = $row['element_code'] ?? '';
       $data['item_code'] = $row['item_code'] ?? '';
       $data['lot_code'] = $row['lot_code'] ?? '';
+      $data['project_code'] = $row['project_code'] ?? '';
       $data['loc_code'] = $row['loc_code'] ?? '';
       $data['qty'] = floatval($row['qty']) ?: 0;
       $data['created_at'] = date('d M Y H:i');
@@ -143,7 +145,7 @@ $pdf->Cell($left_w, 6, 'GREIGE FABRIC LABEL-1', 0, 1, 'L', 0, '', 0);
 // small subtitle / order
 $pdf->SetFont('helvetica', 'B', 11);
 $pdf->SetXY(20, 10 + $offsetY);
-$pdf->Cell($left_w, 6, 'Order Nr :', 0, 1, 'L', 0, '', 0);
+$pdf->Cell($left_w, 6, 'Order Nr : '. $data['project_code'], 0, 1, 'L', 0, '', 0);
 
 // Item code (prominent)
 $pdf->SetFont('helvetica', 'B', 10);
