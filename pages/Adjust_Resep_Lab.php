@@ -986,26 +986,24 @@ $data = mysqli_fetch_array($sql); ?>
         $('#tfoot').hide()
 
         $('#plus_c1').click(function() {
-            var attribute = $("#th-lookup1 tr th:last").prev();
-            var attri = attribute.attr('flag_th')
-            var goesto = $('#tb-lookup1 tr td:last').prev();
-            var goes = goesto.attr('flag_td');
-            if (attri == undefined) {
-                var flag = 1;
-            } else if (attri == '10') {
+            var lastConcTh = $("#th-lookup1 tr th.th_conc").last();
+            var lastFlag = lastConcTh.attr('flag_th') ? parseInt(lastConcTh.attr('flag_th')) : 0;
+            if (lastFlag == 10) {
                 toastr.error('Adjust maximal in 9 column !');
-            } else {
-                var flag = parseInt(attri) + 1;
-                var flag_td = parseInt(attri) + 1;
-                $("#th-lookup1 th:last").before('<th width="60px" class="th_conc" flag_th="' + flag + '">Adjust-' + parseInt(flag - 1) + '</th>');
-                $("#tb-lookup1 tr").each(function() {
-                    if ($(this).find('td:last').prev().find('input').is('[disabled=""]')) {
-                        $(this).find('td:last').before('<td flag_td="' + flag_td + '"><input style="width: 100%" type="text" class="form-control input-xs conc" disabled="" value="0"></td>');
-                    } else {
-                        $(this).find('td:last').before('<td flag_td="' + flag_td + '"><input value="' + $(this).find('td:last').prev().children().val() + '" style="width: 100%" type="text" class="form-control input-xs conc"></td>');
-                    }
-                })
+                return;
             }
+
+            var nextFlag = lastFlag + 1;
+            var headerLabel = nextFlag === 1 ? 'Lab' : 'Adjust-' + parseInt(nextFlag - 1);
+
+            $("#th-lookup1 th:last").before('<th width="60px" class="th_conc" flag_th="' + nextFlag + '">' + headerLabel + '</th>');
+            $("#tb-lookup1 tr").each(function() {
+                var lastConcInput = $(this).find('input.conc').last();
+                var newValue = lastConcInput.length ? lastConcInput.val() : 0;
+                var isDisabled = lastConcInput.length ? lastConcInput.prop('disabled') : false;
+                var disabledAttr = isDisabled ? ' disabled=""' : '';
+                $(this).find('td:last').before('<td flag_td="' + nextFlag + '"><input value="' + newValue + '" style="width: 100%" type="text" class="form-control input-xs conc"' + disabledAttr + '></td>');
+            })
         })
 
         $('#minus_c1').click(function() {

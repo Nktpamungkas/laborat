@@ -1240,46 +1240,34 @@ $data = mysqli_fetch_array($sql); ?>
         $('#tfoot').hide()
 
         $('#plus_c1').click(function () {
-            let lastTh = $("#th-lookup1 tr th:last").prev();
-            let attri = lastTh.attr('flag_th');
-            let goesto = $('#tb-lookup1 tr td:last').prev();
-            let goes = goesto.attr('flag_td');
+            let lastConcTh = $("#th-lookup1 tr th.th_conc").last();
+            let lastFlag = lastConcTh.attr('flag_th') ? parseInt(lastConcTh.attr('flag_th')) : 0;
 
-            // tentukan flag baru
-            if (attri == undefined) {
-                var flag = 1;
-            } else if (attri == '10') {
+            if (lastFlag == 10) {
                 toastr.error('Adjust maximal in 9 column !');
                 return; // stop eksekusi
-            } else {
-                var flag = parseInt(attri) + 1;
             }
 
-            // Tambahkan header baru sebelum kolom terakhir
+            let newFlag = lastFlag + 1;
+            let headerLabel = newFlag === 1 ? 'Lab' : `Adjust-${newFlag - 1}`;
+
+            // Tambahkan header baru sebelum kolom remark terakhir
             $("#th-lookup1 th:last").before(
-                `<th width="60px" class="th_conc" flag_th="${flag}">Adjust-${flag - 1}</th>`
+                `<th width="60px" class="th_conc" flag_th="${newFlag}">${headerLabel}</th>`
             );
 
-            // Tambahkan kolom baru di setiap baris data
+            // Tambahkan kolom baru di setiap baris data dengan menyalin qty sebelumnya
             $("#tb-lookup1 tr").each(function () {
-                let lastInput = $(this).find('td:last').prev().find('input');
-                let flag_td = flag; // sinkron dengan flag_th
+                let lastConcInput = $(this).find('input.conc').last();
+                let copiedVal = lastConcInput.length ? lastConcInput.val() : 0;
+                let isDisabled = lastConcInput.length ? lastConcInput.prop('disabled') : false;
+                let disabledAttr = isDisabled ? ' disabled=""' : '';
 
-                // kalau kolom sebelumnya disabled
-                if (lastInput.is('[disabled]')) {
-                    $(this).find('td:last').before(
-                        `<td flag_td="${flag_td}">
-                            <input style="width: 100%" type="text" class="form-control input-xs conc" disabled value="0">
-                        </td>`
-                    );
-                } else {
-                    // buat kolom baru kosong (tidak menyalin value)
-                    $(this).find('td:last').before(
-                        `<td flag_td="${flag_td}">
-                            <input style="width: 100%" type="text" class="form-control input-xs conc" value="">
-                        </td>`
-                    );
-                }
+                $(this).find('td:last').before(
+                    `<td flag_td="${newFlag}">
+                        <input style="width: 100%" type="text" class="form-control input-xs conc"${disabledAttr} value="${copiedVal}">
+                    </td>`
+                );
             });
         });
 
