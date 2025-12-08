@@ -13,7 +13,8 @@ try {
                                         tbl_matching.jenis_matching,
                                         tbl_preliminary_schedule_element.element_id,
                                         balance.ELEMENTSCODE AS element_code,
-                                        tbl_preliminary_schedule_element.qty AS element_qty
+                                        tbl_preliminary_schedule_element.qty AS element_qty,
+                                        tbl_matching.for_forecast as for_forecast
                                     FROM
                                         tbl_preliminary_schedule
                                         LEFT JOIN master_suhu ON tbl_preliminary_schedule.CODE = master_suhu.CODE 

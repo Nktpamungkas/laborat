@@ -120,7 +120,7 @@ $Order      = isset($_POST['order']) ? $_POST['order'] : '';
           <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">
             <?php
             if ($Nowarna != "" or $Item != "" or $RCode != "" or $Warna != "" or $JMatching != "" or $Order != "") {
-              $sql = mysqli_query($con, "SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang, re.element_id, re.element_code,
+              $sql = mysqli_query($con, "SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang, re.element_id, re.element_code, a.for_forecast,
                                                         b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket
                                                         FROM tbl_matching a 
                                                         left join tbl_status_matching b on a.`no_resep` = b.`idm`
@@ -128,7 +128,7 @@ $Order      = isset($_POST['order']) ? $_POST['order'] : '';
                                                         where b.approve_at is null AND a.no_resep LIKE '%$RCode%' AND a.no_warna LIKE '%$Nowarna%' AND a.no_item LIKE '%$Item%' AND a.warna LIKE '%$Warna%' AND a.no_order LIKE '%$Order%' AND a.jenis_matching LIKE '%$JMatching%'
                                                         order by a.id desc");
             } else {
-              $sql = mysqli_query($con, "SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang, re.element_id, re.element_code,
+              $sql = mysqli_query($con, "SELECT a.`id`, a.`no_resep`, a.`no_order`, a.`warna`, a.`no_warna`, a.`no_item`, a.`langganan`, a.`no_po`, a.`no_item` ,b.approve, a.jenis_matching, a.benang, re.element_id, re.element_code, a.for_forecast,
                                                         b.`id` as id_status, b.status, a.status_bagi, ifnull(b.`ket`, a.note) as ket, a.tgl_update
                                                         FROM tbl_matching a 
                                                         left join tbl_status_matching b on a.`no_resep` = b.`idm`
@@ -191,31 +191,37 @@ $Order      = isset($_POST['order']) ? $_POST['order'] : '';
                     <td><?php echo $li['no_item'] ?></td>
                     <td width="150"><?php echo $li['ket'] ?></td>
                     <td width="100">
-                      <?php if ($li['jenis_matching'] != 'Perbaikan NOW' && $li['jenis_matching'] != 'Matching Development'): ?>
+                      <?php if (
+                        (
+                          $li['jenis_matching'] != 'Perbaikan NOW' &&
+                          $li['jenis_matching'] != 'Matching Development'
+                        )
+                        || !empty($li['for_forecast'])
+                      ): ?>
                         <a href="#"
                           class="openElementModal"
                           data-resep="<?php echo $li['no_resep']; ?>"
                           data-order="<?php echo $li['no_order']; ?>"
                           data-element="<?php echo htmlspecialchars($li['element_code'], ENT_QUOTES); ?>">
                           <i>
-                              <?php if (empty($li['element_code'])): ?>
-                                <button
-                                  class="btn btn-xs btn-primary openElementModal"
-                                  data-resep="<?php echo $li['no_resep']; ?>"
-                                  data-order="<?php echo $li['no_order']; ?>"
-                                  data-ket="">
-                                  +
-                                </button>
-                              <?php else: ?>
-                                <span
-                                  class="openElementModal text-primary"
-                                  style="cursor:pointer;"
-                                  data-resep="<?php echo $li['no_resep']; ?>"
-                                  data-order="<?php echo $li['no_order']; ?>"
-                                  data-ket="<?php echo htmlspecialchars($li['element_code'], ENT_QUOTES); ?>">
-                                  <?php echo $li['element_code']; ?>
-                                </span>
-                              <?php endif; ?>
+                            <?php if (empty($li['element_code'])): ?>
+                              <button
+                                class="btn btn-xs btn-primary openElementModal"
+                                data-resep="<?php echo $li['no_resep']; ?>"
+                                data-order="<?php echo $li['no_order']; ?>"
+                                data-ket="">
+                                +
+                              </button>
+                            <?php else: ?>
+                              <span
+                                class="openElementModal text-primary"
+                                style="cursor:pointer;"
+                                data-resep="<?php echo $li['no_resep']; ?>"
+                                data-order="<?php echo $li['no_order']; ?>"
+                                data-ket="<?php echo htmlspecialchars($li['element_code'], ENT_QUOTES); ?>">
+                                <?php echo $li['element_code']; ?>
+                              </span>
+                            <?php endif; ?>
                           </i>
                         </a>
                       <?php endif; ?>

@@ -1163,7 +1163,10 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                         <td ${isOldStyle}>${item.product_name}</td>
                         <td width="100" align="center" ${isOldStyle}>${item.element_code || '-'}</td>
                         <td width="50" align="right" ${isOldStyle}>
-                            ${item.jenis_matching == "Perbaikan NOW" || item.jenis_matching == "Matching Development" 
+                            ${  (
+                                    item.jenis_matching == "Perbaikan NOW" ||
+                                    item.jenis_matching == "Matching Development"
+                                ) && !item.for_forecast
                                 ? `<span class="">0</span>` 
                                 : `
                                     <span class="qty-display">${item.element_qty}</span>
