@@ -160,35 +160,35 @@ $pdf->SetXY($max_left, 25 + $offsetY);
 $pdf->Cell(20, 5, 'Lot Code', 0, 0, 'L');
 $pdf->Cell(0, 5, ": " . $data['lot_code'], 0, 1, 'L');
 
-// No MC
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetXY(50, 25 + $offsetY);
-$pdf->Cell(18, 5, 'No MC', 0, 0, 'L');
-$pdf->Cell(0, 5, ": ", 0, 1, 'L');
+// // No MC
+// $pdf->SetFont('helvetica', 'B', 10);
+// $pdf->SetXY(50, 25 + $offsetY);
+// $pdf->Cell(18, 5, 'No MC', 0, 0, 'L');
+// $pdf->Cell(0, 5, ": ", 0, 1, 'L');
 
-// Width
+// Loc Code
 $pdf->SetFont('helvetica', 'B', 10);
 $pdf->SetXY($max_left,  30 + $offsetY);
-$pdf->Cell(20, 5, 'Width', 0, 0, 'L');
-$pdf->Cell(0, 5, ": ", 0, 1, 'L');
+$pdf->Cell(20, 5, 'Loc. Code', 0, 0, 'L');
+$pdf->Cell(0, 5, ": ". $data['loc_code'], 0, 1, 'L');
 
-// Grade
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetXY(50, 30 + $offsetY);
-$pdf->Cell(18, 5, 'Grade', 0, 0, 'L');
-$pdf->Cell(0, 5, ": ", 0, 1, 'L');
+// // Grade
+// $pdf->SetFont('helvetica', 'B', 10);
+// $pdf->SetXY(50, 30 + $offsetY);
+// $pdf->Cell(18, 5, 'Grade', 0, 0, 'L');
+// $pdf->Cell(0, 5, ": ", 0, 1, 'L');
 
-// Celup
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetXY($max_left, 35 + $offsetY);
-$pdf->Cell(20, 5, 'Celup', 0, 0, 'L');
-$pdf->Cell(0, 5, ": ", 0, 1, 'L');
+// // Celup
+// $pdf->SetFont('helvetica', 'B', 10);
+// $pdf->SetXY($max_left, 35 + $offsetY);
+// $pdf->Cell(20, 5, 'Celup', 0, 0, 'L');
+// $pdf->Cell(0, 5, ": ", 0, 1, 'L');
 
-// Rak
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetXY(50, 35 + $offsetY);
-$pdf->Cell(18, 5, 'Loc. Code', 0, 0, 'L');
-$pdf->Cell(0, 5, ": " . $data['loc_code'], 0, 1, 'L');
+// // Rak
+// $pdf->SetFont('helvetica', 'B', 10);
+// $pdf->SetXY(50, 35 + $offsetY);
+// $pdf->Cell(18, 5, 'Loc. Code', 0, 0, 'L');
+// $pdf->Cell(0, 5, ": " . $data['loc_code'], 0, 1, 'L');
 
 // small table Gross / Net (placed below Lot Code)
 $pdf->SetXY($max_left, 45 + $offsetY);

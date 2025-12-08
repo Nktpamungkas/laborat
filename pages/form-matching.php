@@ -137,6 +137,9 @@
 			$suhuchamber 	= $_POST['suhu_chamber'] !== '' ? $_POST['suhu_chamber'] : ($_POST['none_suhu_chamber'] !== '' ? $_POST['none_suhu_chamber'] : null);
 			$warnafluorescent	= $_POST['warna_fluorescent'];
 
+			// Checkbox "For Forecast?" -> kirim 1 jika diceklis, else 0
+			$for_forecast	= (isset($_POST['for_forecast']) && $_POST['for_forecast'] == '1') ? 1 : 0;
+
 			$qry = mysqli_query($con, "INSERT INTO tbl_matching SET
 					no_resep='$no_resep',
 					no_order='$_POST[no_order]',
@@ -166,7 +169,8 @@
 					salesman_sample='" . $salesman . "',
 					created_by = '$_SESSION[userLAB]',
 					suhu_chamber = '$suhuchamber',
-					warna_flourescent = '$warnafluorescent'
+					warna_flourescent = '$warnafluorescent',
+					for_forecast = '$for_forecast'
 					");
  
 			// update nomor urut terakhir
@@ -869,11 +873,29 @@
 	
 </div>
 <!-- ////////////////////////////////////////////////////////////////////// Development -->
-	<div id="Development" style="display: none;">
+<div id="Development" style="display: none;">
 	<div class="form-group">
 		<label for="order" class="col-sm-2 control-label">No Order</label>
 		<div class="col-sm-4">
 			<input name="no_order" type="text" class="form-control orderdevelopment" id="order" required placeholder="No Order..." value="<?= $_GET['idk']; ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="order" class="col-sm-2 control-label">For Forecast?</label>
+		<div class="col-sm-1">
+			<input type="hidden" name="for_forecast" value="0">
+			<div class="checkbox" style="margin-top: 5px;">
+				<label>
+					<input type="checkbox" id="for_forecast" name="for_forecast" value="1">
+					Yes
+				</label>
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<span style="color: red;">
+				*Apakah kartu matching ini digunakan untuk forecast? <br>
+				Jika ya, silahkah pilih "Yes" pada pilihan di samping.
+			</span>
 		</div>
 	</div>
 	<div class="form-group">
