@@ -631,9 +631,42 @@
         }
 
         function getDispensingCodeFromNoResep(noResep) {
-            const match = dispensingData.find(item => item.no_resep === noResep);
+            const target = (noResep || "").trim().toUpperCase();
+
+            // 1) Cari hanya baris yang masih aktif (belum pass dispensing)
+            const candidates = dispensingData.filter(item => {
+                const resepDb = (item.no_resep || "").trim().toUpperCase();
+                const pass   = Number(item.pass_dispensing || 0);
+                const status = (item.status || '').toLowerCase();
+
+                return resepDb === target
+                    && pass === 0
+                    && (status === 'scheduled' || status === 'in_progress_dispensing');
+            });
+
+            // 2) Pilih satu kandidat (id paling besar = data terbaru)
+            let match = null;
+            if (candidates.length > 0) {
+                match = candidates.sort((a, b) => Number(b.id) - Number(a.id))[0];
+            } else {
+                // 3) Fallback: kalau nggak ada yg aktif, baru ambil yg mana aja (opsional)
+                match = dispensingData.find(item => {
+                    const resepDb = (item.no_resep || "").trim().toUpperCase();
+                    return resepDb === target;
+                });
+            }
+
+            console.log(
+                '[getDispensingCodeFromNoResep]',
+                '\n  input        :', `"${noResep}"`,
+                '\n  target_trim  :', `"${target}"`,
+                '\n  candidates   :', candidates,
+                '\n  chosen_match :', match,
+                '\n  dispensing   :', match ? `"${(match.dispensing || "").trim()}"` : null
+            );
+
             if (!match) return null;
-            return match.dispensing?.trim() ?? "";
+            return (match.dispensing || "").trim();
         }
 
     });

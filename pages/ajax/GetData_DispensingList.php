@@ -19,7 +19,7 @@ try {
                 THEN LEFT(tbl_preliminary_schedule.no_resep, LENGTH(tbl_preliminary_schedule.no_resep) - 2)
                 ELSE tbl_preliminary_schedule.no_resep
             END = tbl_matching.no_resep
-        WHERE tbl_preliminary_schedule.status NOT IN ('ready', 'repeat')
+        WHERE tbl_preliminary_schedule.status NOT IN ('ready')
         ORDER BY
             CASE 
                 WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
