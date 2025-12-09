@@ -481,7 +481,7 @@ try {
     if ($stmtCckStd && db2_execute($stmtCckStd, [$projectCode, $orderLine])) {
         $r_cck_std = db2_fetch_assoc($stmtCckStd);
         if ($r_cck_std) {
-            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? '');
+            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? 'aaa');
         }
     }
 
@@ -533,6 +533,10 @@ try {
         }
         // Pola "First Lot - 21120/230538D-B, LANJUT PROCESS"
         if (!$no_warna && preg_match('/First Lot\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
+            $no_warna = trim($m4[1]);
+        }
+        // Pola "Body - 21120/230538D-B, LANJUT PROCESS"
+        if (!$no_warna && preg_match('/Body\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
             $no_warna = trim($m4[1]);
         }
     }
