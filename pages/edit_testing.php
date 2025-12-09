@@ -46,6 +46,8 @@
         $kain = mysqli_real_escape_string($con, $_POST['jenis_kain']);
         $nama = mysqli_real_escape_string($con, $_POST['nama']);
         $sts = mysqli_real_escape_string($con, $_POST['sts']);
+        $cck_warna = mysqli_real_escape_string($con, $_POST['cck_warna']);
+        $note_lab = mysqli_real_escape_string($con, $_POST['note_lab']);
 
         $checkbox1 = $_POST['colorfastness'];
 
@@ -65,6 +67,8 @@
               jenis_kain = '$kain',
               nama_personil_test = '$nama',
               sts = '$sts',
+              cocok_warna = 'cck_warna',
+              note_laborat = '$note_lab',
               permintaan_testing ='$chkc'
               WHERE id = '$id'";
 
@@ -140,6 +144,8 @@
                             $jenis_kain = $data['jenis_kain'];
                             $nama_personil_test = $data['nama_personil_test'];
                             $sts = $data['sts'];
+                            $cck_warna = $data['cocok_warna'];
+                            $note_lab = $data['note_laborat'];
 
                             $permintaan_testing = $data['permintaan_testing'];
                             $detail2 = explode(",", $permintaan_testing);
@@ -212,6 +218,12 @@
                                         <label for="jenis_kain" class="col-sm-2 control-label">Jenis Kain</label>
                                         <div class="col-sm-8">
                                             <input name="jenis_kain" type="text" class="form-control" id="jenis_kain" placeholder="Jenis Kain" value="<?php echo $jenis_kain; ?>">
+                                        </div>
+                                    </div>
+                                     <div class="form-group">
+                                        <label for="cck_warna" class="col-sm-2 control-label">Cocok Warna</label>
+                                        <div class="col-sm-6">
+                                            <input name="cck_warna" type="text" class="form-control" id="cck_warna" placeholder="Cocok Warna" value="<?php echo $cck_warna; ?>">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -309,7 +321,14 @@
                                             <select class="form-control select2" id="sts" name="sts" required>
                                                 <option value="normal" <?php ($sts == 'normal') ? 'selected' : '' ?>>Normal</option>
                                                 <option value="urgent" <?php ($sts == 'urgent') ? 'selected' : '' ?>>Urgent</option>
+                                                <option value="request" <?php ($sts == 'request') ? 'selected' : '' ?>>Request</option>
                                             </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="note_lab" class="col-sm-2 control-label">Note Lab</label>
+                                        <div class="col-sm-6">
+                                            <input name="note_lab" type="text" class="form-control" id="note_lab" placeholder="Note Lab" value="<?php echo $note_lab; ?>">
                                         </div>
                                     </div>
                                     <div class="box-footer">

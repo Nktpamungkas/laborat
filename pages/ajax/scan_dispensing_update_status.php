@@ -27,7 +27,7 @@ try {
         FROM tbl_preliminary_schedule ps
         LEFT JOIN master_suhu ms ON ps.code = ms.code
         WHERE 
-            ps.status NOT IN ('ready')
+            ps.status NOT IN ('ready', 'repeat')
             AND (
                 (? = '' AND (COALESCE(ms.dispensing, '') NOT IN ('1', '2', '3')))
                 OR ms.dispensing = ?
