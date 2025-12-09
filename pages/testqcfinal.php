@@ -1,4 +1,4 @@
-<?php
+                                        <?php
 ini_set("error_reporting", 1);
 session_start();
 include "koneksi.php";
@@ -228,8 +228,9 @@ $role = $_SESSION['jabatanLAB']
                                                                                                     echo "label-primary";
                                                                                                 } ?>"><?php echo $r['sts_laborat']; ?></span>
                                                 <hr class="divider">
-                                                <p><strong>Note lab :</strong> <em><?php echo $r['note_laborat']; ?></em></p>
-                                                <a href="#" id='<?php echo $r['id'] ?>' class="note_laborat_edit"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                                <p><strong><em><?php echo $r['sts']; ?></em></strong></p>
+                                                <!-- <p><strong>Note lab :</strong> <em><?php echo $r['note_laborat']; ?></em></p>
+                                                <a href="#" id='<?php echo $r['id'] ?>' class="note_laborat_edit"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> -->
                                                 <hr class="divider">
                                                 <div class="btn-group">
                                                     <?php if ($r['sts_qc'] == "Belum Terima Kain") { ?>

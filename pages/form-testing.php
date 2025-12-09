@@ -90,6 +90,8 @@
 		$kain = mysqli_real_escape_string($con, $_POST['jenis_kain']);
 		$item = mysqli_real_escape_string($con, $_POST['noitem']);
 		$nama = mysqli_real_escape_string($con, $_POST['nama']);
+		$cck_warna = mysqli_real_escape_string($con, $_POST['cck_warna']);
+		$note_lab = mysqli_real_escape_string($con, $_POST['note_lab']);
 
 
 		$checkbox1 = $_POST['colorfastness'];
@@ -109,8 +111,12 @@
 				$ktjen = mysqli_real_escape_string($con, $subject1);
 				$nocount = mysqli_real_escape_string($con, $_POST['no_resep'] . "-" . $notrt);
 
-				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc (no_counter, treatment, jenis_testing, suffix, buyer, no_warna, warna, jenis_kain, no_item, permintaan_testing, nama_personil_test, tgl_buat, tgl_update, sts_laborat, sts_qc, sts, created_by)
-	                VALUES ('$nocount', '$ktjen', '$_POST[Dyestuff]', '$_POST[suffix]', '$buyer', '$nowarna', '$warna', '$kain', '$item', '$chkc', '$nama', NOW(), NOW(), 'Open', 'Belum Terima Kain', '$_POST[sts]', '$_SESSION[userLAB]')");
+				// $qry = mysqli_query($con, "INSERT INTO tbl_test_qc (no_counter, treatment, jenis_testing, suffix, buyer, no_warna, warna, jenis_kain, no_item, permintaan_testing, nama_personil_test, tgl_buat, tgl_update, sts_laborat, sts_qc, sts, created_by)
+	            //     VALUES ('$nocount', '$ktjen', '$_POST[Dyestuff]', '$_POST[suffix]', '$buyer', '$nowarna', '$warna', '$kain', '$item', '$chkc', '$nama', NOW(), NOW(), 'Open', 'Belum Terima Kain', '$_POST[sts]', '$_SESSION[userLAB]')");
+	
+				$qry = mysqli_query($con, "INSERT INTO tbl_test_qc (no_counter, treatment, jenis_testing, suffix, buyer, no_warna, warna, jenis_kain, cocok_warna, no_item, permintaan_testing, nama_personil_test, tgl_buat, tgl_update, sts_laborat, sts_qc, sts,note_laborat, created_by)
+	                VALUES ('$nocount', '$ktjen', '$_POST[Dyestuff]', '$_POST[suffix]', '$buyer', '$nowarna', '$warna', '$kain', '$cck_warna', '$item', '$chkc', '$nama', NOW(), NOW(), 'Open', 'Belum Terima Kain', '$_POST[sts]', '$note_lab', '$_SESSION[userLAB]')");
+
 
 				if (!$qry) {
 					$success = false;
@@ -412,6 +418,14 @@
 																														} ?>">
 		</div>
 	</div>
+
+	<div class="form-group">
+		<label for="warna" class="col-sm-2 control-label">Cocok Warna</label>
+		<div class="col-sm-6">
+			<input name="cck_warna" type="text" class="form-control" id="cck_warna" placeholder="Cocok Warna" value="<?= $dt['cocok_warna']; ?>">
+		</div>
+	</div>
+
 	<div class="form-group">
 		<label for="nama" class="col-sm-2 control-label">Nama Personil Testing</label>
 		<div class="col-sm-6">
@@ -508,9 +522,19 @@
 				<option value="" selected disabled>Pilih status</option>
 				<option value="normal">Normal</option>
 				<option value="urgent">Urgent</option>
+				
+				<option value="request">Request</option>
 			</select>
 		</div>
 	</div>
+
+	<div class="form-group">
+		<label for="note_lab" class="col-sm-2 control-label">Note Lab</label>
+		<div class="col-sm-6">
+			<input name="note_lab" type="text" class="form-control" id="note_lab" placeholder="Note Lab" value="" required>
+		</div>
+	</div>
+	
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>

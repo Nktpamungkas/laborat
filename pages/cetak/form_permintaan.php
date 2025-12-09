@@ -25,7 +25,7 @@ $rows = mysqli_fetch_all($sql, MYSQLI_ASSOC);
 		td,
 		th {
 			font-family: sans-serif, Roman, serif;
-			font-size: 12px;
+			font-size: 12px; 
 		}
 
 		td {
@@ -68,7 +68,14 @@ $rows = mysqli_fetch_all($sql, MYSQLI_ASSOC);
 							</tr>
 							<tr>
 								<td colspan="3" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; border-left:0px #000000 solid; border-right:0px #000000 solid;">
-									<div style="font-size: 8px;">NAMA : <?php echo isset($rows[$i]['created_by']) ? strtoupper($rows[$i]['created_by']) : ''; ?></div>
+									<div style="font-size: 8px;">COCOK WARNA : <?php echo isset($rows[$i]['sts']) ? strtoupper($rows[$i]['cocok_warna']) : ''; ?>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="3" style="border-top:0px #000000 solid; border-bottom:0px #000000 solid; border-left:0px #000000 solid; border-right:0px #000000 solid;">
+									<div style="font-size: 8px;">STATUS : <?php echo isset($rows[$i]['sts']) ? strtoupper($rows[$i]['sts']) : ''; ?>
+									</div>
 								</td>
 							</tr>
 							<tr>
