@@ -208,61 +208,42 @@ try {
         SELECT 
             p.DLVSALESORDERLINEORDERLINE,
             TRIM(p.CODE) AS DEMANDCODE,
-            TRIM(p.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
-            TRIM(p.SUBCODE01) AS SUBCODE01, 
-            TRIM(p.SUBCODE02) AS SUBCODE02,
-            TRIM(p.SUBCODE03) AS SUBCODE03, 
-            TRIM(p.SUBCODE04) AS SUBCODE04, 
-            TRIM(p.SUBCODE05) AS SUBCODE05,
-            TRIM(p.SUBCODE06) AS SUBCODE06,
-            TRIM(p.SUBCODE07) AS SUBCODE07,
-            TRIM(p.SUBCODE08) AS SUBCODE08,
-            TRIM(p.SUBCODE09) AS SUBCODE09,
-            TRIM(p.SUBCODE10) AS SUBCODE10,
-            CASE
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'KFF' AND TRIM(p.SUBCODE07) <> '-' AND TRIM(p.SUBCODE08) <> '-' THEN DESIGNCOMPONENT.SHORTDESCRIPTION
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'KFF' AND TRIM(p.SUBCODE07) = '-'  AND TRIM(p.SUBCODE08) = '-'  THEN ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'FKF' AND TRIM(p.SUBCODE07) = ''   AND TRIM(p.SUBCODE08) = ''   THEN USERGENERICGROUP.LONGDESCRIPTION
-                ELSE '-'
-            END AS WARNA
+            trim(i2.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
+            trim(i2.SUBCODE01) AS SUBCODE01, 
+            trim(i2.SUBCODE02) AS SUBCODE02,
+            trim(i2.SUBCODE03) AS SUBCODE03, 
+            trim(i2.SUBCODE04) AS SUBCODE04, 
+            trim(i2.SUBCODE05) AS SUBCODE05,
+            trim(i2.SUBCODE06) AS SUBCODE06,
+            trim(i2.SUBCODE07) AS SUBCODE07,
+            trim(i2.SUBCODE08) AS SUBCODE08,
+            trim(i2.SUBCODE09) AS SUBCODE09,
+            trim(i2.SUBCODE10) AS SUBCODE10,
+            i.WARNA AS WARNA
         FROM PRODUCTIONDEMAND p 
-        LEFT JOIN DESIGN ON DESIGN.SUBCODE01 = p.SUBCODE07
-        LEFT JOIN DESIGNCOMPONENT 
-            ON DESIGNCOMPONENT.VARIANTCODE = p.SUBCODE08 
-           AND DESIGNCOMPONENT.DESIGNNUMBERID = DESIGN.NUMBERID
-        LEFT JOIN (
-            SELECT 
-                ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-                ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-                ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-            FROM ITXVIEW_INV_RESEPCOLOR
-            GROUP BY 
-                ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-                ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-                ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-        ) ITXVIEW_INV_RESEPCOLOR 
-            ON ITXVIEW_INV_RESEPCOLOR.ARTIKEL = p.SUBCODE03 
-           AND ITXVIEW_INV_RESEPCOLOR.NO_WARNA = p.SUBCODE05
-        LEFT JOIN USERGENERICGROUP 
-            ON p.SUBCODE05 = USERGENERICGROUP.CODE 
-        WHERE p.PROJECTCODE = ?
-          AND p.DLVSALESORDERLINEORDERLINE = ?
+        LEFT JOIN ITXVIEWBONORDER i2 ON i2.SALESORDERCODE = p.ORIGDLVSALORDLINESALORDERCODE AND i2.ORDERLINE = p.ORIGDLVSALORDERLINEORDERLINE 
+        LEFT JOIN ITXVIEWCOLOR i ON i.ITEMTYPECODE = i2.ITEMTYPEAFICODE 
+                                AND i.SUBCODE01 = i2.SUBCODE01 
+                                AND i.SUBCODE02 = i2.SUBCODE02 
+                                AND i.SUBCODE03 = i2.SUBCODE03 
+                                AND i.SUBCODE04 = i2.SUBCODE04 
+                                AND i.SUBCODE05 = i2.SUBCODE05 
+                                AND i.SUBCODE06 = i2.SUBCODE06 
+                                AND i.SUBCODE07 = i2.SUBCODE07 
+                                AND i.SUBCODE08 = i2.SUBCODE08 
+                                AND i.SUBCODE09 = i2.SUBCODE09 
+                                AND i.SUBCODE10 = i2.SUBCODE10
+        LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
+        WHERE p.ORIGDLVSALORDLINESALORDERCODE = ? AND p.DLVSALESORDERLINEORDERLINE = ?
         GROUP BY 
-            p.DLVSALESORDERLINEORDERLINE,
-            p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,
-            p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,
-            p.ITEMTYPEAFICODE,
-            DESIGNCOMPONENT.SHORTDESCRIPTION,
-            ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-            USERGENERICGROUP.LONGDESCRIPTION,
-            p.CODE
+            p.DLVSALESORDERLINEORDERLINE,i2.SUBCODE01,i2.SUBCODE02,i2.SUBCODE03,i2.SUBCODE04,i2.SUBCODE05,i2.SUBCODE06,i2.SUBCODE07,i2.SUBCODE08,i2.SUBCODE09,i2.SUBCODE10,i2.ITEMTYPEAFICODE,i.WARNA,p.CODE
     ";
     $stmtColor = db2_prepare($conn1, $sqlColorCode);
     if ($stmtColor && db2_execute($stmtColor, [$projectCode, $orderLine])) {
         $assoc_colorcode = db2_fetch_assoc($stmtColor);
     }
 
-    $color_code   = '';
+    // $color_code   = '';
     $warna_short  = trim($r_item['WARNA']);
     if ($assoc_colorcode) {
         if (!empty($assoc_colorcode['SUBCODE05'])) {
@@ -521,9 +502,9 @@ try {
     //   "Labdip - 12367/121274D-C ( ... )"
     //   "First Lot - 21120/230538D-B, LANJUT PROCESS"
     if ($cocok_warna) {
-        if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
-            $color_code = $m[1];
-        }
+        // if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
+        //     $color_code = $m[1];
+        // }
         if (!$no_warna && preg_match('/Previous Order\\s*-\\s*(.+)$/i', $cocok_warna, $m2)) {
             $no_warna = trim($m2[1]);
         }
