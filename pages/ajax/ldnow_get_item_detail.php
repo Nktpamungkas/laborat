@@ -502,9 +502,9 @@ try {
     //   "Labdip - 12367/121274D-C ( ... )"
     //   "First Lot - 21120/230538D-B, LANJUT PROCESS"
     if ($cocok_warna) {
-        // if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
-        //     $color_code = $m[1];
-        // }
+        if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
+            $color_code = $m[1];
+        }
         if (!$no_warna && preg_match('/Previous Order\\s*-\\s*(.+)$/i', $cocok_warna, $m2)) {
             $no_warna = trim($m2[1]);
         }
@@ -518,6 +518,10 @@ try {
         }
         // Pola "Body - 21120/230538D-B, LANJUT PROCESS"
         if (!$no_warna && preg_match('/Body\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
+            $no_warna = trim($m4[1]);
+        }
+        // Pola "Original - 21120/230538D-B, LANJUT PROCESS"
+        if (!$no_warna && preg_match('/Original\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
             $no_warna = trim($m4[1]);
         }
     }
