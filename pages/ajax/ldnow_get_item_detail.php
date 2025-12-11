@@ -448,7 +448,7 @@ try {
 
     // LAB DIP NO & Cocok Warna (STDCCKWARNA) – pakai view lama
     $no_warna    = '';
-    $cocok_warna = '';
+    // $cocok_warna = '';
 
     // 1) STDCCK (cocok warna) – view standar
     $sqlCckStd = "
@@ -462,31 +462,8 @@ try {
     if ($stmtCckStd && db2_execute($stmtCckStd, [$projectCode, $orderLine])) {
         $r_cck_std = db2_fetch_assoc($stmtCckStd);
         if ($r_cck_std) {
-            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? 'aaa');
-        }
-    }
-
-    // 2) LAB DIP NO lebih lengkap (seperti $stdcckwarna_lapdip)
-    $sqlCckLabdip = "
-        SELECT
-            ITXVIEW_STD_CCK_WARNA.LABDIPNO,
-            ITXVIEW_COLORREMARKS.VALUESTRING
-        FROM SALESORDERLINE
-        LEFT JOIN ITXVIEW_COLORSTANDARD 
-            ON SALESORDERLINE.ABSUNIQUEID = ITXVIEW_COLORSTANDARD.UNIQUEID
-        LEFT JOIN ITXVIEW_COLORREMARKS 
-            ON ITXVIEW_COLORSTANDARD.UNIQUEID = ITXVIEW_COLORREMARKS.UNIQUEID
-        LEFT JOIN ITXVIEW_STD_CCK_WARNA
-            ON ITXVIEW_STD_CCK_WARNA.SALESORDERCODE = SALESORDERLINE.PROJECTCODE
-           AND ITXVIEW_STD_CCK_WARNA.ORDERLINE     = SALESORDERLINE.ORDERLINE
-        WHERE TRIM(SALESORDERLINE.PROJECTCODE) = ?
-          AND TRIM(SALESORDERLINE.ORDERLINE)   = ?
-    ";
-    $stmtCckLab = db2_prepare($conn1, $sqlCckLabdip);
-    if ($stmtCckLab && db2_execute($stmtCckLab, [$projectCode, $orderLine])) {
-        $r_cck_lab = db2_fetch_assoc($stmtCckLab);
-        if ($r_cck_lab && !empty($r_cck_lab['LABDIPNO'])) {
-            $no_warna = $r_cck_lab['LABDIPNO'];
+            $cocok_warna    = trim($r_cck_std['STDCCKWARNA'] ?? '');
+            $no_warna       = $r_cck_std['LABDIPNO'];
         }
     }
 
@@ -495,35 +472,6 @@ try {
     // ambil teks sebelum tanda '-' untuk mendapatkan nama warna pendek.
     if (strpos($warna_short, '-') !== false) {
         $warna_short = trim(strtok($warna_short, '-'));
-    }
-
-    // - COLOR CODE & LAB DIP NO dari STDCCKWARNA, contoh:
-    //   "Previous Order - 6400/181448M-C ( ... )"
-    //   "Labdip - 12367/121274D-C ( ... )"
-    //   "First Lot - 21120/230538D-B, LANJUT PROCESS"
-    if ($cocok_warna) {
-        if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
-            $color_code = $m[1];
-        }
-        if (!$no_warna && preg_match('/Previous Order\\s*-\\s*(.+)$/i', $cocok_warna, $m2)) {
-            $no_warna = trim($m2[1]);
-        }
-        // Pola khusus "Labdip - 12367/121274D-C ( ... )"
-        if (!$no_warna && preg_match('/Labdip\\s*-\\s*([^()]+)/i', $cocok_warna, $m3)) {
-            $no_warna = trim($m3[1]);
-        }
-        // Pola "First Lot - 21120/230538D-B, LANJUT PROCESS"
-        if (!$no_warna && preg_match('/First Lot\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
-            $no_warna = trim($m4[1]);
-        }
-        // Pola "Body - 21120/230538D-B, LANJUT PROCESS"
-        if (!$no_warna && preg_match('/Body\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
-            $no_warna = trim($m4[1]);
-        }
-        // Pola "Original - 21120/230538D-B, LANJUT PROCESS"
-        if (!$no_warna && preg_match('/Original\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
-            $no_warna = trim($m4[1]);
-        }
     }
 
     $sqlDelivery = "
