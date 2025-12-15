@@ -208,61 +208,42 @@ try {
         SELECT 
             p.DLVSALESORDERLINEORDERLINE,
             TRIM(p.CODE) AS DEMANDCODE,
-            TRIM(p.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
-            TRIM(p.SUBCODE01) AS SUBCODE01, 
-            TRIM(p.SUBCODE02) AS SUBCODE02,
-            TRIM(p.SUBCODE03) AS SUBCODE03, 
-            TRIM(p.SUBCODE04) AS SUBCODE04, 
-            TRIM(p.SUBCODE05) AS SUBCODE05,
-            TRIM(p.SUBCODE06) AS SUBCODE06,
-            TRIM(p.SUBCODE07) AS SUBCODE07,
-            TRIM(p.SUBCODE08) AS SUBCODE08,
-            TRIM(p.SUBCODE09) AS SUBCODE09,
-            TRIM(p.SUBCODE10) AS SUBCODE10,
-            CASE
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'KFF' AND TRIM(p.SUBCODE07) <> '-' AND TRIM(p.SUBCODE08) <> '-' THEN DESIGNCOMPONENT.SHORTDESCRIPTION
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'KFF' AND TRIM(p.SUBCODE07) = '-'  AND TRIM(p.SUBCODE08) = '-'  THEN ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION
-                WHEN TRIM(p.ITEMTYPEAFICODE) = 'FKF' AND TRIM(p.SUBCODE07) = ''   AND TRIM(p.SUBCODE08) = ''   THEN USERGENERICGROUP.LONGDESCRIPTION
-                ELSE '-'
-            END AS WARNA
+            trim(i2.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
+            trim(i2.SUBCODE01) AS SUBCODE01, 
+            trim(i2.SUBCODE02) AS SUBCODE02,
+            trim(i2.SUBCODE03) AS SUBCODE03, 
+            trim(i2.SUBCODE04) AS SUBCODE04, 
+            trim(i2.SUBCODE05) AS SUBCODE05,
+            trim(i2.SUBCODE06) AS SUBCODE06,
+            trim(i2.SUBCODE07) AS SUBCODE07,
+            trim(i2.SUBCODE08) AS SUBCODE08,
+            trim(i2.SUBCODE09) AS SUBCODE09,
+            trim(i2.SUBCODE10) AS SUBCODE10,
+            i.WARNA AS WARNA
         FROM PRODUCTIONDEMAND p 
-        LEFT JOIN DESIGN ON DESIGN.SUBCODE01 = p.SUBCODE07
-        LEFT JOIN DESIGNCOMPONENT 
-            ON DESIGNCOMPONENT.VARIANTCODE = p.SUBCODE08 
-           AND DESIGNCOMPONENT.DESIGNNUMBERID = DESIGN.NUMBERID
-        LEFT JOIN (
-            SELECT 
-                ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-                ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-                ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-            FROM ITXVIEW_INV_RESEPCOLOR
-            GROUP BY 
-                ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-                ITXVIEW_INV_RESEPCOLOR.ARTIKEL,
-                ITXVIEW_INV_RESEPCOLOR.NO_WARNA
-        ) ITXVIEW_INV_RESEPCOLOR 
-            ON ITXVIEW_INV_RESEPCOLOR.ARTIKEL = p.SUBCODE03 
-           AND ITXVIEW_INV_RESEPCOLOR.NO_WARNA = p.SUBCODE05
-        LEFT JOIN USERGENERICGROUP 
-            ON p.SUBCODE05 = USERGENERICGROUP.CODE 
-        WHERE p.PROJECTCODE = ?
-          AND p.DLVSALESORDERLINEORDERLINE = ?
+        LEFT JOIN ITXVIEWBONORDER i2 ON i2.SALESORDERCODE = p.ORIGDLVSALORDLINESALORDERCODE AND i2.ORDERLINE = p.ORIGDLVSALORDERLINEORDERLINE 
+        LEFT JOIN ITXVIEWCOLOR i ON i.ITEMTYPECODE = i2.ITEMTYPEAFICODE 
+                                AND i.SUBCODE01 = i2.SUBCODE01 
+                                AND i.SUBCODE02 = i2.SUBCODE02 
+                                AND i.SUBCODE03 = i2.SUBCODE03 
+                                AND i.SUBCODE04 = i2.SUBCODE04 
+                                AND i.SUBCODE05 = i2.SUBCODE05 
+                                AND i.SUBCODE06 = i2.SUBCODE06 
+                                AND i.SUBCODE07 = i2.SUBCODE07 
+                                AND i.SUBCODE08 = i2.SUBCODE08 
+                                AND i.SUBCODE09 = i2.SUBCODE09 
+                                AND i.SUBCODE10 = i2.SUBCODE10
+        LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
+        WHERE p.ORIGDLVSALORDLINESALORDERCODE = ? AND p.DLVSALESORDERLINEORDERLINE = ?
         GROUP BY 
-            p.DLVSALESORDERLINEORDERLINE,
-            p.SUBCODE01,p.SUBCODE02,p.SUBCODE03,p.SUBCODE04,p.SUBCODE05,
-            p.SUBCODE06,p.SUBCODE07,p.SUBCODE08,p.SUBCODE09,p.SUBCODE10,
-            p.ITEMTYPEAFICODE,
-            DESIGNCOMPONENT.SHORTDESCRIPTION,
-            ITXVIEW_INV_RESEPCOLOR.LONGDESCRIPTION,
-            USERGENERICGROUP.LONGDESCRIPTION,
-            p.CODE
+            p.DLVSALESORDERLINEORDERLINE,i2.SUBCODE01,i2.SUBCODE02,i2.SUBCODE03,i2.SUBCODE04,i2.SUBCODE05,i2.SUBCODE06,i2.SUBCODE07,i2.SUBCODE08,i2.SUBCODE09,i2.SUBCODE10,i2.ITEMTYPEAFICODE,i.WARNA,p.CODE
     ";
     $stmtColor = db2_prepare($conn1, $sqlColorCode);
     if ($stmtColor && db2_execute($stmtColor, [$projectCode, $orderLine])) {
         $assoc_colorcode = db2_fetch_assoc($stmtColor);
     }
 
-    $color_code   = '';
+    // $color_code   = '';
     $warna_short  = trim($r_item['WARNA']);
     if ($assoc_colorcode) {
         if (!empty($assoc_colorcode['SUBCODE05'])) {
@@ -467,7 +448,7 @@ try {
 
     // LAB DIP NO & Cocok Warna (STDCCKWARNA) – pakai view lama
     $no_warna    = '';
-    $cocok_warna = '';
+    // $cocok_warna = '';
 
     // 1) STDCCK (cocok warna) – view standar
     $sqlCckStd = "
@@ -481,31 +462,8 @@ try {
     if ($stmtCckStd && db2_execute($stmtCckStd, [$projectCode, $orderLine])) {
         $r_cck_std = db2_fetch_assoc($stmtCckStd);
         if ($r_cck_std) {
-            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? '');
-        }
-    }
-
-    // 2) LAB DIP NO lebih lengkap (seperti $stdcckwarna_lapdip)
-    $sqlCckLabdip = "
-        SELECT
-            ITXVIEW_STD_CCK_WARNA.LABDIPNO,
-            ITXVIEW_COLORREMARKS.VALUESTRING
-        FROM SALESORDERLINE
-        LEFT JOIN ITXVIEW_COLORSTANDARD 
-            ON SALESORDERLINE.ABSUNIQUEID = ITXVIEW_COLORSTANDARD.UNIQUEID
-        LEFT JOIN ITXVIEW_COLORREMARKS 
-            ON ITXVIEW_COLORSTANDARD.UNIQUEID = ITXVIEW_COLORREMARKS.UNIQUEID
-        LEFT JOIN ITXVIEW_STD_CCK_WARNA
-            ON ITXVIEW_STD_CCK_WARNA.SALESORDERCODE = SALESORDERLINE.PROJECTCODE
-           AND ITXVIEW_STD_CCK_WARNA.ORDERLINE     = SALESORDERLINE.ORDERLINE
-        WHERE TRIM(SALESORDERLINE.PROJECTCODE) = ?
-          AND TRIM(SALESORDERLINE.ORDERLINE)   = ?
-    ";
-    $stmtCckLab = db2_prepare($conn1, $sqlCckLabdip);
-    if ($stmtCckLab && db2_execute($stmtCckLab, [$projectCode, $orderLine])) {
-        $r_cck_lab = db2_fetch_assoc($stmtCckLab);
-        if ($r_cck_lab && !empty($r_cck_lab['LABDIPNO'])) {
-            $no_warna = $r_cck_lab['LABDIPNO'];
+            $cocok_warna    = trim($r_cck_std['STDCCKWARNA'] ?? '');
+            $no_warna       = $r_cck_std['LABDIPNO'];
         }
     }
 
@@ -514,27 +472,6 @@ try {
     // ambil teks sebelum tanda '-' untuk mendapatkan nama warna pendek.
     if (strpos($warna_short, '-') !== false) {
         $warna_short = trim(strtok($warna_short, '-'));
-    }
-
-    // - COLOR CODE & LAB DIP NO dari STDCCKWARNA, contoh:
-    //   "Previous Order - 6400/181448M-C ( ... )"
-    //   "Labdip - 12367/121274D-C ( ... )"
-    //   "First Lot - 21120/230538D-B, LANJUT PROCESS"
-    if ($cocok_warna) {
-        if (!$color_code && preg_match('/\\d+\\/([A-Za-z0-9]+)-/', $cocok_warna, $m)) {
-            $color_code = $m[1];
-        }
-        if (!$no_warna && preg_match('/Previous Order\\s*-\\s*(.+)$/i', $cocok_warna, $m2)) {
-            $no_warna = trim($m2[1]);
-        }
-        // Pola khusus "Labdip - 12367/121274D-C ( ... )"
-        if (!$no_warna && preg_match('/Labdip\\s*-\\s*([^()]+)/i', $cocok_warna, $m3)) {
-            $no_warna = trim($m3[1]);
-        }
-        // Pola "First Lot - 21120/230538D-B, LANJUT PROCESS"
-        if (!$no_warna && preg_match('/First Lot\\s*-\\s*([^()]+)/i', $cocok_warna, $m4)) {
-            $no_warna = trim($m4[1]);
-        }
     }
 
     $sqlDelivery = "
