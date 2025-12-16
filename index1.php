@@ -39,8 +39,8 @@ $page = strtolower($page);
                             echo "Home";
                         } ?></title>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <script src="bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == 'Recap-Colorist' or $_GET['p'] == "Status-Matching-Ganti-Kain") { ?>
 

@@ -255,7 +255,7 @@ if (!$bolehAkses) {
     }
 
     #bonResepInfo.blink {
-        animation: blinkGreen 0.9s infinite;
+        animation: blinkGreen 2s infinite;
     }
     .spin {
         animation: spin 1s linear infinite;
@@ -1191,7 +1191,8 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                         <td width="50" align="right" ${isOldStyle}>
                             ${  (
                                     item.jenis_matching == "Perbaikan NOW" ||
-                                    item.jenis_matching == "Matching Development"
+                                    item.jenis_matching == "Matching Development" ||
+                                    item.is_bonresep == 1
                                 ) && !item.for_forecast
                                 ? `<span class="">0</span>` 
                                 : `
@@ -1475,6 +1476,16 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                                         <label id="bonResepInfo" class="control-label blink"
                                             style="color:green; font-weight:bold; margin-left:10px;">
                                             BON RESEP DITEMUKAN
+                                        </label>
+                                    `);
+
+                                return;
+                            }else{
+                                $('#no_resep').closest('.form-group')
+                                    .append(`
+                                        <label id="bonResepInfo" class="control-label blink"
+                                            style="color:Red; font-weight:bold; margin-left:10px;">
+                                            BON RESEP dengan DyeStuff "D" tidak DITEMUKAN
                                         </label>
                                     `);
 
