@@ -560,7 +560,7 @@ include "koneksi.php";
             //   isExpired = true
             // }
             
-            // if (isExpired == true) {
+            if (data == 0) {
               btnExpired = `
                 <button 
                   type="button" 
@@ -572,7 +572,7 @@ include "koneksi.php";
                   <i class="fa fa-hourglass-end"></i>
                 </button>
               `;
-            // }
+            }
 
             return btnDefault + btnOnMatching + btnExpired;
           }
