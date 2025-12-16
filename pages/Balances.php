@@ -554,13 +554,13 @@ include "koneksi.php";
             let btnExpired = "";
             // expired takes precedence
             var expired = row.expired_date;
-            var isExpired = false;
-            var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-            if (expired && expired < today) {
-              isExpired = true
-            }
+            // var isExpired = false;
+            // var today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            // if (expired && expired < today) {
+            //   isExpired = true
+            // }
             
-            if (isExpired == true) {
+            if (data == 0) {
               btnExpired = `
                 <button 
                   type="button" 

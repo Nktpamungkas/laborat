@@ -470,9 +470,9 @@ try {
     // Fallback / normalisasi WARNA:
     // Jika masih mengandung '-' (contoh: "CAMBRIDGE BLUE-..."),
     // ambil teks sebelum tanda '-' untuk mendapatkan nama warna pendek.
-    if (strpos($warna_short, '-') !== false) {
-        $warna_short = trim(strtok($warna_short, '-'));
-    }
+    // if (strpos($warna_short, '-') !== false) {
+    //     $warna_short = trim(strtok($warna_short, '-'));
+    // }
 
     $sqlDelivery = "
         SELECT * 
