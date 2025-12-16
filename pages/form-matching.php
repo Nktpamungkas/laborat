@@ -1172,7 +1172,7 @@
 	<div class="form-group">
 		<label for="no_warna" class="col-sm-2 control-label">LAB DIP NO</label>
 		<div class="col-sm-6">
-			<input name="no_warna" type="text" class="form-control" id="no_warna" value="" placeholder="LAB DIP NO">
+			<input name="no_warna" type="text" class="form-control" id="" value="" placeholder="LAB DIP NO">
 		</div>
 	</div>
 	<!-- HIDDEN INPUT -->
