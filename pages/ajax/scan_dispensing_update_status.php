@@ -21,6 +21,44 @@ if (!$userDispensing) {
 }
 
 try {
+    // =========================
+    // BON RESEP
+    // =========================
+    $stmtBon = $con->prepare("
+        SELECT id
+        FROM tbl_preliminary_schedule
+        WHERE no_resep = ?
+          AND is_bonresep = 1
+          AND pass_dispensing = 0
+          AND status NOT IN ('ready', 'end')
+    ");
+    if (!$stmtBon) throw new Exception("Prepare BON failed: " . $con->error);
+
+    $stmtBon->bind_param("s", $no_resep);
+    $stmtBon->execute();
+    $resBon = $stmtBon->get_result();
+    $bonRows = $resBon->fetch_all(MYSQLI_ASSOC);
+    $stmtBon->close();
+
+    if (!empty($bonRows)) {
+        $ids = array_column($bonRows, 'id');
+
+        // update BON RESEP -> end + pass_dispensing = 1
+        updateRowsBonResep($con, $ids, $userDispensing);
+
+        echo json_encode([
+            "success" => true,
+            "type" => "bon_resep",
+            "updated_ids" => $ids,
+            "updated_count" => count($ids),
+            "message" => "BON RESEP selesai (status=end, pass_dispensing=1)."
+        ]);
+        exit;
+    }
+
+    // =========================
+    // NON BON RESEP
+    // =========================
     // Ambil semua data yang masih belum selesai berdasarkan dispensing_code
     $query = "
         SELECT ps.id, ps.no_resep, ps.order_index, ps.status
@@ -133,4 +171,33 @@ function updateRows($con, array $ids, string $userDispensing): void {
 
     $stmt->close();
 }
+
+function updateRowsBonResep($con, array $ids, string $userDispensing): void {
+    if (empty($ids)) return;
+
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $types = 's' . str_repeat('i', count($ids));
+
+    $sql = "
+        UPDATE tbl_preliminary_schedule
+        SET status = 'end',
+            pass_dispensing = 1,
+            order_index = NULL,
+            dispensing_start = NOW(),
+            user_dispensing = ?
+        WHERE id IN ($placeholders)
+    ";
+
+    $stmt = $con->prepare($sql);
+    if (!$stmt) throw new Exception('Prepare update BON failed: ' . $con->error);
+
+    $stmt->bind_param($types, $userDispensing, ...$ids);
+
+    if (!$stmt->execute()) {
+        throw new Exception('Execute update BON failed: ' . $stmt->error);
+    }
+
+    $stmt->close();
+}
+
 

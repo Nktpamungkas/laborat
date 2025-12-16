@@ -6,11 +6,18 @@ try {
     $result = mysqli_query($con, "
         SELECT 
             tbl_preliminary_schedule.*, 
-            master_suhu.product_name,
+            CASE 
+                WHEN tbl_preliminary_schedule.is_bonresep = 1 THEN ''
+                ELSE master_suhu.product_name
+            END AS product_name,
             master_suhu.suhu,
             master_suhu.waktu,
             master_suhu.dispensing,
-            tbl_matching.jenis_matching
+            tbl_matching.jenis_matching,
+            CASE
+                WHEN tbl_preliminary_schedule.is_bonresep = 1 THEN 'BON'
+                ELSE master_suhu.dispensing
+            END AS disp_group
         FROM tbl_preliminary_schedule
         LEFT JOIN master_suhu 
             ON tbl_preliminary_schedule.code = master_suhu.code
@@ -69,11 +76,11 @@ try {
     unset($row);
 
     // Step 3: Group data berdasarkan dispensing (1,2,3)
-    $grouped = ['1' => [], '2' => [], '3' => []];
+    $grouped = ['1' => [], '2' => [], '3' => [] , 'BON' => []];
 
     foreach ($data as $row) {
-        $code = $row['dispensing'] ?? '';
-        if (in_array($code, ['1', '2', '3'])) {
+        $code = $row['disp_group'] ?? '';
+        if (in_array($code, ['1', '2', '3', 'BON'])) {
             $grouped[$code][] = $row;
         }
     }

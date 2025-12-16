@@ -95,7 +95,7 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
 
             // ❗ Cek apakah mesin sudah sibuk SEBELUMNYA
             if (in_array($machine, $mesin_sibuk_sebelumnya)) {
-                $stmt = $con->prepare("UPDATE tbl_preliminary_schedule SET is_old_data = 1 WHERE id = ?");
+                $stmt = $con->prepare("UPDATE tbl_preliminary_schedule SET is_old_data = 1 WHERE id = ? AND is_bonresep = 0");
                 $stmt->bind_param("i", $id);
                 $stmt->execute();
                 $stmt->close();
@@ -112,7 +112,7 @@ if (isset($data['assignments']) && is_array($data['assignments'])) {
             $placeholders = implode(',', array_fill(0, count($not_selected_ids), '?'));
             $types = str_repeat('i', count($not_selected_ids));
 
-            $sql = "UPDATE tbl_preliminary_schedule SET is_old_data = 1 WHERE id IN ($placeholders)";
+            $sql = "UPDATE tbl_preliminary_schedule SET is_old_data = 1 WHERE id IN ($placeholders) AND is_bonresep = 0";
             $stmt = $con->prepare($sql);
             $stmt->bind_param($types, ...array_values($not_selected_ids));
             $stmt->execute();

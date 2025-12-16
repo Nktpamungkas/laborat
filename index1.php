@@ -39,8 +39,8 @@ $page = strtolower($page);
                             echo "Home";
                         } ?></title>
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/DataTable/jQuery-3.3.1/jQuery-3.3.1.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <?php if ($_GET['p'] == 'Perform-report' or $_GET['p'] == 'Report-Matching' or $_GET['p'] == 'Form-Matching' or $_GET['p'] == 'Recap-Colorist' or $_GET['p'] == "Status-Matching-Ganti-Kain") { ?>
 
@@ -51,7 +51,7 @@ $page = strtolower($page);
     <link href="bower_components/toastr/toastr.css" rel="stylesheet">
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="bower_components/custom-table.css">
-    <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css">
+    <!-- <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css"> -->
     <link rel="stylesheet" href="bower_components/DataTable/datatables.min.css">
     <link rel="stylesheet" href="bower_components/select2/css/select2.min.css">
     <link rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
@@ -305,6 +305,12 @@ $page = strtolower($page);
                                         <a href="?p=Summary-Darkroom"><i class="fa fa-table text-green" aria-hidden="true"></i>
                                             <span>Summary Darkroom</span></a>
                                     </li>
+                                    <!-- <li class="divider"></li>
+
+                                    <li class="<?php if ($_GET['p'] == "Points-Awarded") echo "active"; ?>">
+                                        <a href="?p=Points-Awarded"><i class="fa fa-star-o text-yellow" aria-hidden="true"></i>
+                                            <span>Points Awarded</span></a>
+                                    </li> -->
                                 </ul>
                             <?php endif; ?>
 

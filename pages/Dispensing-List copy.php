@@ -3,15 +3,31 @@
         font-style: italic;
         font-size: 12px;
     }
+
     #tempWrapper {
         margin-bottom: 0;
     }
+
     @keyframes shake {
-        0% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        50% { transform: translateX(5px); }
-        75% { transform: translateX(-5px); }
-        100% { transform: translateX(0); }
+        0% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        50% {
+            transform: translateX(5px);
+        }
+
+        75% {
+            transform: translateX(-5px);
+        }
+
+        100% {
+            transform: translateX(0);
+        }
     }
 
     .blink-warning {
@@ -21,8 +37,15 @@
     }
 
     @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.2; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.2;
+        }
     }
 </style>
 <style>
@@ -30,13 +53,14 @@
         opacity: 0.4;
         background-color: #ffeeba !important;
     }
+
     .sortable-selected {
-        background-color:rgb(6, 206, 6) !important;
+        background-color: rgb(6, 206, 6) !important;
     }
 </style>
 <style>
     .table-scrollable {
-        max-height: 800px;
+        max-height: 700px;
         overflow-y: auto;
         border: 1px solid #ddd;
     }
@@ -44,9 +68,10 @@
     .table-scrollable thead th {
         position: sticky;
         top: 0;
-        background-color: #00a65a ;
+        background-color: #00a65a;
         z-index: 1;
     }
+
     .table-scrollable::-webkit-scrollbar {
         width: 6px;
     }
@@ -59,9 +84,11 @@
     .table-scrollable::-webkit-scrollbar-track {
         background: transparent;
     }
+
     .table {
         margin-bottom: 0 !important;
     }
+
     /* tbody {
         font-size: 9px;
     } */
@@ -70,17 +97,58 @@
         text-align: center;
         font-weight: bold;
     }
+
     .content {
         padding: 15px 0 !important;
     }
+
     .col-xs-12 {
         padding: 0 !important;
     }
+
     tbody {
         font-size: 11px;
     }
-</style>
 
+    #epcTable td:last-child {
+        text-align: center;
+        width: 1rem;
+        /* fix width kolom action */
+        padding: 0.5rem;
+    }
+
+    #epcTable td,
+    #epcTable th {
+        text-align: center;
+    }
+    #tableContainer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;           /* default */
+        overflow-x: visible;       /* default */
+    }
+
+    .table-panel {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    /* mode khusus: tepat 4 tabel terlihat */
+    #tableContainer.four-visible {
+        flex-wrap: nowrap;         /* jangan wrap */
+        overflow-x: auto;          /* geser horizontal */
+        overflow-y: hidden;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #tableContainer.four-visible .table-panel {
+        flex: 0 0 620px; 
+        min-width: 620px;
+    }
+
+</style>
 
 <div class="row">
     <div class="col-xs-12">
@@ -88,21 +156,29 @@
             <div class="box-body">
                 <div class="row" style="margin-bottom: 10px;">
                     <!-- Scan input di kiri -->
-                    <div class="col-xs-6">
+                    <div class="col-xs-4">
                         <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="max-width: 250px;" autofocus>
                     </div>
 
-                    <!-- Tombol lock di kanan -->
-                    <div class="col-xs-6 text-right">
-                        <button id="toggleLockBtn" class="btn btn-warning">🔒 Lock Drag</button>
+                     <div class="col-xs-8 text-right">
+                        <form class="form-inline" style="display: inline-block;">
+                            <label for="searchNoResep">Search :</label>
+                            <input type="text" id="searchNoResep" name="searchNoResep"
+                                    placeholder="Search Suffix…" class="form-control"
+                                    style="max-width: 250px; margin-left: 5px;" autocomplete="off"
+                                    aria-label="Cari No. Resep">
+                        </form>
+
+                        <button id="toggleLockBtn" class="btn btn-warning" style="margin-left: 10px;">
+                        🔒 Lock Drag
+                        </button>
                     </div>
                 </div>
-                
-                <!-- Container for tables with display flex -->
-                <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-                    
+
+                <div id="tableContainer">
+
                     <!-- Dispensing Poly Table -->
-                    <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="polyTableWrapper" class="table-panel">
                         <h4 id="polyHeader" class="text-center"><strong>DISPENSING POLY</strong></h4>
                         <div class="table-scrollable">
                             <table id="tablePoly" class="table table-bordered" width="100%">
@@ -139,7 +215,7 @@
                     </div>
 
                     <!-- Dispensing Cotton Table -->
-                    <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="cottonTableWrapper" class="table-panel">
                         <h4 id="cottonHeader" class="text-center"><strong>DISPENSING COTTON</strong></h4>
                         <div class="table-scrollable">
                             <table id="tableCotton" class="table table-bordered" width="100%">
@@ -176,7 +252,7 @@
                     </div>
 
                     <!-- Dispensing White Table -->
-                    <div id="whiteTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="whiteTableWrapper" class="table-panel">
                         <h4 id="whiteHeader" class="text-center"><strong>DISPENSING WHITE</strong></h4>
                         <div class="table-scrollable">
                             <table id="tableWhite" class="table table-bordered" width="100%">
@@ -212,22 +288,315 @@
                         </div>
                     </div>
 
+                    <!-- Dispensing Bon Resep Table -->
+                    <div id="bonTableWrapper" class="table-panel">
+                        <h4 id="bonHeader" class="text-center"><strong>BON RESEP</strong></h4>
+                        <div class="table-scrollable">
+                            <table id="tableBon" class="table table-bordered" width="100%">
+                                <thead class="bg-green">
+                                    <tr>
+                                        <th><div align="center" style="width: 5px;">No</div></th>
+                                        <th><div align="center">Cycle</div></th>
+                                        <th><div align="center">No. Resep</div></th>
+                                        <th><div align="center">Temp</div></th>
+                                        <th><div align="center">No. Mesin</div></th>
+                                        <th><div align="center">Status</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataBodyBon"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- RFID Trigerred Modal -->
+                <div class="modal fade modal-super-scaled" id="modalRFID" data-backdrop="static" data-keyboard="true" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog" style="width:55%">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">List of data scanned by RFID</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-scrollable" style="border: none;">
+                                    <table id="epcTable" class="table table-bordered" style="width:100%; padding: 1rem">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Cycle</th>
+                                                <th>No Resep</th>
+                                                <th>Temp</th>
+                                                <th>No Mesin</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" id="submitBtnRFID" class="btn btn-out btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- RFID Trigerred Modal  -->
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script> -->
+<?php require './includes/socket_helper.php' ?>
+<script src="bower_components/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
+    let searchTerm = "";
+
     $(document).ready(function() {
-        let fullGroupedData = { '1': [], '2': [], '3': [] };
+        // MODULE RFID
+        let filteredDispensingData = [] // For submit payload
+        let deletedDRData = [] // For tag deleted no_resep with DR
+
+        epcTable = $('#epcTable').DataTable({
+            paging: true,
+            searching: true,
+            info: true,
+            columns: [{
+                    title: "No"
+                },
+                {
+                    title: "Cycle"
+                },
+                {
+                    title: "No Resep"
+                },
+                {
+                    title: "Temp"
+                },
+                {
+                    title: "No Mesin"
+                },
+                {
+                    title: "Status"
+                },
+                {
+                    title: "Action",
+                    orderable: false
+                }
+            ]
+        });
+
+        // Listen for registers (when items add or increase)
+        socket.on('register', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocket({
+            roomId,
+            tags,
+            epcTable,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Listen for dispatch (when items removed or decrease)
+        socket.on('dispatch', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocket({
+            roomId,
+            tags,
+            epcTable,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Listen success_subscribe (when iddle)
+        socket.on('success_subscribe', ({
+            roomId,
+            epc,
+            tags
+        }) => globalProcessOnListenSocketForIddle({
+            roomId,
+            tags,
+            epcTable,
+            deletedDRData,
+            filteredData: filteredDispensingData,
+            globalData: dispensingData,
+            status: "scheduled",
+            columns: [
+                (row, index) => index, // nomor urut
+                "cycleNumber",
+                (row) => row.no_resep?.trim(),
+                "product_name",
+                "no_machine",
+                "status",
+                (row) => `<button class="btn btn-danger btn-sm remove-row" data-epc="${row.no_resep?.trim()}">x</button>`
+            ]
+        }));
+
+        // Event handler button remove
+        $('#epcTable').on('click', '.remove-row', function() {
+            const row = $(this).closest('tr');
+            const noResep = $(this).data('epc'); // ambil data-epc dari tombol
+
+            // Hapus dari DataTables
+            epcTable.row(row).remove().draw(false);
+
+            if (noResep.startsWith("DR") && noResep.length > 2) {
+                // ✅ Masukkan string no_resep ke deletedDRData kalau belum ada
+                if (!deletedDRData.includes(noResep)) {
+                    deletedDRData.push(noResep);
+                }
+            }
+
+            // Hapus juga dari filteredDispensingData
+            filteredDispensingData = filteredDispensingData.filter(item => item.no_resep.trim() !== noResep);
+        });
+
+        // Button Submit
+        $('#submitBtnRFID').on('click', function() {
+            const noResepList = filteredDispensingData.map((item) => item.no_resep.trim())
+            updateStatusBatch(noResepList)
+        });
+
+        // Action Submit 
+        function updateStatusBatch(noResepList) {
+            if (!Array.isArray(noResepList) || noResepList.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Tidak Ditemukan',
+                    text: 'Tidak ada No. Resep yang dikirim.',
+                });
+                return;
+            }
+
+            let total = noResepList.length;
+            let successCount = 0;
+            let failCount = 0;
+            let failedItems = [];
+
+            // Disable tombol & tampilkan loader swal
+                $('#submitBtnRFID').prop('disabled', true);
+                Swal.fire({
+                    title: 'Memproses...',
+                    html: 'Mohon tunggu hingga semua data selesai diproses.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                });
+
+            // Promise chain biar tunggu semua ajax selesai
+            let requests = noResepList.map(noResep => {
+                const dispensingCode = getDispensingCodeFromNoResep(noResep);
+                if (dispensingCode === null) {
+                    failCount++;
+                    failedItems.push(noResep + " (tidak ditemukan)");
+                    return Promise.resolve(); // skip
+                }
+
+                return $.ajax({
+                    url: 'pages/ajax/scan_dispensing_update_status.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        no_resep: noResep,
+                        dispensing_code: dispensingCode
+                    }
+                }).then(res => {
+                    if (res.success) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        failedItems.push(noResep + " (" + (res.message || res.error || "gagal") + ")");
+                        if (/session/i.test(res.message)) {
+                            window.location.href = "/laborat/login";
+                        }
+                    }
+                }).catch(xhr => {
+                    failCount++;
+                    failedItems.push(noResep + " (AJAX error)");
+                    console.error("AJAX error:", xhr.responseText);
+                });
+            });
+
+            Promise.all(requests).then(() => {
+                fetchAndRenderDataOnly();
+
+                // Tutup swal loading
+                Swal.close();
+
+                if (failCount === 0) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Semua Berhasil!',
+                        text: `${successCount} dari ${total} resep berhasil diproses.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else if (successCount === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Semua Gagal!',
+                        html: `Tidak ada resep yang berhasil.<br><br><b>Detail:</b><br>${failedItems.join('<br>')}`,
+                        width: 600
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sebagian Gagal!',
+                        html: `${successCount} berhasil, ${failCount} gagal.<br><br><b>Detail gagal:</b><br>${failedItems.join('<br>')}`,
+                        width: 600
+                    });
+                }
+
+                popoutModal()
+            })
+            .finally(() => {
+                // Enable tombol lagi
+                $('#submitBtnRFID').prop('disabled', false);
+            });
+        }
+        // MODULE RFID
+
+        let fullGroupedData = {
+            '1': [],
+            '2': [],
+            '3': [],
+            'BON' : []
+        };
 
         loadData();
 
-        $('#scanInput').on('keypress', function (e) {
+        $('#scanInput').on('keypress', function(e) {
             if (e.which === 13) { // Enter key
                 const noResep = $(this).val().trim();
                 if (noResep !== "") {
@@ -237,8 +606,26 @@
             }
         });
 
+        // $('#searchNoResep').on('input', debounce(function() {
+        //     searchTerm = (this.value || "").trim().toLowerCase();
+        //     renderOnlyTables(dispensingData);
+        // }, 150));
+
+        // function debounce(fn, wait){
+        //     let t; 
+        //     return function(){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, arguments), wait); };
+        // }
+
+        $('#searchNoResep').on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchTerm = (this.value || "").trim().toLowerCase();
+                renderOnlyTables(dispensingData);
+            }
+        });
+
         function updateStatus(noResep) {
-            const dispensingCode = getDispensingCodeFromNoResep(noResep);
+            const dispensingCode = getDispensingCodeFromNoResep(noResep);  
             if (dispensingCode === null) {
                 Swal.fire({
                     icon: 'error',
@@ -251,37 +638,84 @@
             $.ajax({
                 url: 'pages/ajax/scan_dispensing_update_status.php',
                 method: 'POST',
+                dataType: 'json',
                 data: {
                     no_resep: noResep,
                     dispensing_code: dispensingCode
                 },
-                success: function (response) {
-                    console.log("Update sukses:", response);
-                    fetchAndRenderDataOnly();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Status Diperbarui!',
-                        text: `No. Resep ${noResep} telah diproses.`,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
+                success: function(res) {
+                    if (res.success) {
+                        console.log("Update sukses:", res);
+                        fetchAndRenderDataOnly();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Status Diperbarui!',
+                            text: `No. Resep ${noResep} telah diproses.`,
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: res.message || res.error || 'Terjadi kesalahan saat memperbarui status.',
+                        });
+
+                        if (/session/i.test(res.message)) {
+                            window.location.href = "/laborat/login";
+                        }
+                    }
                 },
-                error: function (xhr, status, error) {
-                    console.log(xhr.responseText);
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", xhr.responseText);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat memperbarui status.',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan jaringan / server.',
                     });
                 }
             });
         }
 
         function getDispensingCodeFromNoResep(noResep) {
-            const match = dispensingData.find(item => item.no_resep === noResep);
+            const target = (noResep || "").trim().toUpperCase();
+
+            // 1) Cari hanya baris yang masih aktif (belum pass dispensing)
+            const candidates = dispensingData.filter(item => {
+                const resepDb = (item.no_resep || "").trim().toUpperCase();
+                const pass   = Number(item.pass_dispensing || 0);
+                const status = (item.status || '').toLowerCase();
+
+                return resepDb === target
+                    && pass === 0
+                    && (status === 'scheduled' || status === 'in_progress_dispensing');
+            });
+
+            // 2) Pilih satu kandidat (id paling besar = data terbaru)
+            let match = null;
+            if (candidates.length > 0) {
+                match = candidates.sort((a, b) => Number(b.id) - Number(a.id))[0];
+            } else {
+                // 3) Fallback: kalau nggak ada yg aktif, baru ambil yg mana aja (opsional)
+                match = dispensingData.find(item => {
+                    const resepDb = (item.no_resep || "").trim().toUpperCase();
+                    return resepDb === target;
+                });
+            }
+
+            console.log(
+                '[getDispensingCodeFromNoResep]',
+                '\n  input        :', `"${noResep}"`,
+                '\n  target_trim  :', `"${target}"`,
+                '\n  candidates   :', candidates,
+                '\n  chosen_match :', match,
+                '\n  dispensing   :', match ? `"${(match.dispensing || "").trim()}"` : null
+            );
+
             if (!match) return null;
-            return match.dispensing?.trim() ?? "";
+            return (match.dispensing || "").trim();
         }
+
     });
 </script>
 <script>
@@ -293,14 +727,15 @@
             .then(data => {
                 dispensingData = data;
 
-                fullGroupedData = { '1': [], '2': [], '3': [] };
+                // Start websocket to room 1
+                subscribe(2)
+
+                fullGroupedData = { '1':[], '2':[], '3':[], 'BON':[] };
+
                 data.forEach(item => {
-                    const code = item.dispensing?.trim() ?? '';
-                    if (['1', '2'].includes(code)) {
-                        fullGroupedData[code].push(item);
-                    } else {
-                        fullGroupedData['3'].push(item);
-                    }
+                    const g = (item.disp_group || '3').trim();
+                    if (['1','2','3','BON'].includes(g)) fullGroupedData[g].push(item);
+                    else fullGroupedData['3'].push(item);
                 });
 
                 renderOnlyTables(data);
@@ -317,14 +752,12 @@
             .then(data => {
                 dispensingData = data;
 
-                fullGroupedData = { '1': [], '2': [], '3': [] };
+                fullGroupedData = { '1':[], '2':[], '3':[], 'BON':[] };
+
                 data.forEach(item => {
-                    const code = item.dispensing?.trim() ?? '';
-                    if (['1', '2'].includes(code)) {
-                        fullGroupedData[code].push(item);
-                    } else {
-                        fullGroupedData['3'].push(item);
-                    }
+                    const g = (item.disp_group || '3').trim();
+                    if (['1','2','3','BON'].includes(g)) fullGroupedData[g].push(item);
+                    else fullGroupedData['3'].push(item);
                 });
 
                 renderOnlyTables(data); // hanya render ulang isinya
@@ -335,165 +768,162 @@
     }
 
     function renderOnlyTables(data) {
-        const tbodyPoly = document.getElementById("dataBodyPoly");
+        const tbodyPoly   = document.getElementById("dataBodyPoly");
         const tbodyCotton = document.getElementById("dataBodyCotton");
-        const tbodyWhite = document.getElementById("dataBodyWhite");
+        const tbodyWhite  = document.getElementById("dataBodyWhite");
+        const tbodyBon    = document.getElementById("dataBodyBon");
 
-        tbodyPoly.innerHTML = "";
-        tbodyCotton.innerHTML = "";
-        tbodyWhite.innerHTML = "";
+        // reset isi tbody
+        if (tbodyPoly) tbodyPoly.innerHTML = "";
+        if (tbodyCotton) tbodyCotton.innerHTML = "";
+        if (tbodyWhite) tbodyWhite.innerHTML = "";
+        if (tbodyBon) tbodyBon.innerHTML = "";
 
-        renderTable(data, tbodyPoly, "1");
-        renderTable(data, tbodyCotton, "2");
-        renderTable(data, tbodyWhite, "");
+        const dataForRender = searchTerm
+            ? data.filter(it => (it.no_resep || "").toLowerCase().includes(searchTerm))
+            : data;
 
-        document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
-        document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
-        document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
+        // render masing-masing tabel
+        if (tbodyPoly)   renderTable(dataForRender, tbodyPoly,   "1");
+        if (tbodyCotton) renderTable(dataForRender, tbodyCotton, "2");
+        if (tbodyWhite)  renderTable(dataForRender, tbodyWhite,  "3");
+        if (tbodyBon)    renderTable(dataForRender, tbodyBon,    "BON");
 
-        const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
-        document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
+        const polyWrap   = document.getElementById("polyTableWrapper");
+        const cottonWrap = document.getElementById("cottonTableWrapper");
+        const whiteWrap  = document.getElementById("whiteTableWrapper");
+        const bonWrap    = document.getElementById("bonTableWrapper");
+
+        if (polyWrap && tbodyPoly) {
+            polyWrap.style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
+        }
+        if (cottonWrap && tbodyCotton) {
+            cottonWrap.style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
+        }
+        if (whiteWrap && tbodyWhite) {
+            whiteWrap.style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
+        }
+        if (bonWrap && tbodyBon) {
+            bonWrap.style.display = tbodyBon.innerHTML.trim() ? "block" : "none";
+        }
+
+        // hitung tabel yang visible
+        const wrappers = [polyWrap, cottonWrap, whiteWrap, bonWrap].filter(Boolean);
+        const visibleCount = wrappers.filter(w => w.style.display !== "none").length;
+
+        // mode layout container
+        const container = document.getElementById("tableContainer");
+        if (!container) return;
+
+        // Jika 4 tabel tampil -> aktifkan horizontal scroll mode
+        if (visibleCount === 4) {
+            container.classList.add("four-visible");
+        } else {
+            container.classList.remove("four-visible");
+        }
+
+        container.style.display = (visibleCount > 1) ? "flex" : "block";
     }
 
-    // function renderTable(dataArray, tbodyElement, dispensingCode) {
-    //     const rowsPerBlock = 16;
-
-    //     const filtered = dataArray.filter(item => {
-    //         const code = item.dispensing?.trim() ?? "";
-    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
-    //     });
-
-    //     const totalBlocks = Math.ceil(filtered.length / rowsPerBlock);
-    //     tbodyElement.innerHTML = "";
-
-    //     for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
-    //         const blockRows = filtered.slice(blockIndex * rowsPerBlock, (blockIndex + 1) * rowsPerBlock);
-    //         const cycleNumber = blockIndex + 1;
-
-    //         const activeRows = blockRows.filter(item =>
-    //             item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-    //         );
-
-    //         const middleIndex = Math.floor((activeRows.length - 1) / 2); 
-
-    //         activeRows.forEach((item, activeIndex) => {
-    //             const indexInBlock = blockRows.findIndex(row => row.id === item.id);
-    //             // const rowNumber = item.rowNumber;
-    //             const rowNumber = indexInBlock + 1;
-    //             const bgColor = blockIndex % 2 === 0 ? "rgb(250, 235, 215)" : "rgb(220, 220, 220)";
-    //             const isOld = item.is_old_data == "1";
-
-    //             const tr = document.createElement("tr");
-    //             tr.style.backgroundColor = bgColor;
-    //             tr.dataset.id = item.id;
-
-    //             if (item.status !== 'scheduled') {
-    //                 tr.classList.add("not-draggable");
-    //             }
-
-    //             tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-                
-    //             if (activeIndex === middleIndex) {
-    //                 tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-    //             } else {
-    //                 tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
-    //             }
-
-    //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-    //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
-    //             // tr.innerHTML += `<td align="center">${item.no_machine}</td>`;
-    //             tr.innerHTML += `
-    //                             <td align="center">
-    //                                 <span 
-    //                                     class="editable-machine" 
-    //                                     data-id="${item.id}" 
-    //                                     data-group="${item.id_group}" 
-    //                                     data-current="${item.no_machine}"
-    //                                 >
-    //                                     ${item.no_machine}
-    //                                 </span>
-    //                             </td>`;
-    //             tr.innerHTML += `<td align="center">${item.status}</td>`;
-
-    //             tbodyElement.appendChild(tr);
-    //         });
-    //     }
-    // }
+    function highlightMatch(text, term){
+        if(!term) return text;
+        const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return text.replace(new RegExp(esc, 'ig'), m => `<mark>${m}</mark>`);
+    }
 
     function renderTable(dataArray, tbodyElement, dispensingCode) {
-        const rowsPerBlock = 16;
+        const rowsPerBlock = 16; // tetap dipakai untuk konsistensi cycleNumber dari backend
 
-        // Filter berdasarkan kode dispensing
+        // 1) Filter berdasar dispensing code
         const filtered = dataArray.filter(item => {
-            const code = item.dispensing?.trim() ?? "";
-            return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+            const code = item.disp_group?.trim() ?? "";
+            return code === dispensingCode;
         });
 
-        // Kelompokkan per cycle
+        // 2) Group per cycleNumber (ini kunci agar warna kembali sesuai cycle)
         const groupedByCycle = {};
         filtered.forEach(item => {
             const cycle = item.cycleNumber ?? 1;
-            if (!groupedByCycle[cycle]) {
-                groupedByCycle[cycle] = [];
-            }
+            if (!groupedByCycle[cycle]) groupedByCycle[cycle] = [];
             groupedByCycle[cycle].push(item);
         });
 
         tbodyElement.innerHTML = "";
 
-        Object.keys(groupedByCycle).sort((a, b) => a - b).forEach(cycleNumber => {
-            const blockRows = groupedByCycle[cycleNumber];
+        // 3) Render terurut per cycle
+        Object.keys(groupedByCycle).sort((a,b) => Number(a) - Number(b)).forEach(cycleKey => {
+            const cycleNumber = Number(cycleKey);
+            const rows = groupedByCycle[cycleKey];
 
-            // Ambil hanya data aktif (scheduled / in_progress_dispensing)
-            const activeRows = blockRows.filter(item =>
-                item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-            );
-
+            // Hitung baris aktif di cycle ini (untuk posisi label Cycle di tengah)
+            const activeRows = rows.filter(it => it.status === 'scheduled' || it.status === 'in_progress_dispensing');
             const middleIndex = Math.floor((activeRows.length - 1) / 2);
 
-            activeRows.forEach((item, activeIndex) => {
-                const rowNumber = item.rowNumber;
-                const bgColor = cycleNumber % 2 === 0 ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
-                const isOld = item.is_old_data == "1";
+            rows.forEach(item => {
+            const tr = document.createElement("tr");
 
-                const tr = document.createElement("tr");
-                tr.style.backgroundColor = bgColor;
-                tr.dataset.id = item.id;
+            // 🎨 Warna per-cycle : ganjil/ genap
+            const bgColor = (cycleNumber % 2 === 0) ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
+            tr.style.backgroundColor = bgColor;
 
-                if (item.status !== 'scheduled') {
-                    tr.classList.add("not-draggable");
-                }
+            tr.dataset.id = item.id;
 
-                tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
+            const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+            if (!isVisible) {
+                tr.style.display = "none";
+                tr.classList.add("not-draggable");
+            } else if (item.status !== 'scheduled') {
+                tr.classList.add("not-draggable");
+            }
 
-                if (activeIndex === middleIndex) {
-                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-                } else {
-                    tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
-                }
+            // No (rowNumber dari backend)
+            tr.innerHTML += `<td align="center" class="row-number">${item.rowNumber}</td>`;
 
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-                tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
+            // Cell "Cycle" hanya muncul di tengah baris aktif per cycle
+            const idxInActive = activeRows.findIndex(i => i.id === item.id);
+            if (idxInActive === middleIndex) {
+                tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
+            } else {
+                tr.innerHTML += `<td class="cycle-cell" style="opacity:0; pointer-events:none;"></td>`;
+            }
+
+            // No. Resep + highlight
+            const resepShown = highlightMatch(item.no_resep || '', searchTerm);
+            const isOld = item.is_old_data == "1";
+            const isTest = item.is_test == "1"
+            tr.innerHTML += `
+                            <td align="center" style="white-space:nowrap;">
+                                ${resepShown}
+                                ${item.is_bonresep == "0" ? ` - ${item.jenis_matching}` : ``}
+                                ${isOld ? ' 🕑' : ''}
+                                ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}
+                            </td>`;
+
+            // Kolom lain
+            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;
+            if (String(item.is_bonresep) === "1") {
+                tr.innerHTML += `<td align="center">-</td>`;
+            } else {
                 tr.innerHTML += `
                     <td align="center">
-                        <span 
-                            class="editable-machine" 
-                            data-id="${item.id}" 
-                            data-group="${item.id_group}" 
-                            data-current="${item.no_machine}"
-                        >
-                            ${item.no_machine}
-                        </span>
+                    <span class="editable-machine"
+                        data-id="${item.id}"
+                        data-group="${item.id_group}"
+                        data-current="${item.no_machine}">
+                        ${item.no_machine}
+                    </span>
                     </td>`;
-                tr.innerHTML += `<td align="center">${item.status}</td>`;
+            }
 
-                tbodyElement.appendChild(tr);
+            tr.innerHTML += `<td align="center">${item.status}</td>`;
+
+            tbodyElement.appendChild(tr);
             });
         });
     }
 
 
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         if (e.target.classList.contains("editable-machine")) {
             const span = e.target;
             const currentValue = span.dataset.current;
@@ -532,41 +962,46 @@
     function saveChange(id, newValue, originalSpan) {
         const select = document.querySelector(`select[data-editing-id="${id}"]`);
         fetch("pages/ajax/update_machine_number.php", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, no_machine: newValue })
-        })
-        .then(res => res.json())
-        .then(response => {
-            const newSpan = document.createElement("span");
-            newSpan.className = "editable-machine";
-            newSpan.dataset.id = id;
-            newSpan.dataset.group = originalSpan.dataset.group;
-            newSpan.dataset.current = newValue;
-            newSpan.textContent = newValue;
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id,
+                    no_machine: newValue
+                })
+            })
+            .then(res => res.json())
+            .then(response => {
+                const newSpan = document.createElement("span");
+                newSpan.className = "editable-machine";
+                newSpan.dataset.id = id;
+                newSpan.dataset.group = originalSpan.dataset.group;
+                newSpan.dataset.current = newValue;
+                newSpan.textContent = newValue;
 
-            if (response.success) {
-                select.replaceWith(newSpan);
+                if (response.success) {
+                    select.replaceWith(newSpan);
 
-                // ✅ Tampilkan SweetAlert kalau berhasil
-                Swal.fire({
-                    toast: true,
-                    position: 'center',
-                    icon: 'success',
-                    title: 'Nomor mesin berhasil diperbarui',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-            } else {
-                alert("Gagal menyimpan perubahan");
+                    // ✅ Tampilkan SweetAlert kalau berhasil
+                    Swal.fire({
+                        toast: true,
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Nomor mesin berhasil diperbarui',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    alert("Gagal menyimpan perubahan");
+                    select.replaceWith(originalSpan);
+                }
+            })
+            .catch(() => {
+                alert("Terjadi kesalahan");
                 select.replaceWith(originalSpan);
-            }
-        })
-        .catch(() => {
-            alert("Terjadi kesalahan");
-            select.replaceWith(originalSpan);
-        });
+            });
     }
 
     // function enableSortableTables() {
@@ -677,76 +1112,87 @@
         document.querySelectorAll("tbody").forEach(tbody => {
             const sortable = new Sortable(tbody, {
                 animation: 150,
+                handle: null,
+                ghostClass: "sortable-ghost", // Class saat dragging
+                chosenClass: "sortable-chosen", // Class saat diklik
+                dragClass: "sortable-drag", // Class elemen yang sedang diseret
+                fallbackOnBody: true, // Biar ghost tidak lepas dari DOM
+                swapThreshold: 0.65,
                 multiDrag: true,
                 selectedClass: 'sortable-selected',
                 fallbackTolerance: 3,
                 disabled: isLocked,
                 draggable: "tr:not(.not-draggable)",
-                onEnd: function (evt) {
+                onEnd: function(evt) {
                     if (isLocked) return;
 
                     const tbody = evt.from;
+                    const sortable = sortables.find(s => s.el === tbody);
+
+                    // clear sortable-selected sebelumnya => tampilan mulus
+                    // tbody.querySelectorAll(".sortable-selected").forEach(row => {
+                    //     row.classList.remove("sortable-selected");
+                    // });
+
+                    tbody.querySelectorAll('.sortable-selected, .sortable-ghost, .sortable-drag').forEach(el => {
+                        el.classList.remove('sortable-selected', 'sortable-ghost', 'sortable-drag');
+                    });
+
+                    if (sortable && sortable.multiDrag) {
+                        sortable.multiDrag._deselectMultiDrag();
+                        sortable.multiDrag._selected = [];
+                    }
+
                     const visibleRows = [...tbody.querySelectorAll("tr")];
                     const dispCode = getDispensingCodeFromTbody(tbody.id);
 
                     const fullData = [...fullGroupedData[dispCode]];
 
                     console.log("Urutan TR dalam DOM setelah drag:");
-                    visibleRows.forEach((tr, i) => {
+                    [...tbody.querySelectorAll("tr")].forEach((tr, i) => {
                         console.log(`${i + 1}: ID = ${tr.dataset.id}`);
                     });
 
 
-                    // const visibleIdOrder = visibleRows.map(row => row.dataset.id);
+                    const visibleIdOrder = visibleRows.map(row => row.dataset.id);
 
-                    // const reordered = visibleIdOrder.map((id, index) => ({
-                    //     id,
-                    //     order_index: index + 1
-                    // }));
-
-                    const reordered = [...tbody.querySelectorAll("tr")].map((tr, index) => ({
-                        id: parseInt(tr.dataset.id),
-                        order_index: index + 1,
-                        row_number: index + 1,
-                        cycle_number: getCycleNumberFromRow(tr) 
+                    const reordered = visibleIdOrder.map((id, index) => ({
+                        id,
+                        order_index: index + 1
                     }));
-
 
                     console.log("Reordered dikirim ke server:", reordered);
 
                     fetch('pages/ajax/UpdateOrderIndexes.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(reordered)
-                    })
-                    .then(res => res.json())
-                    .then(response => {
-                        if (response.success) {
-                            fetchAndRenderDataOnly();
-                            Swal.fire({
-                                toast: true,
-                                position: 'center',
-                                icon: 'success',
-                                title: 'Urutan berhasil diperbarui',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        } else {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(reordered)
+                        })
+                        .then(res => res.json())
+                        .then(response => {
+                            if (response.success) {
+                                fetchAndRenderDataOnly();
+                                setTimeout(() => {
+                                    enableSortableTables();
+                                }, 50);
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: 'Gagal update urutan.'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: 'Gagal update urutan.'
+                                title: 'Kesalahan',
+                                text: 'Terjadi kesalahan saat menyimpan.'
                             });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: 'Terjadi kesalahan saat menyimpan.'
                         });
-                    });
                 }
 
             });
@@ -769,9 +1215,9 @@
         const scanInput = document.getElementById("scanInput");
         scanInput.disabled = !isLocked;
 
-        if(!isLocked) {
+        if (!isLocked) {
             document.querySelectorAll("tbody tr").forEach(row => {
-                row.addEventListener("click", function () {
+                row.addEventListener("click", function() {
                     const tbody = row.closest("tbody");
                     const sortable = sortables.find(s => s.el === tbody);
                     if (!sortable) return;
@@ -794,10 +1240,12 @@
     function getDispensingCodeFromTbody(tbodyId) {
         if (tbodyId.includes("Poly")) return "1";
         if (tbodyId.includes("Cotton")) return "2";
-        return "3";
+        if (tbodyId.includes("White")) return "3";
+        if (tbodyId.includes("Bon")) return "BON";
+        return "";
     }
 
-    window.addEventListener("DOMContentLoaded", function () {
+    window.addEventListener("DOMContentLoaded", function() {
         enableSortableTables();
 
         // Awal: drag terkunci => scan aktif

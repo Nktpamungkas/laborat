@@ -60,7 +60,7 @@
 </style>
 <style>
     .table-scrollable {
-        max-height: 800px;
+        max-height: 700px;
         overflow-y: auto;
         border: 1px solid #ddd;
     }
@@ -121,6 +121,33 @@
     #epcTable th {
         text-align: center;
     }
+    #tableContainer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;           /* default */
+        overflow-x: visible;       /* default */
+    }
+
+    .table-panel {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    /* mode khusus: tepat 4 tabel terlihat */
+    #tableContainer.four-visible {
+        flex-wrap: nowrap;         /* jangan wrap */
+        overflow-x: auto;          /* geser horizontal */
+        overflow-y: hidden;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #tableContainer.four-visible .table-panel {
+        flex: 0 0 620px; 
+        min-width: 620px;
+    }
+
 </style>
 
 <div class="row">
@@ -148,11 +175,10 @@
                     </div>
                 </div>
 
-                <!-- Container for tables with display flex -->
-                <div id="tableContainer" style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                <div id="tableContainer">
 
                     <!-- Dispensing Poly Table -->
-                    <div id="polyTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="polyTableWrapper" class="table-panel">
                         <h4 id="polyHeader" class="text-center"><strong>DISPENSING POLY</strong></h4>
                         <div class="table-scrollable">
                             <table id="tablePoly" class="table table-bordered" width="100%">
@@ -189,7 +215,7 @@
                     </div>
 
                     <!-- Dispensing Cotton Table -->
-                    <div id="cottonTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="cottonTableWrapper" class="table-panel">
                         <h4 id="cottonHeader" class="text-center"><strong>DISPENSING COTTON</strong></h4>
                         <div class="table-scrollable">
                             <table id="tableCotton" class="table table-bordered" width="100%">
@@ -226,7 +252,7 @@
                     </div>
 
                     <!-- Dispensing White Table -->
-                    <div id="whiteTableWrapper" style="flex: 1; min-width: 300px; display: block;">
+                    <div id="whiteTableWrapper" class="table-panel">
                         <h4 id="whiteHeader" class="text-center"><strong>DISPENSING WHITE</strong></h4>
                         <div class="table-scrollable">
                             <table id="tableWhite" class="table table-bordered" width="100%">
@@ -262,6 +288,25 @@
                         </div>
                     </div>
 
+                    <!-- Dispensing Bon Resep Table -->
+                    <div id="bonTableWrapper" class="table-panel">
+                        <h4 id="bonHeader" class="text-center"><strong>BON RESEP</strong></h4>
+                        <div class="table-scrollable">
+                            <table id="tableBon" class="table table-bordered" width="100%">
+                                <thead class="bg-green">
+                                    <tr>
+                                        <th><div align="center" style="width: 5px;">No</div></th>
+                                        <th><div align="center">No. Resep</div></th>
+                                        <th><div align="center">Temp</div></th>
+                                        <th><div align="center">No. Mesin</div></th>
+                                        <th><div align="center">Status</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataBodyBon"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- RFID Trigerred Modal -->
@@ -275,11 +320,10 @@
                             </div>
                             <div class="modal-body">
                                 <div class="table-scrollable" style="border: none;">
-                                    <table id="epcTable" class="table table-bordered" style="width:100%; padding: 1rem">
+                                    <table id="tableBon" class="table table-bordered" style="width:100%; padding: 1rem">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Cycle</th>
                                                 <th>No Resep</th>
                                                 <th>Temp</th>
                                                 <th>No Mesin</th>
@@ -544,7 +588,8 @@
         let fullGroupedData = {
             '1': [],
             '2': [],
-            '3': []
+            '3': [],
+            'BON' : []
         };
 
         loadData();
@@ -683,18 +728,12 @@
                 // Start websocket to room 1
                 subscribe(2)
 
-                fullGroupedData = {
-                    '1': [],
-                    '2': [],
-                    '3': []
-                };
+                fullGroupedData = { '1':[], '2':[], '3':[], 'BON':[] };
+
                 data.forEach(item => {
-                    const code = item.dispensing?.trim() ?? '';
-                    if (['1', '2'].includes(code)) {
-                        fullGroupedData[code].push(item);
-                    } else {
-                        fullGroupedData['3'].push(item);
-                    }
+                    const g = (item.disp_group || '3').trim();
+                    if (['1','2','3','BON'].includes(g)) fullGroupedData[g].push(item);
+                    else fullGroupedData['3'].push(item);
                 });
 
                 renderOnlyTables(data);
@@ -711,18 +750,12 @@
             .then(data => {
                 dispensingData = data;
 
-                fullGroupedData = {
-                    '1': [],
-                    '2': [],
-                    '3': []
-                };
+                fullGroupedData = { '1':[], '2':[], '3':[], 'BON':[] };
+
                 data.forEach(item => {
-                    const code = item.dispensing?.trim() ?? '';
-                    if (['1', '2'].includes(code)) {
-                        fullGroupedData[code].push(item);
-                    } else {
-                        fullGroupedData['3'].push(item);
-                    }
+                    const g = (item.disp_group || '3').trim();
+                    if (['1','2','3','BON'].includes(g)) fullGroupedData[g].push(item);
+                    else fullGroupedData['3'].push(item);
                 });
 
                 renderOnlyTables(data); // hanya render ulang isinya
@@ -733,28 +766,62 @@
     }
 
     function renderOnlyTables(data) {
-        const tbodyPoly = document.getElementById("dataBodyPoly");
+        const tbodyPoly   = document.getElementById("dataBodyPoly");
         const tbodyCotton = document.getElementById("dataBodyCotton");
-        const tbodyWhite = document.getElementById("dataBodyWhite");
+        const tbodyWhite  = document.getElementById("dataBodyWhite");
+        const tbodyBon    = document.getElementById("dataBodyBon");
 
-        tbodyPoly.innerHTML = "";
-        tbodyCotton.innerHTML = "";
-        tbodyWhite.innerHTML = "";
+        // reset isi tbody
+        if (tbodyPoly) tbodyPoly.innerHTML = "";
+        if (tbodyCotton) tbodyCotton.innerHTML = "";
+        if (tbodyWhite) tbodyWhite.innerHTML = "";
+        if (tbodyBon) tbodyBon.innerHTML = "";
 
-        const dataForRender = searchTerm 
+        const dataForRender = searchTerm
             ? data.filter(it => (it.no_resep || "").toLowerCase().includes(searchTerm))
             : data;
 
-        renderTable(dataForRender, tbodyPoly,   "1");
-        renderTable(dataForRender, tbodyCotton, "2");
-        renderTable(dataForRender, tbodyWhite,  "");
+        // render masing-masing tabel
+        if (tbodyPoly)   renderTable(dataForRender, tbodyPoly,   "1");
+        if (tbodyCotton) renderTable(dataForRender, tbodyCotton, "2");
+        if (tbodyWhite)  renderTable(dataForRender, tbodyWhite,  "3");
+        // if (tbodyBon)    renderTable(dataForRender, tbodyBon,    "BON");
+        if (tbodyBon)    renderBonTable(dataForRender, tbodyBon);
 
-        document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
-        document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
-        document.getElementById("whiteTableWrapper").style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
+        const polyWrap   = document.getElementById("polyTableWrapper");
+        const cottonWrap = document.getElementById("cottonTableWrapper");
+        const whiteWrap  = document.getElementById("whiteTableWrapper");
+        const bonWrap    = document.getElementById("bonTableWrapper");
 
-        const visibleTables = [tbodyPoly, tbodyCotton, tbodyWhite].filter(t => t.innerHTML.trim() !== "").length;
-        document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
+        if (polyWrap && tbodyPoly) {
+            polyWrap.style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
+        }
+        if (cottonWrap && tbodyCotton) {
+            cottonWrap.style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
+        }
+        if (whiteWrap && tbodyWhite) {
+            whiteWrap.style.display = tbodyWhite.innerHTML.trim() ? "block" : "none";
+        }
+        if (bonWrap && tbodyBon) {
+            bonWrap.style.display = tbodyBon.innerHTML.trim() ? "block" : "none";
+        }
+
+        // hitung tabel yang visible
+        const wrappers = [polyWrap, cottonWrap, whiteWrap, bonWrap].filter(Boolean);
+        const visibleCount = wrappers.filter(w => w.style.display !== "none").length;
+
+        // mode layout container
+        const container = document.getElementById("tableContainer");
+        if (!container) return;
+
+        // Jika 4 tabel tampil -> aktifkan horizontal scroll mode
+        if (visibleCount === 4) {
+            container.classList.add("four-visible");
+        } else {
+            container.classList.remove("four-visible");
+        }
+
+        container.style.display = (visibleCount > 1) ? "flex" : "block";
     }
 
     function highlightMatch(text, term){
@@ -768,8 +835,8 @@
 
         // 1) Filter berdasar dispensing code
         const filtered = dataArray.filter(item => {
-            const code = item.dispensing?.trim() ?? "";
-            return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
+            const code = item.disp_group?.trim() ?? "";
+            return code === dispensingCode;
         });
 
         // 2) Group per cycleNumber (ini kunci agar warna kembali sesuai cycle)
@@ -823,20 +890,30 @@
             const resepShown = highlightMatch(item.no_resep || '', searchTerm);
             const isOld = item.is_old_data == "1";
             const isTest = item.is_test == "1"
-            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${resepShown} - ${item.jenis_matching} ${isOld ? '🕑' : ''}  ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}</td>`;
+            tr.innerHTML += `
+                            <td align="center" style="white-space:nowrap;">
+                                ${resepShown}
+                                ${item.is_bonresep == "0" ? ` - ${item.jenis_matching}` : ``}
+                                ${isOld ? ' 🕑' : ''}
+                                ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}
+                            </td>`;
 
             // Kolom lain
             tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;
-            tr.innerHTML += `
-                <td align="center">
-                <span 
-                    class="editable-machine" 
-                    data-id="${item.id}" 
-                    data-group="${item.id_group}" 
-                    data-current="${item.no_machine}">
-                    ${item.no_machine}
-                </span>
-                </td>`;
+            if (String(item.is_bonresep) === "1") {
+                tr.innerHTML += `<td align="center">-</td>`;
+            } else {
+                tr.innerHTML += `
+                    <td align="center">
+                    <span class="editable-machine"
+                        data-id="${item.id}"
+                        data-group="${item.id_group}"
+                        data-current="${item.no_machine}">
+                        ${item.no_machine}
+                    </span>
+                    </td>`;
+            }
+
             tr.innerHTML += `<td align="center">${item.status}</td>`;
 
             tbodyElement.appendChild(tr);
@@ -844,79 +921,26 @@
         });
     }
 
+    function renderBonTable(dataArray, tbodyElement) {
+        const filtered = dataArray.filter(item => String(item.is_bonresep) === "1");
 
-    // function renderTable(dataArray, tbodyElement, dispensingCode) {
-    //     const rowsPerBlock = 16;
+        tbodyElement.innerHTML = "";
 
-    //     // Filter berdasarkan kode dispensing
-    //     const filtered = dataArray.filter(item => {
-    //         const code = item.dispensing?.trim() ?? "";
-    //         return (dispensingCode === "" && (code !== "1" && code !== "2")) || code === dispensingCode;
-    //     });
+        filtered.forEach((item, idx) => {
+            const tr = document.createElement("tr");
+            tr.dataset.id = item.id;
 
-    //     // Kelompokkan per cycle
-    //     const groupedByCycle = {};
-    //     filtered.forEach(item => {
-    //         const cycle = item.cycleNumber ?? 1;
-    //         if (!groupedByCycle[cycle]) {
-    //             groupedByCycle[cycle] = [];
-    //         }
-    //         groupedByCycle[cycle].push(item);
-    //     });
+            tr.innerHTML = `
+            <td align="center">${idx + 1}</td>
+            <td align="center" style="white-space:nowrap;">${item.no_resep || ''}</td>
+            <td align="center" style="white-space:nowrap;">${item.product_name || 'BON RESEP'}</td>
+            <td align="center">-</td>
+            <td align="center">${item.status || ''}</td>
+            `;
 
-    //     tbodyElement.innerHTML = "";
-
-    //     Object.keys(groupedByCycle).sort((a, b) => a - b).forEach(cycleNumber => {
-    //         const blockRows = groupedByCycle[cycleNumber];
-
-    //         // Ambil hanya data aktif (scheduled / in_progress_dispensing)
-    //         const activeRows = blockRows.filter(item =>
-    //             item.status === 'scheduled' || item.status === 'in_progress_dispensing'
-    //         );
-
-    //         const middleIndex = Math.floor((activeRows.length - 1) / 2);
-
-    //         activeRows.forEach((item, activeIndex) => {
-    //             const rowNumber = item.rowNumber;
-    //             const bgColor = cycleNumber % 2 === 0 ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
-    //             const isOld = item.is_old_data == "1";
-
-    //             const tr = document.createElement("tr");
-    //             tr.style.backgroundColor = bgColor;
-    //             tr.dataset.id = item.id;
-
-    //             if (item.status !== 'scheduled') {
-    //                 tr.classList.add("not-draggable");
-    //             }
-
-    //             tr.innerHTML += `<td align="center" class="row-number">${rowNumber}</td>`;
-
-    //             if (activeIndex === middleIndex) {
-    //                 tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-    //             } else {
-    //                 tr.innerHTML += `<td class="cycle-cell" style="opacity: 0; pointer-events: none;"></td>`;
-    //             }
-
-    //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.no_resep} - ${item.jenis_matching} ${isOld ? '🕑' : ''}</td>`;
-    //             tr.innerHTML += `<td align="center" style="white-space: nowrap;">${item.product_name}</td>`;
-    //             tr.innerHTML += `
-    //                 <td align="center">
-    //                     <span 
-    //                         class="editable-machine" 
-    //                         data-id="${item.id}" 
-    //                         data-group="${item.id_group}" 
-    //                         data-current="${item.no_machine}"
-    //                     >
-    //                         ${item.no_machine}
-    //                     </span>
-    //                 </td>`;
-    //             tr.innerHTML += `<td align="center">${item.status}</td>`;
-
-    //             tbodyElement.appendChild(tr);
-    //         });
-    //     });
-    // }
-
+            tbodyElement.appendChild(tr);
+        });
+    }
 
     document.addEventListener("click", function(e) {
         if (e.target.classList.contains("editable-machine")) {
@@ -1235,7 +1259,9 @@
     function getDispensingCodeFromTbody(tbodyId) {
         if (tbodyId.includes("Poly")) return "1";
         if (tbodyId.includes("Cotton")) return "2";
-        return "3";
+        if (tbodyId.includes("White")) return "3";
+        if (tbodyId.includes("Bon")) return "BON";
+        return "";
     }
 
     window.addEventListener("DOMContentLoaded", function() {

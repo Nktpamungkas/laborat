@@ -11,6 +11,8 @@ $bottle_qty_test= (int) $_POST['bottle_qty_test'];
 $temp_1         = trim(htmlspecialchars($_POST['temp_1'])); 
 $temp_2         = trim(htmlspecialchars($_POST['temp_2']));
 $username       = $_SESSION['userLAB'] ?? null;
+$is_bonresep    = isset($_POST['is_bonresep']) ? (int)$_POST['is_bonresep'] : 0;
+
 
 // Element balance
 $element_id     = trim(htmlspecialchars($_POST['element'])) ?? '';
@@ -84,12 +86,6 @@ try {
     $checkQuery->close();
 
     if ($countOldDataRepeat > 0) {
-        // $deleteQuery = $con->prepare("DELETE FROM tbl_preliminary_schedule WHERE no_resep = ?");
-        // $deleteQuery->bind_param("s", $no_resep);
-        // $deleteQuery->execute();
-
-        // $deleteQuery->close();
-
         $updateQuery = $con->prepare("UPDATE tbl_preliminary_schedule SET is_old_cycle = 1 WHERE no_resep = ? AND status = 'repeat'");
         $updateQuery->bind_param("s", $no_resep);
         $updateQuery->execute();
@@ -97,44 +93,10 @@ try {
         $updateQuery->close();
     }
 
-    // Insert data untuk bottle_qty_1
-    // for ($i = 0; $i < $bottle_qty_1; $i++) {
-    //     $query1 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
-    //     if (!$query1) {
-    //         $success = false;
-    //         $errorMessages[] = "Prepare failed: " . $con->error;
-    //         continue;
-    //     }
-
-    //     $query1->bind_param("sss", $no_resep, $temp_1, $username);
-    //     if ($query1->execute()) {
-    //         $insertedCount++;
-    //     } else {
-    //         $errorMessages[] = $query1->error;
-    //     }
-    // }
-
-    // Insert data untuk bottle_qty_2
-    // for ($i = 0; $i < $bottle_qty_2; $i++) {
-    //     $query2 = $con->prepare("INSERT INTO tbl_preliminary_schedule (no_resep, code, username) VALUES (?, ?, ?)");
-    //     if (!$query2) {
-    //         $success = false;
-    //         $errorMessages[] = "Prepare failed: " . $con->error;
-    //         continue;
-    //     }
-
-    //     $query2->bind_param("sss", $no_resep, $temp_2, $username);
-    //     if ($query2->execute()) {
-    //         $insertedCount++;
-    //     } else {
-    //         $errorMessages[] = $query2->error;
-    //     }
-    // }
-
     // Prepare statement untuk insert parent
     $stmtInsertParent = $con->prepare("
-        INSERT INTO tbl_preliminary_schedule (no_resep, code, username, is_test) 
-        VALUES (?, ?, ?, ?)
+        INSERT INTO tbl_preliminary_schedule (no_resep, code, username, is_test, is_bonresep)
+        VALUES (?, ?, ?, ?, ?)
     ");
 
     if (!$stmtInsertParent) {
@@ -159,7 +121,7 @@ try {
     // Insert test bottles
     for ($i = 0; $i < $bottle_qty_test; $i++) {
         // is_test = 1
-        $stmtInsertParent->bind_param("sssi", $no_resep_esc, $temp_1_esc, $username_esc, $is_test);
+        $stmtInsertParent->bind_param("sssii", $no_resep_esc, $temp_1_esc, $username_esc, $is_test, $is_bonresep);
         $is_test = 1;
 
         if (!$stmtInsertParent->execute()) {
@@ -179,7 +141,7 @@ try {
     // Insert normal bottles
     for ($i = 0; $i < $bottle_qty_1; $i++) {
         // is_test = 0
-        $stmtInsertParent->bind_param("sssi", $no_resep_esc, $temp_1_esc, $username_esc, $is_test);
+        $stmtInsertParent->bind_param("sssii", $no_resep_esc, $temp_1_esc, $username_esc, $is_test, $is_bonresep);
         $is_test = 0;
 
         if (!$stmtInsertParent->execute()) {

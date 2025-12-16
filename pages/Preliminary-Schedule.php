@@ -249,6 +249,20 @@ if (!$bolehAkses) {
     thead tr:nth-child(2) th.sticky-col {
         z-index: 4;
     }
+    @keyframes blinkGreen {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.2; }
+    }
+
+    #bonResepInfo.blink {
+        animation: blinkGreen 0.9s infinite;
+    }
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
 </style>
 <div class="box box-info">
     <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="form1">
@@ -892,6 +906,8 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 <script id="validasi-temp-setup">
     // === SETUP VALIDASI TEMP ===
     window.isTempValid = false;
+    window.canSaveWithoutTemp = false;
+    window.isBonResep = 0;
 
     function setTempValidity(ok, productName = '') {
         window.isTempValid = !!ok;
@@ -953,7 +969,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 
         $('#exsecute').click(function(e) {
             e.preventDefault();
-            if (!window.isTempValid) {
+            if (!window.isTempValid && !window.canSaveWithoutTemp) {
                 toastr.error('Temp Code belum valid. Harap scan/isi kode hingga Suhu muncul.');
                 $('#temp').focus();
                 return;
@@ -967,11 +983,10 @@ $is_scheduling = ($row['is_scheduling'] == 1);
             // Jika ada input bottle_qty_2, ambil nilainya, jika tidak, set ke 0
             var bottle_qty_2 = $('#bottle_qty_2').val() ? $('#bottle_qty_2').val() : 0;
 
-            // Cek apakah input temp_1 dan temp_2 ada, jika ada ambil nilainya
-            var temp_1 = $('#temp_1').val() ? $('#temp_1').val() : $('#temp').val();
+            var temp_1 = window.canSaveWithoutTemp ? 'BONRESEP' : ($('#temp_1').val() ? $('#temp_1').val() : $('#temp').val());
             var temp_2 = $('#temp_2').val() ? $('#temp_2').val() : 0;
 
-            if (!temp_1 || temp_1.trim() === '') {
+            if (!window.canSaveWithoutTemp && (!temp_1 || temp_1.trim() === '')) {
                 return false;
             }
 
@@ -996,7 +1011,8 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                     temp_2: temp_2,
                     element,
                     kain_qty,
-                    kain_qty_test
+                    kain_qty_test,
+                    is_bonresep: window.isBonResep ? 1 : 0
                 },
                 success: function(response) {
 
@@ -1014,6 +1030,13 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 
                         loadData();
                         checkRepeatItems();
+
+                        $('#bonResepInfo').remove();
+                        window.canSaveWithoutTemp = false;
+                        window.isBonResep = 0;
+
+                        $('#temp').prop('disabled', false).prop('required', true).val('');
+                        setTempValidity(false);
                     } else {
                         toastr.error(response.message);
                         if (response.errors) {
@@ -1156,11 +1179,14 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                 data.forEach((item, index) => {
                     const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
                     const testBadge = item.is_test == 1 ? ' <span class="label label-warning">TEST REPORT</span>' : '';
+                    const suffix = item.is_bonresep == 1
+                            ? `${item.no_resep}${testBadge}`
+                            : `${item.no_resep} - ${item.jenis_matching}${testBadge}`;
 
                     rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
-                        <td ${isOldStyle}>${item.no_resep} - ${item.jenis_matching} ${testBadge}</td>
-                        <td ${isOldStyle}>${item.product_name}</td>
+                        <td ${isOldStyle}>${suffix}</td>
+                        <td ${isOldStyle}>${item.is_bonresep == 0 ? item.product_name : ''}</td>
                         <td width="100" align="center" ${isOldStyle}>${item.element_code || '-'}</td>
                         <td width="50" align="right" ${isOldStyle}>
                             ${  (
@@ -1409,82 +1435,127 @@ $is_scheduling = ($row['is_scheduling'] == 1);
         $('#no_resep').on('input', function() {
             clearTimeout(tempScanTimer);
             setTempValidity(false);
+            window.canSaveWithoutTemp = false;
 
             const code = $(this).val().trim();
 
-            // const startsWithDR = code.startsWith('DR');
-            // const endsWithSuffix = code.endsWith('-A') || code.endsWith('-B');
+            // reset tampilan info
+            $('#bonResepInfo, #bonResepLoading').remove();
+            $('#temp').prop('disabled', false).prop('required', true);
 
-            // Jika diawali dengan DR, tapi belum diakhiri -A atau -B, jangan kirim AJAX
-            // if (startsWithDR && !endsWithSuffix) return;
+            // hanya jika diawali angka dan formatnya 00234124-503
+            if (/^\d/.test(code) && /^(\d+)\-(\d+)$/.test(code)) {
+                tempScanTimer = setTimeout(function() {
 
-            tempScanTimer = setTimeout(function() {
-                $.ajax({
-                    url: 'pages/ajax/get_temp_code_by_noresep.php',
-                    method: 'GET',
-                    data: {
-                        no_resep: code
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        console.log(response);
-                        console.log(response.codes.length)
+                    $('#no_resep').closest('.form-group')
+                        .append(`
+                            <label id="bonResepLoading" class="control-label" style="margin-left:10px; color:#999;">
+                                <i class="fa fa-spinner spin"></i> Checking bon resep...
+                            </label>
+                        `);
 
-                        if (response.success) {
-                            const codes = response.codes;
+                    $.ajax({
+                        url: 'pages/ajax/check_bon_resep_db2.php',
+                        method: 'GET',
+                        data: { no_resep: code },
+                        dataType: 'json',
+                        success: function(res) {
+                            $('#bonResepLoading').remove();
 
-                            if (codes.length === 2) {
-                                $('#temp').val(codes[0]).trigger('input');
-                                // $('#temp_1').val(codes[0]).trigger('input');
-                                // $('#temp_2').val(codes[1]).trigger('input');
-                            } else if (codes.length === 1) {
-                                $('#temp').val(codes[0]).trigger('input');
+                            if (res && res.success && res.found) {
+                                // BON RESEP ditemukan -> Temp tidak wajib
+                                window.canSaveWithoutTemp = true;
+                                window.isBonResep = 1;
+
+                                $('#temp').val('').prop('disabled', true).prop('required', false);
+                                setTempValidity(true, '');
+
+                                $('#no_resep').closest('.form-group')
+                                    .append(`
+                                        <label id="bonResepInfo" class="control-label blink"
+                                            style="color:green; font-weight:bold; margin-left:10px;">
+                                            BON RESEP DITEMUKAN
+                                        </label>
+                                    `);
+
+                                return;
                             }
-                        } else {
+
+                            // tidak ditemukan → normal flow
+                            window.canSaveWithoutTemp = false;
+                            window.isBonResep = 0;
+                            $('#temp').prop('disabled', false).prop('required', true);
                             setTempValidity(false);
+
+                            runNormalNoResepFlow(code);
+                        },
+                        error: function() {
+                            $('#bonResepLoading').remove();
+
+                            // fallback normal
+                            window.canSaveWithoutTemp = false;
+                            $('#temp').prop('disabled', false).prop('required', true);
+                            setTempValidity(false);
+
+                            runNormalNoResepFlow(code);
                         }
-                    },
-                    error: function() {
-                        setTempValidity(false);
-                        console.error('Gagal mengambil data dari server.');
-                    }
-                });
+                    });
+                }, 300);
 
-                $.ajax({
-                    url: 'pages/ajax/get_element_id_by_noresep.php',
-                    method: 'POST',
-                    data: {
-                        no_resep: code
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            const element_id = response.element_id;
-                            const element_code = response.element_code;
-                            $('#elementIdDisplay').text(`${element_id}`);
-                            $('#elementCodeDisplay').text(`${element_code}`);
+                return;
+            }
 
-                            $('#kain_qty').prop('disabled', false);
-                            $('#kain_qty').val(10);
-                            $('#kain_qty_test').prop('disabled', false);
-                            $('#kain_qty_test').val(10);
-                        } else {
-                            $('#elementIdDisplay').text('');
-                            $('#elementCodeDisplay').text('');
-                            $('#kain_qty').val('');
-                            $('#kain_qty').prop('disabled', true);
-                            $('#kain_qty_test').val('');
-                            $('#kain_qty_test').prop('disabled', true);
-                        }
-                    },
-                    error: function() {
-                        console.error('Gagal mengambil data dari server.');
-
-                    }
-                });
+            // selain itu -> alur normal
+            tempScanTimer = setTimeout(function() {
+                runNormalNoResepFlow(code);
             }, 300);
-
         });
+
+        function runNormalNoResepFlow(code) {
+            $.ajax({
+                url: 'pages/ajax/get_temp_code_by_noresep.php',
+                method: 'GET',
+                data: { no_resep: code },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        const codes = response.codes;
+                        if (codes.length === 2) {
+                            $('#temp').val(codes[0]).trigger('input');
+                        } else if (codes.length === 1) {
+                            $('#temp').val(codes[0]).trigger('input');
+                        }
+                    } else {
+                        setTempValidity(false);
+                    }
+                },
+                error: function() {
+                    setTempValidity(false);
+                }
+            });
+
+            $.ajax({
+                url: 'pages/ajax/get_element_id_by_noresep.php',
+                method: 'POST',
+                data: { no_resep: code },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('#elementIdDisplay').text(`${response.element_id}`);
+                        $('#elementCodeDisplay').text(`${response.element_code}`);
+
+                        $('#kain_qty').prop('disabled', false).val(10);
+                        $('#kain_qty_test').prop('disabled', false).val(10);
+                    } else {
+                        $('#elementIdDisplay').text('');
+                        $('#elementCodeDisplay').text('');
+                        $('#kain_qty').val('').prop('disabled', true);
+                        $('#kain_qty_test').val('').prop('disabled', true);
+                    }
+                }
+            });
+        }
+
 
         function setupTempListenersDR() {
             listenTempWithId('#temp_1', '#productNameDisplay_1');

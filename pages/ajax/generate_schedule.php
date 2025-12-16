@@ -27,7 +27,7 @@ if (isset($_POST['schedules'])) {
                 // $stmt = $con->prepare("SELECT id, is_old_data FROM tbl_preliminary_schedule 
                 //                        WHERE no_resep = ? AND status = 'ready' AND (no_machine IS NULL OR no_machine = '') 
                 //                        ORDER BY id DESC LIMIT 1");
-                $stmt = $con->prepare("SELECT ps.id, ps.is_old_data, ps.is_test, tm.jenis_matching 
+                $stmt = $con->prepare("SELECT ps.id, ps.is_old_data, ps.is_test, ps.is_bonresep, tm.jenis_matching
                                         FROM tbl_preliminary_schedule ps
                                         LEFT JOIN tbl_matching tm ON 
                                             CASE 
@@ -40,10 +40,10 @@ if (isset($_POST['schedules'])) {
 
                 $stmt->bind_param("s", $no_resep);
                 $stmt->execute();
-                $stmt->bind_result($id, $is_old_data, $is_test, $jenis_matching);
+                $stmt->bind_result($id, $is_old_data, $is_test, $is_bonresep, $jenis_matching);
 
                 if ($stmt->fetch()) {
-                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data, 'is_test'   => (int)$is_test, 'matching' => $jenis_matching];
+                    $idMap[$groupName][$chunkIndex][] = ['id' => $id, 'is_old' => $is_old_data, 'is_test'   => (int)$is_test, 'is_bonresep' => (int)$is_bonresep, 'matching' => $jenis_matching];
                     $stmt->close();
 
                     // Tandai ID ini agar tidak digunakan lagi sementara
@@ -75,40 +75,48 @@ if (isset($_POST['schedules'])) {
                             $suhu = null;
 
                             // Ambil dyeing dan suhu dari master_suhu
-                            $stmt = $con->prepare("SELECT dyeing, suhu FROM master_suhu WHERE `group` = ? LIMIT 1");
-                            $stmt->bind_param("s", $groupName);
-                            $stmt->execute();
-                            $stmt->bind_result($dyeingValue, $suhu);
-                            $stmt->fetch();
-                            $stmt->close();
+                            if ($groupName === 'BON_RESEP') {
+                                $keterangan = '';
+                                $suhu = null;
+                                $machines = [];
+                                $tempGroup = 'BON RESEP';
+                            } else {
+                                $stmt = $con->prepare("SELECT dyeing, suhu FROM master_suhu WHERE `group` = ? LIMIT 1");
 
-                            // Konversi dyeing ke keterangan
-                            if ($dyeingValue == "1") {
-                                $keterangan = 'POLY';
-                            } elseif ($dyeingValue == "2") {
-                                $keterangan = 'COTTON';
-                            }
+                                $stmt->bind_param("s", $groupName);
+                                $stmt->execute();
+                                $stmt->bind_result($dyeingValue, $suhu);
+                                $stmt->fetch();
+                                $stmt->close();
 
-                            $machines = [];
-
-                            if ($keterangan === 'COTTON' && $suhu == 80) {
-                                // ✅ Khusus: COTTON & suhu 80 hanya A6 dan C1
-                                $machines = ['A6', 'C1'];
-                            } elseif ($keterangan) {
-                                // ✅ Selain itu, ambil dari DB, tapi exclude A6 dan C1
-                                $stmtMesin = $con->prepare("
-                                    SELECT no_machine 
-                                    FROM master_mesin 
-                                    WHERE keterangan = ? AND no_machine NOT IN ('A6', 'C1')
-                                ");
-                                $stmtMesin->bind_param("s", $keterangan);
-                                $stmtMesin->execute();
-                                $resultMesin = $stmtMesin->get_result();
-
-                                while ($row = $resultMesin->fetch_assoc()) {
-                                    $machines[] = $row['no_machine'];
+                                // Konversi dyeing ke keterangan
+                                if ($dyeingValue == "1") {
+                                    $keterangan = 'POLY';
+                                } elseif ($dyeingValue == "2") {
+                                    $keterangan = 'COTTON';
                                 }
-                                $stmtMesin->close();
+
+                                $machines = [];
+
+                                if ($keterangan === 'COTTON' && $suhu == 80) {
+                                    // ✅ Khusus: COTTON & suhu 80 hanya A6 dan C1
+                                    $machines = ['A6', 'C1'];
+                                } elseif ($keterangan) {
+                                    // ✅ Selain itu, ambil dari DB, tapi exclude A6 dan C1
+                                    $stmtMesin = $con->prepare("
+                                        SELECT no_machine 
+                                        FROM master_mesin 
+                                        WHERE keterangan = ? AND no_machine NOT IN ('A6', 'C1')
+                                    ");
+                                    $stmtMesin->bind_param("s", $keterangan);
+                                    $stmtMesin->execute();
+                                    $resultMesin = $stmtMesin->get_result();
+
+                                    while ($row = $resultMesin->fetch_assoc()) {
+                                        $machines[] = $row['no_machine'];
+                                    }
+                                    $stmtMesin->close();
+                                }
                             }
 
                             // ✅ Ambil mesin yang sedang terjadwal/berproses agar bisa di-exclude
@@ -129,36 +137,33 @@ if (isset($_POST['schedules'])) {
                             // ✅ Filter final mesin: hanya mesin yang tidak ada di $excludedMachines
                             $machines = array_values(array_diff($machines, $excludedMachines));
 
-                            // Temp Group
-                            // $groupTemp = [];
-                            // $stmtTemp = $con->prepare("SELECT product_name FROM master_suhu WHERE `group` = ?");
-                            // $stmtTemp->bind_param("s", $groupName);
-                            // $stmtTemp->execute();
-                            // $resultProd = $stmtTemp->get_result();
-                            // while ($row = $resultProd->fetch_assoc()) {
-                            //     $groupTemp[] = $row['product_name'];
-                            // }
-                            // $stmtTemp->close();
+                            if ($groupName !== 'BON_RESEP') {
+                                // Temp Group hanya untuk group normal (yang ada di master_suhu)
+                                $stmtTemp = $con->prepare("SELECT program, suhu, product_name FROM master_suhu WHERE `group` = ? LIMIT 1");
+                                $stmtTemp->bind_param("s", $groupName);
+                                $stmtTemp->execute();
+                                $result = $stmtTemp->get_result();
+                                $row = $result->fetch_assoc();
+                                $stmtTemp->close();
 
-                            // Gabungkan dengan koma
-                            // $tempList = implode(' ; ', $groupTemp);
-                            $stmtTemp = $con->prepare("SELECT program, suhu, product_name FROM master_suhu WHERE `group` = ? LIMIT 1");
-                            $stmtTemp->bind_param("s", $groupName);
-                            $stmtTemp->execute();
-                            $result = $stmtTemp->get_result();
-                            $row = $result->fetch_assoc();
-                            $stmtTemp->close();
-
-                            if ($row['program'] == 1) {
-                                $tempGroup = 'Constant ' . $row['suhu'];
-                            } elseif ($row['program'] == 2) {
-                                $tempGroup = 'Raising ' . $row['product_name'];
+                                if ($row) {
+                                    if ((int)$row['program'] === 1) {
+                                        $tempGroup = 'Constant ' . $row['suhu'];
+                                    } elseif ((int)$row['program'] === 2) {
+                                        $tempGroup = 'Raising ' . $row['product_name'];
+                                    } else {
+                                        $tempGroup = $groupName;
+                                    }
+                                } else {
+                                    $tempGroup = $groupName; // fallback aman kalau group tidak ada di master_suhu
+                                }
                             }
+                            // else: BON_RESEP tetap pakai $tempGroup = 'BON RESEP' dari atas
                         ?>
 
                         <?php foreach ($chunks as $chunkIndex => $chunk): ?>
                             <th colspan="1" style="min-width: 115px;">
-                                <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
+                                <!-- <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
                                     <select class="form-control input-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
                                         <option value="">Pilih Mesin</option>
                                         <?php foreach ($machines as $machine): ?>
@@ -166,9 +171,25 @@ if (isset($_POST['schedules'])) {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <!-- <?= htmlspecialchars($groupName) ?> <br> -->
-                                <!-- [<small><?= htmlspecialchars($tempList) ?></small>] -->
-                                <small class="text-danger"><?= htmlspecialchars($tempGroup) ?></small>
+                                <small class="text-danger"><?= htmlspecialchars($tempGroup) ?></small> -->
+                                <?php if ($groupName === 'BON_RESEP'): ?>
+                                    <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
+                                        <select class="form-control input-sm" disabled data-group="BON_RESEP">
+                                            <option value="BONRESEP" selected>BON RESEP</option>
+                                        </select>
+                                    </div>
+                                    <small class="text-danger">BON RESEP</small>
+                                <?php else: ?>
+                                    <div class="form-group dropdown-container" style="display: table; margin: 0 auto;">
+                                        <select class="form-control input-sm" aria-label="Pilih Mesin untuk <?= htmlspecialchars($groupName) ?>" data-group="<?= htmlspecialchars($groupName) ?>">
+                                            <option value="">Pilih Mesin</option>
+                                            <?php foreach ($machines as $machine): ?>
+                                                <option value="<?= htmlspecialchars($machine) ?>"><?= htmlspecialchars($machine) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <small class="text-danger"><?= htmlspecialchars($tempGroup) ?></small>
+                                <?php endif; ?>
                             </th>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
@@ -186,6 +207,7 @@ if (isset($_POST['schedules'])) {
                                     $id_schedule = $id_info['id'] ?? null;
                                     $is_old_data = $id_info['is_old'] ?? 0;
                                     $is_test     = (int)($id_info['is_test'] ?? 0);
+                                    $is_bonresep = (int)($id_info['is_bonresep'] ?? 0);
 
                                     // Atur style td jika is_old_data == 1
                                     $tdStyle = $is_old_data == 1 ? 'background-color: pink;' : '';
@@ -198,7 +220,8 @@ if (isset($_POST['schedules'])) {
                                             <span class="resep-item"
                                                 data-id="<?= $id_schedule ?>"
                                                 data-resep="<?= htmlspecialchars($no_resep) ?>"
-                                                data-group="<?= htmlspecialchars($groupName) ?>">
+                                                data-group="<?= htmlspecialchars($groupName) ?>"
+                                                data-bonresep="<?= $is_bonresep ?>">
                                                 <?= htmlspecialchars($no_resep) ?> <?= $badge ?>
                                                 <!-- <?= htmlspecialchars($no_resep) . ' - ' . htmlspecialchars($id_info['matching'] ?? '') ?> -->
                                             </span>

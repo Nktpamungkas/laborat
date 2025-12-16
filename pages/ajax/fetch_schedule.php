@@ -3,7 +3,10 @@ session_start();
 include '../../koneksi.php';
 
 $sql = "SELECT
-            ms.`group`,
+            CASE
+                WHEN tps.is_bonresep = 1 THEN 'BON_RESEP'
+                ELSE ms.`group`
+            END AS `group`,
             tps.no_resep
         FROM
             tbl_preliminary_schedule tps
