@@ -1,0 +1,536 @@
+<?php
+ini_set('display_errors', 0);
+error_reporting(0);
+include __DIR__ . "/../../koneksi.php";
+header('Content-Type: application/json');
+
+// DETAIL khusus Matching Ulang NOW
+// Logika diambil dari NowForm lama (BONORDER, RAJUT, BOOKING*, KGBRUTO, dll)
+
+$projectCode = isset($_POST['projectcode']) ? trim($_POST['projectcode']) : '';
+$orderLine   = isset($_POST['orderline']) ? trim($_POST['orderline']) : '';
+
+if ($projectCode === '' || $orderLine === '') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Project code atau orderline kosong.'
+    ]);
+    exit;
+}
+
+try {
+    // ============= BASE ITEM (SALESORDERLINE + PRODUCTIONDEMAND) ============
+    $sqlItem = "
+        SELECT 
+            TRIM(p2.CODE) AS CODE,
+            p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
+            p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
+            p.ITEMDESCRIPTION AS WARNA,
+            TRIM(p.SUBCODE01) AS SUBCODE01, 
+            TRIM(p.SUBCODE02) AS SUBCODE02, 
+            TRIM(p.SUBCODE03) AS SUBCODE03, 
+            TRIM(p.SUBCODE04) AS SUBCODE04, 
+            TRIM(p.SUBCODE05) AS SUBCODE05, 
+            TRIM(p.SUBCODE06) AS SUBCODE06, 
+            TRIM(p.SUBCODE07) AS SUBCODE07, 
+            TRIM(p.SUBCODE08) AS SUBCODE08,
+            TRIM(p.SUBCODE09) AS SUBCODE09,
+            TRIM(p.SUBCODE10) AS SUBCODE10
+        FROM SALESORDERLINE p
+        LEFT JOIN PRODUCTIONDEMAND p2 
+            ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE 
+           AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
+        WHERE p.SALESORDERCODE = ? 
+          AND p.ORDERLINE = ?
+        GROUP BY 
+            p2.CODE, 
+            p.ORDERLINE,
+            p.SUBCODE01,
+            p.SUBCODE02,
+            p.SUBCODE03,
+            p.SUBCODE04,
+            p.SUBCODE05,
+            p.SUBCODE06,
+            p.SUBCODE07,
+            p.SUBCODE08,
+            p.SUBCODE09,
+            p.SUBCODE10,
+            p.ITEMTYPEAFICODE,
+            p.ITEMDESCRIPTION
+    ";
+
+    $stmtItem = db2_prepare($conn1, $sqlItem);
+    if (!$stmtItem || !db2_execute($stmtItem, [$projectCode, $orderLine])) {
+        throw new Exception('Gagal mengambil detail item.');
+    }
+
+    $r_item = db2_fetch_assoc($stmtItem);
+    if (!$r_item) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Detail item tidak ditemukan.'
+        ]);
+        exit;
+    }
+
+    $no_item1 = trim($r_item['SUBCODE02']) . trim($r_item['SUBCODE03']);
+
+    // ============= PO GREIGE (ITXVIEWPOGREIGENEW*) + PROJECT / INTERNALREF ============
+    $sqlPoGreige = "
+        SELECT 
+            CASE
+                WHEN LOTCODE IS NOT NULL THEN LOTCODE
+                ELSE '-'
+            END AS LOTCODE,
+            CASE
+                WHEN DEMAND_KGF IS NOT NULL THEN DEMAND_KGF
+                ELSE '-'
+            END AS DEMAND_KGF
+        FROM 
+        (
+            SELECT 
+                i.LOTCODE AS LOTCODE,
+                i.DEMAND_KGF AS DEMAND_KGF
+            FROM ITXVIEWPOGREIGENEW i 
+            WHERE i.SALESORDERCODE = ? AND i.ORDERLINE = ?
+            UNION ALL
+            SELECT 
+                i2.LOTCODE AS LOTCODE,
+                i2.DEMAND_KGF AS DEMAND_KGF
+            FROM ITXVIEWPOGREIGENEW2 i2 
+            WHERE i2.SALESORDERCODE = ? AND i2.ORDERLINE = ?
+            UNION ALL
+            SELECT
+                i3.LOTCODE AS LOTCODE,
+                i3.DEMAND_KGF AS DEMAND_KGF
+            FROM ITXVIEWPOGREIGENEW3 i3 
+            WHERE i3.SALESORDERCODE = ? AND i3.ORDERLINE = ?
+        )
+        GROUP BY LOTCODE, DEMAND_KGF
+    ";
+
+    $stmtPo        = db2_prepare($conn1, $sqlPoGreige);
+    $r_pogreigenew = null;
+    if ($stmtPo && db2_execute($stmtPo, [$projectCode, $orderLine, $projectCode, $orderLine, $projectCode, $orderLine])) {
+        $r_pogreigenew = db2_fetch_assoc($stmtPo);
+    }
+
+    $sqlPoIntRef = "
+        SELECT INTERNALREFERENCE 
+        FROM PRODUCTIONDEMAND 
+        WHERE ORIGDLVSALORDLINESALORDERCODE = ? 
+          AND ORIGDLVSALORDERLINEORDERLINE = ?
+    ";
+    $stmtPo4        = db2_prepare($conn1, $sqlPoIntRef);
+    $r_pogreigenew4 = null;
+    if ($stmtPo4 && db2_execute($stmtPo4, [$projectCode, $orderLine])) {
+        $r_pogreigenew4 = db2_fetch_assoc($stmtPo4);
+    }
+
+    $sqlPoAd = "
+        SELECT 
+            a.ORIGDLVSALORDLINESALORDERCODE,
+            a.ORIGDLVSALORDERLINEORDERLINE,
+            a.INTERNALREFERENCE,
+            b.NAMENAME,
+            b.VALUESTRING 
+        FROM PRODUCTIONDEMAND a
+        LEFT JOIN ADSTORAGE b ON b.UNIQUEID = a.ABSUNIQUEID 
+        WHERE 
+            ORIGDLVSALORDLINESALORDERCODE = ? 
+            AND ORIGDLVSALORDERLINEORDERLINE = ?
+            AND (b.NAMENAME = 'ProAllow' OR b.NAMENAME = 'ProAllow2' OR b.NAMENAME = 'ProAllo3' OR b.NAMENAME = 'ProAllow4' OR b.NAMENAME = 'ProAllow5')
+    ";
+    $stmtPo5        = db2_prepare($conn1, $sqlPoAd);
+    $r_pogreigenew5 = null;
+    if ($stmtPo5 && db2_execute($stmtPo5, [$projectCode, $orderLine])) {
+        $r_pogreigenew5 = db2_fetch_assoc($stmtPo5);
+    }
+
+    $pogreige  = 'NO KO : -/ DEMAND KGF :-';
+    $pogreige2 = '';
+
+    if ($r_pogreigenew) {
+        $lotcode = isset($r_pogreigenew['LOTCODE']) && $r_pogreigenew['LOTCODE'] !== '' ? $r_pogreigenew['LOTCODE'] : '-';
+        $dkgf    = isset($r_pogreigenew['DEMAND_KGF']) && $r_pogreigenew['DEMAND_KGF'] !== '' ? $r_pogreigenew['DEMAND_KGF'] : '-';
+        $pogreige = 'NO KO : ' . $lotcode . '/ DEMAND KGF :' . $dkgf;
+    }
+    if ($r_pogreigenew4 && $r_pogreigenew4['INTERNALREFERENCE']) {
+        $pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
+    } else {
+        $pogreige2 = $r_pogreigenew5['VALUESTRING'] ?? '';
+    }
+
+    $no_po = rtrim($pogreige) . ', PROJECT : ' . $pogreige2;
+
+    // ============= PRODUK (JENIS KAIN) ============
+    $itemtype = $r_item['ITEMTYPEAFICODE'];
+    $s1       = $r_item['SUBCODE01'];
+    $s2       = $r_item['SUBCODE02'];
+    $s3       = $r_item['SUBCODE03'];
+    $s4       = $r_item['SUBCODE04'];
+    $s5       = $r_item['SUBCODE05'];
+    $s6       = $r_item['SUBCODE06'];
+    $s7       = $r_item['SUBCODE07'];
+    $s8       = $r_item['SUBCODE08'];
+    $s9       = $r_item['SUBCODE09'];
+    $s10      = $r_item['SUBCODE10'];
+
+    $sqlJk = "
+        SELECT * 
+        FROM PRODUCT 
+        WHERE TRIM(SUBCODE01) = ? 
+          AND TRIM(SUBCODE02) = ? 
+          AND TRIM(SUBCODE03) = ? 
+          AND TRIM(SUBCODE04) = ? 
+          AND TRIM(SUBCODE05) = ? 
+          AND TRIM(SUBCODE06) = ? 
+          AND TRIM(SUBCODE07) = ? 
+          AND TRIM(SUBCODE08) = ?
+          AND TRIM(SUBCODE09) = ?
+          AND TRIM(SUBCODE10) = ?
+          AND TRIM(ITEMTYPECODE) = ?
+    ";
+
+    $stmtJk = db2_prepare($conn1, $sqlJk);
+    $r_jk   = null;
+    if ($stmtJk && db2_execute($stmtJk, [$s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9, $s10, $itemtype])) {
+        $r_jk = db2_fetch_assoc($stmtJk);
+    }
+
+    $kain = $r_jk ? str_replace('"', ' ', $r_jk['LONGDESCRIPTION']) : '';
+
+    // ============= COLOR CODE & WARNA ============
+    $assoc_colorcode = null;
+    $sqlColorCode = "
+        SELECT 
+            p.DLVSALESORDERLINEORDERLINE,
+            TRIM(p.CODE) AS DEMANDCODE,
+            trim(i2.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
+            trim(i2.SUBCODE01) AS SUBCODE01, 
+            trim(i2.SUBCODE02) AS SUBCODE02,
+            trim(i2.SUBCODE03) AS SUBCODE03, 
+            trim(i2.SUBCODE04) AS SUBCODE04, 
+            trim(i2.SUBCODE05) AS SUBCODE05,
+            trim(i2.SUBCODE06) AS SUBCODE06,
+            trim(i2.SUBCODE07) AS SUBCODE07,
+            trim(i2.SUBCODE08) AS SUBCODE08,
+            trim(i2.SUBCODE09) AS SUBCODE09,
+            trim(i2.SUBCODE10) AS SUBCODE10,
+            i.WARNA AS WARNA
+        FROM PRODUCTIONDEMAND p 
+        LEFT JOIN ITXVIEWBONORDER i2 
+            ON i2.SALESORDERCODE = p.ORIGDLVSALORDLINESALORDERCODE 
+           AND i2.ORDERLINE = p.ORIGDLVSALORDERLINEORDERLINE 
+        LEFT JOIN ITXVIEWCOLOR i 
+            ON i.ITEMTYPECODE = i2.ITEMTYPEAFICODE 
+           AND i.SUBCODE01 = i2.SUBCODE01 
+           AND i.SUBCODE02 = i2.SUBCODE02 
+           AND i.SUBCODE03 = i2.SUBCODE03 
+           AND i.SUBCODE04 = i2.SUBCODE04 
+           AND i.SUBCODE05 = i2.SUBCODE05 
+           AND i.SUBCODE06 = i2.SUBCODE06 
+           AND i.SUBCODE07 = i2.SUBCODE07 
+           AND i.SUBCODE08 = i2.SUBCODE08 
+           AND i.SUBCODE09 = i2.SUBCODE09 
+           AND i.SUBCODE10 = i2.SUBCODE10
+        LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
+        WHERE p.ORIGDLVSALORDLINESALORDERCODE = ? 
+          AND p.DLVSALESORDERLINEORDERLINE = ?
+        GROUP BY 
+            p.DLVSALESORDERLINEORDERLINE,
+            i2.SUBCODE01,
+            i2.SUBCODE02,
+            i2.SUBCODE03,
+            i2.SUBCODE04,
+            i2.SUBCODE05,
+            i2.SUBCODE06,
+            i2.SUBCODE07,
+            i2.SUBCODE08,
+            i2.SUBCODE09,
+            i2.SUBCODE10,
+            i2.ITEMTYPEAFICODE,
+            i.WARNA,
+            p.CODE
+    ";
+
+    $stmtColor = db2_prepare($conn1, $sqlColorCode);
+    if ($stmtColor && db2_execute($stmtColor, [$projectCode, $orderLine])) {
+        $assoc_colorcode = db2_fetch_assoc($stmtColor);
+    }
+
+    $color_code  = '';
+    $warna_short = trim($r_item['WARNA']);
+    $demandCode  = '';
+
+    if ($assoc_colorcode) {
+        if (!empty($assoc_colorcode['SUBCODE05'])) {
+            $color_code = $assoc_colorcode['SUBCODE05'];
+        }
+        if (!empty($assoc_colorcode['WARNA'])) {
+            $warna_short = $assoc_colorcode['WARNA'];
+        }
+        $demandCode = $assoc_colorcode['DEMANDCODE'] ?? '';
+    }
+
+    // Warna dari ITXVIEWBONORDER
+    $sqlWarnaBon = "
+        SELECT WARNA 
+        FROM ITXVIEWBONORDER
+        WHERE SALESORDERCODE = ?
+          AND ORDERLINE      = ?
+        FETCH FIRST 1 ROW ONLY
+    ";
+    $stmtWarnaBon = db2_prepare($conn1, $sqlWarnaBon);
+    if ($stmtWarnaBon && db2_execute($stmtWarnaBon, [$projectCode, $orderLine])) {
+        $rowWarnaBon = db2_fetch_assoc($stmtWarnaBon);
+        if ($rowWarnaBon && !empty($rowWarnaBon['WARNA'])) {
+            $warna_short = trim($rowWarnaBon['WARNA']);
+        }
+    }
+
+    // ============= BENANG (RAJUT + BOOKING_BLM_READY + BOOKING_NEW) ============
+    $benang = '';
+
+    $sqlItxviewkk = "
+        SELECT *
+        FROM ITXVIEWBONORDER
+        WHERE SALESORDERCODE = ?
+          AND ORDERLINE      = ?
+    ";
+    $stmtItxviewkk = db2_prepare($conn1, $sqlItxviewkk);
+    $d_itxviewkk   = null;
+    if ($stmtItxviewkk && db2_execute($stmtItxviewkk, [$projectCode, $orderLine])) {
+        $d_itxviewkk = db2_fetch_assoc($stmtItxviewkk);
+    }
+
+    if ($d_itxviewkk) {
+        $subcode04 = $d_itxviewkk['SUBCODE04'];
+        if (trim($d_itxviewkk['ITEMTYPEAFICODE']) === 'KFF' && !empty($d_itxviewkk['RESERVATION_SUBCODE04'])) {
+            $subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
+        }
+
+        $linesBenang = [];
+
+        $sqlRajut = "
+            SELECT SUMMARIZEDDESCRIPTION
+            FROM ITXVIEW_RAJUT
+            WHERE SUBCODE01 = ?
+              AND SUBCODE02 = ?
+              AND SUBCODE03 = ?
+              AND SUBCODE04 = ?
+              AND ORIGDLVSALORDLINESALORDERCODE = ?
+              AND (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')
+        ";
+        $stmtRajut = db2_prepare($conn1, $sqlRajut);
+        if ($stmtRajut && db2_execute($stmtRajut, [
+            $d_itxviewkk['SUBCODE01'],
+            $d_itxviewkk['SUBCODE02'],
+            $d_itxviewkk['SUBCODE03'],
+            $subcode04,
+            $projectCode,
+        ])) {
+            $rowRajut = db2_fetch_assoc($stmtRajut);
+            if ($rowRajut && !empty($rowRajut['SUMMARIZEDDESCRIPTION'])) {
+                $linesBenang[] = trim($rowRajut['SUMMARIZEDDESCRIPTION']);
+            }
+        }
+
+        $sqlBooking = "
+            SELECT SUMMARIZEDDESCRIPTION, ORIGDLVSALORDLINESALORDERCODE
+            FROM ITXVIEW_BOOKING_BLM_READY
+            WHERE SUBCODE01 = ?
+              AND SUBCODE02 = ?
+              AND SUBCODE03 = ?
+              AND SUBCODE04 = ?
+              AND ORIGDLVSALORDLINESALORDERCODE = ?
+              AND (ITEMTYPEAFICODE ='KGF' OR ITEMTYPEAFICODE = 'FKG')
+        ";
+
+        $bookingFields = ['ADDITIONALDATA', 'ADDITIONALDATA2', 'ADDITIONALDATA3', 'ADDITIONALDATA4', 'ADDITIONALDATA4'];
+        foreach ($bookingFields as $fieldName) {
+            $origCode = isset($d_itxviewkk[$fieldName]) ? trim($d_itxviewkk[$fieldName]) : '';
+            if ($origCode === '') {
+                continue;
+            }
+            $stmtBooking = db2_prepare($conn1, $sqlBooking);
+            if ($stmtBooking && db2_execute($stmtBooking, [
+                $d_itxviewkk['SUBCODE01'],
+                $d_itxviewkk['SUBCODE02'],
+                $d_itxviewkk['SUBCODE03'],
+                $subcode04,
+                $origCode,
+            ])) {
+                $rowBooking = db2_fetch_assoc($stmtBooking);
+                if ($rowBooking && !empty($rowBooking['SUMMARIZEDDESCRIPTION'])) {
+                    $linesBenang[] = trim($rowBooking['SUMMARIZEDDESCRIPTION']) . ' - ' . trim($rowBooking['ORIGDLVSALORDLINESALORDERCODE']);
+                }
+            }
+        }
+
+        $sqlBookingNew = "
+            SELECT SUMMARIZEDDESCRIPTION
+            FROM ITXVIEW_BOOKING_NEW
+            WHERE SALESORDERCODE = ?
+              AND ORDERLINE      = ?
+        ";
+        $stmtBookingNew = db2_prepare($conn1, $sqlBookingNew);
+        if ($stmtBookingNew && db2_execute($stmtBookingNew, [$projectCode, $orderLine])) {
+            $rowBookingNew = db2_fetch_assoc($stmtBookingNew);
+            if ($rowBookingNew && !empty($rowBookingNew['SUMMARIZEDDESCRIPTION'])) {
+                $linesBenang[] = trim($rowBookingNew['SUMMARIZEDDESCRIPTION']);
+            }
+        }
+
+        if ($linesBenang) {
+            $benang = implode("\r\n", $linesBenang);
+        }
+    }
+
+    // ============= LEBAR & GRAMASI (ADSTORAGE) ============
+    $lebar   = '';
+    $gramasi = '';
+
+    $sqlLebar = "
+        SELECT
+            CASE
+                WHEN TRIM(ADSTORAGE.NAMENAME) = 'Width' AND TRIM(PRODUCT.ITEMTYPECODE) = 'KFF' THEN ADSTORAGE.VALUEDECIMAL
+                WHEN TRIM(ADSTORAGE.NAMENAME) = 'Width' AND TRIM(PRODUCT.ITEMTYPECODE) = 'FKF'
+                    THEN SUBSTRING(PRODUCT.SUBCODE04, 0, LOCATE('-', PRODUCT.SUBCODE04))
+            END AS LEBAR
+        FROM ADSTORAGE
+        RIGHT JOIN PRODUCT ON ADSTORAGE.UNIQUEID = PRODUCT.ABSUNIQUEID
+        WHERE TRIM(PRODUCT.SUBCODE01) = ?
+          AND TRIM(PRODUCT.SUBCODE02) = ?
+          AND TRIM(PRODUCT.SUBCODE03) = ?
+          AND TRIM(PRODUCT.SUBCODE04) = ?
+          AND TRIM(PRODUCT.SUBCODE05) = ?
+          AND TRIM(PRODUCT.SUBCODE06) = ?
+          AND TRIM(PRODUCT.SUBCODE07) = ?
+          AND TRIM(PRODUCT.SUBCODE08) = ?
+          AND TRIM(PRODUCT.SUBCODE09) = ?
+          AND TRIM(PRODUCT.SUBCODE10) = ?
+          AND TRIM(PRODUCT.ITEMTYPECODE) = ?
+          AND TRIM(ADSTORAGE.NAMENAME) = 'Width'
+    ";
+
+    $stmtLebar = db2_prepare($conn1, $sqlLebar);
+    if ($stmtLebar && db2_execute($stmtLebar, [$s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9, $s10, $itemtype])) {
+        $rowLebar = db2_fetch_assoc($stmtLebar);
+        if ($rowLebar && $rowLebar['LEBAR'] !== null) {
+            $lebar = $rowLebar['LEBAR'];
+        }
+    }
+
+    $sqlGramasi = "
+        SELECT
+            ADSTORAGE.NAMENAME,
+            TRIM(ADSTORAGE.VALUEDECIMAL) AS VALUEDECIMAL,
+           PRODUCT.SUBCODE04
+        FROM ADSTORAGE
+        RIGHT JOIN PRODUCT ON ADSTORAGE.UNIQUEID = PRODUCT.ABSUNIQUEID
+        WHERE TRIM(PRODUCT.SUBCODE01) = ?
+          AND TRIM(PRODUCT.SUBCODE02) = ?
+          AND TRIM(PRODUCT.SUBCODE03) = ?
+          AND TRIM(PRODUCT.SUBCODE04) = ?
+          AND TRIM(PRODUCT.SUBCODE05) = ?
+          AND TRIM(PRODUCT.SUBCODE06) = ?
+          AND TRIM(PRODUCT.SUBCODE07) = ?
+          AND TRIM(PRODUCT.SUBCODE08) = ?
+          AND TRIM(PRODUCT.SUBCODE09) = ?
+          AND TRIM(PRODUCT.SUBCODE10) = ?
+          AND TRIM(ADSTORAGE.NAMENAME) = 'GSM'
+    ";
+
+    $stmtGramasi = db2_prepare($conn1, $sqlGramasi);
+    if ($stmtGramasi && db2_execute($stmtGramasi, [$s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9, $s10])) {
+        $rowGramasi = db2_fetch_assoc($stmtGramasi);
+        if ($rowGramasi) {
+            if ($itemtype === 'FKF' && !empty($rowGramasi['SUBCODE04'])) {
+                $parts = explode('-', $rowGramasi['SUBCODE04']);
+                if (isset($parts[1])) {
+                    $gramasi = $parts[1];
+                }
+            } elseif (!empty($rowGramasi['VALUEDECIMAL'])) {
+                $gramasi = $rowGramasi['VALUEDECIMAL'];
+            }
+        }
+    }
+
+    // ============= LAB DIP NO & COCOK WARNA ============
+    $no_warna    = '';
+    $cocok_warna = '';
+
+    $sqlCckStd = "
+        SELECT * 
+        FROM ITXVIEW_STD_CCK_WARNA 
+        WHERE SALESORDERCODE = ? 
+          AND ORDERLINE = ?
+    ";
+    $stmtCckStd = db2_prepare($conn1, $sqlCckStd);
+    if ($stmtCckStd && db2_execute($stmtCckStd, [$projectCode, $orderLine])) {
+        $r_cck_std = db2_fetch_assoc($stmtCckStd);
+        if ($r_cck_std) {
+            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? '');
+            $no_warna    = $r_cck_std['LABDIPNO'];
+        }
+    }
+
+    // ============= TGL DELIVERY ============
+    $sqlDelivery = "
+        SELECT * 
+        FROM SALESORDERDELIVERY 
+        WHERE SALESORDERLINESALESORDERCODE = ? 
+          AND SALESORDERLINEORDERLINE = ?
+    ";
+    $stmtDelivery = db2_prepare($conn1, $sqlDelivery);
+    $tgl_delivery = '';
+    if ($stmtDelivery && db2_execute($stmtDelivery, [$projectCode, $orderLine])) {
+        $r_delivery = db2_fetch_assoc($stmtDelivery);
+        if ($r_delivery && !empty($r_delivery['DELIVERYDATE'])) {
+            $date_deliv = date_create($r_delivery['DELIVERYDATE']);
+            if ($date_deliv) {
+                $tgl_delivery = date_format($date_deliv, "Y-m-d");
+            }
+        }
+    }
+
+    // ============= QTY BRUTO ============
+    $qty = '';
+    $sqlQty = "
+        SELECT SUM(USERPRIMARYQUANTITY) AS QTY_BRUTO
+        FROM ITXVIEW_KGBRUTO 
+        WHERE PROJECTCODE = ?
+          AND ORIGDLVSALORDERLINEORDERLINE = ?
+    ";
+    $stmtQty = db2_prepare($conn1, $sqlQty);
+    if ($stmtQty && db2_execute($stmtQty, [$projectCode, $orderLine])) {
+        $rowQty = db2_fetch_assoc($stmtQty);
+        if ($rowQty && $rowQty['QTY_BRUTO'] !== null) {
+            $qty = (string) $rowQty['QTY_BRUTO'];
+        }
+    }
+
+    echo json_encode([
+        'success'      => true,
+        'no_item1'     => $no_item1,
+        'color_code'   => $color_code,
+        'recipe_code'  => '',
+        'no_po'        => $no_po,
+        'kain'         => $kain,
+        'warna'        => $warna_short,
+        'no_warna'     => $no_warna,
+        'cocok_warna'  => $cocok_warna,
+        'tgl_delivery' => $tgl_delivery,
+        'lebar'        => $lebar,
+        'gramasi'      => $gramasi,
+        'benang'       => $benang,
+        'qty'          => $qty,
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage(),
+    ]);
+}
+

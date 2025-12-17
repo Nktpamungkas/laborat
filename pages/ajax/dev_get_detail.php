@@ -4,6 +4,9 @@ error_reporting(0);
 include __DIR__ . "/../../koneksi.php";
 header('Content-Type: application/json');
 
+// Detail AJAX untuk menu:
+// - Matching Development (blok Development di Form-Matching)
+
 $order  = isset($_POST['order']) ? strtoupper(trim($_POST['order'])) : '';
 $demand = isset($_POST['demand']) ? trim($_POST['demand']) : '';
 
@@ -83,4 +86,3 @@ try {
         'message' => $e->getMessage(),
     ]);
 }
-

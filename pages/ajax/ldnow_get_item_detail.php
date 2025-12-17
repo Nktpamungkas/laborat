@@ -4,6 +4,16 @@ error_reporting(0);
 include __DIR__ . "/../../koneksi.php";
 header('Content-Type: application/json');
 
+// DETAIL khusus L/D NOW
+// Mengikuti pola query di kode lama:
+// - Basis dari SALESORDERLINE + PRODUCTIONDEMAND
+// - PO Greige dari ITXVIEWPOGREIGENEW(1/2/3) + PRODUCTIONDEMAND/ADSTORAGE
+// - Jenis kain dari PRODUCT
+// - LAB DIP NO & Cocok Warna dari ITXVIEW_STD_CCK_WARNA
+// - Tgl Delivery dari SALESORDERDELIVERY
+// Field lain (lebar/gramasi/benang/qty/recipe_code) dikosongkan karena
+// di form L/D NOW memang hidden / manual.
+
 $projectCode = isset($_POST['projectcode']) ? trim($_POST['projectcode']) : '';
 $orderLine   = isset($_POST['orderline']) ? trim($_POST['orderline']) : '';
 
@@ -16,6 +26,7 @@ if ($projectCode === '' || $orderLine === '') {
 }
 
 try {
+    // ============= BASE ITEM (SALESORDERLINE + PRODUCTIONDEMAND) ============
     $sqlItem = "
         SELECT 
             TRIM(p2.CODE) AS CODE,
@@ -57,20 +68,21 @@ try {
 
     $stmtItem = db2_prepare($conn1, $sqlItem);
     if (!$stmtItem || !db2_execute($stmtItem, [$projectCode, $orderLine])) {
-        throw new Exception('Gagal mengambil detail item.');
+        throw new Exception('Gagal mengambil detail item L/D NOW.');
     }
 
     $r_item = db2_fetch_assoc($stmtItem);
     if (!$r_item) {
         echo json_encode([
             'success' => false,
-            'message' => 'Detail item tidak ditemukan.'
+            'message' => 'Detail item L/D NOW tidak ditemukan.'
         ]);
         exit;
     }
 
     $no_item1 = trim($r_item['SUBCODE02']) . trim($r_item['SUBCODE03']);
 
+    // ============= PO GREIGE (ITXVIEWPOGREIGENEW*) + PROJECT / INTERNALREF ============
     $sqlPoGreige = "
         SELECT 
             CASE
@@ -142,29 +154,23 @@ try {
         $r_pogreigenew5 = db2_fetch_assoc($stmtPo5);
     }
 
-    $pogreige  = '';
+    $pogreige  = 'NO KO : -/ DEMAND KGF :-';
     $pogreige2 = '';
 
     if ($r_pogreigenew) {
-        // Ikuti format lama: selalu tampil "NO KO : <LOTCODE>/ DEMAND KGF :<DEMAND>"
-        // dengan fallback '-' jika datanya kosong/null.
         $lotcode = isset($r_pogreigenew['LOTCODE']) && $r_pogreigenew['LOTCODE'] !== '' ? $r_pogreigenew['LOTCODE'] : '-';
         $dkgf    = isset($r_pogreigenew['DEMAND_KGF']) && $r_pogreigenew['DEMAND_KGF'] !== '' ? $r_pogreigenew['DEMAND_KGF'] : '-';
         $pogreige = 'NO KO : ' . $lotcode . '/ DEMAND KGF :' . $dkgf;
-    } else {
-        // Tidak ada record POGREIGE -> pakai default yang lama
-        $pogreige = 'NO KO : -/ DEMAND KGF :-';
     }
     if ($r_pogreigenew4 && $r_pogreigenew4['INTERNALREFERENCE']) {
         $pogreige2 = $r_pogreigenew4['INTERNALREFERENCE'];
     } else {
-        // Ikuti logika lama di form: jika tidak ada INTERNALREFERENCE, ambil VALUESTRING (bisa kosong)
         $pogreige2 = $r_pogreigenew5['VALUESTRING'] ?? '';
     }
 
-    // Selalu tampilkan ", PROJECT : ..." seperti di implementasi lama
     $no_po = rtrim($pogreige) . ', PROJECT : ' . $pogreige2;
 
+    // ============= PRODUK (JENIS KAIN) ============
     $itemtype = $r_item['ITEMTYPEAFICODE'];
     $s1       = $r_item['SUBCODE01'];
     $s2       = $r_item['SUBCODE02'];
@@ -177,7 +183,6 @@ try {
     $s9       = $r_item['SUBCODE09'];
     $s10      = $r_item['SUBCODE10'];
 
-    // ========= DATA PRODUK (JENIS KAIN) =========
     $sqlJk = "
         SELECT * 
         FROM PRODUCT 
@@ -202,255 +207,16 @@ try {
 
     $kain = $r_jk ? str_replace('"', ' ', $r_jk['LONGDESCRIPTION']) : '';
 
-    // ========= COLOR CODE & WARNA (sesuai kode lama Matching Ulang NOW) =========
-    $assoc_colorcode = null;
-    $sqlColorCode = "
-        SELECT 
-            p.DLVSALESORDERLINEORDERLINE,
-            TRIM(p.CODE) AS DEMANDCODE,
-            trim(i2.ITEMTYPEAFICODE) AS ITEMTYPEAFICODE,
-            trim(i2.SUBCODE01) AS SUBCODE01, 
-            trim(i2.SUBCODE02) AS SUBCODE02,
-            trim(i2.SUBCODE03) AS SUBCODE03, 
-            trim(i2.SUBCODE04) AS SUBCODE04, 
-            trim(i2.SUBCODE05) AS SUBCODE05,
-            trim(i2.SUBCODE06) AS SUBCODE06,
-            trim(i2.SUBCODE07) AS SUBCODE07,
-            trim(i2.SUBCODE08) AS SUBCODE08,
-            trim(i2.SUBCODE09) AS SUBCODE09,
-            trim(i2.SUBCODE10) AS SUBCODE10,
-            i.WARNA AS WARNA
-        FROM PRODUCTIONDEMAND p 
-        LEFT JOIN ITXVIEWBONORDER i2 ON i2.SALESORDERCODE = p.ORIGDLVSALORDLINESALORDERCODE AND i2.ORDERLINE = p.ORIGDLVSALORDERLINEORDERLINE 
-        LEFT JOIN ITXVIEWCOLOR i ON i.ITEMTYPECODE = i2.ITEMTYPEAFICODE 
-                                AND i.SUBCODE01 = i2.SUBCODE01 
-                                AND i.SUBCODE02 = i2.SUBCODE02 
-                                AND i.SUBCODE03 = i2.SUBCODE03 
-                                AND i.SUBCODE04 = i2.SUBCODE04 
-                                AND i.SUBCODE05 = i2.SUBCODE05 
-                                AND i.SUBCODE06 = i2.SUBCODE06 
-                                AND i.SUBCODE07 = i2.SUBCODE07 
-                                AND i.SUBCODE08 = i2.SUBCODE08 
-                                AND i.SUBCODE09 = i2.SUBCODE09 
-                                AND i.SUBCODE10 = i2.SUBCODE10
-        LEFT JOIN USERGENERICGROUP USERGENERICGROUP ON p.SUBCODE05 = USERGENERICGROUP.CODE 
-        WHERE p.ORIGDLVSALORDLINESALORDERCODE = ? AND p.DLVSALESORDERLINEORDERLINE = ?
-        GROUP BY 
-            p.DLVSALESORDERLINEORDERLINE,i2.SUBCODE01,i2.SUBCODE02,i2.SUBCODE03,i2.SUBCODE04,i2.SUBCODE05,i2.SUBCODE06,i2.SUBCODE07,i2.SUBCODE08,i2.SUBCODE09,i2.SUBCODE10,i2.ITEMTYPEAFICODE,i.WARNA,p.CODE
-    ";
-    $stmtColor = db2_prepare($conn1, $sqlColorCode);
-    if ($stmtColor && db2_execute($stmtColor, [$projectCode, $orderLine])) {
-        $assoc_colorcode = db2_fetch_assoc($stmtColor);
-    }
+    // ============= WARNA & COLOR CODE untuk L/D NOW ============
+    // Di L/D NOW, color code diisi manual, jadi dikosongkan.
+    // Warna cukup dari ITEMDESCRIPTION (p.ITEMDESCRIPTION).
+    $color_code = '';
+    $warna      = trim($r_item['WARNA']);
 
-    // $color_code   = '';
-    $warna_short  = trim($r_item['WARNA']);
-    if ($assoc_colorcode) {
-        if (!empty($assoc_colorcode['SUBCODE05'])) {
-            $color_code = $assoc_colorcode['SUBCODE05'];
-        }
-        if (!empty($assoc_colorcode['WARNA'])) {
-            $warna_short = $assoc_colorcode['WARNA'];
-        }
-    }
-
-    // Selaraskan logika warna dengan L/D NOW:
-    // selalu ambil nama warna pendek dari ITXVIEWBONORDER.WARNA
-    // berdasarkan SALESORDERCODE + ORDERLINE.
-    $sqlWarnaBon = "
-        SELECT WARNA 
-        FROM ITXVIEWBONORDER
-        WHERE SALESORDERCODE = ?
-          AND ORDERLINE      = ?
-        FETCH FIRST 1 ROW ONLY
-    ";
-    $stmtWarnaBon = db2_prepare($conn1, $sqlWarnaBon);
-    if ($stmtWarnaBon && db2_execute($stmtWarnaBon, [$projectCode, $orderLine])) {
-        $rowWarnaBon = db2_fetch_assoc($stmtWarnaBon);
-        if ($rowWarnaBon && !empty($rowWarnaBon['WARNA'])) {
-            $warna_short = trim($rowWarnaBon['WARNA']);
-        }
-    }
-
-    // ========= BENANG (mengikuti logika NowForm lama) =========
-    $benang = '';
-
-    // Ambil data BON ORDER terlebih dahulu (seperti $q_itxviewkk di form lama)
-    $sqlItxviewkk = "
-        SELECT *
-        FROM ITXVIEWBONORDER
-        WHERE SALESORDERCODE = ?
-          AND ORDERLINE      = ?
-    ";
-    $stmtItxviewkk = db2_prepare($conn1, $sqlItxviewkk);
-    $d_itxviewkk   = null;
-    if ($stmtItxviewkk && db2_execute($stmtItxviewkk, [$projectCode, $orderLine])) {
-        $d_itxviewkk = db2_fetch_assoc($stmtItxviewkk);
-    }
-
-    if ($d_itxviewkk) {
-        // Tentukan SUBCODE04 yang dipakai (ada pengecualian untuk KFF)
-        $subcode04 = $d_itxviewkk['SUBCODE04'];
-        if (trim($d_itxviewkk['ITEMTYPEAFICODE']) === 'KFF' && !empty($d_itxviewkk['RESERVATION_SUBCODE04'])) {
-            $subcode04 = $d_itxviewkk['RESERVATION_SUBCODE04'];
-        }
-
-        $linesBenang = [];
-
-        // 1) Data rajut (ITXVIEW_RAJUT)
-        $sqlRajut = "
-            SELECT SUMMARIZEDDESCRIPTION
-            FROM ITXVIEW_RAJUT
-            WHERE SUBCODE01 = ?
-              AND SUBCODE02 = ?
-              AND SUBCODE03 = ?
-              AND SUBCODE04 = ?
-              AND ORIGDLVSALORDLINESALORDERCODE = ?
-              AND (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')
-        ";
-        $stmtRajut = db2_prepare($conn1, $sqlRajut);
-        if ($stmtRajut && db2_execute($stmtRajut, [
-            $d_itxviewkk['SUBCODE01'],
-            $d_itxviewkk['SUBCODE02'],
-            $d_itxviewkk['SUBCODE03'],
-            $subcode04,
-            $projectCode,
-        ])) {
-            $rowRajut = db2_fetch_assoc($stmtRajut);
-            if ($rowRajut && !empty($rowRajut['SUMMARIZEDDESCRIPTION'])) {
-                $linesBenang[] = trim($rowRajut['SUMMARIZEDDESCRIPTION']);
-            }
-        }
-
-        // Helper untuk ambil satu baris dari ITXVIEW_BOOKING_BLM_READY
-        $sqlBooking = "
-            SELECT SUMMARIZEDDESCRIPTION, ORIGDLVSALORDLINESALORDERCODE
-            FROM ITXVIEW_BOOKING_BLM_READY
-            WHERE SUBCODE01 = ?
-              AND SUBCODE02 = ?
-              AND SUBCODE03 = ?
-              AND SUBCODE04 = ?
-              AND ORIGDLVSALORDLINESALORDERCODE = ?
-              AND (ITEMTYPEAFICODE = 'KGF' OR ITEMTYPEAFICODE = 'FKG')
-        ";
-
-        $bookingFields = ['ADDITIONALDATA', 'ADDITIONALDATA2', 'ADDITIONALDATA3', 'ADDITIONALDATA4', 'ADDITIONALDATA4'];
-        foreach ($bookingFields as $fieldName) {
-            $origCode = isset($d_itxviewkk[$fieldName]) ? trim($d_itxviewkk[$fieldName]) : '';
-            if ($origCode === '') {
-                continue;
-            }
-            $stmtBooking = db2_prepare($conn1, $sqlBooking);
-            if ($stmtBooking && db2_execute($stmtBooking, [
-                $d_itxviewkk['SUBCODE01'],
-                $d_itxviewkk['SUBCODE02'],
-                $d_itxviewkk['SUBCODE03'],
-                $subcode04,
-                $origCode,
-            ])) {
-                $rowBooking = db2_fetch_assoc($stmtBooking);
-                if ($rowBooking && !empty($rowBooking['SUMMARIZEDDESCRIPTION'])) {
-                    $linesBenang[] = trim($rowBooking['SUMMARIZEDDESCRIPTION']) . ' - ' . trim($rowBooking['ORIGDLVSALORDLINESALORDERCODE']);
-                }
-            }
-        }
-
-        // 2) Booking baru (ITXVIEW_BOOKING_NEW)
-        $sqlBookingNew = "
-            SELECT SUMMARIZEDDESCRIPTION
-            FROM ITXVIEW_BOOKING_NEW
-            WHERE SALESORDERCODE = ?
-              AND ORDERLINE      = ?
-        ";
-        $stmtBookingNew = db2_prepare($conn1, $sqlBookingNew);
-        if ($stmtBookingNew && db2_execute($stmtBookingNew, [$projectCode, $orderLine])) {
-            $rowBookingNew = db2_fetch_assoc($stmtBookingNew);
-            if ($rowBookingNew && !empty($rowBookingNew['SUMMARIZEDDESCRIPTION'])) {
-                $linesBenang[] = trim($rowBookingNew['SUMMARIZEDDESCRIPTION']);
-            }
-        }
-
-        if ($linesBenang) {
-            // Gabungkan dengan newline \r\n supaya tampilan di textarea sama seperti server lama
-            $benang = implode("\r\n", $linesBenang);
-        }
-    }
-
-    // ========= LEBAR (WIDTH) & GRAMASI (GSM) =========
-    $lebar   = '';
-    $gramasi = '';
-
-    // Lebar
-    $sqlLebar = "
-        SELECT
-            CASE
-                WHEN TRIM(ADSTORAGE.NAMENAME) = 'Width' AND TRIM(PRODUCT.ITEMTYPECODE) = 'KFF' THEN ADSTORAGE.VALUEDECIMAL
-                WHEN TRIM(ADSTORAGE.NAMENAME) = 'Width' AND TRIM(PRODUCT.ITEMTYPECODE) = 'FKF'
-                    THEN SUBSTRING(PRODUCT.SUBCODE04, 1, LOCATE('-', PRODUCT.SUBCODE04) - 1)
-                ELSE NULL
-            END AS LEBAR
-        FROM ADSTORAGE
-        RIGHT JOIN PRODUCT ON ADSTORAGE.UNIQUEID = PRODUCT.ABSUNIQUEID
-        WHERE TRIM(PRODUCT.SUBCODE01) = ?
-          AND TRIM(PRODUCT.SUBCODE02) = ?
-          AND TRIM(PRODUCT.SUBCODE03) = ?
-          AND TRIM(PRODUCT.SUBCODE04) = ?
-          AND TRIM(PRODUCT.SUBCODE05) = ?
-          AND TRIM(PRODUCT.SUBCODE06) = ?
-          AND TRIM(PRODUCT.SUBCODE07) = ?
-          AND TRIM(PRODUCT.SUBCODE08) = ?
-          AND TRIM(PRODUCT.SUBCODE09) = ?
-          AND TRIM(PRODUCT.SUBCODE10) = ?
-          AND TRIM(PRODUCT.ITEMTYPECODE) = ?
-          AND TRIM(ADSTORAGE.NAMENAME) = 'Width'
-    ";
-    $stmtLebar = db2_prepare($conn1, $sqlLebar);
-    if ($stmtLebar && db2_execute($stmtLebar, [$s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9, $s10, $itemtype])) {
-        $rowLebar = db2_fetch_assoc($stmtLebar);
-        if ($rowLebar && $rowLebar['LEBAR'] !== null) {
-            $lebar = (string) $rowLebar['LEBAR'];
-        }
-    }
-
-    // Gramasi
-    $sqlGramasi = "
-        SELECT
-            TRIM(ADSTORAGE.VALUEDECIMAL) AS VALUEDECIMAL,
-            PRODUCT.SUBCODE04
-        FROM ADSTORAGE
-        RIGHT JOIN PRODUCT ON ADSTORAGE.UNIQUEID = PRODUCT.ABSUNIQUEID
-        WHERE TRIM(PRODUCT.SUBCODE01) = ?
-          AND TRIM(PRODUCT.SUBCODE02) = ?
-          AND TRIM(PRODUCT.SUBCODE03) = ?
-          AND TRIM(PRODUCT.SUBCODE04) = ?
-          AND TRIM(PRODUCT.SUBCODE05) = ?
-          AND TRIM(PRODUCT.SUBCODE06) = ?
-          AND TRIM(PRODUCT.SUBCODE07) = ?
-          AND TRIM(PRODUCT.SUBCODE08) = ?
-          AND TRIM(PRODUCT.SUBCODE09) = ?
-          AND TRIM(PRODUCT.SUBCODE10) = ?
-          AND TRIM(ADSTORAGE.NAMENAME) = 'GSM'
-    ";
-    $stmtGramasi = db2_prepare($conn1, $sqlGramasi);
-    if ($stmtGramasi && db2_execute($stmtGramasi, [$s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9, $s10])) {
-        $rowGramasi = db2_fetch_assoc($stmtGramasi);
-        if ($rowGramasi) {
-            if ($itemtype === 'FKF' && !empty($rowGramasi['SUBCODE04'])) {
-                $parts = explode('-', $rowGramasi['SUBCODE04']);
-                if (isset($parts[1])) {
-                    $gramasi = $parts[1];
-                }
-            } elseif (!empty($rowGramasi['VALUEDECIMAL'])) {
-                $gramasi = $rowGramasi['VALUEDECIMAL'];
-            }
-        }
-    }
-
-    // LAB DIP NO & Cocok Warna (STDCCKWARNA) – pakai view lama
+    // ============= LAB DIP NO & COCOK WARNA (ITXVIEW_STD_CCK_WARNA) ============
     $no_warna    = '';
-    // $cocok_warna = '';
+    $cocok_warna = '';
 
-    // 1) STDCCK (cocok warna) – view standar
     $sqlCckStd = "
         SELECT * 
         FROM ITXVIEW_STD_CCK_WARNA 
@@ -458,22 +224,15 @@ try {
           AND ORDERLINE = ?
     ";
     $stmtCckStd = db2_prepare($conn1, $sqlCckStd);
-    $r_cck_std  = null;
     if ($stmtCckStd && db2_execute($stmtCckStd, [$projectCode, $orderLine])) {
         $r_cck_std = db2_fetch_assoc($stmtCckStd);
         if ($r_cck_std) {
-            $cocok_warna    = trim($r_cck_std['STDCCKWARNA'] ?? '');
-            $no_warna       = $r_cck_std['LABDIPNO'];
+            $cocok_warna = trim($r_cck_std['STDCCKWARNA'] ?? '');
+            $no_warna    = $r_cck_std['LABDIPNO'];
         }
     }
 
-    // Fallback / normalisasi WARNA:
-    // Jika masih mengandung '-' (contoh: "CAMBRIDGE BLUE-..."),
-    // ambil teks sebelum tanda '-' untuk mendapatkan nama warna pendek.
-    // if (strpos($warna_short, '-') !== false) {
-    //     $warna_short = trim(strtok($warna_short, '-'));
-    // }
-
+    // ============= TGL DELIVERY ============
     $sqlDelivery = "
         SELECT * 
         FROM SALESORDERDELIVERY 
@@ -492,58 +251,21 @@ try {
         }
     }
 
-    // Qty Order (QTY_BRUTO) ? hanya dipakai untuk Matching Ulang NOW (NowForm)
-    $qty = '';
-    $sqlQty = "
-        SELECT SUM(USERPRIMARYQUANTITY) AS QTY_BRUTO
-        FROM ITXVIEW_KGBRUTO 
-        WHERE PROJECTCODE = ?
-          AND ORIGDLVSALORDERLINEORDERLINE = ?
-    ";
-    $stmtQty = db2_prepare($conn1, $sqlQty);
-    if ($stmtQty && db2_execute($stmtQty, [$projectCode, $orderLine])) {
-        $rowQty = db2_fetch_assoc($stmtQty);
-        if ($rowQty && $rowQty['QTY_BRUTO'] !== null) {
-            $qty = (string) $rowQty['QTY_BRUTO'];
-        }
-    }
-
-    // Cari history Recipe Code di MySQL (tbl_matching) untuk order & item yang sama,
-    // supaya tampil seperti server lama (multi-line).
-    $recipeHistory = '';
-    if (!empty($no_item1) && !empty($projectCode)) {
-        $orderEsc  = mysqli_real_escape_string($con, $projectCode);
-        $itemEsc   = mysqli_real_escape_string($con, $no_item1);
-        $sqlRecipe = "
-            SELECT DISTINCT recipe_code 
-            FROM tbl_matching 
-            WHERE no_order = '{$orderEsc}'
-              AND no_item = '{$itemEsc}'
-              AND recipe_code IS NOT NULL
-              AND recipe_code <> ''
-            ORDER BY id DESC
-            LIMIT 50
-        ";
-        if ($resRecipe = mysqli_query($con, $sqlRecipe)) {
-            $codes = [];
-            while ($rowRc = mysqli_fetch_assoc($resRecipe)) {
-                $codes[] = $rowRc['recipe_code'];
-            }
-            if ($codes) {
-                $recipeHistory = implode("\n", $codes);
-            }
-        }
-    }
+    // Field lain dikosongkan untuk L/D NOW
+    $lebar   = '';
+    $gramasi = '';
+    $benang  = '';
+    $qty     = '';
 
     echo json_encode([
         'success'      => true,
         'no_item1'     => $no_item1,
         'color_code'   => $color_code,
-        // 'recipe_code'  => $recipeHistory,
+        'recipe_code'  => '',
         'no_po'        => $no_po,
         'kain'         => $kain,
-        'warna'        => $warna_short,
-        'no_warna'     => $no_warna,
+        'warna'        => $warna,
+        // 'no_warna'     => $no_warna,
         'cocok_warna'  => $cocok_warna,
         'tgl_delivery' => $tgl_delivery,
         'lebar'        => $lebar,
@@ -557,3 +279,4 @@ try {
         'message' => $e->getMessage(),
     ]);
 }
+

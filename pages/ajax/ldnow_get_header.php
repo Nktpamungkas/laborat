@@ -14,8 +14,7 @@ function ldnow_log($msg)
 ldnow_log('HEADER start, raw req_no=' . ($_POST['req_no'] ?? 'NULL'));
 
 $reqNo = isset($_POST['req_no']) ? strtoupper(trim($_POST['req_no'])) : '';
-$mode  = isset($_POST['mode']) ? strtoupper(trim($_POST['mode'])) : 'LD'; // LD (L/D NOW) atau NOW (Matching Ulang NOW)
-ldnow_log('HEADER after trim, reqNo=' . $reqNo . ' mode=' . $mode);
+ldnow_log('HEADER after trim, reqNo=' . $reqNo);
 
 if ($reqNo === '') {
     echo json_encode([
@@ -58,74 +57,39 @@ try {
     $projectCode   = trim($dt_langganan['PROJECTCODE']);
     $langgananText = trim($dt_langganan['LANGGANAN']) . '/' . trim($dt_langganan['BUYER']);
 
-    // ============================
-    // 2. LIST NO. ITEM (beda query LD vs Matching Ulang NOW)
-    // ============================
-    if ($mode === 'NOW') {
-        // Matching Ulang NOW / Perbaikan NOW → pakai ITXVIEWBONORDER seperti kode lama
-        $sqlItems = "
-            SELECT
-                i.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
-                i.ITEMTYPEAFICODE,
-                i.WARNA,
-                TRIM(i.SUBCODE01) AS SUBCODE01,
-                TRIM(i.SUBCODE02) AS SUBCODE02,
-                TRIM(i.SUBCODE03) AS SUBCODE03,
-                TRIM(i.SUBCODE04) AS SUBCODE04,
-                TRIM(i.SUBCODE05) AS SUBCODE05, 
-                SUM(i2.USERPRIMARYQUANTITY) AS BRUTO
-            FROM ITXVIEWBONORDER i
-            LEFT JOIN ITXVIEWKGBRUTOBONORDER2 i2 
-                ON i2.ORIGDLVSALORDLINESALORDERCODE = i.SALESORDERCODE 
-               AND i2.ORIGDLVSALORDERLINEORDERLINE = i.ORDERLINE 
-            WHERE i.SALESORDERCODE = ?
-            GROUP BY 
-                i.ORDERLINE,
-                i.ITEMTYPEAFICODE,
-                i.WARNA,
-                i.SUBCODE01,
-                i.SUBCODE02,
-                i.SUBCODE03,
-                i.SUBCODE04,
-                i.SUBCODE05,
-                i2.USERPRIMARYQUANTITY
-            ORDER BY i.ORDERLINE
-        ";
-    } else {
-        // LD NOW → pakai SALESORDERLINE seperti sebelumnya
-        $sqlItems = "
-            SELECT 
-                TRIM(p2.CODE) AS CODE,
-                p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
-                p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
-                p.ITEMDESCRIPTION AS WARNA,
-                TRIM(p.SUBCODE01) AS SUBCODE01, 
-                TRIM(p.SUBCODE02) AS SUBCODE02, 
-                TRIM(p.SUBCODE03) AS SUBCODE03, 
-                TRIM(p.SUBCODE04) AS SUBCODE04, 
-                TRIM(p.SUBCODE05) AS SUBCODE05,
-                p.ORDERLINE
-            FROM SALESORDERLINE p
-            LEFT JOIN PRODUCTIONDEMAND p2 
-                ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE 
-               AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
-            WHERE p.SALESORDERCODE = ? 
-              AND p.ORDERLINE IS NOT NULL
-            GROUP BY 
-                p2.CODE, 
-                p.ORDERLINE,
-                p.SUBCODE01,
-                p.SUBCODE02,
-                p.SUBCODE03,
-                p.SUBCODE04,
-                p.SUBCODE05,
-                p.SUBCODE08,
-                p.SUBCODE07,
-                p.ITEMTYPEAFICODE,
-                p.ITEMDESCRIPTION
-            ORDER BY p.ORDERLINE
-        ";
-    }
+    // 2. LIST NO. ITEM untuk L/D NOW (pakai SALESORDERLINE, sesuai kode lama)
+    $sqlItems = "
+        SELECT 
+            TRIM(p2.CODE) AS CODE,
+            p.ORDERLINE AS DLVSALESORDERLINEORDERLINE,
+            p.ITEMTYPEAFICODE AS ITEMTYPEAFICODE,
+            p.ITEMDESCRIPTION AS WARNA,
+            TRIM(p.SUBCODE01) AS SUBCODE01, 
+            TRIM(p.SUBCODE02) AS SUBCODE02, 
+            TRIM(p.SUBCODE03) AS SUBCODE03, 
+            TRIM(p.SUBCODE04) AS SUBCODE04, 
+            TRIM(p.SUBCODE05) AS SUBCODE05,
+            p.ORDERLINE
+        FROM SALESORDERLINE p
+        LEFT JOIN PRODUCTIONDEMAND p2 
+            ON p2.ORIGDLVSALORDLINESALORDERCODE = p.SALESORDERCODE 
+           AND p2.ORIGDLVSALORDERLINEORDERLINE = p.ORDERLINE
+        WHERE p.SALESORDERCODE = ? 
+          AND p.ORDERLINE IS NOT NULL
+        GROUP BY 
+            p2.CODE, 
+            p.ORDERLINE,
+            p.SUBCODE01,
+            p.SUBCODE02,
+            p.SUBCODE03,
+            p.SUBCODE04,
+            p.SUBCODE05,
+            p.SUBCODE08,
+            p.SUBCODE07,
+            p.ITEMTYPEAFICODE,
+            p.ITEMDESCRIPTION
+        ORDER BY p.ORDERLINE
+    ";
 
     $stmtItems = db2_prepare($conn1, $sqlItems);
     $items     = [];
@@ -134,19 +98,12 @@ try {
         while ($r = db2_fetch_assoc($stmtItems)) {
             $value = $r['DLVSALESORDERLINEORDERLINE'];
 
-            if ($mode === 'NOW') {
-                // Format lama Matching Ulang NOW: ITEMTYPE-SUBCODE02.SUBCODE03 | WARNA | BRUTO
-                $bruto = isset($r['BRUTO']) ? (float) $r['BRUTO'] : 0;
-                $text  = trim($r['ITEMTYPEAFICODE']) . '-' . trim($r['SUBCODE02']) . '.' . trim($r['SUBCODE03']);
-                $text .= ' | ' . trim($r['WARNA']);
-                $text .= ' | ' . number_format($bruto, 2);
-            } else {
-                // Format LD NOW (seperti sebelumnya)
-                $text  = trim($r['ITEMTYPEAFICODE']) . '-' . trim($r['SUBCODE02']) . '.' . trim($r['SUBCODE03']);
-                $text .= ' | ' . trim($r['WARNA']);
-                $text .= ' | ' . trim($r['ORDERLINE']);
-                $text .= ' | ' . trim($r['CODE']);
-            }
+            // Format LD NOW (seperti kode lama):
+            // ITEMTYPE-SUBCODE02.SUBCODE03 | WARNA | ORDERLINE | CODE
+            $text  = trim($r['ITEMTYPEAFICODE']) . '-' . trim($r['SUBCODE02']) . '.' . trim($r['SUBCODE03']);
+            $text .= ' | ' . trim($r['WARNA']);
+            $text .= ' | ' . trim($r['ORDERLINE']);
+            $text .= ' | ' . trim($r['CODE']);
 
             $items[] = [
                 'value' => $value,

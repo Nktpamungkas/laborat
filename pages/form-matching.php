@@ -1172,7 +1172,7 @@
 	<div class="form-group">
 		<label for="no_warna" class="col-sm-2 control-label">LAB DIP NO</label>
 		<div class="col-sm-6">
-			<input name="no_warna" type="text" class="form-control" id="" value="" placeholder="LAB DIP NO">
+			<input name="no_warna" type="text" class="form-control" id="no_warna" value="" placeholder="LAB DIP NO">
 		</div>
 	</div>
 	<!-- HIDDEN INPUT -->
@@ -2235,13 +2235,25 @@
 				if (!req) return;
 
 				showAjaxLoader();
-					$.ajax({
-						url: 'pages/ajax/ldnow_get_header.php',
-						type: 'POST',
-						dataType: 'json',
+				var jenisMatching = $('#jen_matching').val();
+				var urlHeader;
+				if (isLD) {
+					urlHeader = 'pages/ajax/ldnow_get_header.php';
+				} else {
+					if (jenisMatching === 'Matching Ulang NOW') {
+						urlHeader = 'pages/ajax/matching_ulang_now_get_header.php';
+					} else {
+						// Perbaikan NOW (atau default)
+						urlHeader = 'pages/ajax/perbaikan_now_get_header.php';
+					}
+				}
+
+				$.ajax({
+					url: urlHeader,
+					type: 'POST',
+					dataType: 'json',
 					data: { 
-						req_no: req,
-						mode: isLD ? 'LD' : 'NOW'
+						req_no: req
 					},
 					success: function(res) {
 						if (!res || !res.success) {
@@ -2432,7 +2444,7 @@
 			loadNowHeader(reqNo, '#NowForm', false);
 		});
 
-		// Ketika No. Item (LD NOW atau Matching Ulang NOW) dipilih
+			// Ketika No. Item (LD NOW atau Matching Ulang NOW / Perbaikan NOW) dipilih
 		$('#LDNOW, #NowForm').on('change', '.selectNoItemNOW', function() {
 			var orderline = $(this).val();
 			var $container = $(this).closest('#LDNOW, #NowForm');
@@ -2445,9 +2457,25 @@
 			}
 
 			clearNowFields($container, true);
+			
+			// Pisah endpoint detail per menu:
+			// - LD NOW                        -> ldnow_get_item_detail.php
+			// - Matching Ulang NOW (NowForm)  -> matching_ulang_now_get_item_detail.php
+			// - Perbaikan NOW (NowForm)       -> perbaikan_now_get_item_detail.php
+			var urlDetail;
+			if (isLD) {
+				urlDetail = 'pages/ajax/ldnow_get_item_detail.php';
+			} else {
+				var jenisMatching = $('#jen_matching').val();
+				if (jenisMatching === 'Matching Ulang NOW') {
+					urlDetail = 'pages/ajax/matching_ulang_now_get_item_detail.php';
+				} else {
+					urlDetail = 'pages/ajax/perbaikan_now_get_item_detail.php';
+				}
+			}
 
 				$.ajax({
-					url: 'pages/ajax/ldnow_get_item_detail.php',
+					url: urlDetail,
 					type: 'POST',
 					dataType: 'json',
 					data: {
