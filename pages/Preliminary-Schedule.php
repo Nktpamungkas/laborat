@@ -1472,7 +1472,9 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 
                                 // temp tetap wajib, jangan disable
                                 $('#bottle_qty').prop('disabled', false).prop('required', true).val('').focus();
-                                $('#temp').prop('enabled', false).prop('required', true).val('0000113');
+                                
+                                // Set temp otomatis ke 0000113
+                                $('#temp').val('0000113').trigger('input');
 
                                 // status temp dianggap belum valid sampai user input temp
                                 setTempValidity(false);
