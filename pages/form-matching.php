@@ -2234,7 +2234,7 @@
 				var req = $.trim(reqNo || '').toUpperCase();
 				if (!req) return;
 
-				showAjaxLoader();
+				showAjaxLoader(); 
 				var jenisMatching = $('#jen_matching').val();
 				var urlHeader;
 				if (isLD) {
