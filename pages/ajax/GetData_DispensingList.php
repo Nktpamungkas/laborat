@@ -4,45 +4,61 @@ include "../../koneksi.php";
 
 try {
     $result = mysqli_query($con, "
-        SELECT 
-            tbl_preliminary_schedule.*, 
-            CASE 
-                WHEN tbl_preliminary_schedule.is_bonresep = 1 THEN ''
-                ELSE master_suhu.product_name
-            END AS product_name,
-            master_suhu.suhu,
-            master_suhu.waktu,
-            master_suhu.dispensing,
-            tbl_matching.jenis_matching,
-            CASE
-                WHEN tbl_preliminary_schedule.is_bonresep = 1 THEN 'BON'
-                ELSE master_suhu.dispensing
-            END AS disp_group
-        FROM tbl_preliminary_schedule
-        LEFT JOIN master_suhu 
-            ON tbl_preliminary_schedule.code = master_suhu.code
-        LEFT JOIN tbl_matching ON 
-            CASE WHEN LEFT(tbl_preliminary_schedule.no_resep, 2) = 'DR' 
-                THEN LEFT(tbl_preliminary_schedule.no_resep, LENGTH(tbl_preliminary_schedule.no_resep) - 2)
-                ELSE tbl_preliminary_schedule.no_resep
-            END = tbl_matching.no_resep
-        WHERE tbl_preliminary_schedule.status NOT IN ('ready')
+        SELECT
+            tps.*,
+            ms.product_name,
+            ms.suhu,
+            ms.waktu,
+            ms.dispensing,
+            tm.jenis_matching
+        FROM tbl_preliminary_schedule AS tps
+        LEFT JOIN master_suhu AS ms
+            ON tps.code = ms.code
+        LEFT JOIN tbl_matching AS tm
+            ON (
+                CASE
+                    WHEN LEFT(tps.no_resep, 2) = 'DR'
+                        THEN LEFT(tps.no_resep, CHAR_LENGTH(tps.no_resep) - 2)
+                    ELSE tps.no_resep
+                END
+            ) = tm.no_resep
+        LEFT JOIN (
+            SELECT
+                no_resep,
+                MIN(order_index) AS min_order_index
+            FROM tbl_preliminary_schedule
+            WHERE is_bonresep = 1
+            GROUP BY no_resep
+        ) AS br
+            ON br.no_resep = tps.no_resep
+        WHERE tps.status NOT IN ('ready')
         ORDER BY
-            CASE 
-                WHEN tbl_matching.jenis_matching IN ('LD', 'LD NOW') THEN 1
-                WHEN tbl_matching.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan', 'Perbaikan NOW') THEN 2
+            CASE
+                WHEN tm.jenis_matching IN ('LD', 'LD NOW') THEN 1
+                WHEN tm.jenis_matching IN ('Matching Ulang', 'Matching Ulang NOW', 'Matching Development', 'Perbaikan', 'Perbaikan NOW') THEN 2
                 ELSE 3
             END,
-            CASE 
-                WHEN tbl_preliminary_schedule.order_index > 0 THEN 0 
-                ELSE 1 
-            END, 
-            tbl_preliminary_schedule.order_index ASC,
-            master_suhu.suhu DESC, 
-            master_suhu.waktu DESC, 
-            tbl_preliminary_schedule.no_resep,
-            tbl_preliminary_schedule.no_machine ASC,
-            tbl_preliminary_schedule.is_old_data ASC
+
+            CASE
+                WHEN tps.order_index > 0 THEN 0
+                ELSE 1
+            END,
+            CASE
+                WHEN tps.is_bonresep = 1 THEN COALESCE(br.min_order_index, 999999999)
+                ELSE tps.order_index
+            END ASC,
+            CASE
+                WHEN tps.is_bonresep = 1 THEN tps.no_resep
+                ELSE ''
+            END ASC,
+
+            /* urutan detail dalam group */
+            tps.order_index ASC,
+            ms.suhu DESC,
+            ms.waktu DESC,
+            tps.no_resep,
+            tps.no_machine ASC,
+            tps.is_old_data ASC;
     ");
 
     $data = [];
@@ -76,11 +92,11 @@ try {
     unset($row);
 
     // Step 3: Group data berdasarkan dispensing (1,2,3)
-    $grouped = ['1' => [], '2' => [], '3' => [] , 'BON' => []];
+    $grouped = ['1' => [], '2' => [], '3' => []];
 
     foreach ($data as $row) {
-        $code = $row['disp_group'] ?? '';
-        if (in_array($code, ['1', '2', '3', 'BON'])) {
+        $code = $row['dispensing'] ?? '';
+        if (in_array($code, ['1', '2', '3'])) {
             $grouped[$code][] = $row;
         }
     }

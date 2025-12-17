@@ -84,7 +84,7 @@ function resetOrderIndexIfDone($con): void {
         $stmt = $con->prepare("
             SELECT COUNT(*) FROM tbl_preliminary_schedule ps
             LEFT JOIN master_suhu ms ON ps.code = ms.code
-            WHERE ms.dispensing = ? AND ps.status IN ('scheduled', 'in_progress_dispensing')
+            WHERE ms.dispensing = ? AND ps.status IN ('scheduled', 'in_progress_dispensing', 'end')
         ");
         if (!$stmt) continue;
 

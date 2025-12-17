@@ -181,8 +181,6 @@ function updateRowsBonResep($con, array $ids, string $userDispensing): void {
     $sql = "
         UPDATE tbl_preliminary_schedule
         SET status = 'end',
-            pass_dispensing = 1,
-            order_index = NULL,
             dispensing_start = NOW(),
             user_dispensing = ?
         WHERE id IN ($placeholders)

@@ -983,13 +983,15 @@ $is_scheduling = ($row['is_scheduling'] == 1);
             // Jika ada input bottle_qty_2, ambil nilainya, jika tidak, set ke 0
             var bottle_qty_2 = $('#bottle_qty_2').val() ? $('#bottle_qty_2').val() : 0;
 
-            var temp_1 = window.canSaveWithoutTemp ? 'BONRESEP' : ($('#temp_1').val() ? $('#temp_1').val() : $('#temp').val());
+            var temp_1 = $('#temp_1').val() ? $('#temp_1').val() : $('#temp').val();
             var temp_2 = $('#temp_2').val() ? $('#temp_2').val() : 0;
 
-            if (!window.canSaveWithoutTemp && (!temp_1 || temp_1.trim() === '')) {
-                return false;
+            if (!temp_1 || temp_1.trim() === '') {
+                toastr.error('Temp Code wajib diisi.');
+                $('#temp').focus();
+                return;
             }
-
+            
             var bottle_qty_test = $('#bottle_qty_test').val() ? $('#bottle_qty_test').val() : 0;
 
             // Payload for element balance
@@ -1186,7 +1188,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                     rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
                         <td ${isOldStyle}>${suffix}</td>
-                        <td ${isOldStyle}>${item.is_bonresep == 0 ? item.product_name : ''}</td>
+                        <td ${isOldStyle}>${item.product_name}</td>
                         <td width="100" align="center" ${isOldStyle}>${item.element_code || '-'}</td>
                         <td width="50" align="right" ${isOldStyle}>
                             ${  (
@@ -1464,12 +1466,15 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                             $('#bonResepLoading').remove();
 
                             if (res && res.success && res.found) {
-                                // BON RESEP ditemukan -> Temp tidak wajib
-                                window.canSaveWithoutTemp = true;
+                                // ✅ BON RESEP ditemukan -> Temp TETAP WAJIB
+                                window.canSaveWithoutTemp = false;
                                 window.isBonResep = 1;
 
-                                $('#temp').val('').prop('disabled', true).prop('required', false);
-                                setTempValidity(true, '');
+                                // temp tetap wajib, jangan disable
+                                $('#temp').prop('disabled', false).prop('required', true).val('').focus();
+
+                                // status temp dianggap belum valid sampai user input temp
+                                setTempValidity(false);
 
                                 $('#no_resep').closest('.form-group')
                                     .append(`
@@ -1479,8 +1484,15 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                                         </label>
                                     `);
 
+                                runNormalNoResepFlow(code);
                                 return;
                             }else{
+                                window.canSaveWithoutTemp = false;
+                                window.isBonResep = 0;
+
+                                $('#temp').prop('disabled', false).prop('required', true);
+                                setTempValidity(false);
+
                                 $('#no_resep').closest('.form-group')
                                     .append(`
                                         <label id="bonResepInfo" class="control-label blink"
