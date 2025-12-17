@@ -1471,7 +1471,8 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                                 window.isBonResep = 1;
 
                                 // temp tetap wajib, jangan disable
-                                $('#temp').prop('disabled', false).prop('required', true).val('').focus();
+                                $('#bottle_qty').prop('disabled', false).prop('required', true).val('').focus();
+                                $('#temp').prop('enabled', false).prop('required', true).val('0000113');
 
                                 // status temp dianggap belum valid sampai user input temp
                                 setTempValidity(false);
