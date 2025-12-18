@@ -518,8 +518,8 @@
         $qry = mysqli_query($con,"SELECT * , a.id as id_status, b.id as id_matching, 
                                     SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 1), ' ', -1) as recipe_code_1, 
 	                                SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 2), ' ', -1) as recipe_code_2
-                                from db_laborat.tbl_status_matching a 
-                                join db_laborat.tbl_matching b on a.idm = b.no_resep 
+                                FROM tbl_status_matching a 
+                                join tbl_matching b on a.idm = b.no_resep 
                                 where a.id = '$ids'
                                 ORDER BY a.id desc limit 1");
         $data = mysqli_fetch_array($qry);
