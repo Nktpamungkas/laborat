@@ -525,16 +525,28 @@
         $data = mysqli_fetch_array($qry);
     ?>
     <?php
+        // if (substr(strtoupper($data['no_resep']), 0, 2) == 'R2' or substr(strtoupper($data['no_resep']), 0, 2) == 'A2' or substr(strtoupper($data['no_resep']), 0, 2) == 'D2' or substr(strtoupper($data['no_resep']), 0, 2) == 'C2') {
+        //     $suffixcode = substr($data['no_resep'], 1);
+        // } elseif (substr(strtoupper($data['no_resep']), 0, 2) == 'DR' or substr(strtoupper($data['no_resep']), 0, 2) == 'OB' or substr(strtoupper($data['no_resep']), 0, 2) == 'CD') {
+        //     $suffixcode = substr($data['no_resep'], 2);
+        // }
+
         if (substr(strtoupper($data['no_resep']), 0, 2) == 'R2' or substr(strtoupper($data['no_resep']), 0, 2) == 'A2' or substr(strtoupper($data['no_resep']), 0, 2) == 'D2' or substr(strtoupper($data['no_resep']), 0, 2) == 'C2') {
-            $suffixcode = substr($data['no_resep'], 1);
+            $suffixcode = substr(substr($data['no_resep'], 1), 3);
         } elseif (substr(strtoupper($data['no_resep']), 0, 2) == 'DR' or substr(strtoupper($data['no_resep']), 0, 2) == 'OB' or substr(strtoupper($data['no_resep']), 0, 2) == 'CD') {
-            $suffixcode = substr($data['no_resep'], 2);
+            $suffixcode = substr(substr($data['no_resep'], 2), 3);
         }
         $kodesuffix = substr(strtoupper($data['no_resep']), 0, 2);
 
         if($_GET['frm'] == 'bresep'){
             // ADJUSTMENT 1
+            // Helper: hilangkan '-' pada suffix pencarian (misal DS1 -> DS1)
+            function normalizeSuffixSearch($suffix) {
+                return str_replace('-', '', $suffix);
+            }
+
             function getRecipeAdj1($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode, $recipeCode) {
+                $suffixClean = normalizeSuffixSearch($recipesuffixcode);
                 $sql = "SELECT
                             r.RECIPESUBCODE01,
                             RECIPESUFFIXCODE,
@@ -544,7 +556,7 @@
                             RECIPECOMPONENT r
                         WHERE
                             (r.RECIPESUBCODE01 = '{$recipesubcode01}' OR r.RECIPESUBCODE01 = '{$recipesubcode02}')
-                            AND r.RECIPESUFFIXCODE = '{$recipesuffixcode}'
+                            AND REPLACE(r.RECIPESUFFIXCODE, '-', '') = '{$suffixClean}'
                             AND TRIM(SUBCODE01) || '-' || TRIM(SUBCODE02) || '-' || TRIM(SUBCODE03) = '{$recipeCode}'
                             AND r.ITEMTYPEAFICODE = 'DYC'
                         ORDER BY 
@@ -566,13 +578,14 @@
             }
 
             function getColoristName($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode){
+                $suffixClean = normalizeSuffixSearch($recipesuffixcode);
                 $sqlColorist    = "SELECT DISTINCT
                                         TRIM(SHORTDESCRIPTION) As SHORTDESCRIPTION 
                                     FROM
                                         RECIPE r
                                     WHERE
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
-                                        AND SUFFIXCODE = '{$recipesuffixcode}'";
+                                        AND REPLACE(SUFFIXCODE, '-', '') = '{$suffixClean}'";
                 $stmtColorist = db2_exec($conn1, $sqlColorist);
                 $rowColorist  = db2_fetch_assoc($stmtColorist);
                 if ($rowColorist) {
@@ -584,13 +597,14 @@
             }
             
             function getEditorName($conn1, $recipesubcode01, $recipesubcode02, $recipesuffixcode){
+                $suffixClean = normalizeSuffixSearch($recipesuffixcode);
                 $sqlEditor    = "SELECT DISTINCT
                                         TRIM(CREATIONUSER) AS CREATIONUSER 
                                     FROM
                                         RECIPE r
                                     WHERE
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
-                                        AND SUFFIXCODE = '{$recipesuffixcode}'";
+                                        AND REPLACE(SUFFIXCODE, '-', '') = '{$suffixClean}'";
                 $stmtEditor = db2_exec($conn1, $sqlEditor);
                 $rowEditor  = db2_fetch_assoc($stmtEditor);
                 if ($rowEditor) {
@@ -638,6 +652,15 @@
             }
 
             function GetDataFinalAdj($conn1, $flag, $suffixL, $suffixAdj1, $suffixAdj2, $suffixAdj3, $suffixAdj4, $suffixAdj5, $suffixAdj6, $suffixAdj7, $recipesubcode01, $recipesubcode02, $kodesuffix){
+                $suffixLclean    = normalizeSuffixSearch($suffixL);
+                $suffixAdj1clean = normalizeSuffixSearch($suffixAdj1);
+                $suffixAdj2clean = normalizeSuffixSearch($suffixAdj2);
+                $suffixAdj3clean = normalizeSuffixSearch($suffixAdj3);
+                $suffixAdj4clean = normalizeSuffixSearch($suffixAdj4);
+                $suffixAdj5clean = normalizeSuffixSearch($suffixAdj5);
+                $suffixAdj6clean = normalizeSuffixSearch($suffixAdj6);
+                $suffixAdj7clean = normalizeSuffixSearch($suffixAdj7);
+
                 if($kodesuffix == 'OB'){
                     $queryFinal     = "WITH BASEDATA AS (
                                         SELECT
@@ -685,9 +708,9 @@
                                         LEFT JOIN RECIPECOMPONENT r3 ON r3.RECIPESUBCODE01 = r.SUBCODE01 AND r3.RECIPESUFFIXCODE = r.SUFFIXCODE
                                         WHERE 
                                             r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
-                                                                        '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
-                                                                        '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
+                                                AND REPLACE(r.RECIPESUFFIXCODE, '-', '') IN ('{$suffixLclean}', 
+                                                                        '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
+                                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}')
                                             AND (
                                                 (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND r.GROUPTYPECODE IN ('001', '100', '201'))
                                                 OR (r.ITEMTYPEAFICODE = 'DYC' AND r.GROUPNUMBER < 20)
@@ -724,22 +747,22 @@
                                                 RECIPE_NUMBER,
                                                 KODE,
                                                 SEQUENCE,
-                                                GROUPNUMBER,
-                                                GROUPTYPECODE,
-                                                SUFFIXTYPE,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
-                                            FROM 
-                                                BASE
-                                            GROUP BY 
-                                                RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
-                                        ),
+                                            GROUPNUMBER,
+                                            GROUPTYPECODE,
+                                            SUFFIXTYPE,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixLclean}' THEN CONSUMPTION END) AS LAB,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj1clean}' THEN CONSUMPTION END) AS ADJ1,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj2clean}' THEN CONSUMPTION END) AS ADJ2,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj3clean}' THEN CONSUMPTION END) AS ADJ3,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj4clean}' THEN CONSUMPTION END) AS ADJ4,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj5clean}' THEN CONSUMPTION END) AS ADJ5,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj6clean}' THEN CONSUMPTION END) AS ADJ6,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj7clean}' THEN CONSUMPTION END) AS ADJ7
+                                        FROM 
+                                            BASE
+                                        GROUP BY 
+                                            RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
+                                    ),
                                         FINALDATA AS (
                                             SELECT 
                                                 P.RECIPESUBCODE01,
@@ -818,9 +841,9 @@
                                                 AND a.FIELDNAME = 'RCode'
                                             WHERE 
                                                 r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND r.RECIPESUFFIXCODE IN ('{$suffixL}', 
-                                                                        '{$suffixAdj1}','{$suffixAdj2}','{$suffixAdj3}',
-                                                                        '{$suffixAdj4}','{$suffixAdj5}','{$suffixAdj6}','{$suffixAdj7}')
+                                                AND REPLACE(r.RECIPESUFFIXCODE, '-', '') IN ('{$suffixLclean}', 
+                                                                        '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
+                                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}')
                                                 AND (
                                                     (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND GROUPTYPECODE IN ('001', '100'))
                                                     OR (ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20)
@@ -849,7 +872,7 @@
                                                 '-' AS KODE,
                                                 2   AS RECIPE_NUMBER
                                             FROM ITXVIEW_KOSONG, CHECK_EXIST
-                                            WHERE HAS_1 = 1 AND HAS_3 = 1  -- hanya masuk kalau 1 & 3 ada
+                                            WHERE HAS_1 = 1 AND HAS_3 = 1
                                         ),
                                         PIVOTED AS (
                                             SELECT
@@ -857,22 +880,22 @@
                                                 RECIPE_NUMBER,
                                                 KODE,
                                                 SEQUENCE,
-                                                GROUPNUMBER,
-                                                GROUPTYPECODE,
-                                                SUFFIXTYPE,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixL}' THEN CONSUMPTION END) AS LAB,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj1}' THEN CONSUMPTION END) AS ADJ1,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj2}' THEN CONSUMPTION END) AS ADJ2,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj3}' THEN CONSUMPTION END) AS ADJ3,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj4}' THEN CONSUMPTION END) AS ADJ4,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj5}' THEN CONSUMPTION END) AS ADJ5,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj6}' THEN CONSUMPTION END) AS ADJ6,
-                                                MAX(CASE WHEN RECIPESUFFIXCODE = '{$suffixAdj7}' THEN CONSUMPTION END) AS ADJ7
-                                            FROM 
-                                                BASE
-                                            GROUP BY 
-                                                RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
-                                        ),
+                                            GROUPNUMBER,
+                                            GROUPTYPECODE,
+                                            SUFFIXTYPE,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixLclean}' THEN CONSUMPTION END) AS LAB,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj1clean}' THEN CONSUMPTION END) AS ADJ1,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj2clean}' THEN CONSUMPTION END) AS ADJ2,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj3clean}' THEN CONSUMPTION END) AS ADJ3,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj4clean}' THEN CONSUMPTION END) AS ADJ4,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj5clean}' THEN CONSUMPTION END) AS ADJ5,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj6clean}' THEN CONSUMPTION END) AS ADJ6,
+                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj7clean}' THEN CONSUMPTION END) AS ADJ7
+                                        FROM 
+                                            BASE
+                                        GROUP BY 
+                                            RECIPESUBCODE01, RECIPE_NUMBER, KODE, GROUPNUMBER, SEQUENCE, GROUPTYPECODE, SUFFIXTYPE
+                                    ),
                                         FINALDATA AS (
                                             SELECT 
                                                 P.RECIPESUBCODE01,
@@ -946,34 +969,35 @@
                     return null;
                 }
             }
-            $dataDyc1 = GetDataFinalAdj($conn1, '1', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc2 = GetDataFinalAdj($conn1, '2', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc3 = GetDataFinalAdj($conn1, '3', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc4 = GetDataFinalAdj($conn1, '4', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc5 = GetDataFinalAdj($conn1, '5', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc6 = GetDataFinalAdj($conn1, '6', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc7 = GetDataFinalAdj($conn1, '7', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc8 = GetDataFinalAdj($conn1, '8', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc9 = GetDataFinalAdj($conn1, '9', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc10 = GetDataFinalAdj($conn1, '10', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc11 = GetDataFinalAdj($conn1, '11', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc12 = GetDataFinalAdj($conn1, '12', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc13 = GetDataFinalAdj($conn1, '13', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc14 = GetDataFinalAdj($conn1, '14', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc15 = GetDataFinalAdj($conn1, '15', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc16 = GetDataFinalAdj($conn1, '16', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc17 = GetDataFinalAdj($conn1, '17', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc18 = GetDataFinalAdj($conn1, '18', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc19 = GetDataFinalAdj($conn1, '19', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc20 = GetDataFinalAdj($conn1, '20', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc21 = GetDataFinalAdj($conn1, '21', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc22 = GetDataFinalAdj($conn1, '22', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc23 = GetDataFinalAdj($conn1, '23', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc24 = GetDataFinalAdj($conn1, '24', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
-            $dataDyc25 = GetDataFinalAdj($conn1, '25', $suffixcode.'L', $suffixcode.'D-S1', $suffixcode.'D-S2', $suffixcode.'D-S3', $suffixcode.'D-S4', $suffixcode.'D-S5', $suffixcode.'D-S6', $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc1 = GetDataFinalAdj($conn1, '1', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc2 = GetDataFinalAdj($conn1, '2', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc3 = GetDataFinalAdj($conn1, '3', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc4 = GetDataFinalAdj($conn1, '4', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc5 = GetDataFinalAdj($conn1, '5', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc6 = GetDataFinalAdj($conn1, '6', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc7 = GetDataFinalAdj($conn1, '7', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc8 = GetDataFinalAdj($conn1, '8', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc9 = GetDataFinalAdj($conn1, '9', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc10 = GetDataFinalAdj($conn1, '10', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc11 = GetDataFinalAdj($conn1, '11', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc12 = GetDataFinalAdj($conn1, '12', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc13 = GetDataFinalAdj($conn1, '13', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc14 = GetDataFinalAdj($conn1, '14', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc15 = GetDataFinalAdj($conn1, '15', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc16 = GetDataFinalAdj($conn1, '16', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc17 = GetDataFinalAdj($conn1, '17', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc18 = GetDataFinalAdj($conn1, '18', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc19 = GetDataFinalAdj($conn1, '19', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc20 = GetDataFinalAdj($conn1, '20', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc21 = GetDataFinalAdj($conn1, '21', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc22 = GetDataFinalAdj($conn1, '22', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc23 = GetDataFinalAdj($conn1, '23', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc24 = GetDataFinalAdj($conn1, '24', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
+            $dataDyc25 = GetDataFinalAdj($conn1, '25', $suffixcode.'L', $suffixcode.'DS1', $suffixcode.'DS2', $suffixcode.'DS3', $suffixcode.'DS4', $suffixcode.'DS5', $suffixcode.'DS6', $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], $kodesuffix);
 
 
             function GetDataFinalSuhu($conn1, $suffix, $recipesubcode01, $recipesubcode02, $side){
+                $suffixClean = normalizeSuffixSearch($suffix);
                 $queryFinalSuhu = "WITH FINALDATA AS (
                                             SELECT
                                                 RECIPESUBCODE01,
@@ -988,7 +1012,7 @@
                                                 RECIPECOMPONENT r
                                             WHERE
                                                 RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND RECIPESUFFIXCODE IN ('{$suffix}')
+                                                AND REPLACE(RECIPESUFFIXCODE, '-', '') IN ('{$suffixClean}')
                                                 AND GROUPTYPECODE = '100'
                                                 AND (NOT COMMENTLINE LIKE '%RC %'
                                                     AND NOT COMMENTLINE LIKE '%SOAPING%'
@@ -1018,22 +1042,22 @@
             }
 
             $dataSuhu1TSide = GetDataFinalSuhu($conn1, $suffixcode.'L', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu2TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S1', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu3TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S2', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu4TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S3', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu5TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S4', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu6TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S5', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu7TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S6', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
-            $dataSuhu8TSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu2TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS1', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu3TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS2', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu4TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS3', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu5TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS4', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu6TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS5', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu7TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS6', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
+            $dataSuhu8TSide = GetDataFinalSuhu($conn1, $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
 
             $dataSuhu1CSide = GetDataFinalSuhu($conn1, $suffixcode.'L', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu2CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S1', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu3CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S2', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu4CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S3', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu5CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S4', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu6CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S5', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu7CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S6', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
-            $dataSuhu8CSide = GetDataFinalSuhu($conn1, $suffixcode.'D-S7', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu2CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS1', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu3CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS2', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu4CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS3', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu5CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS4', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu6CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS5', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu7CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS6', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
+            $dataSuhu8CSide = GetDataFinalSuhu($conn1, $suffixcode.'DS7', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
 
             $dataSuhu1TSideLD = GetDataFinalSuhu($conn1, '001', $data['recipe_code_1'], $data['recipe_code_2'], 'T-SIDE');
             $dataSuhu1CSideLD = GetDataFinalSuhu($conn1, '001', $data['recipe_code_1'], $data['recipe_code_2'], 'C-SIDE');
@@ -1653,13 +1677,13 @@
                         <td style="font-weight: bold;"><?php echo $kode_lama26; ?></td>
                         <td style="font-weight: bold;">Colorist Name</td>
                         <?php 
-                            $coloristname1  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1');
-                            $coloristname2  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2');
-                            $coloristname3  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3');
-                            $coloristname4  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4');
-                            $coloristname5  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5');
-                            $coloristname6  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6');
-                            $coloristname7  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7');
+                            $coloristname1  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1');
+                            $coloristname2  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2');
+                            $coloristname3  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3');
+                            $coloristname4  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4');
+                            $coloristname5  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5');
+                            $coloristname6  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6');
+                            $coloristname7  = getColoristName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7');
                         ?>
                         <td style="font-weight: bold;">-</td>
                         <td style="font-weight: bold;"><?= $coloristname1; ?></td>
@@ -1675,13 +1699,13 @@
                         <td style="font-weight: bold;"><?php echo $kode_lama27; ?></td>
                         <td style="font-weight: bold;">Editor Name</td>
                         <?php 
-                            $editorname1  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1');
-                            $editorname2  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2');
-                            $editorname3  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3');
-                            $editorname4  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4');
-                            $editorname5  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5');
-                            $editorname6  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6');
-                            $editorname7  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7');
+                            $editorname1  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1');
+                            $editorname2  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2');
+                            $editorname3  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3');
+                            $editorname4  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4');
+                            $editorname5  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5');
+                            $editorname6  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6');
+                            $editorname7  = getEditorName($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7');
                         ?>
                         <td style="font-weight: bold;">-</td>
                         <td style="font-weight: bold;"><?= $editorname1; ?></td>
@@ -1740,13 +1764,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama);
-                            $adj2_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama);
-                            $adj3_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama);
-                            $adj4_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama);
-                            $adj5_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama);
-                            $adj6_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama);
-                            $adj7_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama);
+                            $adj1_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama);
+                            $adj2_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama);
+                            $adj3_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama);
+                            $adj4_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama);
+                            $adj5_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama);
+                            $adj6_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama);
+                            $adj7_1 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc1']) != 0) echo floatval($rsp1['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_1 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp1['conc2']) != 0) echo floatval($rsp1['conc2']) ?><span style="color: red;"><?= $adj1_1; ?></span></td>
@@ -1889,13 +1913,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama2);
-                            $adj2_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama2);
-                            $adj3_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama2);
-                            $adj4_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama2);
-                            $adj5_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama2);
-                            $adj6_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama2);
-                            $adj7_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama2);
+                            $adj1_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama2);
+                            $adj2_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama2);
+                            $adj3_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama2);
+                            $adj4_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama2);
+                            $adj5_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama2);
+                            $adj6_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama2);
+                            $adj7_2 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama2);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc1']) != 0) echo floatval($rsp2['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_2 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp2['conc2']) != 0) echo floatval($rsp2['conc2']) ?><span style="color: red;"><?= $adj1_2; ?></span></td>
@@ -1947,13 +1971,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama3);
-                            $adj2_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama3);
-                            $adj3_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama3);
-                            $adj4_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama3);
-                            $adj5_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama3);
-                            $adj6_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama3);
-                            $adj7_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama3);
+                            $adj1_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama3);
+                            $adj2_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama3);
+                            $adj3_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama3);
+                            $adj4_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama3);
+                            $adj5_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama3);
+                            $adj6_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama3);
+                            $adj7_3 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama3);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc1']) != 0) echo floatval($rsp3['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_3 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp3['conc2']) != 0) echo floatval($rsp3['conc2']) ?><span style="color: red;"><?= $adj1_3; ?></span></td>
@@ -2005,13 +2029,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama4);
-                            $adj2_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama4);
-                            $adj3_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama4);
-                            $adj4_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama4);
-                            $adj5_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama4);
-                            $adj6_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama4);
-                            $adj7_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama4);
+                            $adj1_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama4);
+                            $adj2_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama4);
+                            $adj3_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama4);
+                            $adj4_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama4);
+                            $adj5_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama4);
+                            $adj6_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama4);
+                            $adj7_4 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama4);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc1']) != 0) echo floatval($rsp4['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_4 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp4['conc2']) != 0) echo floatval($rsp4['conc2']) ?><span style="color: red;"><?= $adj1_4; ?></span></td>
@@ -2063,13 +2087,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama5);
-                            $adj2_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama5);
-                            $adj3_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama5);
-                            $adj4_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama5);
-                            $adj5_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama5);
-                            $adj6_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama5);
-                            $adj7_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama5);
+                            $adj1_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama5);
+                            $adj2_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama5);
+                            $adj3_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama5);
+                            $adj4_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama5);
+                            $adj5_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama5);
+                            $adj6_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama5);
+                            $adj7_5 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama5);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc1']) != 0) echo floatval($rsp5['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_5 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp5['conc2']) != 0) echo floatval($rsp5['conc2']) ?><span style="color: red;"><?= $adj1_5; ?></span></td>
@@ -2121,13 +2145,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama6);
-                            $adj2_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama6);
-                            $adj3_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama6);
-                            $adj4_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama6);
-                            $adj5_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama6);
-                            $adj6_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama6);
-                            $adj7_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama6);
+                            $adj1_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama6);
+                            $adj2_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama6);
+                            $adj3_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama6);
+                            $adj4_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama6);
+                            $adj5_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama6);
+                            $adj6_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama6);
+                            $adj7_6 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama6);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc1']) != 0) echo floatval($rsp6['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_6 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp6['conc2']) != 0) echo floatval($rsp6['conc2']) ?><span style="color: red;"><?= $adj1_6; ?></span></td>
@@ -2181,13 +2205,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama7);
-                            $adj2_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama7);
-                            $adj3_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama7);
-                            $adj4_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama7);
-                            $adj5_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama7);
-                            $adj6_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama7);
-                            $adj7_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama7);
+                            $adj1_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama7);
+                            $adj2_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama7);
+                            $adj3_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama7);
+                            $adj4_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama7);
+                            $adj5_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama7);
+                            $adj6_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama7);
+                            $adj7_7 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama7);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc1']) != 0) echo floatval($rsp7['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_7 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp7['conc2']) != 0) echo floatval($rsp7['conc2']) ?><span style="color: red;"><?= $adj1_7; ?></span></td>
@@ -2241,13 +2265,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama8);
-                            $adj2_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama8);
-                            $adj3_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama8);
-                            $adj4_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama8);
-                            $adj5_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama8);
-                            $adj6_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama8);
-                            $adj7_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama8);
+                            $adj1_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama8);
+                            $adj2_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama8);
+                            $adj3_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama8);
+                            $adj4_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama8);
+                            $adj5_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama8);
+                            $adj6_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama8);
+                            $adj7_8 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama8);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc1']) != 0) echo floatval($rsp8['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_8 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp8['conc2']) != 0) echo floatval($rsp8['conc2']) ?><span style="color: red;"><?= $adj1_8; ?></span></td>
@@ -2301,13 +2325,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama9);
-                            $adj2_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama9);
-                            $adj3_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama9);
-                            $adj4_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama9);
-                            $adj5_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama9);
-                            $adj6_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama9);
-                            $adj7_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama9);
+                            $adj1_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama9);
+                            $adj2_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama9);
+                            $adj3_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama9);
+                            $adj4_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama9);
+                            $adj5_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama9);
+                            $adj6_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama9);
+                            $adj7_9 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama9);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc1']) != 0) echo floatval($rsp9['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_9 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp9['conc2']) != 0) echo floatval($rsp9['conc2']) ?><span style="color: red;"><?= $adj1_9; ?></span></td>
@@ -2360,13 +2384,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama10);
-                            $adj2_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama10);
-                            $adj3_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama10);
-                            $adj4_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama10);
-                            $adj5_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama10);
-                            $adj6_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama10);
-                            $adj7_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama10);
+                            $adj1_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama10);
+                            $adj2_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama10);
+                            $adj3_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama10);
+                            $adj4_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama10);
+                            $adj5_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama10);
+                            $adj6_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama10);
+                            $adj7_10 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama10);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc1']) != 0) echo floatval($rsp10['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_10 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp10['conc2']) != 0) echo floatval($rsp10['conc2']) ?><span style="color: red;"><?= $adj1_10; ?></span></td>
@@ -2418,13 +2442,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama11);
-                            $adj2_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama11);
-                            $adj3_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama11);
-                            $adj4_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama11);
-                            $adj5_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama11);
-                            $adj6_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama11);
-                            $adj7_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama11);
+                            $adj1_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama11);
+                            $adj2_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama11);
+                            $adj3_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama11);
+                            $adj4_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama11);
+                            $adj5_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama11);
+                            $adj6_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama11);
+                            $adj7_11 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama11);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc1']) != 0) echo floatval($rsp11['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_11 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp11['conc2']) != 0) echo floatval($rsp11['conc2']) ?><span style="color: red;"><?= $adj1_11; ?></span></td>
@@ -2517,13 +2541,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama12);
-                            $adj2_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama12);
-                            $adj3_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama12);
-                            $adj4_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama12);
-                            $adj5_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama12);
-                            $adj6_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama12);
-                            $adj7_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama12);
+                            $adj1_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama12);
+                            $adj2_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama12);
+                            $adj3_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama12);
+                            $adj4_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama12);
+                            $adj5_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama12);
+                            $adj6_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama12);
+                            $adj7_12 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama12);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc1']) != 0) echo floatval($rsp12['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_12 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp12['conc2']) != 0) echo floatval($rsp12['conc2']) ?><span style="color: red;"><?= $adj1_12; ?></span></td>
@@ -2575,13 +2599,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama13);
-                            $adj2_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama13);
-                            $adj3_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama13);
-                            $adj4_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama13);
-                            $adj5_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama13);
-                            $adj6_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama13);
-                            $adj7_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama13);
+                            $adj1_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama13);
+                            $adj2_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama13);
+                            $adj3_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama13);
+                            $adj4_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama13);
+                            $adj5_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama13);
+                            $adj6_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama13);
+                            $adj7_13 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama13);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc1']) != 0) echo floatval($rsp13['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_13 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp13['conc2']) != 0) echo floatval($rsp13['conc2']) ?><span style="color: red;"><?= $adj1_13; ?></span></td>
@@ -2633,13 +2657,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama14);
-                            $adj2_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama14);
-                            $adj3_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama14);
-                            $adj4_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama14);
-                            $adj5_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama14);
-                            $adj6_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama14);
-                            $adj7_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama14);
+                            $adj1_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama14);
+                            $adj2_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama14);
+                            $adj3_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama14);
+                            $adj4_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama14);
+                            $adj5_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama14);
+                            $adj6_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama14);
+                            $adj7_14 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama14);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc1']) != 0) echo floatval($rsp14['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_14 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp14['conc2']) != 0) echo floatval($rsp14['conc2']) ?><span style="color: red;"><?= $adj1_14; ?></span></td>
@@ -2691,13 +2715,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama15);
-                            $adj2_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama15);
-                            $adj3_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama15);
-                            $adj4_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama15);
-                            $adj5_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama15);
-                            $adj6_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama15);
-                            $adj7_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama15);
+                            $adj1_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama15);
+                            $adj2_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama15);
+                            $adj3_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama15);
+                            $adj4_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama15);
+                            $adj5_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama15);
+                            $adj6_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama15);
+                            $adj7_15 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama15);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc1']) != 0) echo floatval($rsp15['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_15 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp15['conc2']) != 0) echo floatval($rsp15['conc2']) ?><span style="color: red;"><?= $adj1_15; ?></span></td>
@@ -2749,13 +2773,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama16);
-                            $adj2_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama16);
-                            $adj3_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama16);
-                            $adj4_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama16);
-                            $adj5_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama16);
-                            $adj6_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama16);
-                            $adj7_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama16);
+                            $adj1_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama16);
+                            $adj2_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama16);
+                            $adj3_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama16);
+                            $adj4_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama16);
+                            $adj5_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama16);
+                            $adj6_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama16);
+                            $adj7_16 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama16);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc1']) != 0) echo floatval($rsp16['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_16 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp16['conc2']) != 0) echo floatval($rsp16['conc2']) ?><span style="color: red;"><?= $adj1_16; ?></span></td>
@@ -2807,13 +2831,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama17);
-                            $adj2_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama17);
-                            $adj3_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama17);
-                            $adj4_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama17);
-                            $adj5_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama17);
-                            $adj6_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama17);
-                            $adj7_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama17);
+                            $adj1_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama17);
+                            $adj2_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama17);
+                            $adj3_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama17);
+                            $adj4_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama17);
+                            $adj5_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama17);
+                            $adj6_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama17);
+                            $adj7_17 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama17);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc1']) != 0) echo floatval($rsp17['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_17 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp17['conc2']) != 0) echo floatval($rsp17['conc2']) ?><span style="color: red;"><?= $adj1_17; ?></span></td>
@@ -2865,13 +2889,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama18);
-                            $adj2_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama18);
-                            $adj3_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama18);
-                            $adj4_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama18);
-                            $adj5_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama18);
-                            $adj6_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama18);
-                            $adj7_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama18);
+                            $adj1_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama18);
+                            $adj2_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama18);
+                            $adj3_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama18);
+                            $adj4_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama18);
+                            $adj5_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama18);
+                            $adj6_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama18);
+                            $adj7_18 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama18);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc1']) != 0) echo floatval($rsp18['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_18 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp18['conc2']) != 0) echo floatval($rsp18['conc2']) ?><span style="color: red;"><?= $adj1_18; ?></span></td>
@@ -2923,13 +2947,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama19);
-                            $adj2_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama19);
-                            $adj3_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama19);
-                            $adj4_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama19);
-                            $adj5_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama19);
-                            $adj6_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama19);
-                            $adj7_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama19);
+                            $adj1_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama19);
+                            $adj2_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama19);
+                            $adj3_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama19);
+                            $adj4_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama19);
+                            $adj5_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama19);
+                            $adj6_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama19);
+                            $adj7_19 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama19);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc1']) != 0) echo floatval($rsp19['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_19 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp19['conc2']) != 0) echo floatval($rsp19['conc2']) ?><span style="color: red;"><?= $adj1_19; ?></span></td>
@@ -2981,13 +3005,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama20);
-                            $adj2_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama20);
-                            $adj3_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama20);
-                            $adj4_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama20);
-                            $adj5_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama20);
-                            $adj6_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama20);
-                            $adj7_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama20);
+                            $adj1_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama20);
+                            $adj2_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama20);
+                            $adj3_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama20);
+                            $adj4_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama20);
+                            $adj5_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama20);
+                            $adj6_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama20);
+                            $adj7_20 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama20);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc1']) != 0) echo floatval($rsp20['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_20 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp20['conc2']) != 0) echo floatval($rsp20['conc2']) ?><span style="color: red;"><?= $adj1_20; ?></span></td>
@@ -3039,13 +3063,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama21);
-                            $adj2_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama21);
-                            $adj3_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama21);
-                            $adj4_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama21);
-                            $adj5_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama21);
-                            $adj6_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama21);
-                            $adj7_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama21);
+                            $adj1_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama21);
+                            $adj2_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama21);
+                            $adj3_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama21);
+                            $adj4_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama21);
+                            $adj5_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama21);
+                            $adj6_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama21);
+                            $adj7_21 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama21);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc1']) != 0) echo floatval($rsp21['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_21 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp21['conc2']) != 0) echo floatval($rsp21['conc2']) ?><span style="color: red;"><?= $adj1_21; ?></span></td>
@@ -3099,13 +3123,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama22);
-                            $adj2_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama22);
-                            $adj3_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama22);
-                            $adj4_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama22);
-                            $adj5_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama22);
-                            $adj6_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama22);
-                            $adj7_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama22);
+                            $adj1_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama22);
+                            $adj2_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama22);
+                            $adj3_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama22);
+                            $adj4_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama22);
+                            $adj5_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama22);
+                            $adj6_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama22);
+                            $adj7_22 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama22);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc1']) != 0) echo floatval($rsp22['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_22 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp22['conc2']) != 0) echo floatval($rsp22['conc2']) ?><span style="color: red;"><?= $adj1_22; ?></span></td>
@@ -3157,13 +3181,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama23);
-                            $adj2_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama23);
-                            $adj3_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama23);
-                            $adj4_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama23);
-                            $adj5_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama23);
-                            $adj6_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama23);
-                            $adj7_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama23);
+                            $adj1_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama23);
+                            $adj2_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama23);
+                            $adj3_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama23);
+                            $adj4_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama23);
+                            $adj5_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama23);
+                            $adj6_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama23);
+                            $adj7_23 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama23);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc1']) != 0) echo floatval($rsp23['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_23 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp23['conc2']) != 0) echo floatval($rsp23['conc2']) ?><span style="color: red;"><?= $adj1_23; ?></span></td>
@@ -3243,13 +3267,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama24);
-                            $adj2_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama24);
-                            $adj3_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama24);
-                            $adj4_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama24);
-                            $adj5_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama24);
-                            $adj6_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama24);
-                            $adj7_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama24);
+                            $adj1_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama24);
+                            $adj2_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama24);
+                            $adj3_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama24);
+                            $adj4_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama24);
+                            $adj5_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama24);
+                            $adj6_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama24);
+                            $adj7_24 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama24);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc1']) != 0) echo floatval($rsp24['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_24 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp24['conc2']) != 0) echo floatval($rsp24['conc2']) ?><span style="color: red;"><?= $adj1_24; ?></span></td>
@@ -3301,13 +3325,13 @@
                             ?>
                         </td>
                         <?php 
-                            $adj1_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S1', $kode_lama25);
-                            $adj2_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S2', $kode_lama25);
-                            $adj3_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S3', $kode_lama25);
-                            $adj4_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S4', $kode_lama25);
-                            $adj5_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S5', $kode_lama25);
-                            $adj6_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S6', $kode_lama25);
-                            $adj7_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'D-S7', $kode_lama25);
+                            $adj1_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS1', $kode_lama25);
+                            $adj2_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS2', $kode_lama25);
+                            $adj3_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS3', $kode_lama25);
+                            $adj4_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS4', $kode_lama25);
+                            $adj5_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS5', $kode_lama25);
+                            $adj6_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS6', $kode_lama25);
+                            $adj7_25 = getRecipeAdj1($conn1, $data['recipe_code_1'], $data['recipe_code_2'], $suffixcode . 'DS7', $kode_lama25);
                         ?>
                         <td style="font-weight: bold; <?= $adj1_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc1']) != 0) echo floatval($rsp25['conc1']) ?></td>
                         <td style="font-weight: bold; <?= $adj2_25 ? 'text-decoration: line-through;' : '' ?>"><?php if (floatval($rsp25['conc2']) != 0) echo floatval($rsp25['conc2']) ?><span style="color: red;"><?= $adj1_25; ?></span></td>
