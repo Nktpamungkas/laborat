@@ -410,7 +410,7 @@
 
     { title:'STATUS', field:'status',
       editor:'select',
-      editorParams:{ values:{ "NORMAL":"NORMAL", "URGENT":"URGENT" } },
+      editorParams:{ values:{ "NORMAL":"NORMAL", "URGENT":"URGENT", "BON RESEP":"BON RESEP" } },
       // normalisasi tampilan jadi UPPERCASE
       mutator:function(v){ return (v==null || v==='') ? '' : String(v).trim().toUpperCase(); },
       width:w(110), headerHozAlign:'center', titleDownload:'STATUS'
@@ -687,10 +687,10 @@
 
     // Validasi pilihan STATUS
     if (!missing.includes('STATUS') && d.status){
-      var allowedStatus = { "NORMAL":true, "URGENT":true };
+      var allowedStatus = { "NORMAL":true, "URGENT":true, "BON RESEP":true };
       if (!allowedStatus[String(d.status).trim().toUpperCase()]){
-        missing.push('STATUS (hanya NORMAL/URGENT)');
-        markCellError(row, 'status', 'Pilih NORMAL atau URGENT');
+        missing.push('STATUS (hanya NORMAL/URGENT/BON RESEP)');
+        markCellError(row, 'status', 'Pilih NORMAL, URGENT, atau BON RESEP');
       }
     }
 
