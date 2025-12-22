@@ -538,6 +538,9 @@
         }
         $kodesuffix = substr(strtoupper($data['no_resep']), 0, 2);
 
+        // Ambil hanya angka dari suffix (contoh 25045678L -> 25045678, 45678L -> 45678)
+        $suffixcode_numeric = preg_replace('/\D+/', '', $suffixcode);
+
         if($_GET['frm'] == 'bresep'){
             // ADJUSTMENT 1
             // Helper: hilangkan '-' pada suffix pencarian (misal DS1 -> DS1)
@@ -556,7 +559,12 @@
                             RECIPECOMPONENT r
                         WHERE
                             (r.RECIPESUBCODE01 = '{$recipesubcode01}' OR r.RECIPESUBCODE01 = '{$recipesubcode02}')
-                            AND REPLACE(r.RECIPESUFFIXCODE, '-', '') = '{$suffixClean}'
+                            AND (
+                                    CASE
+                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                        ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
+                                    END
+                                ) IN ('{$suffixClean}')
                             AND TRIM(SUBCODE01) || '-' || TRIM(SUBCODE02) || '-' || TRIM(SUBCODE03) = '{$recipeCode}'
                             AND r.ITEMTYPEAFICODE = 'DYC'
                         ORDER BY 
@@ -585,7 +593,12 @@
                                         RECIPE r
                                     WHERE
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
-                                        AND REPLACE(SUFFIXCODE, '-', '') = '{$suffixClean}'";
+                                        AND (
+                                            CASE
+                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
+                                                ELSE REPLACE(TRIM(SUFFIXCODE), '-', '')
+                                            END
+                                        ) IN ('{$suffixClean}')";
                 $stmtColorist = db2_exec($conn1, $sqlColorist);
                 $rowColorist  = db2_fetch_assoc($stmtColorist);
                 if ($rowColorist) {
@@ -604,7 +617,12 @@
                                         RECIPE r
                                     WHERE
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
-                                        AND REPLACE(SUFFIXCODE, '-', '') = '{$suffixClean}'";
+                                        AND (
+                                            CASE
+                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
+                                                ELSE REPLACE(TRIM(SUFFIXCODE), '-', '')
+                                            END
+                                        ) IN ('{$suffixClean}')";
                 $stmtEditor = db2_exec($conn1, $sqlEditor);
                 $rowEditor  = db2_fetch_assoc($stmtEditor);
                 if ($rowEditor) {
@@ -698,7 +716,11 @@
                                                 WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' AND NOT a3.VALUESTRING = 'W' THEN 3
                                                 ELSE 
                                                     COALESCE(a2.VALUESTRING, '3')
-                                            END AS RECIPE_NUMBER
+                                            END AS RECIPE_NUMBER,
+                                            CASE
+                                                WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
+                                            END AS SUFFIX_NORM
                                         FROM 
                                             RECIPECOMPONENT r
                                         LEFT JOIN RECIPE r2 ON r2.SUBCODE01 = r.RECIPESUBCODE01 AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
@@ -708,9 +730,15 @@
                                         LEFT JOIN RECIPECOMPONENT r3 ON r3.RECIPESUBCODE01 = r.SUBCODE01 AND r3.RECIPESUFFIXCODE = r.SUFFIXCODE
                                         WHERE 
                                             r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND REPLACE(r.RECIPESUFFIXCODE, '-', '') IN ('{$suffixLclean}', 
-                                                                        '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
-                                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}')
+                                            AND (
+                                                    CASE
+                                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                        ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
+                                                    END
+                                                ) IN (
+                                                        '{$suffixLclean}', '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
+                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}'
+                                                    )
                                             AND (
                                                 (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND r.GROUPTYPECODE IN ('001', '100', '201'))
                                                 OR (r.ITEMTYPEAFICODE = 'DYC' AND r.GROUPNUMBER < 20)
@@ -723,21 +751,37 @@
                                             FROM BASEDATA
                                         ),
                                         BASE AS (
-                                            SELECT * FROM BASEDATA
+                                            SELECT 
+                                                RECIPESUBCODE01,
+                                                SEQUENCE,
+                                                GROUPNUMBER,
+                                                GROUPTYPECODE,
+                                                SUFFIXTYPE,
+                                                RECIPESUFFIXCODE,
+                                                SUFFIX_NORM,
+                                                SUBCODE01,
+                                                SUBCODE02,
+                                                SUBCODE03,
+                                                CONSUMPTION,
+                                                KODE,
+                                                RECIPE_NUMBER
+                                            FROM 
+                                                BASEDATA
                                             UNION ALL
                                             SELECT 
                                                 '-' AS RECIPESUBCODE01,
-                                            2   AS SEQUENCE,
-                                            NULL AS GROUPNUMBER,
-                                            2   AS GROUPTYPECODE,
-                                            2   AS SUFFIXTYPE, 
-                                            '-' AS RECIPESUFFIXCODE,
-                                            '-' AS SUBCODE01,
-                                            '-' AS SUBCODE02,
-                                            '-' AS SUBCODE03,
-                                            NULL AS CONSUMPTION,
-                                            '-' AS KODE,
-                                            2   AS RECIPE_NUMBER
+                                                2   AS SEQUENCE,
+                                                NULL AS GROUPNUMBER,
+                                                2   AS GROUPTYPECODE,
+                                                2   AS SUFFIXTYPE, 
+                                                '-' AS RECIPESUFFIXCODE,
+                                                '-'  AS SUFFIX_NORM,
+                                                '-' AS SUBCODE01,
+                                                '-' AS SUBCODE02,
+                                                '-' AS SUBCODE03,
+                                                NULL AS CONSUMPTION,
+                                                '-' AS KODE,
+                                                2   AS RECIPE_NUMBER
                                         FROM ITXVIEW_KOSONG, CHECK_EXIST
                                         WHERE HAS_1 = 1 AND HAS_3 = 1  -- hanya masuk kalau 1 & 3 ada
                                         ),
@@ -830,20 +874,26 @@
                                                 CASE 
                                                     WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'D' THEN 1
                                                     WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN 3
-                                                END AS RECIPE_NUMBER
+                                                END AS RECIPE_NUMBER,
+                                                CASE
+                                                    WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                    ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
+                                                END AS SUFFIX_NORM
                                             FROM 
                                                 RECIPECOMPONENT r
-                                            LEFT JOIN RECIPE r2 
-                                                ON r2.SUBCODE01 = r.RECIPESUBCODE01 
-                                                AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
-                                            LEFT JOIN ADSTORAGE a 
-                                                ON a.UNIQUEID = r2.ABSUNIQUEID 
-                                                AND a.FIELDNAME = 'RCode'
+                                            LEFT JOIN RECIPE r2 ON r2.SUBCODE01 = r.RECIPESUBCODE01 AND r2.SUFFIXCODE = r.RECIPESUFFIXCODE
+                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = r2.ABSUNIQUEID AND a.FIELDNAME = 'RCode'
                                             WHERE 
                                                 r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND REPLACE(r.RECIPESUFFIXCODE, '-', '') IN ('{$suffixLclean}', 
-                                                                        '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
-                                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}')
+                                                AND (
+                                                        CASE
+                                                            WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                            ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
+                                                        END
+                                                    ) IN (
+                                                        '{$suffixLclean}', '{$suffixAdj1clean}','{$suffixAdj2clean}','{$suffixAdj3clean}',
+                                                        '{$suffixAdj4clean}','{$suffixAdj5clean}','{$suffixAdj6clean}','{$suffixAdj7clean}'
+                                                        )
                                                 AND (
                                                     (SUBSTR(a.VALUESTRING, 1,2) = 'OB' AND GROUPTYPECODE IN ('001', '100'))
                                                     OR (ITEMTYPEAFICODE = 'DYC' AND GROUPNUMBER < 20)
@@ -856,7 +906,22 @@
                                             FROM BASEDATA
                                         ),
                                         BASE AS (
-                                            SELECT * FROM BASEDATA
+                                            SELECT 
+                                                RECIPESUBCODE01,
+                                                SEQUENCE,
+                                                GROUPNUMBER,
+                                                GROUPTYPECODE,
+                                                SUFFIXTYPE,
+                                                RECIPESUFFIXCODE,
+                                                SUFFIX_NORM,
+                                                SUBCODE01,
+                                                SUBCODE02,
+                                                SUBCODE03,
+                                                CONSUMPTION,
+                                                KODE,
+                                                RECIPE_NUMBER
+                                            FROM 
+                                                BASEDATA
                                             UNION ALL
                                             SELECT 
                                                 '-' AS RECIPESUBCODE01,
@@ -865,6 +930,7 @@
                                                 2   AS GROUPTYPECODE,
                                                 2   AS SUFFIXTYPE, 
                                                 '-' AS RECIPESUFFIXCODE,
+                                                '-'  AS SUFFIX_NORM,
                                                 '-' AS SUBCODE01,
                                                 '-' AS SUBCODE02,
                                                 '-' AS SUBCODE03,
@@ -883,14 +949,14 @@
                                             GROUPNUMBER,
                                             GROUPTYPECODE,
                                             SUFFIXTYPE,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixLclean}' THEN CONSUMPTION END) AS LAB,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj1clean}' THEN CONSUMPTION END) AS ADJ1,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj2clean}' THEN CONSUMPTION END) AS ADJ2,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj3clean}' THEN CONSUMPTION END) AS ADJ3,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj4clean}' THEN CONSUMPTION END) AS ADJ4,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj5clean}' THEN CONSUMPTION END) AS ADJ5,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj6clean}' THEN CONSUMPTION END) AS ADJ6,
-                                            MAX(CASE WHEN REPLACE(RECIPESUFFIXCODE, '-', '') = '{$suffixAdj7clean}' THEN CONSUMPTION END) AS ADJ7
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixLclean}'   THEN CONSUMPTION END) AS LAB,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj1clean}' THEN CONSUMPTION END) AS ADJ1,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj2clean}' THEN CONSUMPTION END) AS ADJ2,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj3clean}' THEN CONSUMPTION END) AS ADJ3,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj4clean}' THEN CONSUMPTION END) AS ADJ4,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj5clean}' THEN CONSUMPTION END) AS ADJ5,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj6clean}' THEN CONSUMPTION END) AS ADJ6,
+                                            MAX(CASE WHEN SUFFIX_NORM = '{$suffixAdj7clean}' THEN CONSUMPTION END) AS ADJ7
                                         FROM 
                                             BASE
                                         GROUP BY 
@@ -1012,7 +1078,12 @@
                                                 RECIPECOMPONENT r
                                             WHERE
                                                 RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
-                                                AND REPLACE(RECIPESUFFIXCODE, '-', '') IN ('{$suffixClean}')
+                                                AND (
+                                                        CASE
+                                                            WHEN LEFT(TRIM(RECIPESUFFIXCODE), 3) = '250' THEN REPLACE(SUBSTR(TRIM(RECIPESUFFIXCODE), 4), '-', '')
+                                                            ELSE REPLACE(TRIM(RECIPESUFFIXCODE), '-', '')
+                                                        END
+                                                    ) IN ('{$suffixClean}')
                                                 AND GROUPTYPECODE = '100'
                                                 AND (NOT COMMENTLINE LIKE '%RC %'
                                                     AND NOT COMMENTLINE LIKE '%SOAPING%'
