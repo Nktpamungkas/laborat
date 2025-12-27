@@ -249,19 +249,31 @@ if (!$bolehAkses) {
     thead tr:nth-child(2) th.sticky-col {
         z-index: 4;
     }
+
     @keyframes blinkGreen {
-        0%, 100% { opacity: 1; }
-        50%      { opacity: 0.2; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.2;
+        }
     }
 
     #bonResepInfo.blink {
         animation: blinkGreen 2s infinite;
     }
+
     .spin {
         animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
-        100% { transform: rotate(360deg); }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 <div class="box box-info">
@@ -991,7 +1003,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                 $('#temp').focus();
                 return;
             }
-            
+
             var bottle_qty_test = $('#bottle_qty_test').val() ? $('#bottle_qty_test').val() : 0;
 
             // Payload for element balance
@@ -1181,9 +1193,9 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                 data.forEach((item, index) => {
                     const isOldStyle = item.is_old_data == 1 ? 'style="background-color: pink;"' : '';
                     const testBadge = item.is_test == 1 ? ' <span class="label label-warning">TEST REPORT</span>' : '';
-                    const suffix = item.is_bonresep == 1
-                            ? `${item.no_resep}${testBadge}`
-                            : `${item.no_resep} - ${item.jenis_matching}${testBadge}`;
+                    const suffix = item.is_bonresep == 1 ?
+                        `${item.no_resep}${testBadge}` :
+                        `${item.no_resep} - ${item.jenis_matching}${testBadge}`;
 
                     rows += `<tr>
                         <td ${isOldStyle} align="center">${index + 1}</td>
@@ -1436,11 +1448,18 @@ $is_scheduling = ($row['is_scheduling'] == 1);
         });
 
         $('#no_resep').on('input', function() {
+            let val = this.value;
+
+            if (val.includes(',')) {
+                val = val.replace(/,/g, '');
+                this.value = val;
+            }
+
             clearTimeout(tempScanTimer);
             setTempValidity(false);
             window.canSaveWithoutTemp = false;
 
-            const code = $(this).val().trim();
+            const code = val.trim();
 
             // reset tampilan info
             $('#bonResepInfo, #bonResepLoading').remove();
@@ -1460,7 +1479,9 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                     $.ajax({
                         url: 'pages/ajax/check_bon_resep_db2.php',
                         method: 'GET',
-                        data: { no_resep: code },
+                        data: {
+                            no_resep: code
+                        },
                         dataType: 'json',
                         success: function(res) {
                             $('#bonResepLoading').remove();
@@ -1472,7 +1493,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 
                                 // temp tetap wajib, jangan disable
                                 $('#bottle_qty').prop('disabled', false).prop('required', true).val('').focus();
-                                
+
                                 // Set temp otomatis ke 0000113
                                 $('#temp').val('0000113').trigger('input');
 
@@ -1489,7 +1510,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 
                                 runNormalNoResepFlow(code);
                                 return;
-                            }else{
+                            } else {
                                 window.canSaveWithoutTemp = false;
                                 window.isBonResep = 0;
 
@@ -1541,7 +1562,9 @@ $is_scheduling = ($row['is_scheduling'] == 1);
             $.ajax({
                 url: 'pages/ajax/get_temp_code_by_noresep.php',
                 method: 'GET',
-                data: { no_resep: code },
+                data: {
+                    no_resep: code
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
@@ -1563,7 +1586,9 @@ $is_scheduling = ($row['is_scheduling'] == 1);
             $.ajax({
                 url: 'pages/ajax/get_element_id_by_noresep.php',
                 method: 'POST',
-                data: { no_resep: code },
+                data: {
+                    no_resep: code
+                },
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
