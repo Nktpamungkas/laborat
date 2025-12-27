@@ -133,17 +133,17 @@
                         <input type="text" id="scanInput" placeholder="Scan here..." class="form-control" style="max-width: 250px;" autofocus>
                     </div>
 
-                     <div class="col-xs-8 text-right">
+                    <div class="col-xs-8 text-right">
                         <form class="form-inline" style="display: inline-block;">
                             <label for="searchNoResep">Search :</label>
                             <input type="text" id="searchNoResep" name="searchNoResep"
-                                    placeholder="Search Suffix…" class="form-control"
-                                    style="max-width: 250px; margin-left: 5px;" autocomplete="off"
-                                    aria-label="Cari No. Resep">
+                                placeholder="Search Suffix…" class="form-control"
+                                style="max-width: 250px; margin-left: 5px;" autocomplete="off"
+                                aria-label="Cari No. Resep">
                         </form>
 
                         <button id="toggleLockBtn" class="btn btn-warning" style="margin-left: 10px;">
-                        🔒 Lock Drag
+                            🔒 Lock Drag
                         </button>
                     </div>
                 </div>
@@ -458,15 +458,15 @@
             let failedItems = [];
 
             // Disable tombol & tampilkan loader swal
-                $('#submitBtnRFID').prop('disabled', true);
-                Swal.fire({
-                    title: 'Memproses...',
-                    html: 'Mohon tunggu hingga semua data selesai diproses.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    },
-                });
+            $('#submitBtnRFID').prop('disabled', true);
+            Swal.fire({
+                title: 'Memproses...',
+                html: 'Mohon tunggu hingga semua data selesai diproses.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
 
             // Promise chain biar tunggu semua ajax selesai
             let requests = noResepList.map(noResep => {
@@ -503,41 +503,41 @@
             });
 
             Promise.all(requests).then(() => {
-                fetchAndRenderDataOnly();
+                    fetchAndRenderDataOnly();
 
-                // Tutup swal loading
-                Swal.close();
+                    // Tutup swal loading
+                    Swal.close();
 
-                if (failCount === 0) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Semua Berhasil!',
-                        text: `${successCount} dari ${total} resep berhasil diproses.`,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else if (successCount === 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Semua Gagal!',
-                        html: `Tidak ada resep yang berhasil.<br><br><b>Detail:</b><br>${failedItems.join('<br>')}`,
-                        width: 600
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Sebagian Gagal!',
-                        html: `${successCount} berhasil, ${failCount} gagal.<br><br><b>Detail gagal:</b><br>${failedItems.join('<br>')}`,
-                        width: 600
-                    });
-                }
+                    if (failCount === 0) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Semua Berhasil!',
+                            text: `${successCount} dari ${total} resep berhasil diproses.`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else if (successCount === 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Semua Gagal!',
+                            html: `Tidak ada resep yang berhasil.<br><br><b>Detail:</b><br>${failedItems.join('<br>')}`,
+                            width: 600
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Sebagian Gagal!',
+                            html: `${successCount} berhasil, ${failCount} gagal.<br><br><b>Detail gagal:</b><br>${failedItems.join('<br>')}`,
+                            width: 600
+                        });
+                    }
 
-                popoutModal()
-            })
-            .finally(() => {
-                // Enable tombol lagi
-                $('#submitBtnRFID').prop('disabled', false);
-            });
+                    popoutModal()
+                })
+                .finally(() => {
+                    // Enable tombol lagi
+                    $('#submitBtnRFID').prop('disabled', false);
+                });
         }
         // MODULE RFID
 
@@ -549,6 +549,12 @@
 
         loadData();
 
+        $('#scanInput').on('input', function() {
+            if (this.value.includes(',')) {
+                this.value = this.value.replace(/,/g, '');
+            }
+        });
+        
         $('#scanInput').on('keypress', function(e) {
             if (e.which === 13) { // Enter key
                 const noResep = $(this).val().trim();
@@ -578,7 +584,7 @@
         });
 
         function updateStatus(noResep) {
-            const dispensingCode = getDispensingCodeFromNoResep(noResep);  
+            const dispensingCode = getDispensingCodeFromNoResep(noResep);
             if (dispensingCode === null) {
                 Swal.fire({
                     icon: 'error',
@@ -636,12 +642,12 @@
             // 1) Cari hanya baris yang masih aktif (belum pass dispensing)
             const candidates = dispensingData.filter(item => {
                 const resepDb = (item.no_resep || "").trim().toUpperCase();
-                const pass   = Number(item.pass_dispensing || 0);
+                const pass = Number(item.pass_dispensing || 0);
                 const status = (item.status || '').toLowerCase();
 
-                return resepDb === target
-                    && pass === 0
-                    && (status === 'scheduled' || status === 'in_progress_dispensing');
+                return resepDb === target &&
+                    pass === 0 &&
+                    (status === 'scheduled' || status === 'in_progress_dispensing');
             });
 
             // 2) Pilih satu kandidat (id paling besar = data terbaru)
@@ -741,13 +747,13 @@
         tbodyCotton.innerHTML = "";
         tbodyWhite.innerHTML = "";
 
-        const dataForRender = searchTerm 
-            ? data.filter(it => (it.no_resep || "").toLowerCase().includes(searchTerm))
-            : data;
+        const dataForRender = searchTerm ?
+            data.filter(it => (it.no_resep || "").toLowerCase().includes(searchTerm)) :
+            data;
 
-        renderTable(dataForRender, tbodyPoly,   "1");
+        renderTable(dataForRender, tbodyPoly, "1");
         renderTable(dataForRender, tbodyCotton, "2");
-        renderTable(dataForRender, tbodyWhite,  "3");
+        renderTable(dataForRender, tbodyWhite, "3");
 
         document.getElementById("polyTableWrapper").style.display = tbodyPoly.innerHTML.trim() ? "block" : "none";
         document.getElementById("cottonTableWrapper").style.display = tbodyCotton.innerHTML.trim() ? "block" : "none";
@@ -757,8 +763,8 @@
         document.getElementById("tableContainer").style.display = visibleTables > 1 ? "flex" : "block";
     }
 
-    function highlightMatch(text, term){
-        if(!term) return text;
+    function highlightMatch(text, term) {
+        if (!term) return text;
         const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         return text.replace(new RegExp(esc, 'ig'), m => `<mark>${m}</mark>`);
     }
@@ -780,7 +786,7 @@
         tbodyElement.innerHTML = "";
 
         // 3) Render terurut per cycle
-        Object.keys(groupedByCycle).sort((a,b) => Number(a) - Number(b)).forEach(cycleKey => {
+        Object.keys(groupedByCycle).sort((a, b) => Number(a) - Number(b)).forEach(cycleKey => {
             const cycleNumber = Number(cycleKey);
             const rows = groupedByCycle[cycleKey];
 
@@ -789,57 +795,57 @@
             const middleIndex = Math.floor((activeRows.length - 1) / 2);
 
             rows.forEach(item => {
-            const tr = document.createElement("tr");
+                const tr = document.createElement("tr");
 
-            // 🎨 Warna per-cycle : ganjil/ genap
-            const bgColor = (cycleNumber % 2 === 0) ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
-            tr.style.backgroundColor = bgColor;
+                // 🎨 Warna per-cycle : ganjil/ genap
+                const bgColor = (cycleNumber % 2 === 0) ? "rgb(220, 220, 220)" : "rgb(250, 235, 215)";
+                tr.style.backgroundColor = bgColor;
 
-            tr.dataset.id = item.id;
+                tr.dataset.id = item.id;
 
-            const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
-            if (!isVisible) {
-                tr.style.display = "none";
-                tr.classList.add("not-draggable");
-            } else if (item.status !== 'scheduled') {
-                tr.classList.add("not-draggable");
-            }
+                const isVisible = item.status === 'scheduled' || item.status === 'in_progress_dispensing';
+                if (!isVisible) {
+                    tr.style.display = "none";
+                    tr.classList.add("not-draggable");
+                } else if (item.status !== 'scheduled') {
+                    tr.classList.add("not-draggable");
+                }
 
-            // No (rowNumber dari backend)
-            tr.innerHTML += `<td align="center" class="row-number">${item.rowNumber}</td>`;
+                // No (rowNumber dari backend)
+                tr.innerHTML += `<td align="center" class="row-number">${item.rowNumber}</td>`;
 
-            // Cell "Cycle" hanya muncul di tengah baris aktif per cycle
-            const idxInActive = activeRows.findIndex(i => i.id === item.id);
-            if (idxInActive === middleIndex) {
-                tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
-            } else {
-                tr.innerHTML += `<td class="cycle-cell" style="opacity:0; pointer-events:none;"></td>`;
-            }
+                // Cell "Cycle" hanya muncul di tengah baris aktif per cycle
+                const idxInActive = activeRows.findIndex(i => i.id === item.id);
+                if (idxInActive === middleIndex) {
+                    tr.innerHTML += `<td class="cycle-cell">${item.cycleNumber}</td>`;
+                } else {
+                    tr.innerHTML += `<td class="cycle-cell" style="opacity:0; pointer-events:none;"></td>`;
+                }
 
-            // No. Resep + highlight
-            const resepShown = highlightMatch(item.no_resep || '', searchTerm);
-            const isOld = item.is_old_data == "1";
-            const isTest = item.is_test == "1"
-            const isBon = String(item.is_bonresep) === "1";
-            const jenis = (item.jenis_matching || "").trim();
-            const jenisSuffix = (!isBon && jenis) ? ` - ${jenis}` : "";
+                // No. Resep + highlight
+                const resepShown = highlightMatch(item.no_resep || '', searchTerm);
+                const isOld = item.is_old_data == "1";
+                const isTest = item.is_test == "1"
+                const isBon = String(item.is_bonresep) === "1";
+                const jenis = (item.jenis_matching || "").trim();
+                const jenisSuffix = (!isBon && jenis) ? ` - ${jenis}` : "";
 
-            tr.innerHTML += `
+                tr.innerHTML += `
             <td align="center" style="white-space:nowrap;">
                 ${resepShown}${jenisSuffix}
                 ${isOld ? '🕑' : ''}
                 ${isTest ? '<span class="label label-warning">TEST REPORT</span>' : ''}
             </td>`;
 
-            // Kolom lain
-            tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;
-            const noMachineRaw = (item.no_machine ?? "").toString().trim();
-            const noMachineShown = (!noMachineRaw || noMachineRaw.toLowerCase() === "null") ? "-" : noMachineRaw;
+                // Kolom lain
+                tr.innerHTML += `<td align="center" style="white-space:nowrap;">${item.product_name}</td>`;
+                const noMachineRaw = (item.no_machine ?? "").toString().trim();
+                const noMachineShown = (!noMachineRaw || noMachineRaw.toLowerCase() === "null") ? "-" : noMachineRaw;
 
-            if (isBon) {
-                tr.innerHTML += `<td align="center">-</td>`;
-            } else {
-                tr.innerHTML += `
+                if (isBon) {
+                    tr.innerHTML += `<td align="center">-</td>`;
+                } else {
+                    tr.innerHTML += `
                     <td align="center">
                     <span
                         class="editable-machine"
@@ -849,10 +855,10 @@
                         ${noMachineShown}
                     </span>
                     </td>`;
-            }
-            tr.innerHTML += `<td align="center">${item.status}</td>`;
+                }
+                tr.innerHTML += `<td align="center">${item.status}</td>`;
 
-            tbodyElement.appendChild(tr);
+                tbodyElement.appendChild(tr);
             });
         });
     }
