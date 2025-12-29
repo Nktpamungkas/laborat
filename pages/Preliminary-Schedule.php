@@ -1521,7 +1521,7 @@ $is_scheduling = ($row['is_scheduling'] == 1);
                                     .append(`
                                         <label id="bonResepInfo" class="control-label blink"
                                             style="color:Red; font-weight:bold; margin-left:10px;">
-                                            BON RESEP dengan DyeStuff "D" tidak DITEMUKAN
+                                            BON RESEP dengan DyeStuff "D / Y / R" tidak DITEMUKAN
                                         </label>
                                     `);
 
