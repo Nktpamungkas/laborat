@@ -199,7 +199,7 @@
 				";
 				exit;
 			} else {
-				echo "There's been a problem: " . mysqli_error();
+				echo "There's been a problem: " . mysqli_error($con);
 			}
 		}
 	?>
@@ -366,7 +366,7 @@
 			<select name="no_item" class="form-control selectNoItem" id="no_item" onchange="window.location='?p=Form-Matching&idk=<?php echo $_GET['idk']; ?>&iditem='+this.value+'&Dystf='+document.getElementById(`Dyestuff`).value+'&jn_mcng='+document.getElementById(`jen_matching`).value" required style="width: 400px;">
 				<option value="">Pilih</option>
 				<?php //while ($r = sqlsrv_fetch_array($sqljk)) { ?>
-					<option value="<?php// echo $r['id']; ?>" <?php //if ($_GET['iditem'] == $r['id']) { echo "SELECTED"; } ?>>
+					<option value="<?php // echo $r['id']; ?>" <?php //if ($_GET['iditem'] == $r['id']) { echo "SELECTED"; } ?>>
 						<?php //echo $r['hangerno'] . "-" . $r['colorno'] . " | " . $r['color']; ?>
 					</option>
 				<?php // } ?>
@@ -640,7 +640,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -824,7 +824,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -1068,7 +1068,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -1255,7 +1255,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -1878,7 +1878,7 @@
 		<div class="col-sm-3">
 			<!-- Checkbox None -->
 			<label style="color: red;">
-				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()" <?php if ($_GET['Dystf'] === 'R') echo 'checked'; ?>> ❌ None - Suhu Chamber
+				<input type="checkbox" id="none_suhu_chamber" name="none_suhu_chamber" value="none" onchange="toggleNoneSuhu()"> ❌ None - Suhu Chamber
 			</label>
 		</div>
 	</div>
@@ -2592,6 +2592,40 @@
 			toggleTemp2();
 			dyestuffSelect.addEventListener('change', toggleTemp2);
 		}
+	});
+</script>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		var dyestuff = document.getElementById('Dyestuff');
+		if (!dyestuff) return;
+
+		function syncNoneSuhuWithDyestuff() {
+			var isR = dyestuff.value === 'R';
+			var noneCheckboxes = document.querySelectorAll('input[name="none_suhu_chamber"]');
+
+			noneCheckboxes.forEach(function (cb) {
+				cb.checked = isR;
+
+				var group = cb.closest('.form-group');
+				if (!group) return;
+
+				var suhuCheckbox = group.querySelector('input[id="suhu_chamber"]');
+				var inputSuhu    = group.querySelector('input[id="input_suhu"]');
+
+				if (isR) {
+					if (suhuCheckbox) suhuCheckbox.checked = false;
+					if (inputSuhu) {
+						inputSuhu.style.display = 'none';
+						inputSuhu.value = 'none';
+					}
+				}
+			});
+		}
+
+		// Jalankan saat awal load dan setiap kali Dyestuff berubah
+		syncNoneSuhuWithDyestuff();
+		dyestuff.addEventListener('change', syncNoneSuhuWithDyestuff);
 	});
 </script>
 
