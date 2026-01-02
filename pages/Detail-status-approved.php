@@ -1296,9 +1296,9 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                 <td colspan="3">:
                                     <?php
                                     if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
-                                        echo substr($data['idm'], 1) . 'L';
+                                        echo substr(substr($data['idm'], 1), 3) . 'L';
                                     } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
-                                        echo substr($data['idm'], 2) . 'L';
+                                        echo substr(substr($data['idm'], 2), 3) . 'L';
                                     }
                                     ?>
                                 </td>
@@ -1493,9 +1493,9 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                     <td>:
                                         <?php
                                         if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
-                                            echo substr($data['idm'], 1) . 'L';
+                                            echo substr(substr($data['idm'], 1), 3) . 'L';
                                         } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
-                                            echo substr($data['idm'], 2) . 'L';
+                                            echo substr(substr($data['idm'], 2), 3) . 'L';
                                         }
                                         ?>
                                     </td>
@@ -1677,9 +1677,9 @@ if (substr(strtoupper($data['idm']), 0, 2) == "DR") {
                                     <td>:
                                         <?php
                                         if (substr(strtoupper($data['idm']), 0, 2) == 'R2' or substr(strtoupper($data['idm']), 0, 2) == 'A2' or substr(strtoupper($data['idm']), 0, 2) == 'D2' or substr(strtoupper($data['idm']), 0, 2) == 'C2') {
-                                            echo substr($data['idm'], 1) . 'L';
+                                            echo substr(substr($data['idm'], 1), 3) . 'L';
                                         } elseif (substr(strtoupper($data['idm']), 0, 2) == 'DR' or substr(strtoupper($data['idm']), 0, 2) == 'OB' or substr(strtoupper($data['idm']), 0, 2) == 'CD') {
-                                            echo substr($data['idm'], 2) . 'L';
+                                            echo substr(substr($data['idm'], 2), 3) . 'L';
                                         }
                                         ?>
                                     </td>
