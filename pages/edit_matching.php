@@ -49,8 +49,7 @@
             tgl_delivery='$_POST[tgl_delivery]',
             jenis_matching='$_POST[jen_matching]',
             temp_code='$tempCode',
-            temp_code2='$tempCode2',
-            for_forecast='$_POST[for_forecast]'
+            temp_code2='$tempCode2'
             where no_resep = '$_POST[no_resep]' LIMIT 1
             ");
 
@@ -514,24 +513,6 @@
             <input name="no_order" type="text" class="form-control" id="order" value="<?php echo $data['no_order'] ?>" required placeholder="No Order...">
         </div>
     </div>
-    <div class="form-group">
-		<label for="order" class="col-sm-2 control-label">For Forecast?</label>
-		<div class="col-sm-1">
-			<input type="hidden" name="for_forecast" value="0">
-			<div class="checkbox" style="margin-top: 5px;">
-				<label>
-					<input type="checkbox" id="for_forecast" name="for_forecast" value="<?= $data['for_forecast']; ?>" <?php if ($data['for_forecast'] == "1") echo "checked"; ?>>
-					Yes
-				</label>
-			</div>
-		</div>
-		<div class="col-sm-2">
-			<span style="color: red;">
-				*Apakah kartu matching ini digunakan untuk forecast? <br>
-				Jika ya, silahkah pilih "Yes" pada pilihan di samping.
-			</span>
-		</div>
-	</div>
     <div class="form-group">
         <label for="langganan" class="col-sm-2 control-label">Langganan</label>
         <div class="col-sm-8">

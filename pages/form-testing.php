@@ -522,7 +522,6 @@
 				<option value="" selected disabled>Pilih status</option>
 				<option value="normal">Normal</option>
 				<option value="urgent">Urgent</option>
-				
 				<option value="request">Request</option>
 			</select>
 		</div>
@@ -534,7 +533,6 @@
 			<input name="note_lab" type="text" class="form-control" id="note_lab" placeholder="Note Lab" value="" required>
 		</div>
 	</div>
-	
 	<div class="box-footer">
 		<div class="col-sm-2">
 			<button type="submit" class="btn btn-block btn-social btn-linkedin" name="simpan" style="width: 80%">Simpan <i class="fa fa-save"></i></button>
