@@ -1660,14 +1660,57 @@ $is_scheduling = ($row['is_scheduling'] == 1);
 </script>
 
 <script>
-    ['bottle_qty', 'bottle_qty_1', 'bottle_qty_2'].forEach(function(id) {
-        const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', function() {
-                if (this.value < 0) {
-                    this.value = 0;
-                }
-            });
+    // cegah alert bertubi-tubi saat user masih mengetik
+    let swalBusy = false;
+
+    async function warnMax10AndClear(el, label) {
+        if (swalBusy) return;
+        swalBusy = true;
+
+        const wasDisabled = el.disabled;
+        el.disabled = true;
+
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Melebihi batas',
+            text: `${label} tidak boleh lebih dari 10.`,
+            confirmButtonText: 'OK'
+        });
+
+        el.value = '';
+        el.disabled = wasDisabled;
+        el.focus();
+
+        swalBusy = false;
+    }
+
+    function normalizeNumber(val) {
+        if (val === '' || val === null || val === undefined) return null;
+        const n = Number(val);
+        return Number.isNaN(n) ? null : n;
+    }
+
+
+    $(document).on('input change', '#bottle_qty, #bottle_qty_1, #bottle_qty_test', async function() {
+        if (this.disabled) return;
+
+        const n = normalizeNumber(this.value);
+        if (n === null) return;
+
+        if (n < 0) {
+            this.value = 0;
+            return;
+        }
+
+        if (n > 10) {
+            const labelMap = {
+                bottle_qty: 'Bottle Quantity',
+                bottle_qty_1: 'Bottle Quantity',
+                bottle_qty_test: 'Bottle Quantity (Test Report)'
+            };
+
+            const label = labelMap[this.id] || 'Quantity';
+            await warnMax10AndClear(this, label);
         }
     });
 </script>

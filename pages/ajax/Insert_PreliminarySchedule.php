@@ -27,6 +27,14 @@ if (!$username) {
     exit;
 }
 
+if ($bottle_qty_1 > 10 || $bottle_qty_2 > 10 || $bottle_qty_test > 10) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Qty tidak boleh lebih dari 10!'
+    ]);
+    exit;
+}
+
 $checkReady = mysqli_query($con, "SELECT COUNT(*) as total FROM tbl_preliminary_schedule WHERE no_resep = '$no_resep' AND status = 'ready'");
 $dataReady = mysqli_fetch_assoc($checkReady);
 
