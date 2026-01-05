@@ -18,10 +18,13 @@
 	<?php
 	ini_set("error_reporting", 1);
 	session_start();
-	include "koneksi.php";
+	// require_once "../koneksi.php";
+	$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat");
 	function nourut($str)
 	{
-		include "koneksi.php";
+		// require_once "../koneksi.php";
+		$con=mysqli_connect("10.0.0.10","dit","4dm1n","db_laborat");
+
 		date_default_timezone_set('Asia/Jakarta');
 		$bln = date("ym");
 		$today = date("ymd");
