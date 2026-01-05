@@ -25,7 +25,7 @@ $rows = mysqli_fetch_all($sql, MYSQLI_ASSOC);
 		td,
 		th {
 			font-family: sans-serif, Roman, serif;
-			font-size: 12px; 
+			font-size: 12px;
 		}
 
 		td {
