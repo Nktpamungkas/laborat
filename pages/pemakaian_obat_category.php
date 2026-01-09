@@ -464,7 +464,8 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                                 WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
                                                 WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
                                                 ELSE s.USERPRIMARYUOMCODE
-                                            END AS SATUAN
+                                            END AS SATUAN,
+                                            TRIM(s.LOGICALWAREHOUSECODE) || '' || TRIM(s.TEMPLATECODE)  AS  LOGICALTEMPLATE
                                         FROM
                                             STOCKTRANSACTION s
                                         WHERE
@@ -476,6 +477,7 @@ $Bulan = $Thn2 . "-" . $Bln2;
                                             and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                             AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                         )
+                                         WHERE LOGICALTEMPLATE !='M101098'
                                         GROUP BY 
                                         ITEMTYPECODE,
                                         DECOSUBCODE01,

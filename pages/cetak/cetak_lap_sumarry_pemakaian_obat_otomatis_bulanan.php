@@ -660,6 +660,7 @@ if (file_exists($logoPath)) {
                                         DECOSUBCODE01,
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
+                                        WAREHOUSELOCATIONCODE,
                                         LOGICALWAREHOUSECODE,
                                         WHSLOCATIONWAREHOUSEZONECODE,
                                         LOTCODE,

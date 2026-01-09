@@ -3,6 +3,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
 $akhir = date('Y-m-d');
+// $akhir = date('2025-01-07');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));
@@ -651,6 +652,7 @@ if (file_exists($logoPath)) {
                                         DECOSUBCODE01,
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
+                                        WAREHOUSELOCATIONCODE,
                                         LOGICALWAREHOUSECODE,
                                         WHSLOCATIONWAREHOUSEZONECODE,
                                         LOTCODE,
