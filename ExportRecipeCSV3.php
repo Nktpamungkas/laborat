@@ -836,12 +836,12 @@ if ($jenis_suffix == "1") {
                                     END	as COMMENTLINE";
     $where_soaping      = "and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 2) = 'A2') and (not left(tsm.idm, 2) = 'D2' or not left(tsm.idm, 2) = 'DR')";
     $where_rc           = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR' or left(tsm.idm, 2) = 'A2') and not tsm.rc_tm = 0";
-    // $where_bleaching    = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
+    $where_bleaching    = "and (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
 } elseif ($jenis_suffix == "2") {
     $where_suhu         = "concat(trim(tsm.cside_c),'`C X ', trim(tsm.cside_min), ' MNT') as COMMENTLINE";
     $where_soaping      = "and (left(tsm.idm, 2) = 'R2' or left(tsm.idm, 3) = 'DR2' or left(tsm.idm, 2) = 'A2')";
     $where_rc           = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.rc_tm = 0";
-    // $where_bleaching    = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
+    $where_bleaching    = "and not (left(tsm.idm, 2) = 'CD' or left(tsm.idm, 2) = 'D2' or left(tsm.idm, 2) = 'DR') and not tsm.bleaching_tm = 0";
 }
 
 // EXPORT COMMENT
@@ -894,6 +894,22 @@ $sql_suhu_menit = mysqli_query($con, "SELECT
                                                     left join tbl_matching b on b.no_resep = tsm.idm
                                                     left join tbl_matching_detail a on a.id_matching = b.id
                                                     where tsm.idm = '$number_suffix' $where_rc
+                                                    group by b.no_resep
+                                                    union 
+                                                    SELECT
+                                                            b.recipe_code as recipe_code,
+                                                            SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 1), ' ', -1) as recipe_code_1,
+                                                            SUBSTRING_INDEX(SUBSTRING_INDEX(b.recipe_code, ' ', 2), ' ', -1) as recipe_code_2,
+                                                            case
+                                                                    when SUBSTRING(b.no_resep, 1,2) = 'DR' or SUBSTRING(b.no_resep, 1,2) = 'CD' or SUBSTRING(b.no_resep, 1,2) = 'OB' then CONCAT(SUBSTRING(b.no_resep, 3), 'L')
+                                                                    when SUBSTRING(b.no_resep, 1,2) = 'D2' or SUBSTRING(b.no_resep, 1,2) = 'R2' or SUBSTRING(b.no_resep, 1,2) = 'A2' then CONCAT(SUBSTRING(b.no_resep, 2), 'L')
+                                                            end as no_resep_convert,
+                                                            concat('BLEACHING ',trim(tsm.bleaching_sh),'`C X ', trim(tsm.bleaching_tm), ' MNT') as COMMENTLINE
+                                                    from 
+                                                            tbl_status_matching tsm 
+                                                    left join tbl_matching b on b.no_resep = tsm.idm
+                                                    left join tbl_matching_detail a on a.id_matching = b.id
+                                                    where tsm.idm = '$number_suffix' $where_bleaching 
                                                     group by b.no_resep
                                                     ");
 
