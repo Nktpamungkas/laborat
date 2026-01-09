@@ -293,41 +293,48 @@ if (file_exists($logoPath)) {
                                     SATUAN_MASUK");
                                     $row_stock_masuk = db2_fetch_assoc($stock_masuk) ?: [];
 
-                                    $qty_pakai = db2_exec($conn1, "SELECT 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        round(sum(AKTUAL_QTY_KELUAR)) AS AKTUAL_QTY_KELUAR,
-                                        SATUAN
-                                        FROM 
-                                        (SELECT
-                                            s.ITEMTYPECODE,
-                                            s.DECOSUBCODE01,
-                                            CASE 
-                                                when s.TEMPLATECODE = '098' and  s.TRANSACTIONDATE ='2025-10-05' AND s.LOGICALWAREHOUSECODE ='M510' then 0
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
-                                                ELSE s.USERPRIMARYQUANTITY
-                                            END AS AKTUAL_QTY_KELUAR,
-                                            CASE 
-                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                ELSE s.USERPRIMARYUOMCODE
-                                            END AS SATUAN
-                                        FROM
-                                            STOCKTRANSACTION s
-                                        WHERE
-                                            s.ITEMTYPECODE = 'DYC'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
-                                            --  AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
-                                            AND s.TEMPLATECODE  IN ('120','098')
-                                            AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
-                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                            AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
-                                        )
-                                        GROUP BY 
-                                        ITEMTYPECODE,
-                                        DECOSUBCODE01,
-                                        SATUAN");
+                                    $qty_pakai = db2_exec($conn1,  "SELECT 
+                                            ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            sum(AKTUAL_QTY_KELUAR) AS AKTUAL_QTY_KELUAR,
+                                            SATUAN
+                                            FROM 
+                                            (SELECT
+                                                s.ITEMTYPECODE,
+                                                s.DECOSUBCODE01,
+                                                s.DECOSUBCODE02,
+                                                s.DECOSUBCODE03,
+                                                CASE 
+                                                    when s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000
+                                                    ELSE s.USERPRIMARYQUANTITY
+                                                END AS AKTUAL_QTY_KELUAR,
+                                                CASE 
+                                                    WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                                    WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                                    ELSE s.USERPRIMARYUOMCODE
+                                                END AS SATUAN
+                                            FROM
+                                                STOCKTRANSACTION s
+                                            WHERE
+                                                s.ITEMTYPECODE = 'DYC'
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
+                                                AND s.TEMPLATECODE IN ('120','098')
+                                                and not (s.CREATIONUSER = 'azwani.najwa'   AND s.TEMPLATECODE = '098' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05'))
+                                                AND s.LOGICALWAREHOUSECODE  IN ('M510','M101')
+                                                and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
+                                                AND NOT TRIM(s.LOGICALWAREHOUSECODE) || '' || TRIM(s.TEMPLATECODE)  = 'M101098'
+                                                )
+                                            GROUP BY 
+                                            ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            SATUAN");
                                     $row_qty_pakai = db2_fetch_assoc($qty_pakai) ?: [];
 
                                     $Balance_stock = db2_exec($conn1, "SELECT 
@@ -478,6 +485,7 @@ if (file_exists($logoPath)) {
                                                 DECOSUBCODE02,
                                                 DECOSUBCODE03,
                                                 LONGDESCRIPTION,
+                                                WAREHOUSELOCATIONCODE,
                                                 WHSLOCATIONWAREHOUSEZONECODE,
                                                 BASEPRIMARYQUANTITYUNIT
                                             FROM tblopname_11 t

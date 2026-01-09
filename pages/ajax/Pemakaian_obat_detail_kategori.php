@@ -81,6 +81,7 @@ $query = "SELECT
                     AND s.LOGICALWAREHOUSECODE $warehouse
                     and s.DECOSUBCODE01 = '$code' 
                     AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
+                    AND NOT TRIM(s.LOGICALWAREHOUSECODE) || '' || TRIM(s.TEMPLATECODE)  = 'M101098'
                GROUP BY
                     s.TRANSACTIONDATE,
                     s.CREATIONUSER,
