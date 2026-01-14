@@ -165,12 +165,12 @@ if (file_exists($logoPath)) {
         echo "<td class='int' style='text-align:center'>$no</td>";
         echo "<td>{$r['kode_obat']}</td>";
         echo "<td>{$r['nama_obat']}</td>";
-        echo "<td class='number'>{$r['qty_awal']}</td>";
-        echo "<td class='number'>{$r['stock_masuk']}</td>";
-        echo "<td class='number'>{$r['stock_keluar']}</td>";
-        echo "<td class='number'>{$r['stock_transfer']}</td>";
-        echo "<td class='number'>{$r['total_out']}</td>";
-        echo "<td class='number'>{$r['stock_balance']}</td>";
+        echo "<td class='number'>" . round($r['qty_awal']) . "</td>";
+        echo "<td class='number'>" . round($r['stock_masuk']) . "</td>";
+        echo "<td class='number'>" . round($r['stock_keluar']) . "</td>";
+        echo "<td class='number'>" . round($r['stock_transfer']) . "</td>";
+        echo "<td class='number'>" . round($r['total_out']) . "</td>";
+        echo "<td class='number'>" . round($r['stock_balance']) . "</td>";
         echo "<td class='number'>{$r['stock_minimum']}</td>";
         echo "<td class='number'>{$r['buka_po']}</td>";
         echo "<td style='{$style}'>{$status}</td>";
