@@ -305,12 +305,12 @@ $page = strtolower($page);
                                         <a href="?p=Summary-Darkroom"><i class="fa fa-table text-green" aria-hidden="true"></i>
                                             <span>Summary Darkroom</span></a>
                                     </li>
-                                    <!-- <li class="divider"></li>
+                                    <li class="divider"></li>
 
                                     <li class="<?php if ($_GET['p'] == "Points-Awarded") echo "active"; ?>">
                                         <a href="?p=Points-Awarded"><i class="fa fa-star-o text-yellow" aria-hidden="true"></i>
                                             <span>Points Awarded</span></a>
-                                    </li> -->
+                                    </li>
                                 </ul>
                             <?php endif; ?>
 
