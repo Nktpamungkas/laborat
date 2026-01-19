@@ -1047,6 +1047,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         DECOSUBCODE02,
                                         DECOSUBCODE03,
                                         LOGICALWAREHOUSECODE,
+                                        WAREHOUSELOCATIONCODE,
                                         WHSLOCATIONWAREHOUSEZONECODE,
                                         LOTCODE,
                                         BASEPRIMARYQUANTITYUNIT

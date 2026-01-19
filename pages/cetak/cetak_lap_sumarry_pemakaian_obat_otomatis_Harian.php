@@ -667,7 +667,7 @@ if (file_exists($logoPath)) {
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
                                                 AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                                AND DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d')
+                                                AND tgl_tutup = '$awal'
                                         )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");    
                                     } 
