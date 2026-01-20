@@ -62,7 +62,8 @@ if($kategori=="DYESTUFF"){
 		            tgl_tutup,
                     WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
-		            BASEPRIMARYUNITCODE
+		            BASEPRIMARYUNITCODE,
+                    WAREHOUSELOCATIONCODE
 		        FROM tblopname_11
 		            WHERE  tgl_tutup = '$tgl_tutup' 
                     AND NOT kode_obat = 'E-1-000'
@@ -109,7 +110,8 @@ if($kategori=="DYESTUFF"){
 		            tgl_tutup,
                     WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
-		            BASEPRIMARYUNITCODE
+		            BASEPRIMARYUNITCODE,
+                    WAREHOUSELOCATIONCODE
 		        FROM tblopname_11
 		            WHERE  tgl_tutup = '$akhir' 
                     AND NOT kode_obat = 'E-1-000'
@@ -156,7 +158,8 @@ else if($kategori=="CHEMICAL"){
 		            tgl_tutup,
                     WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
-		            BASEPRIMARYUNITCODE
+		            BASEPRIMARYUNITCODE,
+                    WAREHOUSELOCATIONCODE
 		        FROM tblopname_11
 		            WHERE  tgl_tutup = '$tgl_tutup' 
 		            AND NOT kode_obat = 'E-1-000'
@@ -195,7 +198,8 @@ else if($kategori=="CHEMICAL"){
 		            tgl_tutup,
                     WHSLOCATIONWAREHOUSEZONECODE,
 		            BASEPRIMARYQUANTITYUNIT,
-		            BASEPRIMARYUNITCODE
+		            BASEPRIMARYUNITCODE,
+                    WAREHOUSELOCATIONCODE
 		        FROM tblopname_11
 		            WHERE  tgl_tutup = '$akhir' 
                     AND NOT kode_obat = 'E-1-000'
