@@ -1,372 +1,439 @@
 <?php
+ini_set("error_reporting", 1);
 session_start();
-require_once "koneksi.php";
-require_once __DIR__ . "/../vendor/autoload.php";
-
-use PhpOffice\PhpSpreadsheet\IOFactory;
-
-function h($s)
-{
-    return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
-}
-
-function normalizeHeader($x)
-{
-    $x = trim((string) $x);
-    $x = str_replace(["\n", "\r", "\t"], " ", $x);
-    $x = preg_replace('/\s+/', ' ', $x);
-    return strtoupper($x);
-}
-
-$requiredHeaders = [
-    'ITEMTYPECODE',
-    'LOGICALWAREHOUSECODE',
-    'DECOSUBCODE01',
-    'DECOSUBCODE02',
-    'DECOSUBCODE03',
-    'DECOSUBCODE04',
-    'DECOSUBCODE05',
-    'DECOSUBCODE06',
-    'DECOSUBCODE07',
-    'DECOSUBCODE08',
-    'DECOSUBCODE09',
-    'DECOSUBCODE10',
-    'WAREHOUSELOCATIONCODE',
-    'WHSLOCATIONWAREHOUSEZONECODE',
-    'LOTCODE',
-    'KODE_OBAT',
-    'LONGDESCRIPTION',
-    'BASEPRIMARYUNITCODE',
-    'BASEPRIMARYQUANTITYUNIT'
-];
-
-$msg = $_SESSION['flash_msg'] ?? '';
-unset($_SESSION['flash_msg']);
-
-// ====== HANDLE ACTIONS ======
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    // CLEAR preview
-    if (isset($_POST['clear'])) {
-        unset($_SESSION['opname_preview']);
-        $_SESSION['flash_msg'] = "Preview dibersihkan.";
-        header("Location: upload_opname.php");
-        exit;
-    }
-
-    // UPLOAD + READ EXCEL
-    if (isset($_POST['upload'])) {
-        $tgl_tutup = $_POST['tgl_tutup'] ?? '';
-        if ($tgl_tutup === '') {
-            $_SESSION['flash_msg'] = "Tanggal tutup wajib diisi.";
-            header("Location: upload_opname.php");
-            exit;
-        }
-
-        if (!isset($_FILES['file_excel']) || $_FILES['file_excel']['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['flash_msg'] = "Upload gagal. Coba ulang.";
-            header("Location: upload_opname.php");
-            exit;
-        }
-
-        $ext = strtolower(pathinfo($_FILES['file_excel']['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['xlsx', 'xls'])) {
-            $_SESSION['flash_msg'] = "File harus .xlsx atau .xls";
-            header("Location: upload_opname.php");
-            exit;
-        }
-
-        if (!is_dir(__DIR__ . "/uploads")) {
-            @mkdir(__DIR__ . "/uploads", 0777, true);
-        }
-
-        $tmp = $_FILES['file_excel']['tmp_name'];
-        $target = __DIR__ . "/uploads/opname_" . date('Ymd_His') . "_" . rand(100, 999) . "." . $ext;
-
-        if (!move_uploaded_file($tmp, $target)) {
-            $_SESSION['flash_msg'] = "Gagal menyimpan file upload.";
-            header("Location: upload_opname.php");
-            exit;
-        }
-
-        try {
-            $spreadsheet = IOFactory::load($target);
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray(null, true, true, true); // keyed by column letters
-
-            if (count($rows) < 2) {
-                $_SESSION['flash_msg'] = "Excel kosong / tidak ada data.";
-                header("Location: upload_opname.php");
-                exit;
-            }
-
-            // header row = baris 1
-            $headerRow = $rows[1];
-            $map = []; // fieldName => columnLetter
-            foreach ($headerRow as $col => $name) {
-                $hn = normalizeHeader($name);
-                if ($hn !== '')
-                    $map[$hn] = $col;
-            }
-
-            // cek header wajib
-            $missing = [];
-            foreach ($requiredHeaders as $rh) {
-                if (!isset($map[$rh]))
-                    $missing[] = $rh;
-            }
-            if ($missing) {
-                $_SESSION['flash_msg'] = "Header kolom Excel kurang: " . implode(", ", $missing);
-                header("Location: upload_opname.php");
-                exit;
-            }
-
-            $data = [];
-            for ($i = 2; $i <= count($rows); $i++) {
-                $r = $rows[$i];
-
-                // ambil minimal 1 kolom untuk deteksi baris kosong
-                $check = trim((string) ($r[$map['ITEMTYPECODE']] ?? ''));
-                $check2 = trim((string) ($r[$map['DECOSUBCODE01']] ?? ''));
-                if ($check === '' && $check2 === '')
-                    continue; // skip baris kosong
-
-                $row = [];
-                foreach ($requiredHeaders as $field) {
-                    $col = $map[$field];
-                    $row[$field] = isset($r[$col]) ? trim((string) $r[$col]) : '';
-                }
-                $data[] = $row;
-            }
-
-            if (!$data) {
-                $_SESSION['flash_msg'] = "Tidak ada data valid (baris kosong semua).";
-                header("Location: upload_opname.php");
-                exit;
-            }
-
-            $_SESSION['opname_preview'] = [
-                'tgl_tutup' => $tgl_tutup,
-                'file' => basename($target),
-                'rows' => $data
-            ];
-
-            $_SESSION['flash_msg'] = "Upload sukses. Data berhasil dibaca: " . count($data) . " baris.";
-            header("Location: upload_opname.php");
-            exit;
-
-        } catch (Exception $e) {
-            $_SESSION['flash_msg'] = "Gagal baca Excel: " . $e->getMessage();
-            header("Location: upload_opname.php");
-            exit;
-        }
-    }
-
-    // SAVE to DB
-    if (isset($_POST['save'])) {
-        if (empty($_SESSION['opname_preview']['rows'])) {
-            $_SESSION['flash_msg'] = "Tidak ada data preview untuk disimpan.";
-            header("Location: upload_opname.php");
-            exit;
-        }
-
-        $tgl_tutup = $_SESSION['opname_preview']['tgl_tutup'];
-        $rows = $_SESSION['opname_preview']['rows'];
-
-        mysqli_begin_transaction($con);
-
-        try {
-            $sql = "INSERT INTO tblopname_11a
-      (ITEMTYPECODE, LOGICALWAREHOUSECODE,
-       DECOSUBCODE01, DECOSUBCODE02, DECOSUBCODE03, DECOSUBCODE04, DECOSUBCODE05,
-       DECOSUBCODE06, DECOSUBCODE07, DECOSUBCODE08, DECOSUBCODE09, DECOSUBCODE10,
-       WAREHOUSELOCATIONCODE, WHSLOCATIONWAREHOUSEZONECODE,
-       LOTCODE, KODE_OBAT, LONGDESCRIPTION,
-       BASEPRIMARYUNITCODE, BASEPRIMARYQUANTITYUNIT,
-       tgl_tutup, tgl_buat)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, NOW())";
-
-            $stmt = mysqli_prepare($con, $sql);
-            if (!$stmt) {
-                throw new Exception("Prepare gagal: " . mysqli_error($con));
-            }
-
-            foreach ($rows as $r) {
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    "ssssssssssssssssssss",
-                    $r['ITEMTYPECODE'],
-                    $r['LOGICALWAREHOUSECODE'],
-                    $r['DECOSUBCODE01'],
-                    $r['DECOSUBCODE02'],
-                    $r['DECOSUBCODE03'],
-                    $r['DECOSUBCODE04'],
-                    $r['DECOSUBCODE05'],
-                    $r['DECOSUBCODE06'],
-                    $r['DECOSUBCODE07'],
-                    $r['DECOSUBCODE08'],
-                    $r['DECOSUBCODE09'],
-                    $r['DECOSUBCODE10'],
-                    $r['WAREHOUSELOCATIONCODE'],
-                    $r['WHSLOCATIONWAREHOUSEZONECODE'],
-                    $r['LOTCODE'],
-                    $r['KODE_OBAT'],
-                    $r['LONGDESCRIPTION'],
-                    $r['BASEPRIMARYUNITCODE'],
-                    $r['BASEPRIMARYQUANTITYUNIT'],
-                    $tgl_tutup
-                );
-
-                if (!mysqli_stmt_execute($stmt)) {
-                    throw new Exception("Execute gagal: " . mysqli_stmt_error($stmt));
-                }
-            }
-
-            mysqli_stmt_close($stmt);
-            mysqli_commit($con);
-
-            // kosongkan preview setelah sukses simpan
-            unset($_SESSION['opname_preview']);
-
-            $_SESSION['flash_msg'] = "Simpan sukses. Data masuk: " . count($rows) . " baris. Preview dikosongkan.";
-            header("Location: upload_opname.php");
-            exit;
-
-        } catch (Exception $e) {
-            mysqli_rollback($con);
-            $_SESSION['flash_msg'] = "Simpan gagal: " . $e->getMessage();
-            header("Location: upload_opname.php");
-            exit;
-        }
-    }
-}
-
-$preview = $_SESSION['opname_preview'] ?? null;
+include "koneksi.php";
 ?>
-<!DOCTYPE html>
-<html lang="id">
+<?php
+// Set nilai-nilai $_POST ke dalam session saat formulir disubmit
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $_SESSION['tgl'] = $_POST['tgl'];
+    $_SESSION['tgl2'] = $_POST['tgl2'];
+    $_SESSION['warehouse'] = $_POST['warehouse'];
+}
+?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-  <meta charset="utf-8">
-  <title>Upload Opname Excel</title>
-  <style>
-    body{font-family:Arial, sans-serif; background:#f6f7fb; margin:0; padding:20px;}
-    .card{background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:16px; margin-bottom:14px;}
-    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:end;}
-    label{font-size:12px; color:#374151; display:block; margin-bottom:6px;}
-    input[type="date"], input[type="file"]{padding:8px; border:1px solid #d1d5db; border-radius:8px; background:#fff;}
-    button{padding:9px 14px; border:0; border-radius:8px; cursor:pointer;}
-    .btn{background:#2563eb; color:white;}
-    .btn2{background:#10b981; color:white;}
-    .btn3{background:#ef4444; color:white;}
-    .msg{padding:10px 12px; border-radius:8px; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412;}
-    table{border-collapse:collapse; width:100%; font-size:12px;}
-    th,td{border:1px solid #e5e7eb; padding:6px 8px; white-space:nowrap;}
-    th{background:#f3f4f6; position:sticky; top:0;}
-    .table-wrap{max-height:420px; overflow:auto; border:1px solid #e5e7eb; border-radius:10px;}
-    .muted{color:#6b7280; font-size:12px;}
-  </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>LAB - Data Pemakaian Obat Tutup Transaksi Gd. Kimia</title>
 </head>
+<style>
+    .modal-backdrop {
+    z-index: 1040 !important;
+    }
+    .modal {
+    z-index: 1050 !important;
+    }
+    td.details-control {
+        background: url('bower_components/DataTable/img/details_open.png') no-repeat center center;
+        cursor: pointer;
+    }
+
+    tr.shown td.details-control {
+        background: url('bower_components/DataTable/img/details_close.png') no-repeat center center;
+    }
+
+    th {
+        font-size: 10pt;
+    }
+
+    td {
+        font-size: 9pt;
+    }
+
+    #Table-sm td,
+    #Table-sm th {
+        border: 0.1px solid #ddd;
+    }
+
+    #Table-sm th {
+        color: black;
+        background: #4CAF50;
+    }
+
+    #Table-sm_filter label input.form-control {
+        width: 500px;
+    }
+
+    #Table-sm tr:hover {
+        background-color: rgb(151, 170, 212);
+    }
+
+    #Table-sm>thead>tr>td {
+        border: 1px solid #ddd;
+    }
+
+    .btn-circle {
+        border-radius: 10px;
+        color: black;
+        font-weight: 800;
+    }
+
+    .btn-grp>a,
+    .btn-grp>button {
+        margin-top: 2px;
+    }
+</style>
+<style>
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 999; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 6px;
+  width: 60%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#Table-obat tbody tr:hover {
+    background-color: #f2f9ff; /* biru muda */
+    cursor: pointer;
+}
+#Table-obat.table-bordered th,
+#Table-obat.table-bordered td {
+    border: 1px solid #6c757d; /* abu tua, bisa diganti hitam (#000) */
+}
+
+.modal-dialog.modal-custom {
+    max-width: 95%;  /* bisa kamu ubah ke 90%, 98%, dll */
+    width: 95%;
+    margin: 30px auto;
+}
+
+.btn-fixed {
+        display: inline-block;
+        width: 100px; /* kamu bisa ubah jadi 80px atau 90px sesuai keinginan */
+        text-align: center;
+        padding: 6px 0;
+    }
+
+    td {
+        text-align: center; /* agar tombol di tengah kolom */
+        vertical-align: middle;
+    }
+
+    .btn-fixed {
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+}
+
+</style>
 <body>
-
-<?php if ($msg): ?>
-          <div class="msg card"><?= h($msg) ?></div>
-<?php endif; ?>
-
-<div class="card">
-  <h3 style="margin:0 0 10px 0;">Upload Excel Opname</h3>
-  <form method="post" enctype="multipart/form-data">
     <div class="row">
-      <div>
-        <label>Tanggal Tutup (tgl_tutup)</label>
-        <input type="date" name="tgl_tutup" value="<?= h($preview['tgl_tutup'] ?? '') ?>" required>
-      </div>
-      <div>
-        <label>File Excel (.xlsx / .xls)</label>
-        <input type="file" name="file_excel" accept=".xlsx,.xls" required>
-      </div>
-      <div>
-        <button class="btn" type="submit" name="upload">Upload & Preview</button>
-      </div>
-    </div>
-    <div class="muted" style="margin-top:10px;">
-      * Baris pertama Excel harus berisi header kolom sesuai field database.
-    </div>
-  </form>
-</div>
-
-<div class="card">
-  <h3 style="margin:0 0 10px 0;">Preview Data</h3>
-
-  <?php if (!$preview): ?>
-            <div class="muted">Belum ada data. Silakan upload file Excel.</div>
-  <?php else: ?>
-            <div class="muted" style="margin-bottom:10px;">
-              File: <b><?= h($preview['file']) ?></b> |
-              Tgl Tutup: <b><?= h($preview['tgl_tutup']) ?></b> |
-              Total baris: <b><?= count($preview['rows']) ?></b>
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"> Filter Data</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                <!-- <form method="post" enctype="multipart/form-data" name="form1" class="form-horizontal" id="form1"> -->                    
+                <form action="" method="post">
+                <div class="box-body">
+                        <div class="form-group">
+                            <div class="col-sm-2" style="display: flex; gap: 10px;">
+                            <input type="date" class="form-control" required
+                                    placeholder="Tanggal Awal" name="tgl"
+                                    value="<?php if (isset($_POST['submit'])) {
+                                        echo $_POST['tgl'];
+                                    } ?>"
+                                    required>                               
+                            </div>
+                            <div class="col-sm-2" style="display: flex; gap: 10px;">
+                                <input type="date" class="form-control" required
+                                    placeholder="Tanggal Akhir" name="tgl2"
+                                    value="<?php if (isset($_POST['submit'])) {
+                                        echo $_POST['tgl2'];
+                                    } ?>"
+                                    required>   
+                                    
+                                       <input name="time" type="text" class="form-control" id="time"
+                                    placeholder="00:00" pattern="[0-9]{2}:[0-9]{2}$"
+                                    title=" e.g 14:25" onkeyup="
+                                                        var time = this.value;
+                                                        if (time.match(/^\d{2}$/) !== null) {
+                                                            this.value = time + ':';
+                                                        } else if (time.match(/^\d{2}\:\d{2}$/) !== null) {
+                                                            this.value = time + '';
+                                                        }" value="<?php if (isset($_POST['submit'])) {
+                                                            echo $_POST['time'];
+                                                        } ?>" size="5" maxlength="5"
+                                    >
+                            </div>
+                            <!-- <div class="col-sm-2">
+                                <select name="warehouse" class="form-control"
+                                        style="width: 100%;" required>
+                                        <?php
+                                        $sqlDB = "SELECT  
+                                                            TRIM(CODE) AS CODE,
+                                                            LONGDESCRIPTION 
+                                                        FROM
+                                                            LOGICALWAREHOUSE
+                                                            WHERE CODE IN('M510','M101')
+                                                        ORDER BY 
+                                                            CODE ASC";
+                                        $stmt = db2_exec($conn1, $sqlDB);
+                                        while ($rowdb = db2_fetch_assoc($stmt)) {
+                                            ?>
+                                                <option value="<?= $rowdb['CODE']; ?>"
+                                                    <?php if ($rowdb['CODE'] == $_POST['warehouse']) {
+                                                        echo "SELECTED";
+                                                    } ?>>
+                                                    <?= $rowdb['CODE'] . " - " . $rowdb['LONGDESCRIPTION'];?>
+                                                </option>
+                                        <?php } ?>
+                                    </select>
+                            </div> -->
+                            <div class="col-sm-2">
+                            <button type="submit" name="submit"
+                                class="btn btn-primary btn-sm"><i
+                                    class="icofont icofont-search-alt-1"></i> Cari data</button>
+                            </div>                            
+                        </div>
+                    </div>                    
+                </form>         
             </div>
+        </div>
+    </div>
 
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <?php foreach ($requiredHeaders as $hcol): ?>
-                              <th><?= h($hcol) ?></th>
-                    <?php endforeach; ?>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($preview['rows'] as $r): ?>
-                            <tr>
-                              <?php foreach ($requiredHeaders as $hcol): ?>
-                                        <td><?= h($r[$hcol] ?? '') ?></td>
-                              <?php endforeach; ?>
-                            </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">                
+                <div class="box-header with-border">
+                <div class="card-header table-card-header">
+                    <h5>LAPORAN BULANAN PEMAKAIAN OBAT GUDANG KIMIA</h5>
+                </div>
+                    <div class="col-lg-12 overflow-auto table-responsive" style="overflow-x: auto;">  
+                        <div class="card-header mb-3 d-flex justify-content-end">
+                            <a href="pages/cetak/cetak_lap_sumarry_pemakaian_obat.php?" 
+                            class="btn btn-primary" 
+                            target="_blank"  data-warehouse="<?= $warehouse ?>">Cetak Excel</a><br><br>
+                        </div>                        
+                            <table id="Table-obat" class="table table-bordered table-hover" style="width: 100%;">
+                            <?php
+                                $code = $row['KODE_OBAT'];
+                                $tgl1 = $_POST['tgl'];
+                                $tgl2 = $_POST['tgl2'];
+                                $jam = $_POST['time'];
+                                // $warehouse = $_POST['warehouse'];
+                                $code1 = $row['DECOSUBCODE01'];
+                                $code2 = $row['DECOSUBCODE02'];
+                                $code3 = $row['DECOSUBCODE03'];
+
+                                $tahunBulan = date('Y-m', strtotime($tgl1));
+                                $kode_obat = $row['KODE_OBAT'];
+
+                                $date = new DateTime($tgl1);
+                                $date->modify('-1 month');
+                                $tahunBulan2 = $date->format('Y-m');
+
+                                    $q_qty_stock = mysqli_query($con, "SELECT 
+                                    *
+                                    from tblopname_11 ta 
+                                    where 
+                                    tgl_tutup ='$tgl2'
+                                    and KODE_OBAT = 'E-3-003'Y
+                                    and LOGICALWAREHOUSECODE in ('M510')
+                                    order by KODE_OBAT asc");        
+                                        
+                                ?>
+                                
+                                <thead>
+                                    <tr>
+                                        <th>Kode Obat</th>
+                                        <th>Dyestuff/Chemical</th>
+                                        <th>warehouse</th>
+                                        <th>Stock tgl 31</th>
+                                        <th>Pemakaian tgl 30 </th> 
+                                        <th>stock awal tgl 30-07-25</th>
+                                        <th>Tanggal tutup</th>    
+                                        <th>Tanggal tutup dan waktu</th>                                      
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php
+                                $no = 1;
+                                while ($row = mysqli_fetch_array($q_qty_stock)) {
+                                    // Hitung detik tambahan berdasarkan baris
+                                    $detikTambah = floor(($no - 1) / 20); // tiap 20 baris, tambah 1 detik
+                                
+                                    // Pisahkan jam dan tanggal awal
+                                    $datetimeAwal = "$tgl1 $jam"; // Misal: 2025-07-30 23:01
+                                
+                                    // Buat objek DateTime tanpa detik
+                                    $dt = new DateTime($datetimeAwal . ':00');
+
+                                    // Tambah detik secara aktual
+                                    $dt->modify("+$detikTambah seconds");
+
+                                    // Format datetime ke string
+                                    $waktu = $dt->format('Y-m-d H:i:s');
+
+                                $stock_keluar = db2_exec($conn1, "SELECT 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        sum(QTY_TRANSFER) AS QTY_TRANSFER,
+                                        SATUAN_TRANSFER
+                                        FROM 
+                                        (SELECT
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,
+                                            SUM(s.USERPRIMARYQUANTITY) AS QTY_TRANSFER,
+                                            CASE 
+                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                                ELSE s.USERPRIMARYUOMCODE
+                                            END AS SATUAN_TRANSFER
+                                        FROM
+                                            STOCKTRANSACTION s
+                                        WHERE
+                                            s.ITEMTYPECODE = 'DYC'
+                                            AND s.CREATIONDATETIME
+                                                BETWEEN '$tgl1 23:01:00' AND '$tgl2 23:00:59'
+                                            AND s.TEMPLATECODE IN ('120','098','303')
+                                            AND s.LOGICALWAREHOUSECODE in ('M510')
+                                            and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' AND
+                                            s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' AND
+                                            s.DECOSUBCODE03 = '$row[DECOSUBCODE03]' and 
+                                             s.LOGICALWAREHOUSECODE = '$row[LOGICALWAREHOUSECODE]' 
+                                        GROUP BY
+                                            s.ITEMTYPECODE,
+                                            s.DECOSUBCODE01,
+                                            s.DECOSUBCODE02,
+                                            s.DECOSUBCODE03,    
+                                            s.USERPRIMARYUOMCODE)
+                                        GROUP BY 
+                                        ITEMTYPECODE,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        SATUAN_TRANSFER");
+                                    $row_stock_transfer = db2_fetch_assoc($stock_keluar);                                                                
+                                
+                                
+                                    $qty_Stock =  $row['BASEPRIMARYQUANTITYUNIT'] ;
+
+                                        $qty_Transfer =  $row_stock_transfer['QTY_TRANSFER'] ;
+
+                                    $stock_tgl_sebelumnya = ($row['BASEPRIMARYQUANTITYUNIT'] + $row_stock_transfer['QTY_TRANSFER']);
+
+                                    ?>                               
+                                    <tr>
+                                        <td><?php echo $row['KODE_OBAT'] ?></td>
+                                        <td><?php echo $row['LONGDESCRIPTION'] ?></td>
+                                        <td><?php echo $row['LOGICALWAREHOUSECODE'] ?></td>
+                                        <td><?= $qty_Stock ?></td>                                                                                                         
+                                        <td>
+                                       <?= $qty_Transfer ?>
+                                        </td> 
+                                        <td><?= $stock_tgl_sebelumnya ?> </td>
+                                        <td><?= $tgl1 ?></td> 
+                                        <td><?= $waktu ?> </td>                                       
+                                </tr>                                   
+                                <?php
+                                    // $no++;
+
+                                    // $ipaddress = $_SERVER['REMOTE_ADDR'];
+                                    // $today = date('Y-m-d');
+
+                                    // include_once("koneksi.php");
+                                                                
+                                    // // Escape semua input untuk mencegah SQL Injection
+                                    // $kode_obat = mysqli_real_escape_string($con, $row['KODE_OBAT']);
+                                    // $nama_obat = mysqli_real_escape_string($con, $row['LONGDESCRIPTION']);
+                                    // $qty_awal = floatval(str_replace(',', '', $qty_awal));
+                                    // $stock_masuk = floatval(str_replace(',', '', $qty_masuk));
+                                    // $stock_keluar = floatval(str_replace(',', '', $qty_Keluar));
+                                    // $stock_transfer = floatval(str_replace(',', '', $qty_Transfer));
+                                    // $stock_balance = floatval(str_replace(',', '', $qty_stock_balance));
+                                    // $stock_minimum = floatval(str_replace(',', '', $qty_stock_minimum));
+                                    // $buka_po = floatval(str_replace(',', '', $qty_stock_buka_PO));
+                                    // $pakai_belum_timbang = floatval(str_replace(',', '', $qty_stock_pakai_belum_timbang));
+                                    // $balance_future = floatval(str_replace(',', '', $sisa_stock_balance_future));
+                                    // $status_ = mysqli_real_escape_string($con, $keterangan);
+                                    // $note = mysqli_real_escape_string($con, $row_stock_minimum['NOTELAB']);
+                                    // $sertifikat = mysqli_real_escape_string($con, $row_stock_minimum['CERTIFICATION']);
+                                    // $ip = mysqli_real_escape_string($con, $ipaddress);
+                                    // $warehouse = mysqli_real_escape_string($con, $_POST['warehouse']);
+
+                                    // $sql = "INSERT INTO tblopname_11a (
+                                    //             kode_obat,
+                                    //             nama_obat,
+                                    //             qty_awal,
+                                    //             stock_masuk,
+                                    //             stock_keluar,
+                                    //             stock_transfer,
+                                    //             stock_balance,
+                                    //             stock_minimum,
+                                    //             buka_po,
+                                    //             stock_pakai_blum_timbang,
+                                    //             stock_balance_future,
+                                    //             status_,
+                                    //             note,
+                                    //             ket_sertifikat,
+                                    //             tgl_tarik_data,
+                                    //             ip_address,
+                                    //             logicalwarehouse
+                                    //         ) VALUES (
+                                    //             '$kode_obat',
+                                    //             '$nama_obat',
+                                    //             $qty_awal,
+                                    //             $stock_masuk,
+                                    //             $stock_keluar,
+                                    //             $stock_transfer,
+                                    //             $stock_balance,
+                                    //             $stock_minimum,
+                                    //             $buka_po,
+                                    //             $pakai_belum_timbang,
+                                    //             $balance_future,
+                                    //             '$status_',
+                                    //             '$note',
+                                    //             '$sertifikat',
+                                    //             '$today',
+                                    //             '$ip',
+                                    //             '$warehouse'
+                                    //         )";
+
+                                    // $result = mysqli_query($con, $sql);
+
+                                    // if (!$result) {
+                                    //     die("Error executing query: " . mysqli_error($con));
+                                    // }
+                                }?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-            <form method="post" style="margin-top:12px; display:flex; gap:10px;">
-              <button class="btn2" type="submit" name="save">Simpan ke Database</button>
-              <button class="btn3" type="submit" name="clear" onclick="return confirm('Kosongkan preview?')">Kosongkan Preview</button>
-            </form>
-  <?php endif; ?>
-</div>
-
-    <script type="text/javascript" src="files\bower_components\jquery\js\jquery.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\jquery-ui\js\jquery-ui.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\popper.js\js\popper.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\bootstrap\js\bootstrap.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\jquery-slimscroll\js\jquery.slimscroll.js"></script>
-    <script type="text/javascript" src="files\bower_components\modernizr\js\modernizr.js"></script>
-    <script type="text/javascript" src="files\bower_components\modernizr\js\css-scrollbars.js"></script>
-    <script src="files\bower_components\datatables.net\js\jquery.dataTables.min.js"></script>
-    <script src="files\bower_components\datatables.net-buttons\js\dataTables.buttons.min.js"></script>
-    <script src="files\assets\pages\data-table\js\jszip.min.js"></script>
-    <script src="files\assets\pages\data-table\js\pdfmake.min.js"></script>
-    <script src="files\assets\pages\data-table\js\vfs_fonts.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\dataTables.buttons.min.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\buttons.flash.min.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\jszip.min.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\vfs_fonts.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\buttons.colVis.min.js"></script>
-    <script src="files\bower_components\datatables.net-buttons\js\buttons.print.min.js"></script>
-    <script src="files\bower_components\datatables.net-buttons\js\buttons.html5.min.js"></script>
-    <script src="files\bower_components\datatables.net-bs4\js\dataTables.bootstrap4.min.js"></script>
-    <script src="files\bower_components\datatables.net-responsive\js\dataTables.responsive.min.js"></script>
-    <script src="files\bower_components\datatables.net-responsive-bs4\js\responsive.bootstrap4.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\i18next\js\i18next.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\i18next-xhr-backend\js\i18nextXHRBackend.min.js">
-    </script>
-    <script type="text/javascript"
-        src="files\bower_components\i18next-browser-languagedetector\js\i18nextBrowserLanguageDetector.min.js"></script>
-    <script type="text/javascript" src="files\bower_components\jquery-i18next\js\jquery-i18next.min.js"></script>
-    <script src="files\assets\pages\data-table\extensions\buttons\js\extension-btns-custom.js"></script>
-    <script src="files\assets\js\pcoded.min.js"></script>
-    <script src="files\assets\js\menu\menu-hori-fixed.js"></script>
-    <script src="files\assets\js\jquery.mCustomScrollbar.concat.min.js"></script>
-    <script type="text/javascript" src="files\assets\js\script.js"></script>
+        </div>
+    </div>
 </body>
-
-</html>
