@@ -2,8 +2,8 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
-$akhir = date('Y-m-d');
-// $akhir = date('2025-01-07');
+// $akhir = date('Y-m-d');
+$akhir = date('2026-01-21');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));
@@ -133,7 +133,8 @@ if (file_exists($logoPath)) {
                 WHERE p.ITEMTYPECODE ='DYC'
                 AND a3.VALUEBOOLEAN = '1'
                 AND d.LOGICALWAREHOUSECODE IN ('M510', 'M101')
-            )
+            ) AS sub
+            -- where KODE_OBAT = 'D-4-011'
             ORDER BY KODE_OBAT ASC;");
             ?>
 
@@ -285,64 +286,64 @@ if (file_exists($logoPath)) {
                                                                 AND p.SUBCODE01 = s.DECOSUBCODE01
                                                                 AND p.SUBCODE02 = s.DECOSUBCODE02
                                                                 AND p.SUBCODE03 = s.DECOSUBCODE03
-                                        LEFT JOIN STOCKTRANSACTIONTEMPLATE s2 ON s2.CODE = s.TEMPLATECODE 
-                                        LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
-                                        LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
-                                        LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
-                                        LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
-                                        LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
-                                        LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
-                                        LEFT JOIN ( SELECT 
-                                            i.INTDOCUMENTPROVISIONALCODE,
-                                            i.INTDOCPROVISIONALCOUNTERCODE,
-                                            i.ORDERTYPE,
-                                            i.ORDERLINE ,
-                                            i.ITEMTYPEAFICODE,
-                                            i.SUBCODE01,
-                                            i.SUBCODE02,
-                                            i.SUBCODE03,
-                                            i.SUBCODE04,
-                                            i.SUBCODE05,
-                                            i.SUBCODE06,
-                                            i.SUBCODE07,
-                                            i.SUBCODE08,
-                                            i.SUBCODE09,
-                                            i.SUBCODE10,
-                                            i.ITEMDESCRIPTION,
-                                            i.DESTINATIONWAREHOUSECODE,
-                                            i.RECEIVINGDATE,
-                                            i.WAREHOUSECODE AS WAREHOUSE_ASAL
-                                            FROM 
-                                            INTERNALDOCUMENTLINE i 
-                                            WHERE i.ITEMTYPEAFICODE ='DYC'
-                                        ) i2 ON i2.INTDOCUMENTPROVISIONALCODE = s.ORDERCODE AND i2.ORDERLINE = s.ORDERLINE 
-                                        AND i2.SUBCODE01 = s.DECOSUBCODE01
-                                        AND i2.SUBCODE02 = s.DECOSUBCODE02
-                                        AND i2.SUBCODE03 = s.DECOSUBCODE03
-                                        WHERE
-                                            s.ITEMTYPECODE = 'DYC'
-                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir 23:00:00'
-                                            AND s.TEMPLATECODE IN ('201','203','303')
-                                            AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
-                                            AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                            AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
-                                            AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                            )  AS sub
-                                            WHERE template <> '303'
-                                            GROUP BY 
-                                            ITEMTYPECODE,
-                                            TEMPLATE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            SATUAN_TRANSFER)
-                                            GROUP BY 
-                                            ITEMTYPECODE,
-                                            DECOSUBCODE01,
-                                            DECOSUBCODE02,
-                                            DECOSUBCODE03,
-                                            SATUAN_TRANSFER");
+                                            LEFT JOIN STOCKTRANSACTIONTEMPLATE s2 ON s2.CODE = s.TEMPLATECODE 
+                                            LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
+                                            LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
+                                            LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
+                                            LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE IN ('M510','M101') AND s3.DETAILTYPE = 2
+                                            LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
+                                            LEFT JOIN USERGENERICGROUP u ON u.CODE = s.DECOSUBCODE01 AND u.USERGENERICGROUPTYPECODE ='S09'
+                                            LEFT JOIN ADSTORAGE a ON a.UNIQUEID = s.ABSUNIQUEID AND a.FIELDNAME ='KeteranganDYC'
+                                            LEFT JOIN ( SELECT 
+                                                i.INTDOCUMENTPROVISIONALCODE,
+                                                i.INTDOCPROVISIONALCOUNTERCODE,
+                                                i.ORDERTYPE,
+                                                i.ORDERLINE ,
+                                                i.ITEMTYPEAFICODE,
+                                                i.SUBCODE01,
+                                                i.SUBCODE02,
+                                                i.SUBCODE03,
+                                                i.SUBCODE04,
+                                                i.SUBCODE05,
+                                                i.SUBCODE06,
+                                                i.SUBCODE07,
+                                                i.SUBCODE08,
+                                                i.SUBCODE09,
+                                                i.SUBCODE10,
+                                                i.ITEMDESCRIPTION,
+                                                i.DESTINATIONWAREHOUSECODE,
+                                                i.RECEIVINGDATE,
+                                                i.WAREHOUSECODE AS WAREHOUSE_ASAL
+                                                FROM 
+                                                INTERNALDOCUMENTLINE i 
+                                                WHERE i.ITEMTYPEAFICODE ='DYC'
+                                            ) i2 ON i2.INTDOCUMENTPROVISIONALCODE = s.ORDERCODE AND i2.ORDERLINE = s.ORDERLINE 
+                                            AND i2.SUBCODE01 = s.DECOSUBCODE01
+                                            AND i2.SUBCODE02 = s.DECOSUBCODE02
+                                            AND i2.SUBCODE03 = s.DECOSUBCODE03
+                                            WHERE
+                                                s.ITEMTYPECODE = 'DYC'
+                                                AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir 23:00:00'
+                                                AND s.TEMPLATECODE IN ('201','203','303')
+                                                AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
+                                                AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
+                                                AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
+                                                )  AS sub
+                                                WHERE template <> '303'
+                                                GROUP BY 
+                                                ITEMTYPECODE,
+                                                TEMPLATE,
+                                                DECOSUBCODE01,
+                                                DECOSUBCODE02,
+                                                DECOSUBCODE03,
+                                                SATUAN_TRANSFER)
+                                                GROUP BY 
+                                                ITEMTYPECODE,
+                                                DECOSUBCODE01,
+                                                DECOSUBCODE02,
+                                                DECOSUBCODE03,
+                                                SATUAN_TRANSFER");
             $row_stock_transfer = db2_fetch_assoc($stock_transfer) ?: [];
 
 
@@ -394,100 +395,100 @@ if (file_exists($logoPath)) {
 
 
             $stock_masuk = db2_exec($conn1, " SELECT 
-                                                    ITEMTYPECODE,
-                                                    DECOSUBCODE01,
-                                                    DECOSUBCODE02,
-                                                    DECOSUBCODE03,
-                                                    round(sum(QTY_MASUK)) AS QTY_MASUK,
-                                                    SATUAN_MASUK
-                                                    FROM 
-                                                    (SELECT 
+                                            ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            round(sum(QTY_MASUK)) AS QTY_MASUK,
+                                            SATUAN_MASUK
+                                            FROM 
+                                            (SELECT 
+                                            ITEMTYPECODE,
+                                            TEMPLATE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            sum(QTY_MASUK) AS QTY_MASUK,
+                                            SATUAN_MASUK
+                                            FROM 
+                                            (SELECT    s.TRANSACTIONDATE,
+                                                    s.TRANSACTIONNUMBER,
+                                                    CASE 
+                                                        WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                        ELSE s.TEMPLATECODE
+                                                    END  as TEMPLATE,
+                                                    s3.LOGICALWAREHOUSECODE AS terimadarigd,
+                                                    s.TEMPLATECODE,
+                                                    s.ITEMTYPECODE,
+                                                    s.DECOSUBCODE01,
+                                                    s.DECOSUBCODE02,
+                                                    s.DECOSUBCODE03,
+                                                    s2.LONGDESCRIPTION, 
+                                                    p.LONGDESCRIPTION as NAMA_OBAT,
+                                                    TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
+                                                    CASE 
+                                                        when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
+                                                        WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
+                                                        WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000                                                               
+                                                        ELSE s.USERPRIMARYQUANTITY
+                                                    END AS QTY_MASUK,
+                                                    CASE 
+                                                        WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
+                                                        WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
+                                                        ELSE s.USERPRIMARYUOMCODE
+                                                    END AS SATUAN_MASUK,
+                                                    CASE 
+                                                        WHEN  s.TEMPLATECODE = 'OPN' THEN s2.LONGDESCRIPTION 
+                                                        WHEN  s.TEMPLATECODE = 'QCT' THEN s.ORDERCODE 
+                                                        WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                                                        WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                                                        WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                                                        WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
+                                                        WHEN  s.TEMPLATECODE = '125' THEN 'Retur dari ' || trim(s.ORDERCODE )
+                                                    END AS KETERANGAN                    
+                                                FROM
+                                                    STOCKTRANSACTION s
+                                                    LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
+                                                                        AND p.SUBCODE01 = s.DECOSUBCODE01
+                                                                        AND p.SUBCODE02 = s.DECOSUBCODE02
+                                                                        AND p.SUBCODE03 = s.DECOSUBCODE03
+                                                    LEFT JOIN STOCKTRANSACTIONTEMPLATE s2 ON s2.CODE = s.TEMPLATECODE 
+                                                    LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
+                                                    LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
+                                                    LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
+                                                    LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
+                                                    LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
+                                                    WHERE
+                                                        s.ITEMTYPECODE = 'DYC'
+                                                        -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
+                                                        AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir 23:00:00'
+                                                        AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
+                                                        AND NOT COALESCE(TRIM( CASE 
+                                                            WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
+                                                            ELSE s.TEMPLATECODE
+                                                        END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
+                                                    AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
+                                                    AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                    AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
+                                                    AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
+                                                    )  AS sub
+                                                    WHERE TEMPLATE <> '304'
+                                                    GROUP BY 
                                                     ITEMTYPECODE,
                                                     TEMPLATE,
                                                     DECOSUBCODE01,
                                                     DECOSUBCODE02,
                                                     DECOSUBCODE03,
-                                                    sum(QTY_MASUK) AS QTY_MASUK,
-                                                    SATUAN_MASUK
-                                                    FROM 
-                                                    (SELECT    s.TRANSACTIONDATE,
-                                                            s.TRANSACTIONNUMBER,
-                                                            CASE 
-                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
-                                                                ELSE s.TEMPLATECODE
-                                                            END  as TEMPLATE,
-                                                            s3.LOGICALWAREHOUSECODE AS terimadarigd,
-                                                            s.TEMPLATECODE,
-                                                            s.ITEMTYPECODE,
-                                                            s.DECOSUBCODE01,
-                                                            s.DECOSUBCODE02,
-                                                            s.DECOSUBCODE03,
-                                                            s2.LONGDESCRIPTION, 
-                                                            p.LONGDESCRIPTION as NAMA_OBAT,
-                                                            TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) AS KODE_OBAT,
-                                                            CASE 
-                                                                when s.CREATIONUSER = 'MT_STI'   AND s.TEMPLATECODE = 'OPN' and (s.TRANSACTIONDATE ='2025-07-13' or s.TRANSACTIONDATE ='2025-10-05') then 0
-                                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN s.USERPRIMARYQUANTITY * 1000000
-                                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN s.USERPRIMARYQUANTITY * 1000                                                               
-                                                                ELSE s.USERPRIMARYQUANTITY
-                                                            END AS QTY_MASUK,
-                                                            CASE 
-                                                                WHEN s.USERPRIMARYUOMCODE = 't' THEN 'g'
-                                                                WHEN s.USERPRIMARYUOMCODE = 'kg' THEN 'g'
-                                                                ELSE s.USERPRIMARYUOMCODE
-                                                            END AS SATUAN_MASUK,
-                                                            CASE 
-                                                                WHEN  s.TEMPLATECODE = 'OPN' THEN s2.LONGDESCRIPTION 
-                                                                WHEN  s.TEMPLATECODE = 'QCT' THEN s.ORDERCODE 
-                                                                WHEN  s.TEMPLATECODE = '304' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
-                                                                WHEN  s.TEMPLATECODE = '303' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
-                                                                WHEN  s.TEMPLATECODE = '203' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
-                                                                WHEN  s.TEMPLATECODE = '204' THEN 'Terima dari ' || trim(s3.LOGICALWAREHOUSECODE)
-                                                                WHEN  s.TEMPLATECODE = '125' THEN 'Retur dari ' || trim(s.ORDERCODE )
-                                                            END AS KETERANGAN                    
-                                                        FROM
-                                                            STOCKTRANSACTION s
-                                                            LEFT JOIN PRODUCT p ON p.ITEMTYPECODE = s.ITEMTYPECODE
-                                                                                AND p.SUBCODE01 = s.DECOSUBCODE01
-                                                                                AND p.SUBCODE02 = s.DECOSUBCODE02
-                                                                                AND p.SUBCODE03 = s.DECOSUBCODE03
-                                                        LEFT JOIN STOCKTRANSACTIONTEMPLATE s2 ON s2.CODE = s.TEMPLATECODE 
-                                                        LEFT JOIN INTERNALDOCUMENT i ON i.PROVISIONALCODE = s.ORDERCODE
-                                                        LEFT JOIN ORDERPARTNER o ON o.CUSTOMERSUPPLIERCODE = i.ORDPRNCUSTOMERSUPPLIERCODE
-                                                        LEFT JOIN LOGICALWAREHOUSE l ON l.CODE = o.CUSTOMERSUPPLIERCODE
-                                                        LEFT JOIN STOCKTRANSACTION s3 ON s3.TRANSACTIONNUMBER = s.TRANSACTIONNUMBER AND NOT s3.LOGICALWAREHOUSECODE = 'M101' AND  s3.DETAILTYPE = 1
-                                                        LEFT JOIN LOGICALWAREHOUSE l2 ON l2.CODE = s3.LOGICALWAREHOUSECODE
-                                                        WHERE
-                                                            s.ITEMTYPECODE = 'DYC'
-                                                            -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
-                                                            AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir 23:00:00'
-                                                            AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                                            AND NOT COALESCE(TRIM( CASE 
-                                                                WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
-                                                                ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
-                                                        AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
-                                                            AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
-                                                            AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
-                                                            AND s.DECOSUBCODE03 = '$row[DECOSUBCODE03]'
-                                                            )  AS sub
-                                                            WHERE TEMPLATE <> '304'
-                                                            GROUP BY 
-                                                            ITEMTYPECODE,
-                                                            TEMPLATE,
-                                                            DECOSUBCODE01,
-                                                            DECOSUBCODE02,
-                                                            DECOSUBCODE03,
-                                                            SATUAN_MASUK)
-                                                            GROUP BY 
-                                                            ITEMTYPECODE,
-                                                            DECOSUBCODE01,
-                                                            DECOSUBCODE02,
-                                                            DECOSUBCODE03,
-                                                            SATUAN_MASUK");
+                                                    SATUAN_MASUK)
+                                                    GROUP BY 
+                                                    ITEMTYPECODE,
+                                                    DECOSUBCODE01,
+                                                    DECOSUBCODE02,
+                                                    DECOSUBCODE03,
+                                                    SATUAN_MASUK");
             $row_stock_masuk = db2_fetch_assoc($stock_masuk) ?: [];
 
-
+            
             $tgl_input = $akhir; // Misal: 2025-08-15
             $tgl_sebelumnya = date('Y-m-01', strtotime('-6 months', strtotime($tgl_input)));
 
@@ -559,119 +560,145 @@ if (file_exists($logoPath)) {
             $row_buka_po = db2_fetch_assoc($buka_po) ?: [];
 
             $pakai_belum_timbang = db2_exec($conn1, "SELECT 
-                                                                                LOGICALWAREHOUSECODE,
-                                                                                COUNTERCODE,
-                                                                                ITEMTYPECODE,
-                                                                                DECOSUBCODE01,
-                                                                                DECOSUBCODE02,
-                                                                                DECOSUBCODE03,
-                                                                               STATUS,
-                                                                                round(sum(BASEPRIMARYQUANTITY)) AS USERPRIMARYQUANTITY,
-                                                                                BASEPRIMARYUNITCODE
-                                                                            FROM 
-                                                                                (
-                                                                                SELECT 
-                                                                                    v.WAREHOUSECODE AS LOGICALWAREHOUSECODE,
-                                                                                    p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
-                                                                                    v.PRODUCTIONORDERCODE AS ISTANCECODE,
-                                                                                    v.ITEMTYPEAFICODE AS ITEMTYPECODE,
-                                                                                    v.ISSUEDATE AS DUEDATE,
-                                                                                    v.SUBCODE01 AS DECOSUBCODE01,
-                                                                                    v.SUBCODE02 AS DECOSUBCODE02,
-                                                                                    v.SUBCODE03 AS DECOSUBCODE03,
-                                                                            	    v.PROGRESSSTATUS as STATUS,
-                                                                                    p.STATUS AS PRODUCTIONORDER_STATUS,
-                                                                                    CASE 
-                                                                                        WHEN v.BASEPRIMARYUOMCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
-                                                                                        WHEN v.BASEPRIMARYUOMCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
-                                                                                        ELSE BASEPRIMARYQUANTITY
-                                                                                    END AS BASEPRIMARYQUANTITY,
-                                                                                    v.BASEPRIMARYUOMCODE AS BASEPRIMARYUNITCODE
-                                                                                    FROM 
-                                                                                        PRODUCTIONRESERVATION v 
-                                                                                    LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.PRODUCTIONORDERCODE 
-                                                                                    WHERE 
-                                                                                        v.ITEMTYPEAFICODE ='DYC'
-                                                                            		    AND v.PROGRESSSTATUS = 0
-                                                                                        AND p.STATUS = 0
-                                                                                        AND p.PRODUCTIONORDERCOUNTERCODE = '640'
-                                                                                        AND v.WAREHOUSECODE  in ('M510','M101')
-                                                                                        AND v.SUBCODE01 = '$row[DECOSUBCODE01]' 
-                                                                                        AND v.SUBCODE02 = '$row[DECOSUBCODE02]' 
-                                                                                        AND v.SUBCODE03 = '$row[DECOSUBCODE03]' 
-                                                                                        AND v.ISSUEDATE BETWEEN '$awal' AND '$akhir')
-                                                                                GROUP BY 
-                                                                                    LOGICALWAREHOUSECODE,
-                                                                                    COUNTERCODE,
-                                                                            	    STATUS,
-                                                                                    ITEMTYPECODE,
-                                                                                    DECOSUBCODE01,
-                                                                                    DECOSUBCODE02,
-                                                                                    DECOSUBCODE03,
-                                                                                    BASEPRIMARYUNITCODE");
+                                            LOGICALWAREHOUSECODE,
+                                            COUNTERCODE,
+                                            ITEMTYPECODE,
+                                            DECOSUBCODE01,
+                                            DECOSUBCODE02,
+                                            DECOSUBCODE03,
+                                            STATUS,
+                                            round(sum(BASEPRIMARYQUANTITY)) AS USERPRIMARYQUANTITY,
+                                            BASEPRIMARYUNITCODE
+                                        FROM 
+                                            (
+                                            SELECT 
+                                                v.WAREHOUSECODE AS LOGICALWAREHOUSECODE,
+                                                p.PRODUCTIONORDERCOUNTERCODE AS COUNTERCODE,
+                                                v.PRODUCTIONORDERCODE AS ISTANCECODE,
+                                                v.ITEMTYPEAFICODE AS ITEMTYPECODE,
+                                                v.ISSUEDATE AS DUEDATE,
+                                                v.SUBCODE01 AS DECOSUBCODE01,
+                                                v.SUBCODE02 AS DECOSUBCODE02,
+                                                v.SUBCODE03 AS DECOSUBCODE03,
+                                                v.PROGRESSSTATUS as STATUS,
+                                                p.STATUS AS PRODUCTIONORDER_STATUS,
+                                                CASE 
+                                                    WHEN v.BASEPRIMARYUOMCODE ='kg' THEN v.BASEPRIMARYQUANTITY * 1000
+                                                    WHEN v.BASEPRIMARYUOMCODE ='t' THEN v.BASEPRIMARYQUANTITY * 1000000
+                                                    ELSE BASEPRIMARYQUANTITY
+                                                END AS BASEPRIMARYQUANTITY,
+                                                v.BASEPRIMARYUOMCODE AS BASEPRIMARYUNITCODE
+                                                FROM 
+                                                    PRODUCTIONRESERVATION v 
+                                                LEFT JOIN PRODUCTIONORDER p ON p.CODE = v.PRODUCTIONORDERCODE 
+                                                WHERE 
+                                                    v.ITEMTYPEAFICODE ='DYC'
+                                                    AND v.PROGRESSSTATUS = 0
+                                                    AND p.STATUS = 0
+                                                    AND p.PRODUCTIONORDERCOUNTERCODE = '640'
+                                                    AND v.WAREHOUSECODE  in ('M510','M101')
+                                                    AND v.SUBCODE01 = '$row[DECOSUBCODE01]' 
+                                                    AND v.SUBCODE02 = '$row[DECOSUBCODE02]' 
+                                                    AND v.SUBCODE03 = '$row[DECOSUBCODE03]' 
+                                                    AND v.ISSUEDATE BETWEEN '$awal' AND '$akhir')
+                                            GROUP BY 
+                                                LOGICALWAREHOUSECODE,
+                                                COUNTERCODE,
+                                                STATUS,
+                                                ITEMTYPECODE,
+                                                DECOSUBCODE01,
+                                                DECOSUBCODE02,
+                                                DECOSUBCODE03,
+                                                BASEPRIMARYUNITCODE");
             $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang) ?: [];
 
             // stok awal MySQL
-            $tahunBulan = date('Y-m', strtotime($awal));
-                                    $kode_obat = $row['KODE_OBAT'];
+            $kode_obat = $row['KODE_OBAT'];
 
-                                    $date = new DateTime($awal);
-                                    $date->modify('-1 month');
-                                    $tahunBulan2 = $date->format('Y-m');
+            $date = new DateTime($awal);
+            $date->modify('-1 month');
+            $tahunBulan2 = $date->format('Y-m');
 
-                                    if($tahunBulan2 == '2025-09') {
-                                        $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03,
-                                        round(SUM(qty_awal)) as qty_awal 
-                                        FROM stock_awal_obat_gdkimia_1
-                                        WHERE kode_obat = '$kode_obat'
-                                        AND logicalwarehouse  IN ('M510','M101')
-                                        group by 
-                                        kode_obat,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03  
-                                        ORDER BY kode_obat ASC");
-                                    }else{
-                                        $q_qty_awal = mysqli_query($con, "SELECT 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        round(SUM(BASEPRIMARYQUANTITYUNIT*1000)) AS qty_awal
-                                    FROM                                                      
-                                     (SELECT distinct 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        LONGDESCRIPTION,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        WAREHOUSELOCATIONCODE,
-                                        LOGICALWAREHOUSECODE,
-                                        WHSLOCATIONWAREHOUSEZONECODE,
-                                        LOTCODE,
-                                        BASEPRIMARYQUANTITYUNIT
-                                    FROM tblopname_11 t
-                                    WHERE 
-                                        KODE_OBAT = '$kode_obat'
-                                        AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                        AND tgl_tutup = (
-                                            SELECT MAX(DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d'))
-                                            FROM tblopname_11
-                                            WHERE 
-                                                KODE_OBAT = '$kode_obat'
-                                                AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                                AND tgl_tutup = '$awal'
-                                        )) AS SUB
-                                    GROUP BY tgl_tutup, KODE_OBAT");    
-                                    } 
-            $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
+            $row_qty_awal = []; 
+        
+            if ($tahunBulan2 == '2025-09') {
+
+            $sql_qty_awal = "SELECT kode_obat,
+                    SUBCODE01, SUBCODE02, SUBCODE03,
+                    round(SUM(qty_awal)) as qty_awal
+                FROM stock_awal_obat_gdkimia_1
+                WHERE kode_obat = '$kode_obat'
+                AND logicalwarehouse IN ('M510','M101')
+                GROUP BY kode_obat, SUBCODE01, SUBCODE02, SUBCODE03
+                ORDER BY kode_obat ASC";
+
+                $q_qty_awal = mysqli_query($con, $sql_qty_awal);
+                if (!$q_qty_awal) {
+                    // echo "<pre style='color:red'>MYSQL ERROR: ".mysqli_error($con)."</pre>";
+                    $row_qty_awal = [];
+                } else {
+                    $row_qty_awal = mysqli_fetch_assoc($q_qty_awal) ?: [];
+                }
+
+            } else {
+
+                // ambil tgl_tutup terakhir <= $awal
+                $sql_sub = "SELECT MAX(t2.tgl_tutup) AS hasil_sub
+                    FROM tblopname_11 t2
+                    WHERE t2.KODE_OBAT = '$kode_obat'
+                    AND t2.LOGICALWAREHOUSECODE IN ('M510','M101')
+                    AND t2.tgl_tutup <= '$awal'";
+
+                $hasil_sub = $awal;
+                $qs = mysqli_query($con, $sql_sub);
+                if (!$qs) {
+                    // echo "<pre style='color:red'>MYSQL SUB ERROR: ".mysqli_error($con)."</pre>";
+                } else {
+                    $rs = mysqli_fetch_assoc($qs);
+                    if (!empty($rs['hasil_sub'])) {
+                        $hasil_sub = $rs['hasil_sub'];
+                    }
+                }
+
+                $sql_qty_awal = "SELECT 
+                    tgl_tutup,
+                    DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                    KODE_OBAT,
+                    DECOSUBCODE01,
+                    DECOSUBCODE02,
+                    DECOSUBCODE03,
+                    round(SUM(BASEPRIMARYQUANTITYUNIT*1000)) AS qty_awal
+                FROM (
+                    SELECT DISTINCT 
+                        tgl_tutup,
+                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                        KODE_OBAT,
+                        LONGDESCRIPTION,
+                        DECOSUBCODE01,
+                        DECOSUBCODE02,
+                        DECOSUBCODE03,
+                        WAREHOUSELOCATIONCODE,
+                        LOGICALWAREHOUSECODE,
+                        WHSLOCATIONWAREHOUSEZONECODE,
+                        LOTCODE,
+                        BASEPRIMARYQUANTITYUNIT
+                    FROM tblopname_11 t
+                    WHERE 
+                        KODE_OBAT = '$kode_obat'
+                        AND LOGICALWAREHOUSECODE IN ('M510','M101')
+                        AND tgl_tutup = '$hasil_sub'
+                ) AS SUB
+                GROUP BY tgl_tutup, KODE_OBAT";
+
+                        $q_qty_awal = mysqli_query($con, $sql_qty_awal);
+                        if (!$q_qty_awal) {
+                            // echo "<pre style='color:red'>MYSQL ERROR: ".mysqli_error($con)."</pre>";
+                            $row_qty_awal = [];
+                        } else {
+                            $row_qty_awal = mysqli_fetch_assoc($q_qty_awal) ?: [];
+                        }
+                    }
+
 
             // hitung sebagai float (TANPA formatting)
             $qty_awal = fmt2($row_qty_awal['qty_awal'] ?? 0);
