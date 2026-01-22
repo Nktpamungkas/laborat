@@ -612,66 +612,92 @@ if (file_exists($logoPath)) {
             $row_pakai_belum_timbang = db2_fetch_assoc($pakai_belum_timbang) ?: [];
 
             // stok awal MySQL
-            $tahunBulan = date('Y-m', strtotime($awal));
-                                    $kode_obat = $row['KODE_OBAT'];
+            $kode_obat = $row['KODE_OBAT'];
 
-                                    $date = new DateTime($awal);
-                                    $date->modify('-1 month');
-                                    $tahunBulan2 = $date->format('Y-m');
+            $date = new DateTime($awal);
+            $date->modify('-1 month');
+            $tahunBulan2 = $date->format('Y-m');
 
-                                    if($tahunBulan2 == '2025-09') {
-                                        $q_qty_awal = mysqli_query($con, "SELECT kode_obat,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03,
-                                        round(SUM(qty_awal)) as qty_awal 
-                                        FROM stock_awal_obat_gdkimia_1
-                                        WHERE kode_obat = '$kode_obat'
-                                        AND logicalwarehouse  IN ('M510','M101')
-                                        group by 
-                                        kode_obat,
-                                        SUBCODE01,
-                                        SUBCODE02,
-                                        SUBCODE03  
-                                        ORDER BY kode_obat ASC");
-                                    }else{
-                                        $q_qty_awal = mysqli_query($con, "SELECT 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        round(SUM(BASEPRIMARYQUANTITYUNIT*1000)) AS qty_awal
-                                    FROM                                                      
-                                     (SELECT distinct 
-                                        tgl_tutup,
-                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
-                                        KODE_OBAT,
-                                        LONGDESCRIPTION,
-                                        DECOSUBCODE01,
-                                        DECOSUBCODE02,
-                                        DECOSUBCODE03,
-                                        WAREHOUSELOCATIONCODE,
-                                        LOGICALWAREHOUSECODE,
-                                        WHSLOCATIONWAREHOUSEZONECODE,
-                                        LOTCODE,
-                                        BASEPRIMARYQUANTITYUNIT
-                                    FROM tblopname_11 t
-                                    WHERE 
-                                        KODE_OBAT = '$kode_obat'
-                                        AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                        AND tgl_tutup = (
-                                            SELECT MAX(DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 DAY), '%Y-%m-%d'))
-                                            FROM tblopname_11
-                                            WHERE 
-                                                KODE_OBAT = '$kode_obat'
-                                                AND LOGICALWAREHOUSECODE  IN ('M510','M101')
-                                                AND tgl_tutup = '$awal'
-                                        )) AS SUB
-                                    GROUP BY tgl_tutup, KODE_OBAT");    
-                                    } 
-            $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
+            $row_qty_awal = []; // default
+        
+            if ($tahunBulan2 == '2025-09') {
+
+                $sql_qty_awal = "SELECT kode_obat,
+                    SUBCODE01, SUBCODE02, SUBCODE03,
+                    round(SUM(qty_awal)) as qty_awal
+                FROM stock_awal_obat_gdkimia_1
+                WHERE kode_obat = '$kode_obat'
+                AND logicalwarehouse IN ('M510','M101')
+                GROUP BY kode_obat, SUBCODE01, SUBCODE02, SUBCODE03
+                ORDER BY kode_obat ASC";
+
+                $q_qty_awal = mysqli_query($con, $sql_qty_awal);
+                if (!$q_qty_awal) {
+                    // kalau mau lihat error:
+                    // echo "<pre style='color:red'>MYSQL ERROR: ".mysqli_error($con)."</pre>";
+                    $row_qty_awal = [];
+                } else {
+                    $row_qty_awal = mysqli_fetch_assoc($q_qty_awal) ?: [];
+                }
+
+            } else {
+
+                // ambil tgl_tutup terakhir <= $awal
+                $sql_sub = "SELECT MAX(t2.tgl_tutup) AS hasil_sub
+                FROM tblopname_11 t2
+                WHERE t2.KODE_OBAT = '$kode_obat'
+                AND t2.LOGICALWAREHOUSECODE IN ('M510','M101')
+                AND t2.tgl_tutup <= '$awal'";
+
+                $hasil_sub = $awal; // fallback
+                $qs = mysqli_query($con, $sql_sub);
+                if (!$qs) {
+                    // echo "<pre style='color:red'>MYSQL SUB ERROR: ".mysqli_error($con)."</pre>";
+                } else {
+                    $rs = mysqli_fetch_assoc($qs);
+                    if (!empty($rs['hasil_sub'])) {
+                        $hasil_sub = $rs['hasil_sub'];
+                    }
+                }
+
+                $sql_qty_awal = "SELECT 
+                    tgl_tutup,
+                    DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                    KODE_OBAT,
+                    DECOSUBCODE01,
+                    DECOSUBCODE02,
+                    DECOSUBCODE03,
+                    round(SUM(BASEPRIMARYQUANTITYUNIT*1000)) AS qty_awal
+        FROM (
+            SELECT DISTINCT 
+                tgl_tutup,
+                DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                KODE_OBAT,
+                LONGDESCRIPTION,
+                DECOSUBCODE01,
+                DECOSUBCODE02,
+                DECOSUBCODE03,
+                WAREHOUSELOCATIONCODE,
+                LOGICALWAREHOUSECODE,
+                WHSLOCATIONWAREHOUSEZONECODE,
+                LOTCODE,
+                BASEPRIMARYQUANTITYUNIT
+            FROM tblopname_11 t
+            WHERE 
+                KODE_OBAT = '$kode_obat'
+                AND LOGICALWAREHOUSECODE IN ('M510','M101')
+                AND tgl_tutup = '$hasil_sub'
+        ) AS SUB
+        GROUP BY tgl_tutup, KODE_OBAT";
+
+                $q_qty_awal = mysqli_query($con, $sql_qty_awal);
+                if (!$q_qty_awal) {
+                    // echo "<pre style='color:red'>MYSQL ERROR: ".mysqli_error($con)."</pre>";
+                    $row_qty_awal = [];
+                } else {
+                    $row_qty_awal = mysqli_fetch_assoc($q_qty_awal) ?: [];
+                }
+            }
 
             // hitung sebagai float (TANPA formatting)
             $qty_awal = fmt2($row_qty_awal['qty_awal'] ?? 0);
