@@ -364,7 +364,14 @@
   function zeroBlankDownload(value){ return (value===0 || value==='0') ? '' : value; }
 
   /* ===== opsi Jenis Celup ===== */
-  var kainValues = { 'POLY':'POLY', 'COTTON':'COTTON', 'WHITE':'WHITE' };
+  var kainValues = {
+                      "P 135'C": "P 135'C",
+                      "C MU":    "C MU",
+                      "P 130'C": "P 130'C",
+                      "C LD":    "C LD",
+                      "P 120'C": "P 120'C",
+                      "W WHITE": "W WHITE",
+                    };
 
   function buildNamePairCols(prefix, titleGroup){
     var group = { title: titleGroup, headerHozAlign:'center', columns: [] };
@@ -678,8 +685,11 @@
 
     // Validasi pilihan Jenis Celup
     if (!missing.includes('Jenis Celup') && d.jenis_kain){
-      var allowedKain = { "POLY":true, "COTTON":true, "WHITE":true };
-      if (!allowedKain[String(d.jenis_kain).trim().toUpperCase()]){
+      var allowedKain = {};
+      Object.keys(kainValues).forEach(function(k){ allowedKain[k.toUpperCase()] = true; });
+
+      var vv = String(d.jenis_kain).trim().toUpperCase();
+      if (!allowedKain[vv]){
         missing.push('Jenis Celup (nilai tidak dikenal)');
         markCellError(row, 'jenis_kain', 'Pilih nilai yang tersedia');
       }
