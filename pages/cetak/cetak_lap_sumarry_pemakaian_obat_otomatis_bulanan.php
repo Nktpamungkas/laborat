@@ -473,7 +473,7 @@ if (file_exists($logoPath)) {
                                                             AND NOT COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                                                                 ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s3.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
+                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','303M101','304M510')
                                                         AND s.LOGICALWAREHOUSECODE IN ('M510','M101')
                                                             AND s.DECOSUBCODE01 = '$row[DECOSUBCODE01]' 
                                                             AND s.DECOSUBCODE02 = '$row[DECOSUBCODE02]' 
