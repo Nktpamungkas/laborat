@@ -561,7 +561,7 @@
                             (r.RECIPESUBCODE01 = '{$recipesubcode01}' OR r.RECIPESUBCODE01 = '{$recipesubcode02}')
                             AND (
                                     CASE
-                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
                                         ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
                                     END
                                 ) IN ('{$suffixClean}')
@@ -595,7 +595,7 @@
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
                                         AND (
                                             CASE
-                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
+                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
                                                 ELSE REPLACE(TRIM(SUFFIXCODE), '-', '')
                                             END
                                         ) IN ('{$suffixClean}')";
@@ -619,7 +619,7 @@
                                         (r.SUBCODE01 = '{$recipesubcode01}' OR r.SUBCODE01 = '{$recipesubcode02}')
                                         AND (
                                             CASE
-                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
+                                                WHEN LEFT(TRIM(SUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(SUFFIXCODE), 4), '-', '')
                                                 ELSE REPLACE(TRIM(SUFFIXCODE), '-', '')
                                             END
                                         ) IN ('{$suffixClean}')";
@@ -718,7 +718,7 @@
                                                     COALESCE(a2.VALUESTRING, '3')
                                             END AS RECIPE_NUMBER,
                                             CASE
-                                                WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
                                                 ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
                                             END AS SUFFIX_NORM
                                         FROM 
@@ -732,7 +732,7 @@
                                             r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
                                             AND (
                                                     CASE
-                                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                        WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
                                                         ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
                                                     END
                                                 ) IN (
@@ -876,7 +876,7 @@
                                                     WHEN RIGHT(TRIM(r.RECIPESUBCODE01), 1) = 'R' THEN 3
                                                 END AS RECIPE_NUMBER,
                                                 CASE
-                                                    WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN '250' THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                    WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
                                                     ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
                                                 END AS SUFFIX_NORM
                                             FROM 
@@ -887,7 +887,7 @@
                                                 r.RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
                                                 AND (
                                                         CASE
-                                                            WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
+                                                            WHEN LEFT(TRIM(r.RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(r.RECIPESUFFIXCODE), 4), '-', '')
                                                             ELSE REPLACE(TRIM(r.RECIPESUFFIXCODE), '-', '')
                                                         END
                                                     ) IN (
@@ -1080,7 +1080,7 @@
                                                 RECIPESUBCODE01 IN ('{$recipesubcode01}', '{$recipesubcode02}')
                                                 AND (
                                                         CASE
-                                                            WHEN LEFT(TRIM(RECIPESUFFIXCODE), 3) IN ('250', '260') THEN REPLACE(SUBSTR(TRIM(RECIPESUFFIXCODE), 4), '-', '')
+                                                            WHEN LEFT(TRIM(RECIPESUFFIXCODE), 3) IN ('240', '250', '260') THEN REPLACE(SUBSTR(TRIM(RECIPESUFFIXCODE), 4), '-', '')
                                                             ELSE REPLACE(TRIM(RECIPESUFFIXCODE), '-', '')
                                                         END
                                                     ) IN ('{$suffixClean}')
