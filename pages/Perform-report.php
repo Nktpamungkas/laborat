@@ -1,7 +1,7 @@
 <?php
     ini_set("error_reporting", 1);
     session_start();
-    include "koneksi.php";
+    require_once __DIR__ . '/../koneksi.php';
     if ($_POST['submit']) {
         $start_date = $_POST['start_date']." ".$_POST['time_start'];
         $end_date = $_POST['end_date']." ".$_POST['time_end'];
@@ -18,7 +18,7 @@
 
     function sisa_bulan_lalu($head_code, $month_param, $jenis_matching)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT substring(a.no_resep, 1,2) as headcd, a.jenis_matching, count(a.jenis_matching) as summary
         FROM tbl_matching a 
         left join tbl_status_matching b on a.no_resep = b.idm
@@ -31,7 +31,7 @@
 
     function masuk_bulan_ini($head_code, $start, $end, $jenis_matching)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT substring(a.no_resep, 1,2) as headcd, a.jenis_matching, count(a.jenis_matching) as summary
         FROM tbl_matching a 
         left join tbl_status_matching b on a.no_resep = b.idm
@@ -43,7 +43,7 @@
     }
     function belum_keluar_bulan_ini($head_code, $start, $end, $jenis_matching)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT substring(a.no_resep, 1,2) as headcd, a.jenis_matching, count(a.jenis_matching) as summary
         FROM tbl_matching a 
         left join tbl_status_matching b on a.no_resep = b.idm
@@ -57,7 +57,7 @@
 
     function keluar_bulan_ini($head_code, $start, $end, $jenis_matching)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT substring(a.no_resep, 1,2) as headcd, a.jenis_matching, count(a.jenis_matching) as summary
         FROM tbl_matching a 
         left join tbl_status_matching b on a.no_resep = b.idm
@@ -71,7 +71,7 @@
 
     function get_sum_by_matcher($final_matcher, $head_code, $start, $end, $jenis_matching)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT a.final_matcher, count(a.final_matcher) as summary, substring(b.no_resep, 1,2) as headcd, b.jenis_matching
         from tbl_status_matching a
         join tbl_matching b on a.idm = b.no_resep
@@ -84,7 +84,7 @@
 
     function get_summary($start, $end)
     {
-        include "koneksi.php";
+        global $con;
         $sql_ = mysqli_query($con,"SELECT a.final_matcher, count(a.final_matcher) as summary, substring(b.no_resep, 1,2) as headcd, b.jenis_matching
         from tbl_status_matching a
         join tbl_matching b on a.idm = b.no_resep
