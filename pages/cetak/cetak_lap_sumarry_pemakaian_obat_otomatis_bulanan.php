@@ -12,7 +12,7 @@ $awal_ = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
 
 // Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
 $akhir = date('Y-m-d 23:00:00');
-// $akhir = '2025-12-31 23:00:00';
+$akhir_ = date('Y-m-d');
 
 
 $awalParam = date('Y-m-d');
@@ -199,38 +199,38 @@ if (file_exists($logoPath)) {
         while ($row = db2_fetch_assoc($Balance_stock)) {
 
             // Jalankan query dan aman-kan hasilnya
-            $Balance_stock_gd_pisah = db2_exec($conn1, "SELECT 
-                                            b.ITEMTYPECODE,
-                                            b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000000
-                                                ELSE sum(b.BASEPRIMARYQUANTITYUNIT)
-                                            END  AS STOCK_BALANCE,
-                                            CASE 
-                                                WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
-                                                WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
-                                                ELSE b.BASEPRIMARYUNITCODE
-                                            END  AS BASEPRIMARYUNITCODE
-                                        FROM 
-                                            BALANCE b 
-                                        WHERE 
-                                            ITEMTYPECODE ='DYC'
-                                            AND LOGICALWAREHOUSECODE IN ('M510','M101')
-                                            AND DETAILTYPE = 1
-                                            AND DECOSUBCODE01 = '{$row['DECOSUBCODE01']}' 
-                                            AND DECOSUBCODE02 = '{$row['DECOSUBCODE02']}' 
-                                            AND DECOSUBCODE03 = '{$row['DECOSUBCODE03']}' 
-                                        GROUP BY 
-                                            ITEMTYPECODE,
-                                            b.DECOSUBCODE01,
-                                            b.DECOSUBCODE02,
-                                            b.DECOSUBCODE03,
-                                            b.BASEPRIMARYUNITCODE");
+            // $Balance_stock_gd_pisah = db2_exec($conn1, "SELECT 
+            //                                 b.ITEMTYPECODE,
+            //                                 b.DECOSUBCODE01,
+            //                                 b.DECOSUBCODE02,
+            //                                 b.DECOSUBCODE03,
+            //                                 CASE 
+            //                                     WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000
+            //                                     WHEN b.BASEPRIMARYUNITCODE = 't' THEN sum(b.BASEPRIMARYQUANTITYUNIT)*1000000
+            //                                     ELSE sum(b.BASEPRIMARYQUANTITYUNIT)
+            //                                 END  AS STOCK_BALANCE,
+            //                                 CASE 
+            //                                     WHEN b.BASEPRIMARYUNITCODE = 'kg' THEN 'g'
+            //                                     WHEN b.BASEPRIMARYUNITCODE = 't' THEN 'g'
+            //                                     ELSE b.BASEPRIMARYUNITCODE
+            //                                 END  AS BASEPRIMARYUNITCODE
+            //                             FROM 
+            //                                 BALANCE b 
+            //                             WHERE 
+            //                                 ITEMTYPECODE ='DYC'
+            //                                 AND LOGICALWAREHOUSECODE IN ('M510','M101')
+            //                                 AND DETAILTYPE = 1
+            //                                 AND DECOSUBCODE01 = '{$row['DECOSUBCODE01']}' 
+            //                                 AND DECOSUBCODE02 = '{$row['DECOSUBCODE02']}' 
+            //                                 AND DECOSUBCODE03 = '{$row['DECOSUBCODE03']}' 
+            //                             GROUP BY 
+            //                                 ITEMTYPECODE,
+            //                                 b.DECOSUBCODE01,
+            //                                 b.DECOSUBCODE02,
+            //                                 b.DECOSUBCODE03,
+            //                                 b.BASEPRIMARYUNITCODE");
 
-            $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah) ?: [];
+            // $row_Balance_stock_gd_pisah = db2_fetch_assoc($Balance_stock_gd_pisah) ?: [];
 
             $stock_transfer = db2_exec($conn1, "  SELECT 
                                             ITEMTYPECODE,
@@ -683,6 +683,43 @@ if (file_exists($logoPath)) {
                                     GROUP BY tgl_tutup, KODE_OBAT");    
                                     } 
             $row_qty_awal = mysqli_fetch_array($q_qty_awal) ?: [];
+
+            $Balance_stock_gd_pisah = mysqli_query($con, "SELECT 
+                                        tgl_tutup,
+                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                        KODE_OBAT,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        SUM(BASEPRIMARYQUANTITYUNIT*1000) AS STOCK_BALANCE
+                                    FROM                                                      
+                                     (SELECT distinct 
+                                        tgl_tutup,
+                                        DATE_FORMAT(DATE_SUB(tgl_tutup, INTERVAL 1 MONTH), '%Y-%m') AS tahun_bulan,
+                                        KODE_OBAT,
+                                        LONGDESCRIPTION,
+                                        DECOSUBCODE01,
+                                        DECOSUBCODE02,
+                                        DECOSUBCODE03,
+                                        LOGICALWAREHOUSECODE,
+                                        WAREHOUSELOCATIONCODE,
+                                        WHSLOCATIONWAREHOUSEZONECODE,
+                                        LOTCODE,
+                                        BASEPRIMARYQUANTITYUNIT
+                                    FROM tblopname_11 t
+                                    WHERE 
+                                        KODE_OBAT = '$kode_obat'
+                                        AND LOGICALWAREHOUSECODE  $where_warehouse
+                                        AND tgl_tutup = (
+                                            SELECT MAX(tgl_tutup)
+                                            FROM tblopname_11
+                                            WHERE 
+                                                KODE_OBAT = '$kode_obat'
+                                                AND LOGICALWAREHOUSECODE  $where_warehouse
+                                                AND tgl_tutup = '$akhir_'
+                                        )) AS SUB
+                                    GROUP BY tgl_tutup, KODE_OBAT");
+            $row_Balance_stock_gd_pisah = mysqli_fetch_array($Balance_stock_gd_pisah);
 
             // Konversi nilai aman
             $qty_awal = fmt2($row_qty_awal['qty_awal'] ?? 0);
