@@ -466,7 +466,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <?php if ($_POST['warehouse'] == 'M510 dan M101'): ?>
                                         <th>Total OUT</th>
                                         <?php endif; ?>
-                                        <th>Stock Balance</th>
+                                        <th>Sisa Stock</th>
                                         <th>Stock Minimum</th>
                                         <?php
                                         if ($_POST['warehouse'] == 'M510 dan M101') {

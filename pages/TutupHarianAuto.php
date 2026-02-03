@@ -1,7 +1,7 @@
 <?php
 include "../koneksi.php";
 ini_set("error_reporting", 1);
-$Awal = date("Y-m-d");
+$Awal = date("2026-01-27");
 //$Awal = date("Y-m-d", strtotime("-2 day"));
 
 $cektgl=mysqli_query($con,"SELECT DATE_FORMAT(NOW(),'%Y-%m-%d') as tgl,COUNT(tgl_tutup) as ck ,DATE_FORMAT(NOW(),'%H') as jam,DATE_FORMAT(NOW(),'%H:%i') as jam1 FROM tblopname_11 WHERE tgl_tutup='".$Awal."' LIMIT 1");
