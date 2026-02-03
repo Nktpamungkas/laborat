@@ -272,12 +272,13 @@ if (file_exists($logoPath)) {
                                         AND TIMESTAMP(s.TRANSACTIONDATE, s.TRANSACTIONTIME) BETWEEN '$awal 23:01:00' AND '$akhir'
                                         -- AND s.TRANSACTIONDATE BETWEEN '$awal' AND '$akhir'
                                         AND s.TEMPLATECODE IN ('QCT','304','OPN','204','125')
-                                        AND NOT COALESCE(TRIM( CASE 
+                                       AND NOT COALESCE(TRIM( CASE 
                                                                 WHEN s3.TEMPLATECODE IS NOT NULL THEN s3.TEMPLATECODE
                                                                 ELSE s.TEMPLATECODE
-                                                            END), '') || COALESCE(TRIM(s.LOGICALWAREHOUSECODE), '')  IN ('OPNM101','304M510')
-                                        and s.CREATIONUSER != 'MT_STI'
-                                        AND s.LOGICALWAREHOUSECODE IN ('M510', 'M101')
+                                                            END), '') || COALESCE(TRIM(CASE 
+                                                                WHEN  s3.LOGICALWAREHOUSECODE IS NOT NULL THEN  s3.LOGICALWAREHOUSECODE
+                                                                ELSE  s.LOGICALWAREHOUSECODE
+                                                            END), '')  IN ('OPNM101','303M101','304M510')
                                         and s.DECOSUBCODE01 = '$row[DECOSUBCODE01]'
                                         AND NOT TRIM(s.DECOSUBCODE01) || '-' || TRIM(s.DECOSUBCODE02) || '-' || TRIM(s.DECOSUBCODE03) ='E-1-000' 
                                     )
