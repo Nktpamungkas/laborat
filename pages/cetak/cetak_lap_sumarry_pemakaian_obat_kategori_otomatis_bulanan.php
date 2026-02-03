@@ -2,12 +2,14 @@
 date_default_timezone_set('Asia/Jakarta');
 // tanggal 1 di bulan berjalan jam 23:00:00
 $awaltanggal = date('Y-m-01 23:01:00');
+// $awaltanggal = date('2026-01-01 23:01:00');
 
 // Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($awaltanggal)));
 
 // Tanggal akhir = tanggal terakhir bulan berjalan jam 23:00:00
 $akhir = date('Y-m-d 23:00:00');
+// $akhir = date('2026-01-31 23:00:00');
 $akhir_ = date('Y-m-d');
 
 $awalParam = $_GET['awal'] ?? '';
@@ -562,7 +564,7 @@ if (file_exists($logoPath)) {
                 <td class='number'>" . number_format($qty_Keluar, 0, '.', ',') . "</td>
                 <td class='number'>" . number_format($qty_Transfer, 0, '.', ',') . "</td>
                 <td class='number'>" . number_format($total_out, 0, '.', ',') . "</td>
-                <td class='number'>" . '0' . "</td>
+                <td class='number'>" . number_format($qty_Balance, 0, '.', ',') . "</td>
                 <td  class='number'>" . '0' . "</td>
                 <td  class='number'>" . '0' . "</td>
                 <td>".' '."</td>

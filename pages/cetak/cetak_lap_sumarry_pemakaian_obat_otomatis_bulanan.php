@@ -4,7 +4,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 // tanggal 1 di bulan berjalan jam 23:00:00
 $awaltanggal = date('Y-m-01 23:01:00');
-// $awaltanggal = date('2025-12-01 23:01:00');
+// $awaltanggal = date('2026-01-01 23:01:00');
 
 // Tanggal awal = 1 hari sebelum tanggal 1 bulan berjalan
 $awal = date('Y-m-d 23:01:00', strtotime('-1 day', strtotime($awaltanggal)));
