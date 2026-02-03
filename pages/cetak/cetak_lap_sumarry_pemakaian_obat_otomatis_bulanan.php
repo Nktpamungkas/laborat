@@ -709,13 +709,13 @@ if (file_exists($logoPath)) {
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
-                                        AND LOGICALWAREHOUSECODE  $where_warehouse
+                                        AND LOGICALWAREHOUSECODE IN ('M510','M101')
                                         AND tgl_tutup = (
                                             SELECT MAX(tgl_tutup)
                                             FROM tblopname_11
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
-                                                AND LOGICALWAREHOUSECODE  $where_warehouse
+                                                AND LOGICALWAREHOUSECODE IN ('M510','M101')
                                                 AND tgl_tutup = '$akhir_'
                                         )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");

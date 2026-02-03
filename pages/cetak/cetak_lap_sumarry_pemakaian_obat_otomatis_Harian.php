@@ -2,8 +2,8 @@
 date_default_timezone_set('Asia/Jakarta');
 
 // tanggal akhir = hari ini
-$akhir = date('Y-m-d');
-// $akhir = date('2026-01-27');
+// $akhir = date('Y-m-d');
+$akhir = date('2026-02-02');
 
 // tanggal awal = 1 hari sebelum hari ini
 $awal = date('Y-m-d', strtotime('-1 day', strtotime($akhir)));
@@ -726,13 +726,13 @@ if (file_exists($logoPath)) {
                                     FROM tblopname_11 t
                                     WHERE 
                                         KODE_OBAT = '$kode_obat'
-                                        AND LOGICALWAREHOUSECODE  $where_warehouse
+                                        AND LOGICALWAREHOUSECODE  IN ('M510','M101')
                                         AND tgl_tutup = (
                                             SELECT MAX(tgl_tutup)
                                             FROM tblopname_11
                                             WHERE 
                                                 KODE_OBAT = '$kode_obat'
-                                                AND LOGICALWAREHOUSECODE  $where_warehouse
+                                                AND LOGICALWAREHOUSECODE  IN ('M510','M101')
                                                 AND tgl_tutup = '$akhir'
                                         )) AS SUB
                                     GROUP BY tgl_tutup, KODE_OBAT");
